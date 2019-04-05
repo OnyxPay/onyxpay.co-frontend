@@ -3,25 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "antd": "^3.16.1",
     "axios": "^0.18.0",
+    "babel-plugin-import": "^1.11.0",
+    "big-number": "^2.0.0",
     "connected-react-router": "^6.3.2",
+    "customize-cra": "^0.2.12",
     "formik": "^1.5.2",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
     "lodash": "^4.17.11",
+    "node-sass": "^4.11.0",
     "ontology-ts-sdk": "git+https://github.com/OnyxPay/ontology-ts-sdk.git",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
+    "react-app-rewired": "^2.1.1",
     "react-dom": "^16.8.6",
     "react-redux": "^6.0.1",
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "sanitize.css": "^8.0.0"
+    "sanitize.css": "^8.0.0",
+    "styled-components": "^4.2.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
