@@ -1,7 +1,8 @@
 .content-wrapper {
-  margin: 64px 0 0 240px;
+  margin: 58px 0 0 240px;
+  transition: all 0.3s;
   &.collapsed {
-    margin: 64px 0 0 80px;
+    margin: 58px 0 0 80px;
   }
 }
 
@@ -12,13 +13,14 @@
   left: 0;
   padding-top: 120px;
   top: 0;
+  z-index: 99;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 575px) {
   .content-wrapper {
-    margin: 64px 0 0 0;
+    margin: 58px 0 0 0;
     &.collapsed {
-      margin: 64px 0 0 0;
+      margin: 58px 0 0 0;
     }
   }
 }

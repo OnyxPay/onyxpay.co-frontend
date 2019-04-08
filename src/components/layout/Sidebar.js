@@ -17,8 +17,11 @@ class Sidebar extends React.Component {
   }
 
   updateDimensions() {
-    if (window.innerWidth < 480) {
+    const { xsDevise } = this.state;
+    if (window.innerWidth <= 575 && !xsDevise) {
       this.setState({ xsDevise: true });
+    } else if (window.innerWidth > 575 && xsDevise) {
+      this.setState({ xsDevise: false });
     }
   }
 
