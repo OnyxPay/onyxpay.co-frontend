@@ -20,7 +20,7 @@ class App extends Component {
     return (
       <Layout style={{ minHeight: "100vh" }}>
         <Header toggleSidebar={this.toggleSidebar} isSidebarCollapsed={collapsed} />
-        <Layout style={collapsed ? { margin: "64px 0 0 80px" } : { margin: "64px 0 0 240px" }}>
+        <Layout className={collapsed ? "content-wrapper collapsed" : "content-wrapper"}>
           <Sidebar collapsed={collapsed} />
           <Layout>
             <MainContent>
