@@ -3,7 +3,7 @@ export const CLEAR_LOGS = "CLEAR_LOGS";
 
 const initialState = JSON.parse(localStorage.getItem("logs")) || [];
 
-export default (state = initialState, action) => {
+export const logsReducer = (state = initialState, action) => {
   switch (action.type) {
     case WRITE_LOG:
       let logs = [...state, action.payload];

@@ -29,4 +29,9 @@ function configureStore(initialState) {
 
   return store;
 }
-export default configureStore({});
+
+const store = configureStore({});
+
+export function getStore() {
+  return store;
+}

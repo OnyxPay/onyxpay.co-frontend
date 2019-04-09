@@ -1,0 +1,49 @@
+{
+  "name": "8ff4024e-fa89-461a-aa24-4510e8aaae01",
+  "defaultOntid": "",
+  "defaultAccountAddress": "AdnhncNBiFYTHYJLqrEa59jVJBkGm7w6iZ",
+  "createTime": "2019-03-27T16:32:33.552Z",
+  "version": "1.0",
+  "scrypt": {
+    "n": 4096,
+    "r": 8,
+    "p": 8,
+    "dkLen": 64
+  },
+  "identities": [],
+  "accounts": [
+    {
+      "address": "AdnhncNBiFYTHYJLqrEa59jVJBkGm7w6iZ",
+      "label": "6f245c32-18be-464a-8932-c1d5f8addd7c",
+      "lock": false,
+      "algorithm": "ECDSA",
+      "parameters": {
+        "curve": "P-256"
+      },
+      "key": "LnzjM9PiDlYA5jxvwgiNRhcfQiHL0OR8MlhnuPdcne+fblPRHQRchPuKlCmamhtG",
+      "enc-alg": "aes-256-gcm",
+      "hash": "sha256",
+      "salt": "KrpqsPCgz0hkxOFm+fVJCw==",
+      "isDefault": false,
+      "publicKey": "03bf3715610075d3771486424e4c4a18f45fb2f3e97a51963237160df0a60be9a9",
+      "signatureScheme": "SHA256withECDSA"
+    },
+    {
+      "address": "AeHn5kU3eUuMQxmymHUa7fEpicK7bEVBUM",
+      "label": "0111bacb-97cf-42a3-877c-25c6584b70df",
+      "lock": false,
+      "algorithm": "ECDSA",
+      "parameters": {
+        "curve": "P-256"
+      },
+      "key": "q/oJYfhOwlz/u5/3E2J3q2UqlI1F2Y7rYyAJ7cjQhzJmGfrdC8SbMo6AlKFOq2FU",
+      "enc-alg": "aes-256-gcm",
+      "hash": "sha256",
+      "salt": "0hw8+wn/hmlDImsHrWtZcA==",
+      "isDefault": false,
+      "publicKey": "02c3e9614586d7c1921e38fce6b6a5d6e159ac52f2acb5bf82d729eeca2c839d3c",
+      "signatureScheme": "SHA256withECDSA"
+    }
+  ],
+  "extra": null
+}

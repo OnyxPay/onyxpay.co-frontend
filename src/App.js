@@ -3,11 +3,16 @@ import { Route, Switch } from "react-router-dom";
 import { Home, Page404 } from "./pages";
 import { Layout } from "antd";
 import { Header, Footer, MainContent, Sidebar } from "./components";
+import { getContractsAddress } from "./api/contracts";
 
 class App extends Component {
   state = {
     collapsed: false
   };
+
+  componentDidMount() {
+    getContractsAddress();
+  }
 
   toggleSidebar = () => {
     this.setState({
