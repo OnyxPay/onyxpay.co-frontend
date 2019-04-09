@@ -1,6 +1,5 @@
 import { Crypto, utils } from "ontology-ts-sdk";
-
-const addressOfHead = "b93ade3f201bdc5ab0f9a07283ba4078ff00563e";
+import { addressOfHead } from "../api/constants";
 
 export const gasPrice = 500;
 
