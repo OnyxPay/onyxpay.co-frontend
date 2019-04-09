@@ -1,3 +1,3 @@
 import { Home } from "./home.js";
-
-export { Home };
+import { Page404 } from "./404";
+export { Home, Page404 };

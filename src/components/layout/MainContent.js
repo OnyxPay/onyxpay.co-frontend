@@ -5,6 +5,8 @@ export const MainContent = styled.main`
   flex: auto;
   min-height: 0;
   padding: 30px;
-  /* background-color: #fff; */
   min-height: 360px;
+  @media (max-width: 575px) {
+    padding: 15px;
+  }
 `;

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
-import { Home } from "./pages";
+import { Home, Page404 } from "./pages";
 import { Layout } from "antd";
 import { Header, Footer, MainContent, Sidebar } from "./components";
 
@@ -27,6 +27,7 @@ class App extends Component {
               <Switch>
                 <Route exact path="/" component={Home} />
                 <Route path="/agents" component={() => <div>Agents page</div>} />
+                <Route component={Page404} />
               </Switch>
             </MainContent>
             <Footer />

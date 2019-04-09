@@ -7,16 +7,17 @@ const { Sider } = Layout;
 const SubMenu = Menu.SubMenu;
 
 // TODO: fix lock body scroll on mobile devises
+// close sidebar on route change
 class Sidebar extends React.Component {
   constructor(props) {
     super(props);
-    this.updateDimensions = debounce(this.updateDimensions.bind(this), 200);
+    this.checkWindowWidth = debounce(this.checkWindowWidth.bind(this), 200);
     this.state = {
       xsDevise: false
     };
   }
 
-  updateDimensions() {
+  checkWindowWidth() {
     const { xsDevise } = this.state;
     if (window.innerWidth <= 575 && !xsDevise) {
       this.setState({ xsDevise: true });
@@ -26,12 +27,12 @@ class Sidebar extends React.Component {
   }
 
   componentDidMount() {
-    this.updateDimensions();
-    window.addEventListener("resize", this.updateDimensions);
+    this.checkWindowWidth();
+    window.addEventListener("resize", this.checkWindowWidth);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions);
+    window.removeEventListener("resize", this.checkWindowWidth);
   }
 
   render() {
