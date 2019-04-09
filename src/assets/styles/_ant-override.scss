@@ -1,3 +1,29 @@
 .ant-card-head {
   font-size: 18px !important;
 }
+
+.ant-menu {
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    .anticon {
+      font-size: 22px;
+    }
+  }
+  .ant-menu-item-content {
+    display: flex;
+    align-items: center;
+  }
+}
+.ant-layout-sider {
+  .ant-layout-sider-children {
+    .ant-menu-inline-collapsed {
+      .ant-menu-item,
+      .ant-menu-submenu-title {
+        padding: 0 28px !important;
+        .anticon {
+          font-size: 22px !important;
+        }
+      }
+    }
+  }
+}

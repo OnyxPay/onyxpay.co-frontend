@@ -48,48 +48,39 @@ class Sidebar extends React.Component {
         width="240"
         collapsedWidth={xsDevise ? "0" : "80"}
       >
-        {/* <div className="logo" style={{ padding: "30px" }} /> */}
         <Menu theme="dark" selectedKeys={[location.pathname]} mode="inline">
           <Menu.Item key="/">
-            <Link to="/">
-              <Icon type="pie-chart" />
+            <Link to="/" className="ant-menu-item-content">
+              <Icon type="dashboard" />
               <span>Dashboard</span>
             </Link>
           </Menu.Item>
-          <Menu.Item key="/agents">
-            <Link to="/agents">
-              <Icon type="desktop" />
-              <span>Agents</span>
+
+          <SubMenu
+            key="active-requests"
+            title={
+              <span className="ant-menu-item-content">
+                <Icon type="team" />
+                <span>Active requests</span>
+              </span>
+            }
+          >
+            <Menu.Item key="323">User active requests</Menu.Item>
+            <Menu.Item key="3dasd">Agent active requests</Menu.Item>
+          </SubMenu>
+
+          <Menu.Item key="/settlement accounts">
+            <Link to="/settlement accounts" className="ant-menu-item-content">
+              <Icon type="pay-circle" />
+              <span>Settlement accounts</span>
             </Link>
           </Menu.Item>
-          <SubMenu
-            key="sub1"
-            title={
-              <span>
-                <Icon type="user" />
-                <span>User</span>
-              </span>
-            }
-          >
-            <Menu.Item key="3">Tom</Menu.Item>
-            <Menu.Item key="4">Bill</Menu.Item>
-            <Menu.Item key="5">Alex</Menu.Item>
-          </SubMenu>
-          <SubMenu
-            key="sub2"
-            title={
-              <span>
-                <Icon type="team" />
-                <span>Team</span>
-              </span>
-            }
-          >
-            <Menu.Item key="6">Team 1</Menu.Item>
-            <Menu.Item key="8">Team 2</Menu.Item>
-          </SubMenu>
-          <Menu.Item key="9">
-            <Icon type="file" />
-            <span>File</span>
+
+          <Menu.Item key="/messages">
+            <Link to="/messages" className="ant-menu-item-content">
+              <Icon type="mail" />
+              <span>Messages</span>
+            </Link>
           </Menu.Item>
         </Menu>
       </Sider>
