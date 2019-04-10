@@ -4,9 +4,9 @@ import Actions from "../../redux/actions";
 
 class Balance extends Component {
   componentDidMount() {
-    const { getAssetsBalance } = this.props;
-    // getAssetsBalance("AdnhncNBiFYTHYJLqrEa59jVJBkGm7w6iZ");
-    getAssetsBalance("f17af3cf26d901702d42ecf09c13e273e198fded");
+    const { getAssetsBalance, getOnyxCashBalance } = this.props;
+    getAssetsBalance();
+    getOnyxCashBalance();
   }
 
   render() {
@@ -16,5 +16,8 @@ class Balance extends Component {
 
 export default connect(
   null,
-  { getAssetsBalance: Actions.balance.getAssetsBalance }
+  {
+    getAssetsBalance: Actions.balance.getAssetsBalance,
+    getOnyxCashBalance: Actions.balance.getOnyxCashBalance
+  }
 )(Balance);

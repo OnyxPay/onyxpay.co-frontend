@@ -11,7 +11,7 @@ export function reverseAddressHex(str) {
   return new Crypto.Address(utils.reverseHex(str));
 }
 
-export function cryptoAdress(adress) {
+export function cryptoAddress(adress) {
   return new Crypto.Address(adress);
 }
 

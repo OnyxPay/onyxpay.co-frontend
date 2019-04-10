@@ -1,22 +1,28 @@
-import { gasPrice, cryptoAdress, parseAmounts } from "../utils/blockchain";
-import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
-import { isEmpty, get } from "lodash";
-import { getClient } from "../api/network";
+import { cryptoAddress } from "../utils/blockchain";
+import { utils } from "ontology-ts-sdk";
+import { isEmpty } from "lodash";
+import { getWallet } from "../api/wallet";
+import { getAccount } from "../api/account";
+import { getTokenBalance, queryAssetsBalance } from "../api/balance";
+import { OnyxCashAddress } from "../api/constants";
 
 export const GET_ASSETS_BALANCE_MAIN = "GET_ASSETS_BALANCE_MAIN";
 export const GET_ASSETS_BALANCE_REWARD = "GET_ASSETS_BALANCE_REWARD";
+export const GET_ONYXCASH_BALANCE_MAIN = "GET_ONYXCASH_BALANCE_MAIN";
+export const GET_ONYXCASH_BALANCE_REWARD = "GET_ONYXCASH_BALANCE_REWARD";
 
 const initialState = {
   main: {
-    onyxCash: [],
+    onyxCash: null,
     assets: []
   },
   reward: {
-    onyxCash: [],
+    onyxCash: null,
     assets: []
   }
 };
 
+// TODO: normalize state
 export const balanceReducer = (state = initialState, action) => {
   switch (action.type) {
     case GET_ASSETS_BALANCE_MAIN:
@@ -35,62 +41,91 @@ export const balanceReducer = (state = initialState, action) => {
           assets: action.payload
         }
       };
+    case GET_ONYXCASH_BALANCE_MAIN:
+      return {
+        ...state,
+        main: {
+          ...state.main,
+          onyxCash: action.payload
+        }
+      };
+    case GET_ONYXCASH_BALANCE_REWARD:
+      return {
+        ...state,
+        reward: {
+          ...state.main,
+          onyxCash: action.payload
+        }
+      };
+
     default:
       return state;
   }
 };
 
-// TODO: for both accounts: main and rewards
-export const getAssetsBalance = address => {
+// for both accounts: main and rewards
+export const getAssetsBalance = () => {
   return async (dispatch, getState) => {
-    const { contracts } = getState();
-    const funcName = "balancesOf";
-    const client = getClient();
+    const { contracts, wallet } = getState();
+    const walletDecoded = getWallet(wallet);
+    const accountDefault = getAccount(walletDecoded, true);
+    const accountReward = getAccount(walletDecoded);
     const contractAdress =
-      !isEmpty(contracts) && contracts["Assets"] && cryptoAdress(utils.reverseHex(contracts["Assets"]));
-    console.log(address, contractAdress);
+      !isEmpty(contracts) && contracts["Assets"] && cryptoAddress(utils.reverseHex(contracts["Assets"]));
 
     if (!contractAdress) return false;
 
-    const p1 = new Parameter("account", ParameterType.ByteArray, address);
-
-    //make transaction
-    const tx = TransactionBuilder.makeInvokeTransaction(
-      funcName,
-      [p1],
-      contractAdress,
-      gasPrice,
-      CONST.DEFAULT_GAS_LIMIT
-    );
-
     try {
-      const response = await client.sendRawTransaction(tx.serialize(), true);
-      console.log(response);
+      const balance = await queryAssetsBalance(contractAdress, accountDefault.address.toHexString());
+
+      dispatch({
+        type: GET_ASSETS_BALANCE_MAIN,
+        payload: balance
+      });
     } catch (e) {
-      // TODO: handle errors
+      // handle errors
       console.log(e);
     }
-    // rest
-    //   .sendRawTransaction(tx.serialize(), true)
-    //   .then(res => {
-    //     if (res.Error === 0) {
-    //       let result = res.Result.Result;
-    //       let balance;
-    //       if (!result) {
-    //         balance = 0;
-    //       } else {
-    //         balance = parseAmounts(result);
-    //       }
 
-    //       dispatch({
-    //         type: GET_ASSETS_BALANCE,
-    //         payload: balance
-    //       });
-    //     } else {
-    //     }
-    //   })
-    //   .catch(er => {
-    //     console.log(er);
-    //   });
+    try {
+      const balance = await queryAssetsBalance(contractAdress, accountReward.address.toHexString());
+
+      dispatch({
+        type: GET_ASSETS_BALANCE_REWARD,
+        payload: balance
+      });
+    } catch (e) {
+      // handle errors
+      console.log(e);
+    }
+  };
+};
+
+export const getOnyxCashBalance = () => {
+  return async (dispatch, getState) => {
+    const { wallet } = getState();
+    const walletDecoded = getWallet(wallet);
+    const accountDefault = getAccount(walletDecoded, true);
+    const accountReward = getAccount(walletDecoded);
+
+    try {
+      const balance = await getTokenBalance(OnyxCashAddress, accountDefault.address);
+      dispatch({
+        type: GET_ONYXCASH_BALANCE_MAIN,
+        payload: balance
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+    try {
+      const balance = await getTokenBalance(OnyxCashAddress, accountReward.address);
+      dispatch({
+        type: GET_ONYXCASH_BALANCE_REWARD,
+        payload: balance
+      });
+    } catch (e) {
+      console.log(e);
+    }
   };
 };

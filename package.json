@@ -13,6 +13,7 @@
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
     "lodash": "^4.17.11",
+    "long": "^4.0.0",
     "node-sass": "^4.11.0",
     "ontology-ts-sdk": "git+https://github.com/OnyxPay/ontology-ts-sdk.git",
     "prop-types": "^15.7.2",
