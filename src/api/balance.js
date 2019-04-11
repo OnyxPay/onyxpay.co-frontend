@@ -1,8 +1,9 @@
 import { TransactionBuilder, Oep4, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
 import { getClient } from "./network";
-import { cryptoAddress, gasPrice, parseAmounts } from "../utils/blockchain";
+import { cryptoAddress, gasPrice, parseAmounts, parseExchangeRates } from "../utils/blockchain";
 import * as Long from "long";
-import { get } from "lodash";
+import { get, isEmpty } from "lodash";
+import Actions from "../redux/actions";
 
 export async function getTokenBalance(contract, address) {
 	const builder = new Oep4.Oep4TxBuilder(cryptoAddress(contract));
@@ -38,4 +39,38 @@ export async function getAssetsBalance(contract, address) {
 		balance = parseAmounts(result);
 	}
 	return balance;
+}
+
+export async function getExchangeRates(store) {
+	let { contracts } = store.getState();
+	const client = getClient();
+	const funcName = "GetExchangeRates";
+	const contractAdress =
+		!isEmpty(contracts) &&
+		contracts["Exchange"] &&
+		cryptoAddress(utils.reverseHex(contracts["Exchange"]));
+	if (!contractAdress) return false;
+
+	//make transaction
+	const tx = TransactionBuilder.makeInvokeTransaction(
+		funcName,
+		[],
+		contractAdress,
+		gasPrice,
+		CONST.DEFAULT_GAS_LIMIT
+	);
+
+	try {
+		const response = await client.sendRawTransaction(tx.serialize(), true);
+		const result = get(response, "Result.Result");
+		let rates;
+		if (!result) {
+			rates = 0;
+		} else {
+			rates = parseExchangeRates(result);
+		}
+		store.dispatch(Actions.exchangeRates.setExchangeRates(rates));
+	} catch (e) {
+		console.log(e);
+	}
 }

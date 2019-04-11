@@ -1,4 +1,4 @@
-import { getTokenBalance, getAssetsBalance } from "../api/balance";
+import { getTokenBalance, getAssetsBalance, getExchangeRates } from "../api/balance";
 import { getWallet } from "../api/wallet";
 import { getAccount } from "../api/account";
 import { isEmpty } from "lodash";
@@ -7,9 +7,9 @@ import { utils } from "ontology-ts-sdk";
 import { OnyxCashAddress } from "../api/constants"; // move to settings
 import { getStore } from "../store";
 import Actions from "../redux/actions";
+const store = getStore();
 
 export async function refreshBalance() {
-	const store = getStore();
 	const { contracts, wallet } = store.getState();
 
 	if (wallet && !isEmpty(contracts)) {
@@ -46,6 +46,7 @@ export async function refreshBalance() {
 }
 
 export function initBalanceProvider() {
+	getExchangeRates(store);
 	refreshBalance();
 	window.setInterval(async () => {
 		refreshBalance();

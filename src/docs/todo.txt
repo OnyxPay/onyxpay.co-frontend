@@ -6,7 +6,7 @@ balanceProvider +
 
 получить exchangeRates
 вывести баланс по OnyxCash +
-вывести баланс по Assets +-
+вывести баланс по Assets 
 
 
 ------------
