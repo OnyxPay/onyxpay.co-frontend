@@ -1,4 +1,4 @@
-import { getTokenBalance, queryAssetsBalance } from "../api/balance";
+import { getTokenBalance, getAssetsBalance } from "../api/balance";
 import { getWallet } from "../api/wallet";
 import { getAccount } from "../api/account";
 import { isEmpty } from "lodash";
@@ -20,9 +20,9 @@ export async function refreshBalance() {
 			contracts["Assets"] && cryptoAddress(utils.reverseHex(contracts["Assets"]));
 
 		try {
-			const assetsBalance = await queryAssetsBalance(
+			const assetsBalance = await getAssetsBalance(
 				assetsContractAddress,
-				accountDefault.address.toHexString()
+				utils.reverseHex(accountDefault.address.toHexString())
 			);
 
 			const onyxCashBalanse = await getTokenBalance(OnyxCashAddress, accountDefault.address);
@@ -31,10 +31,12 @@ export async function refreshBalance() {
 		} catch (e) {}
 
 		try {
-			const assetsBalance = await queryAssetsBalance(
+			const assetsBalance = await getAssetsBalance(
 				assetsContractAddress,
-				accountReward.address.toHexString()
+				utils.reverseHex(accountReward.address.toHexString())
 			);
+			// console.log(assetsBalance);
+
 			const onyxCashBalanse = await getTokenBalance(OnyxCashAddress, accountReward.address);
 
 			store.dispatch(Actions.balance.setAssetsBalance(assetsBalance));

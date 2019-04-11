@@ -14,7 +14,7 @@ const initialState = {
 	},
 };
 
-// TODO: normalize state
+// TODO: normalize state!!!
 export const balanceReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SET_ASSETS_BALANCE_MAIN:
@@ -45,7 +45,7 @@ export const balanceReducer = (state = initialState, action) => {
 			return {
 				...state,
 				reward: {
-					...state.main,
+					...state.reward,
 					onyxCash: action.payload,
 				},
 			};

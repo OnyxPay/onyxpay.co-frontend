@@ -1,7 +1,6 @@
 import React from "react";
-import { Card, Typography } from "antd";
+import { Card } from "antd";
 import styled from "styled-components";
-// const { Title } = Typography;
 
 const Label = styled.div`
 	margin-bottom: 5px;
@@ -12,9 +11,9 @@ const Amount = styled.div`
 	word-break: break-all;
 `;
 
-export const BalanceCard = ({ label, title, amount }) => {
+export const BalanceCard = ({ label, title, amount, extra }) => {
 	return (
-		<Card title={title} style={{ marginBottom: "24px" }}>
+		<Card title={title} extra={extra} style={{ marginBottom: "24px" }}>
 			<Label>{label}</Label>
 			<Amount>{amount}</Amount>
 		</Card>
