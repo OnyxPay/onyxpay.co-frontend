@@ -13,10 +13,16 @@ const columns = [
 function BalanceModal({ isModalVisible, hideModal, balance }) {
 	return (
 		<Modal title="Detailed balance" visible={isModalVisible} onCancel={hideModal} footer={null}>
-			<Title level={3}>OnyxCash: {<Text underline>{balance.onyxCash}</Text>}</Title>
+			<Title level={4}>OnyxCash: {<Text>{balance.onyxCash}</Text>}</Title>
 
-			<Title level={3}>Assets:</Title>
-			<Table columns={columns} dataSource={balance.assets} bordered pagination={false} />
+			<Title level={4}>Assets:</Title>
+			<Table
+				columns={columns}
+				dataSource={balance.assets}
+				bordered
+				pagination={false}
+				className="ovf-auto"
+			/>
 		</Modal>
 	);
 }
