@@ -96,7 +96,7 @@ class Balance extends Component {
 					<Col md={24} lg={8}>
 						<BalanceCard
 							label="available:"
-							title="Main balance"
+							title="OnyxCash main"
 							amount={onyxCashMainTotal}
 							extra={<Button onClick={this.showModal("main")}>see detailed balance</Button>}
 						/>
@@ -104,7 +104,7 @@ class Balance extends Component {
 					<Col md={24} lg={8}>
 						<BalanceCard
 							label="available:"
-							title="Rewarded balance"
+							title="OnyxCash rewarded"
 							amount={onyxCashRewardTotal}
 							extra={<Button onClick={this.showModal("reward")}>see detailed balance</Button>}
 						/>

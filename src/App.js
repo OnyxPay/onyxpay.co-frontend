@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
-import { Home, Page404 } from "./pages";
+import { Home, Page404, Deposit } from "./pages";
 import { Layout } from "antd";
 import { Header, Footer, MainContent, Sidebar } from "./components";
 import { getContractsAddress } from "./api/contracts";
@@ -32,7 +32,7 @@ class App extends Component {
 						<MainContent>
 							<Switch>
 								<Route exact path="/" component={Home} />
-								<Route path="/agents" component={() => <div>Agents page</div>} />
+								<Route path="/deposit" component={Deposit} />
 								<Route component={Page404} />
 							</Switch>
 						</MainContent>
