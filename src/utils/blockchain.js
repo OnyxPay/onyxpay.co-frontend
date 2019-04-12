@@ -31,6 +31,7 @@ export function hexArrToArr(arr) {
 	return res;
 }
 
+// TODO: parse numbers
 export function parseExchangeRates(arr) {
 	let res = [];
 
@@ -38,9 +39,9 @@ export function parseExchangeRates(arr) {
 		let sell = parseInt(utils.reverseHex(arr[i][1][0]), 16);
 		let buy = parseInt(utils.reverseHex(arr[i][1][1]), 16);
 		res.push({
-			asset: utils.hexstr2str(arr[i][0]),
-			buy: buy ? (buy / 100000000).toFixed(8) : 0,
-			sell: sell ? (sell / 100000000).toFixed(8) : 0,
+			symbol: utils.hexstr2str(arr[i][0]),
+			buy: buy ? buy : 0,
+			sell: sell ? sell : 0,
 		});
 	}
 	return res;
@@ -51,11 +52,11 @@ export function parseAmounts(arr) {
 
 	for (let i = 0; i < arr.length; i++) {
 		const amount = parseInt(utils.reverseHex(arr[i][1]), 16);
-		const name = utils.hexstr2str(arr[i][0]);
+		const symbol = utils.hexstr2str(arr[i][0]);
 		res.push({
-			name,
+			symbol,
 			amount: amount ? amount : 0,
-			key: name,
+			key: symbol,
 		});
 	}
 	return res;
