@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import { Card, Button, Input, Row, Col } from "antd";
+import { Card, Button, Input, Row, Col, Form } from "antd";
 import { PageTitle } from "../../components";
 import { Formik } from "formik";
 
 class Deposit extends Component {
 	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
 		console.log("sending", values);
+		resetForm();
 	};
 
 	render() {
@@ -13,50 +14,64 @@ class Deposit extends Component {
 			<>
 				<PageTitle>Deposit</PageTitle>
 				<Card>
-					{" "}
 					<Formik
 						onSubmit={this.handleFormSubmit}
-						initialValues={{ to: "", asset_id: "", amount: "" }}
+						initialValues={{ agentId: "", amount: "" }}
+						validate={values => {
+							let errors = {};
+							if (!values.agentId) {
+								errors.agentId = "required";
+							}
+							return errors;
+						}}
 					>
-						{props => {
-							const {
-								values,
-								isSubmitting,
-								handleChange,
-								handleBlur,
-								handleSubmit,
-								setFieldValue,
-							} = props;
+						{({
+							values,
+							errors,
+							isSubmitting,
+							handleChange,
+							handleBlur,
+							handleSubmit,
+							setFieldValue,
+						}) => {
 							return (
 								<form onSubmit={handleSubmit}>
-									<Row gutter={16} style={{ marginBottom: "20px" }}>
+									<Row gutter={16}>
 										<Col md={24} lg={12}>
-											<Input
-												size="large"
-												id="agentAN"
-												placeholder="enter agent account number"
-												value={values.agentAN}
-												onChange={handleChange}
-												onBlur={handleBlur}
-												disabled={isSubmitting}
-											/>
+											<Form.Item
+												validateStatus={errors.agentId ? "error" : ""}
+												help={errors.agentId ? errors.agentId : ""}
+												required
+											>
+												<Input
+													size="large"
+													name="agentId"
+													placeholder="enter agent account number"
+													value={values.agentId}
+													onChange={handleChange}
+													onBlur={handleBlur}
+													disabled={isSubmitting}
+												/>
+											</Form.Item>
 										</Col>
 										<Col md={24} lg={12}>
-											<Input
-												size="large"
-												id="amount"
-												type="number"
-												placeholder="enter amount"
-												value={values.amount}
-												onChange={handleChange}
-												onBlur={handleBlur}
-												disabled={isSubmitting}
-											/>
+											<Form.Item>
+												<Input
+													size="large"
+													name="amount"
+													type="number"
+													placeholder="enter amount"
+													value={values.amount}
+													onChange={handleChange}
+													onBlur={handleBlur}
+													disabled={isSubmitting}
+												/>
+											</Form.Item>
 										</Col>
 									</Row>
 
-									<Button type="submit" loading={isSubmitting} disabled={isSubmitting}>
-										Send
+									<Button type="primary" htmlType="submit" disabled={isSubmitting}>
+										Submit
 									</Button>
 								</form>
 							);
