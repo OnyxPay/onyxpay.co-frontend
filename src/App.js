@@ -5,6 +5,17 @@ import { Layout } from "antd";
 import { Header, Footer, MainContent, Sidebar } from "./components";
 import { getContractsAddress } from "./api/contracts";
 import { initBalanceProvider } from "./providers/balanceProvider";
+import Authorization from "./providers/Authorization";
+
+const Deposit2 = props => <div>Agent's deposit...</div>;
+
+const User = Authorization(["user"]);
+const Agent = Authorization(["agent", "super agent"]);
+// const SuperAgent = Authorization(["super agent"]);
+
+const UserDeposit = User(Deposit);
+const AgentDeposit = Agent(Deposit2);
+
 class App extends Component {
 	state = {
 		collapsed: false,
@@ -31,8 +42,9 @@ class App extends Component {
 					<Layout>
 						<MainContent>
 							<Switch>
-								<Route exact path="/" component={Home} />
-								<Route path="/deposit" component={Deposit} />
+								<Route path="/" exact component={Home} />
+								<Route path="/deposit" component={UserDeposit} />
+								<Route path="/deposit:agent" exact component={AgentDeposit} />
 								<Route component={Page404} />
 							</Switch>
 						</MainContent>

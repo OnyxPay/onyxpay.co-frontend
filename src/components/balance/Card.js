@@ -11,7 +11,7 @@ const Amount = styled.div`
 	word-break: break-all;
 `;
 
-export const BalanceCard = ({ label, title, amount, extra }) => {
+export const BalanceCard = ({ label, title, amount = 0, extra }) => {
 	return (
 		<Card title={title} extra={extra} style={{ marginBottom: "24px" }}>
 			<Label>{label}</Label>

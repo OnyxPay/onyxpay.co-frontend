@@ -5,5 +5,18 @@ import { SideBarContainer as Sidebar } from "./layout/Sidebar";
 import { PageTitle, Container } from "./styled";
 import TransactonsTable from "./TransactionsTable";
 import { BalanceCard } from "./balance/Card";
+import { ExternalRedirect } from "./ExternalRedirect";
+import { LoadingIndicator } from "./LoadingIndicator";
 
-export { Header, Footer, MainContent, Sidebar, PageTitle, TransactonsTable, Container, BalanceCard };
+export {
+	Header,
+	Footer,
+	MainContent,
+	Sidebar,
+	PageTitle,
+	TransactonsTable,
+	Container,
+	BalanceCard,
+	ExternalRedirect,
+	LoadingIndicator,
+};

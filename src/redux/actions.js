@@ -3,6 +3,7 @@ import { setWallet, clearWallet } from "./wallet";
 import { resolveContractsAdress } from "./contracts";
 import { setAssetsBalance, setOnyxCashBalance } from "./balance";
 import { setExchangeRates } from "./exchangeRates";
+import { saveUser } from "./user";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -10,4 +11,5 @@ export default {
 	contracts: { resolveContractsAdress },
 	balance: { setAssetsBalance, setOnyxCashBalance },
 	exchangeRates: { setExchangeRates },
+	user: { saveUser },
 };

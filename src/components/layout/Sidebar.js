@@ -2,12 +2,15 @@ import React from "react";
 import { Layout, Menu, Icon } from "antd";
 import { Link, withRouter } from "react-router-dom";
 import { debounce } from "lodash";
+import { compose } from "redux";
+import { connect } from "react-redux";
 
 const { Sider } = Layout;
 const SubMenu = Menu.SubMenu;
 
 // TODO: fix lock body scroll on mobile devises
 // close sidebar on route change
+// extract menu from sideBar
 class Sidebar extends React.Component {
 	constructor(props) {
 		super(props);
@@ -36,7 +39,7 @@ class Sidebar extends React.Component {
 	}
 
 	render() {
-		const { collapsed, location } = this.props;
+		const { collapsed, location, user } = this.props;
 		const { xsDevise } = this.state;
 
 		return (
@@ -56,25 +59,43 @@ class Sidebar extends React.Component {
 						</Link>
 					</Menu.Item>
 
-					<SubMenu
-						key="operations"
-						title={
-							<span className="ant-menu-item-content">
-								<Icon type="interation" />
-								<span>Operations</span>
-							</span>
-						}
-					>
-						<Menu.Item key="/deposit">
-							<Link to="/deposit">Deposit</Link>
-						</Menu.Item>
-						<Menu.Item key="/send">
-							<Link to="/send">Send</Link>
-						</Menu.Item>
-						<Menu.Item key="/withdraw">
-							<Link to="/withdraw">Withdraw</Link>
-						</Menu.Item>
-					</SubMenu>
+					{user.role === "user" && (
+						<SubMenu
+							key="operations"
+							title={
+								<span className="ant-menu-item-content">
+									<Icon type="interation" />
+									<span>Assets</span>
+								</span>
+							}
+						>
+							<Menu.Item key="/deposit">
+								<Link to="/deposit">Deposit</Link>
+							</Menu.Item>
+							<Menu.Item key="/send">
+								<Link to="/send">Send</Link>
+							</Menu.Item>
+							<Menu.Item key="/withdraw">
+								<Link to="/withdraw">Withdraw</Link>
+							</Menu.Item>
+						</SubMenu>
+					)}
+
+					{(user.role === "agent" || user.role === "super agent") && (
+						<SubMenu
+							key="OnyxCash (agent)"
+							title={
+								<span className="ant-menu-item-content">
+									<Icon type="interation" />
+									<span>OnyxCash</span>
+								</span>
+							}
+						>
+							<Menu.Item key="/deposit:agent">
+								<Link to="/deposit:agent">Deposit / buy OnyxCash</Link>
+							</Menu.Item>
+						</SubMenu>
+					)}
 
 					<SubMenu
 						key="active-requests"
@@ -108,4 +129,14 @@ class Sidebar extends React.Component {
 	}
 }
 
-export const SideBarContainer = withRouter(Sidebar);
+// export const SideBarContainer = withRouter(Sidebar);
+function mapStateToProps(state) {
+	return {
+		user: state.user,
+	};
+}
+
+export const SideBarContainer = compose(
+	withRouter,
+	connect(mapStateToProps)
+)(Sidebar);
