@@ -30,13 +30,22 @@ class Balance extends Component {
 
 	convertAssets(assets) {
 		const { exchRates } = this.props;
-
-		return assets.map(asset => {
+        const assetsAmount = assets.filter((asset) => asset.amount !== 0);
+        return assetsAmount.map(asset => {
 			const rates = exchRates.find(rate => rate.symbol === asset.symbol);
+            const { amount, symbol, key } = asset;
+            if(rates === undefined){
+                return {
+                    amount: decodeAmount(amount, 8),
+                    symbol,
+                    key,
+                    buy: "n/a",
+                    sell: "n/a",
+                    onyxCash: 0,
+                };
+            }
 			const { sell, buy } = rates;
-			const { amount, symbol, key } = asset;
 			const onyxCash = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
-
 			return {
 				amount: decodeAmount(amount, 8),
 				symbol,
@@ -89,7 +98,6 @@ class Balance extends Component {
 				decodeAmount(onyxCashReward, OnyxCashDecimals)
 			);
 		}
-
 		return (
 			<div>
 				<Row gutter={16}>
