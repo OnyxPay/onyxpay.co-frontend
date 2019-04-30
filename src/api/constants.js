@@ -1,8 +1,9 @@
-export const wsEndpoint = "ws://35.178.63.10:20335";
-export const restEndpoint = "http://35.178.63.10:20334";
+export const wsEndpoint = "ws://cepheus5.onyxpay.co:20335";
+export const restEndpoint = "http://cepheus5.onyxpay.co:20334";
 
-export const addressOfHead = "b93ade3f201bdc5ab0f9a07283ba4078ff00563e";
+export const addressOfHead = "9aa5af1bbb814daa6d8c48d7788ac75b3f389f41";
 
-export const OnyxCashAddress = "28591a819021a3a7f6d541a42b4e80a7aaa8d43e";
+// TODO: get address from Head
+export const OnyxCashAddress = "3ed4a8aaa7804e2ba441d5f6a7a32190811a5928";
 export const OnyxCashDecimals = 8;
 export const OnyxCashSymbol = "OCH";

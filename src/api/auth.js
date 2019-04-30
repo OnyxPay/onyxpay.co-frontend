@@ -29,7 +29,7 @@ export const wait = (ms, resolveWith) => {
 };
 
 function authProvider(redirectLink) {
-	const isAuthenticated = isCookieAvailable("foo");
+	const isAuthenticated = !isCookieAvailable("foo"); // TODO: ?
 	const store = getStore();
 
 	if (isAuthenticated) {
