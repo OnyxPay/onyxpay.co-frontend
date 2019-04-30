@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
-import { Home, Page404, Deposit } from "./pages";
+import { Home, Page404, Deposit, SignUp } from "./pages";
 import { Layout } from "antd";
 import { Header, Footer, MainContent, Sidebar } from "./components";
 import { getContractsAddress } from "./api/contracts";
-import { initBalanceProvider } from "./providers/balanceProvider";
+// import { initBalanceProvider } from "./providers/balanceProvider";
 import Authorization from "./providers/Authorization";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
@@ -22,8 +22,8 @@ class App extends Component {
 	};
 
 	componentDidMount() {
-		getContractsAddress();
-		initBalanceProvider();
+		// getContractsAddress();
+		// initBalanceProvider();
 	}
 
 	toggleSidebar = () => {
@@ -45,6 +45,7 @@ class App extends Component {
 								<Route path="/" exact component={Home} />
 								<Route path="/deposit" component={UserDeposit} />
 								<Route path="/deposit:agent" exact component={AgentDeposit} />
+								<Route path="/signup" exact component={SignUp} />
 								<Route component={Page404} />
 							</Switch>
 						</MainContent>

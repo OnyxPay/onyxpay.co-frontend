@@ -6,6 +6,7 @@ function isCookieAvailable(name) {
 		return item.includes(name);
 	}).length;
 }
+
 function getCookie(cname) {
 	var name = cname + "=";
 	var decodedCookie = decodeURIComponent(document.cookie);
@@ -43,7 +44,7 @@ function authProvider(redirectLink) {
 		const authCookie = getCookie("foo");
 		console.log("authCookie:", authCookie);
 
-		wait(1000, { name: "Lucas", role: "user" })
+		wait(0, { name: "Lucas", role: "user" })
 			.then(res => {
 				store.dispatch(Actions.user.saveUser(res));
 			})

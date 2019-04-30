@@ -30,20 +30,21 @@ class Balance extends Component {
 
 	convertAssets(assets) {
 		const { exchRates } = this.props;
-        const assetsAmount = assets.filter((asset) => asset.amount !== 0);
-        return assetsAmount.map(asset => {
+		const assetsAmount = assets.filter(asset => asset.amount !== 0);
+
+		return assetsAmount.map(asset => {
 			const rates = exchRates.find(rate => rate.symbol === asset.symbol);
-            const { amount, symbol, key } = asset;
-            if(rates === undefined){
-                return {
-                    amount: decodeAmount(amount, 8),
-                    symbol,
-                    key,
-                    buy: "n/a",
-                    sell: "n/a",
-                    onyxCash: 0,
-                };
-            }
+			const { amount, symbol, key } = asset;
+			if (rates === undefined) {
+				return {
+					amount: decodeAmount(amount, 8),
+					symbol,
+					key,
+					buy: "n/a",
+					sell: "n/a",
+					onyxCash: 0,
+				};
+			}
 			const { sell, buy } = rates;
 			const onyxCash = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
 			return {
@@ -76,6 +77,7 @@ class Balance extends Component {
 		const onyxCashReward = get(balance, "reward.onyxCash");
 		const assetsMain = get(balance, "main.assets");
 		const assetsReward = get(balance, "reward.assets");
+		console.log(assetsMain, assetsReward);
 
 		const assetsMainConverted = this.convertAssets(assetsMain);
 		const assetsRewardConverted = this.convertAssets(assetsReward);
