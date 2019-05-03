@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
 import { Home, Page404, Deposit, SignUp } from "./pages";
-import { Layout } from "antd";
-import { Header, Footer, MainContent, Sidebar } from "./components";
-import { getContractsAddress } from "./api/contracts";
-// import { initBalanceProvider } from "./providers/balanceProvider";
+import Layout from "./components/layout";
 import Authorization from "./providers/Authorization";
+// import { getContractsAddress } from "./api/contracts";
+// import { initBalanceProvider } from "./providers/balanceProvider";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -34,24 +33,20 @@ class App extends Component {
 
 	render() {
 		const { collapsed } = this.state;
+
 		return (
-			<Layout style={{ minHeight: "100vh" }}>
-				<Header toggleSidebar={this.toggleSidebar} isSidebarCollapsed={collapsed} />
-				<Layout className={collapsed ? "content-wrapper collapsed" : "content-wrapper"}>
-					<Sidebar collapsed={collapsed} />
-					<Layout>
-						<MainContent>
-							<Switch>
-								<Route path="/" exact component={Home} />
-								<Route path="/deposit" component={UserDeposit} />
-								<Route path="/deposit:agent" exact component={AgentDeposit} />
-								<Route path="/signup" exact component={SignUp} />
-								<Route component={Page404} />
-							</Switch>
-						</MainContent>
-						<Footer />
-					</Layout>
-				</Layout>
+			<Layout
+				isSideBarCollapsed={collapsed}
+				toggleSidebar={this.toggleSidebar}
+				simplified={["/login"]}
+			>
+				<Switch>
+					<Route path="/" exact component={Home} />
+					<Route path="/deposit" component={UserDeposit} />
+					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/login" exact component={SignUp} />
+					<Route component={Page404} />
+				</Switch>
 			</Layout>
 		);
 	}

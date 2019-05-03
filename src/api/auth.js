@@ -1,10 +1,14 @@
-import { getStore } from "../store";
+import { getStore, history } from "../store";
 import Actions from "../redux/actions";
 
 function isCookieAvailable(name) {
 	return document.cookie.split(";").filter(item => {
 		return item.includes(name);
 	}).length;
+}
+
+function isTokenAvailable(name) {
+	return sessionStorage.getItem(name);
 }
 
 function getCookie(cname) {
@@ -29,21 +33,12 @@ export const wait = (ms, resolveWith) => {
 	});
 };
 
-function authProvider(redirectLink) {
-	const isAuthenticated = !isCookieAvailable("foo"); // TODO: ?
+function authProvider() {
+	const isAuthenticated = isTokenAvailable("auth");
 	const store = getStore();
 
-	if (isAuthenticated) {
-		/*
-      send cookie/token to server for check
-        if cookie is valid
-          save user to store
-        else  
-          delete cookie, redirect to login
-    */
-		const authCookie = getCookie("foo");
-		console.log("authCookie:", authCookie);
-
+	console.log("isAuthenticated", isAuthenticated);
+	if (!isAuthenticated) {
 		wait(0, { name: "Lucas", role: "user" })
 			.then(res => {
 				store.dispatch(Actions.user.saveUser(res));
@@ -52,7 +47,7 @@ function authProvider(redirectLink) {
 				console.log(er);
 			});
 	} else {
-		return window.location.replace(redirectLink); //redirect;
+		history.push("/login");
 	}
 }
 

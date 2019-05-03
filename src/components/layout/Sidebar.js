@@ -123,6 +123,12 @@ class Sidebar extends React.Component {
 							<span>Messages</span>
 						</Link>
 					</Menu.Item>
+
+					<Menu.Item key="/login">
+						<Link to="/login" className="ant-menu-item-content">
+							<span>login</span>
+						</Link>
+					</Menu.Item>
 				</Menu>
 			</Sider>
 		);

@@ -4,9 +4,14 @@ import { connect } from "react-redux";
 import { LoadingIndicator } from "./components";
 import { authProvider } from "./api/auth";
 
+/* 
+	check token and wallet in session storage
+	if none redirect to signIn
+	else to "/"
+*/
 class AppInit extends Component {
 	componentDidMount() {
-		authProvider("http://3.120.190.178:8001");
+		authProvider();
 	}
 
 	render() {

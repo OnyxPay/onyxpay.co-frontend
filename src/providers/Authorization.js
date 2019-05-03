@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Redirect } from "react-router-dom";
-import { ExternalRedirect } from "../components";
 
 /**
  * HOC that Handles whether or not the user is allowed to see the page.
@@ -18,9 +17,8 @@ function Authorization(allowedRoles) {
 			};
 			render() {
 				const { user } = this.props;
-
 				if (!user) {
-					return <ExternalRedirect link="http://www.google.com" />;
+					return <Redirect to="/signup" />;
 				} else if (allowedRoles.includes(user.role)) {
 					return <WrappedComponent {...this.props} />;
 				} else {
