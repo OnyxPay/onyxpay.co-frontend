@@ -8,12 +8,16 @@ import Authorization from "./providers/Authorization";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
+// permissions
 const User = Authorization(["user"]);
 const Agent = Authorization(["agent", "super agent"]);
-// const SuperAgent = Authorization(["super agent"]);
+const All = Authorization(["user", "agent", "super agent"]);
 
+// routes with permissions
 const UserDeposit = User(Deposit);
 const AgentDeposit = Agent(Deposit2);
+const Dashboard = All(Home);
+const Page404Protected = All(Page404);
 
 class App extends Component {
 	state = {
@@ -41,11 +45,11 @@ class App extends Component {
 				simplified={["/login"]}
 			>
 				<Switch>
-					<Route path="/" exact component={Home} />
+					<Route path="/" exact component={Dashboard} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/login" exact component={SignUp} />
-					<Route component={Page404} />
+					<Route component={Page404Protected} />
 				</Switch>
 			</Layout>
 		);

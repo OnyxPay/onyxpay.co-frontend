@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Actions from "../../redux/actions";
 import { PageTitle } from "../../components";
 import { Card, Button, Input, Row, Col, Form, Select } from "antd";
 import { Formik } from "formik";
@@ -23,7 +25,8 @@ const initialValues = {
 class SignUp extends Component {
 	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
 		console.log("sending", values);
-		resetForm();
+		this.props.saveUser({ name: "Lucas", role: "user" });
+		this.props.history.push("/");
 	};
 
 	handleSelectChange = setFieldValue => (value, option) => {
@@ -187,4 +190,7 @@ class SignUp extends Component {
 	}
 }
 
-export default SignUp;
+export default connect(
+	null,
+	{ saveUser: Actions.user.saveUser }
+)(SignUp);

@@ -59,7 +59,7 @@ class Sidebar extends React.Component {
 						</Link>
 					</Menu.Item>
 
-					{user.role === "user" && (
+					{user && user.role === "user" && (
 						<SubMenu
 							key="operations"
 							title={
@@ -81,7 +81,7 @@ class Sidebar extends React.Component {
 						</SubMenu>
 					)}
 
-					{(user.role === "agent" || user.role === "super agent") && (
+					{((user && user.role === "agent") || (user && user.role === "super agent")) && (
 						<SubMenu
 							key="OnyxCash (agent)"
 							title={

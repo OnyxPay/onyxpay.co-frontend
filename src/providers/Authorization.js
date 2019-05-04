@@ -18,7 +18,7 @@ function Authorization(allowedRoles) {
 			render() {
 				const { user } = this.props;
 				if (!user) {
-					return <Redirect to="/signup" />;
+					return <Redirect to="/login" />;
 				} else if (allowedRoles.includes(user.role)) {
 					return <WrappedComponent {...this.props} />;
 				} else {
