@@ -12,3 +12,11 @@ export const PageTitle = styled.h1`
 export const Container = styled.div`
 	padding: 0 24px;
 `;
+
+export const UnderlayBg = styled.div`
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-image: url(${p => p.img});
+`;

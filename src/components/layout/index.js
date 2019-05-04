@@ -12,7 +12,7 @@ const Layout = ({ location, isSideBarCollapsed, toggleSidebar, simplified, child
 		<AntLayout className="main-layout">
 			<AntLayout className="content-wrapper-simplified">
 				<AntLayout>
-					<MainContent>{children}</MainContent>
+					<MainContent noPadding>{children}</MainContent>
 					<Footer />
 				</AntLayout>
 			</AntLayout>

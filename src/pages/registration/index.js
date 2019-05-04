@@ -22,7 +22,7 @@ const initialValues = {
   https://codesandbox.io/s/4x47oznvvx
 
 */
-class SignUp extends Component {
+class Registration extends Component {
 	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
 		console.log("sending", values);
 		this.props.saveUser({ name: "Lucas", role: "user" });
@@ -193,4 +193,4 @@ class SignUp extends Component {
 export default connect(
 	null,
 	{ saveUser: Actions.user.saveUser }
-)(SignUp);
+)(Registration);

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
-import { Home, Page404, Deposit, SignUp } from "./pages";
+import { Home, Page404, Deposit, Registration, Login } from "./pages";
 import Layout from "./components/layout";
 import Authorization from "./providers/Authorization";
 // import { getContractsAddress } from "./api/contracts";
@@ -42,13 +42,14 @@ class App extends Component {
 			<Layout
 				isSideBarCollapsed={collapsed}
 				toggleSidebar={this.toggleSidebar}
-				simplified={["/login"]}
+				simplified={["/login", "/registration"]}
 			>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
-					<Route path="/login" exact component={SignUp} />
+					<Route path="/login" exact component={Login} />
+					<Route path="/registration" exact component={Registration} />
 					<Route component={Page404Protected} />
 				</Switch>
 			</Layout>
