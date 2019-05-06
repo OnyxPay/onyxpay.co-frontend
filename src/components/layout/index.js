@@ -2,6 +2,14 @@ import React from "react";
 import { Layout as AntLayout } from "antd";
 import { Header, Footer, MainContent, Sidebar } from "../index";
 import { withRouter } from "react-router-dom";
+import styled from "styled-components";
+
+const MainLayout = styled.section`
+	min-height: 100vh;
+	display: flex;
+	flex: auto;
+	flex-direction: column;
+`;
 
 const Layout = ({ location, isSideBarCollapsed, toggleSidebar, simplified, children }) => {
 	const onlyFooter = simplified.some(route => {
@@ -9,14 +17,10 @@ const Layout = ({ location, isSideBarCollapsed, toggleSidebar, simplified, child
 	});
 
 	return onlyFooter ? (
-		<AntLayout className="main-layout">
-			<AntLayout className="content-wrapper-simplified">
-				<AntLayout>
-					<MainContent noPadding>{children}</MainContent>
-					<Footer />
-				</AntLayout>
-			</AntLayout>
-		</AntLayout>
+		<MainLayout>
+			<MainContent noPadding>{children}</MainContent>
+			<Footer />
+		</MainLayout>
 	) : (
 		<AntLayout className="main-layout">
 			<Header toggleSidebar={toggleSidebar} isSidebarCollapsed={isSideBarCollapsed} />

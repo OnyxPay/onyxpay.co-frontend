@@ -45,7 +45,7 @@ class Login extends Component {
 				<LoginCard>
 					<Title level={4}>Login to your account</Title>
 					<Button block type="primary">
-						Login
+						<Link to="/wallet-unlock">Login</Link>
 					</Button>
 					<LinksBlock>
 						<Text>Don't have account yet?</Text>
