@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Typography, Select, Form, Input } from "antd";
+import { get } from "lodash";
+import { Typography, Select, Form, Input, Upload, message, Button, Icon } from "antd";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { Wrapper, Card, SelectContainer, CardBody, UnlockTitle, FormButtons } from "./styled";
 import { importMnemonics, importPrivateKey } from "../../api/wallet";
@@ -15,6 +16,42 @@ import Actions from "../../redux/actions";
 const { Title } = Typography;
 const Option = Select.Option;
 const { TextArea } = Input;
+
+const props = {
+	onChange(info, ...rest) {
+		if (info.file.status !== "uploading") {
+			console.log(info.file, info.fileList);
+		}
+		if (info.file.status === "done") {
+			message.success(`${info.file.name} file uploaded successfully`);
+		} else if (info.file.status === "error") {
+			message.error(`${info.file.name} file upload failed.`);
+		}
+	},
+	beforeUpload(file, fileList) {
+		console.log(file, fileList);
+		const reader = new FileReader();
+		reader.onloadend = async (e: any) => {
+			let data = get(e.target, "result");
+
+			try {
+				const parsed = JSON.parse(data);
+				if (parsed.identities == null) {
+					parsed.identities = [];
+					data = JSON.stringify(parsed);
+				}
+
+				const wallet = JSON.parse(data);
+				console.log(wallet);
+			} catch (e) {
+				console.log("reader.onloadend error - ", e);
+			}
+
+			reader.readAsText(file);
+		};
+		return false;
+	},
+};
 
 class WalletUnlock extends Component {
 	state = {
@@ -92,7 +129,13 @@ class WalletUnlock extends Component {
 
 							{value === 0 && (
 								<TabContent>
-									<div>Import wallet</div>
+									<div>
+										<Upload {...props} multiple={false}>
+											<Button>
+												<Icon type="upload" /> Click to Upload
+											</Button>
+										</Upload>
+									</div>
 								</TabContent>
 							)}
 							{/* Mnemonics tab */}
