@@ -4,10 +4,14 @@ import { Formik } from "formik";
 import { Typography, Select, Form, Input } from "antd";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { Wrapper, Card, SelectContainer, CardBody, UnlockTitle, FormButtons } from "./styled";
-import { importMnemonics } from "../../api/auth";
-import { isMnemonicsValid } from "../../utils/validate";
+import { importMnemonics, importPrivateKey } from "../../api/wallet";
+import { isMnemonicsValid, isPkValid } from "../../utils/validate";
 import Actions from "../../redux/actions";
 
+/* 
+	TODO:
+	debounce validation
+*/
 const { Title } = Typography;
 const Option = Select.Option;
 const { TextArea } = Input;
@@ -26,8 +30,23 @@ class WalletUnlock extends Component {
 
 		try {
 			const { wallet } = await importMnemonics(mnemonics, password);
-			// pass data to login API
-			this.props.setWallet(wallet); // save wallet
+			console.log(wallet);
+			//TODO: pass data to login API
+			this.props.setWallet(wallet);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	handleUnlockWithPk = async ({ pk, password }, { setSubmitting, resetForm }) => {
+		console.log("sending", pk, password);
+
+		try {
+			const { wallet } = await importPrivateKey(pk, password);
+			console.log(wallet);
+			this.props.setWallet(wallet);
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -50,9 +69,9 @@ class WalletUnlock extends Component {
 
 						<SelectContainer>
 							<Select defaultValue="0" style={{ width: "100%" }} onChange={this.handleTabChange}>
-								<Option value="0">Private key</Option>
+								<Option value="0">Import wallet</Option>
 								<Option value="1">Mnemonics phrase</Option>
-								<Option value="2">Import wallet</Option>
+								<Option value="2">Private key</Option>
 							</Select>
 						</SelectContainer>
 
@@ -60,22 +79,20 @@ class WalletUnlock extends Component {
 							<TabsNav>
 								<Tabs value={value} onChange={this.handleTabChange}>
 									<Tab>
-										<TabLabel>Private key</TabLabel>
+										<TabLabel>Import wallet</TabLabel>
 									</Tab>
 									<Tab>
 										<TabLabel>Mnemonics phrase</TabLabel>
 									</Tab>
 									<Tab>
-										<TabLabel>Import wallet</TabLabel>
+										<TabLabel>Private key</TabLabel>
 									</Tab>
 								</Tabs>
 							</TabsNav>
 
 							{value === 0 && (
 								<TabContent>
-									<div>
-										Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots
-									</div>
+									<div>Import wallet</div>
 								</TabContent>
 							)}
 							{/* Mnemonics tab */}
@@ -122,7 +139,7 @@ class WalletUnlock extends Component {
 																onChange={handleChange}
 																onBlur={handleBlur}
 																disabled={isSubmitting}
-																rows={4}
+																rows={3}
 																style={{ resize: "none" }}
 															/>
 														</Form.Item>
@@ -151,9 +168,77 @@ class WalletUnlock extends Component {
 									</div>
 								</TabContent>
 							)}
+							{/* Private key tab */}
 							{value === 2 && (
 								<TabContent>
-									<div>Import wallet</div>
+									<div>
+										<Formik
+											onSubmit={this.handleUnlockWithPk}
+											initialValues={{ pk: "", password: "" }}
+											validate={({ pk, password }) => {
+												let errors = {};
+												if (!pk) {
+													errors.pk = "required";
+												} else if (!isPkValid(pk)) {
+													errors.pk = "Private key is not valid";
+												}
+												if (!password) {
+													errors.password = "required";
+												}
+												return errors;
+											}}
+										>
+											{({
+												values,
+												errors,
+												touched,
+												isSubmitting,
+												handleChange,
+												handleBlur,
+												handleSubmit,
+												...rest
+											}) => {
+												return (
+													<form onSubmit={handleSubmit}>
+														<Form.Item
+															label="Please enter your private key"
+															required
+															validateStatus={errors.pk && touched.pk ? "error" : ""}
+															help={errors.pk && touched.pk ? errors.pk : ""}
+														>
+															<TextArea
+																name="pk"
+																value={values.pk}
+																onChange={handleChange}
+																onBlur={handleBlur}
+																disabled={isSubmitting}
+																rows={2}
+																style={{ resize: "none" }}
+															/>
+														</Form.Item>
+
+														<Form.Item
+															label="Temporary session password"
+															className="ant-form-item--lh32"
+															required
+															validateStatus={errors.password && touched.password ? "error" : ""}
+															help={errors.password && touched.password ? errors.password : ""}
+														>
+															<Input
+																name="password"
+																value={values.password}
+																onChange={handleChange}
+																onBlur={handleBlur}
+																disabled={isSubmitting}
+															/>
+														</Form.Item>
+
+														<FormButtons isSubmitting={isSubmitting} />
+													</form>
+												);
+											}}
+										</Formik>
+									</div>
 								</TabContent>
 							)}
 						</TabsContainer>

@@ -1,5 +1,8 @@
 import { get } from "lodash";
-import { utils } from "ontology-ts-sdk";
+import { utils, Crypto } from "ontology-ts-sdk";
+import { deserializePrivateKey } from "../api/wallet";
+
+const PrivateKey = Crypto.PrivateKey;
 
 export function isMnemonicsValid(value) {
 	try {
@@ -16,6 +19,21 @@ export function isHexadecimal(str) {
 	if (regexp.test(str)) {
 		return str.length % 2 === 0;
 	} else {
+		return false;
+	}
+}
+
+export function isPkValid(privateKeyStr) {
+	try {
+		if (privateKeyStr.length === 52) {
+			// hex
+			PrivateKey.deserializeWIF(privateKeyStr);
+		} else {
+			// base58
+			deserializePrivateKey(privateKeyStr);
+		}
+		return true;
+	} catch (error) {
 		return false;
 	}
 }
