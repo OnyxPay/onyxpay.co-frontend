@@ -31,3 +31,9 @@
 .ant-table-wrapper.ovf-auto {
 	overflow-x: auto;
 }
+
+.ant-form-item--lh32 {
+	.ant-form-item-control {
+		line-height: 32px;
+	}
+}
