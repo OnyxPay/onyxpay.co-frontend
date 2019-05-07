@@ -1,17 +1,16 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Typography, Select, Form, Input } from "antd";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { Wrapper, Card, SelectContainer, CardBody, UnlockTitle, FormButtons } from "./styled";
+import { importMnemonics } from "../../api/auth";
+import { isMnemonicsValid } from "../../utils/validate";
+import Actions from "../../redux/actions";
 
 const { Title } = Typography;
 const Option = Select.Option;
 const { TextArea } = Input;
-
-const initialValues = {
-	mnemonics: "",
-	password: "",
-};
 
 class WalletUnlock extends Component {
 	state = {
@@ -22,8 +21,18 @@ class WalletUnlock extends Component {
 		this.setState({ value: Number(value) });
 	};
 
-	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
-		console.log("sending", values);
+	handleUnlockWithMnemonics = async ({ mnemonics, password }, { setSubmitting, resetForm }) => {
+		console.log("sending", mnemonics, password);
+
+		try {
+			const { wallet } = await importMnemonics(mnemonics, password);
+			// pass data to login API
+			this.props.setWallet(wallet); // save wallet
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setSubmitting(false);
+		}
 	};
 
 	render() {
@@ -69,33 +78,44 @@ class WalletUnlock extends Component {
 									</div>
 								</TabContent>
 							)}
+							{/* Mnemonics tab */}
 							{value === 1 && (
 								<TabContent>
 									<div>
 										<Formik
-											onSubmit={this.handleFormSubmit}
-											initialValues={initialValues}
-											validate={values => {
+											onSubmit={this.handleUnlockWithMnemonics}
+											initialValues={{ mnemonics: "", password: "" }}
+											validate={({ mnemonics, password }) => {
 												let errors = {};
-												// if (!values.firstName) {
-												// 	errors.firstName = "required";
-												// }
+												if (!mnemonics) {
+													errors.mnemonics = "required";
+												} else if (!isMnemonicsValid(mnemonics)) {
+													errors.mnemonics = "mnemonics phrase is not valid";
+												}
+												if (!password) {
+													errors.password = "required";
+												}
 												return errors;
 											}}
 										>
 											{({
 												values,
 												errors,
+												touched,
 												isSubmitting,
 												handleChange,
 												handleBlur,
 												handleSubmit,
-												setFieldValue,
 												...rest
 											}) => {
 												return (
 													<form onSubmit={handleSubmit}>
-														<Form.Item label="Please enter your 24 word phrase">
+														<Form.Item
+															label="Please enter your 24 word phrase"
+															required
+															validateStatus={errors.mnemonics && touched.mnemonics ? "error" : ""}
+															help={errors.mnemonics && touched.mnemonics ? errors.mnemonics : ""}
+														>
 															<TextArea
 																name="mnemonics"
 																value={values.mnemonics}
@@ -110,6 +130,9 @@ class WalletUnlock extends Component {
 														<Form.Item
 															label="Temporary session password"
 															className="ant-form-item--lh32"
+															required
+															validateStatus={errors.password && touched.password ? "error" : ""}
+															help={errors.password && touched.password ? errors.password : ""}
 														>
 															<Input
 																name="password"
@@ -141,4 +164,7 @@ class WalletUnlock extends Component {
 	}
 }
 
-export default WalletUnlock;
+export default connect(
+	null,
+	{ setWallet: Actions.wallet.setWallet }
+)(WalletUnlock);
