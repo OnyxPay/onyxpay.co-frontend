@@ -30,6 +30,13 @@ export const CardBody = styled.div`
 	box-shadow: rgb(228, 228, 228) 0px 0px 10px;
 	background: rgb(255, 255, 255);
 	padding: 40px 60px;
+	@media (max-width: 992px) {
+		padding: 40px 30px;
+	}
+
+	@media (max-width: 576px) {
+		padding: 30px 15px;
+	}
 `;
 
 export const UnlockTitle = styled.div`

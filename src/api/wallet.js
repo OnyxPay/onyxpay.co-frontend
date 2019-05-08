@@ -82,3 +82,19 @@ export function deserializePrivateKey(str: string): PrivateKey {
 		);
 	}
 }
+
+export function decryptWallet(wallet, password) {
+	const account = wallet.accounts[0];
+	const saltHex = Buffer.from(account.salt, "base64").toString("hex");
+	const encryptedKey = account.encryptedKey;
+	const scrypt = wallet.scrypt;
+
+	const pk = encryptedKey.decrypt(password, account.address, saltHex, {
+		blockSize: scrypt.r,
+		cost: scrypt.n,
+		parallel: scrypt.p,
+		size: scrypt.dkLen,
+	});
+
+	return { pk, wif: pk.serializeWIF(), wallet: wallet.toJson() };
+}

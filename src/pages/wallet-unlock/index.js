@@ -5,13 +5,14 @@ import { get } from "lodash";
 import { Typography, Select, Form, Input, Upload, Button, Icon } from "antd";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { Wrapper, Card, SelectContainer, CardBody, UnlockTitle, FormButtons } from "./styled";
-import { importMnemonics, importPrivateKey, getWallet } from "../../api/wallet";
+import { importMnemonics, importPrivateKey, getWallet, decryptWallet } from "../../api/wallet";
 import { isMnemonicsValid, isPkValid } from "../../utils/validate";
 import Actions from "../../redux/actions";
 
 /* 
 	TODO:
-	debounce validation
+	* debounce validation
+	* pass data to login API
 */
 const { Title } = Typography;
 const Option = Select.Option;
@@ -21,15 +22,20 @@ function isLtSize(file, mbSize) {
 	return file.size / 1024 / 1024 < mbSize;
 }
 class WalletUnlock extends Component {
-	state = {
-		value: 0,
-		fileList: [],
-		fileReadError: "",
-		uploadedWallet: null,
-	};
+	state = this.initState();
 
-	handleTabChange = value => {
-		this.setState({ value: Number(value) });
+	initState() {
+		return {
+			activeTabIndex: 0,
+			fileList: [],
+			fileReadError: "",
+			uploadedWallet: null,
+		};
+	}
+
+	handleTabChange = activeTabIndex => {
+		const initialState = this.initState();
+		this.setState({ ...initialState, activeTabIndex: Number(activeTabIndex) });
 	};
 
 	handleUnlockWithMnemonics = async ({ mnemonics, password }, { setSubmitting, resetForm }) => {
@@ -37,8 +43,6 @@ class WalletUnlock extends Component {
 
 		try {
 			const { wallet } = await importMnemonics(mnemonics, password);
-			console.log(wallet);
-			//TODO: pass data to login API
 			this.props.setWallet(wallet);
 		} catch (error) {
 			console.log(error);
@@ -61,8 +65,25 @@ class WalletUnlock extends Component {
 		}
 	};
 
-	handleUnlockWithFile = async ({ password }, { setSubmitting, resetForm }) => {
-		console.log("sending", password);
+	handleUnlockWithFile = async ({ wallet_account_address, password }, formActions) => {
+		const { uploadedWallet } = this.state;
+		const accounts = uploadedWallet.accounts.filter(acc => acc.address === wallet_account_address);
+		uploadedWallet.accounts = accounts;
+		uploadedWallet.defaultAccountAddress = wallet_account_address;
+		const parsedWallet = getWallet(uploadedWallet);
+
+		try {
+			const { pk, wif, wallet } = await decryptWallet(parsedWallet, password);
+			console.log("handleUnlockWithFile", pk, wif);
+
+			this.props.setWallet(wallet);
+		} catch (error) {
+			if (error === 53000) {
+				formActions.setFieldError("password", "account's password is not correct");
+			}
+		} finally {
+			formActions.setSubmitting(false);
+		}
 	};
 
 	handleFileChange = ({ file, fileList }) => {
@@ -84,15 +105,9 @@ class WalletUnlock extends Component {
 			reader.onloadend = async (e: any) => {
 				let data = get(e.target, "result");
 				try {
-					const parsed = JSON.parse(data);
-					if (parsed.identities == null) {
-						parsed.identities = [];
-						data = JSON.stringify(parsed);
-					}
 					const wallet = getWallet(JSON.parse(data)).toJsonObj();
 					this.setState({ uploadedWallet: wallet });
 				} catch (e) {
-					console.log("reader.onloadend error - ", e);
 					this.setState({ fileReadError: "wallet file is not valid" });
 				}
 			};
@@ -106,15 +121,17 @@ class WalletUnlock extends Component {
 
 	handleFileRemoval = file => {
 		const { fileList } = this.state;
-		console.log(file);
 		if (file.name === fileList[0].name) {
 			this.setState({ uploadedWallet: null });
 		}
 	};
 
-	render() {
-		const { value, fileList, fileReadError } = this.state;
+	handleAccountChange = setFieldValue => (value, option) => {
+		setFieldValue("wallet_account_address", value);
+	};
 
+	render() {
+		const { activeTabIndex, fileList, fileReadError, uploadedWallet } = this.state;
 		return (
 			<Wrapper>
 				<Card>
@@ -135,7 +152,7 @@ class WalletUnlock extends Component {
 
 						<TabsContainer>
 							<TabsNav>
-								<Tabs value={value} onChange={this.handleTabChange}>
+								<Tabs value={activeTabIndex} onChange={this.handleTabChange}>
 									<Tab>
 										<TabLabel>Import wallet</TabLabel>
 									</Tab>
@@ -149,17 +166,20 @@ class WalletUnlock extends Component {
 							</TabsNav>
 
 							{/* Import wallet tab */}
-							{value === 0 && (
+							{activeTabIndex === 0 && (
 								<TabContent>
 									<div>
 										<Formik
 											onSubmit={this.handleUnlockWithFile}
-											initialValues={{ password: "" }}
-											validate={({ password }) => {
+											initialValues={{ wallet_account_address: "", password: "" }}
+											validate={({ password, wallet_account_address }) => {
 												let errors = {};
 
 												if (!password) {
 													errors.password = "required";
+												}
+												if (!wallet_account_address) {
+													errors.wallet_account_address = "required";
 												}
 												return errors;
 											}}
@@ -172,15 +192,16 @@ class WalletUnlock extends Component {
 												handleChange,
 												handleBlur,
 												handleSubmit,
+												setFieldValue,
 												...rest
 											}) => {
 												return (
 													<form onSubmit={handleSubmit}>
 														<Form.Item
 															label="Select your wallet file"
-															required
 															validateStatus="error"
 															help={fileReadError && fileReadError}
+															className="ant-form-item--lh32"
 														>
 															<Upload
 																className="upload-wallet-container"
@@ -197,9 +218,49 @@ class WalletUnlock extends Component {
 														</Form.Item>
 
 														<Form.Item
-															label="Temporary session password"
+															label="Choose account"
 															className="ant-form-item--lh32"
-															required
+															validateStatus={
+																errors.wallet_account_address && touched.wallet_account_address
+																	? "error"
+																	: ""
+															}
+															help={
+																errors.wallet_account_address && touched.wallet_account_address
+																	? errors.wallet_account_address
+																	: ""
+															}
+														>
+															<Select
+																showSearch
+																name="wallet_account_address"
+																optionFilterProp="children"
+																value={uploadedWallet && values.wallet_account_address}
+																onChange={this.handleAccountChange(setFieldValue)}
+																filterOption={(input, option) =>
+																	option.props.children
+																		.toLowerCase()
+																		.indexOf(input.toLowerCase()) >= 0
+																}
+																disabled={!uploadedWallet || isSubmitting}
+															>
+																{uploadedWallet ? (
+																	uploadedWallet.accounts.map(acc => {
+																		return (
+																			<Option key={acc.address} value={acc.address}>
+																				{acc.address}
+																			</Option>
+																		);
+																	})
+																) : (
+																	<Option key="fdf">none</Option>
+																)}
+															</Select>
+														</Form.Item>
+
+														<Form.Item
+															label="Account's password"
+															className="ant-form-item--lh32"
 															validateStatus={errors.password && touched.password ? "error" : ""}
 															help={errors.password && touched.password ? errors.password : ""}
 														>
@@ -221,7 +282,7 @@ class WalletUnlock extends Component {
 								</TabContent>
 							)}
 							{/* Mnemonics tab */}
-							{value === 1 && (
+							{activeTabIndex === 1 && (
 								<TabContent>
 									<div>
 										<Formik
@@ -294,7 +355,7 @@ class WalletUnlock extends Component {
 								</TabContent>
 							)}
 							{/* Private key tab */}
-							{value === 2 && (
+							{activeTabIndex === 2 && (
 								<TabContent>
 									<div>
 										<Formik
