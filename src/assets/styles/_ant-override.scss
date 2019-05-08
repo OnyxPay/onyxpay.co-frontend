@@ -37,3 +37,9 @@
 		line-height: 32px;
 	}
 }
+
+.upload-wallet-container {
+	.ant-upload.ant-upload-select {
+		display: block;
+	}
+}

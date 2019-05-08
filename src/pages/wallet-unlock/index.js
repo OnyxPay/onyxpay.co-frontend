@@ -2,10 +2,10 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
 import { get } from "lodash";
-import { Typography, Select, Form, Input, Upload, message, Button, Icon } from "antd";
+import { Typography, Select, Form, Input, Upload, Button, Icon } from "antd";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { Wrapper, Card, SelectContainer, CardBody, UnlockTitle, FormButtons } from "./styled";
-import { importMnemonics, importPrivateKey } from "../../api/wallet";
+import { importMnemonics, importPrivateKey, getWallet } from "../../api/wallet";
 import { isMnemonicsValid, isPkValid } from "../../utils/validate";
 import Actions from "../../redux/actions";
 
@@ -17,45 +17,15 @@ const { Title } = Typography;
 const Option = Select.Option;
 const { TextArea } = Input;
 
-const props = {
-	onChange(info, ...rest) {
-		if (info.file.status !== "uploading") {
-			console.log(info.file, info.fileList);
-		}
-		if (info.file.status === "done") {
-			message.success(`${info.file.name} file uploaded successfully`);
-		} else if (info.file.status === "error") {
-			message.error(`${info.file.name} file upload failed.`);
-		}
-	},
-	beforeUpload(file, fileList) {
-		console.log(file, fileList);
-		const reader = new FileReader();
-		reader.onloadend = async (e: any) => {
-			let data = get(e.target, "result");
-
-			try {
-				const parsed = JSON.parse(data);
-				if (parsed.identities == null) {
-					parsed.identities = [];
-					data = JSON.stringify(parsed);
-				}
-
-				const wallet = JSON.parse(data);
-				console.log(wallet);
-			} catch (e) {
-				console.log("reader.onloadend error - ", e);
-			}
-
-			reader.readAsText(file);
-		};
-		return false;
-	},
-};
-
+function isLtSize(file, mbSize) {
+	return file.size / 1024 / 1024 < mbSize;
+}
 class WalletUnlock extends Component {
 	state = {
 		value: 0,
+		fileList: [],
+		fileReadError: "",
+		uploadedWallet: null,
 	};
 
 	handleTabChange = value => {
@@ -91,8 +61,59 @@ class WalletUnlock extends Component {
 		}
 	};
 
+	handleUnlockWithFile = async ({ password }, { setSubmitting, resetForm }) => {
+		console.log("sending", password);
+	};
+
+	handleFileChange = ({ file, fileList }) => {
+		const isLt1M = isLtSize(file, 1);
+		fileList = fileList.slice(-1);
+
+		if (isLt1M) {
+			this.setState({ fileList, fileReadError: "" });
+		} else {
+			this.setState({ fileList: [], fileReadError: "wallet file is not valid" });
+		}
+	};
+
+	handleFileUpload = (file, fileList) => {
+		const isLt1M = isLtSize(file, 1);
+
+		if (isLt1M) {
+			const reader = new FileReader();
+			reader.onloadend = async (e: any) => {
+				let data = get(e.target, "result");
+				try {
+					const parsed = JSON.parse(data);
+					if (parsed.identities == null) {
+						parsed.identities = [];
+						data = JSON.stringify(parsed);
+					}
+					const wallet = getWallet(JSON.parse(data)).toJsonObj();
+					this.setState({ uploadedWallet: wallet });
+				} catch (e) {
+					console.log("reader.onloadend error - ", e);
+					this.setState({ fileReadError: "wallet file is not valid" });
+				}
+			};
+			reader.readAsText(file);
+		} else {
+			this.setState({ fileReadError: "wallet file is not valid" });
+		}
+
+		return false;
+	};
+
+	handleFileRemoval = file => {
+		const { fileList } = this.state;
+		console.log(file);
+		if (file.name === fileList[0].name) {
+			this.setState({ uploadedWallet: null });
+		}
+	};
+
 	render() {
-		const { value } = this.state;
+		const { value, fileList, fileReadError } = this.state;
 
 		return (
 			<Wrapper>
@@ -127,14 +148,75 @@ class WalletUnlock extends Component {
 								</Tabs>
 							</TabsNav>
 
+							{/* Import wallet tab */}
 							{value === 0 && (
 								<TabContent>
 									<div>
-										<Upload {...props} multiple={false}>
-											<Button>
-												<Icon type="upload" /> Click to Upload
-											</Button>
-										</Upload>
+										<Formik
+											onSubmit={this.handleUnlockWithFile}
+											initialValues={{ password: "" }}
+											validate={({ password }) => {
+												let errors = {};
+
+												if (!password) {
+													errors.password = "required";
+												}
+												return errors;
+											}}
+										>
+											{({
+												values,
+												errors,
+												touched,
+												isSubmitting,
+												handleChange,
+												handleBlur,
+												handleSubmit,
+												...rest
+											}) => {
+												return (
+													<form onSubmit={handleSubmit}>
+														<Form.Item
+															label="Select your wallet file"
+															required
+															validateStatus="error"
+															help={fileReadError && fileReadError}
+														>
+															<Upload
+																className="upload-wallet-container"
+																fileList={fileList}
+																multiple={false}
+																onChange={this.handleFileChange}
+																beforeUpload={this.handleFileUpload}
+																onRemove={this.handleFileRemoval}
+															>
+																<Button block>
+																	<Icon type="upload" /> Click here to upload file
+																</Button>
+															</Upload>
+														</Form.Item>
+
+														<Form.Item
+															label="Temporary session password"
+															className="ant-form-item--lh32"
+															required
+															validateStatus={errors.password && touched.password ? "error" : ""}
+															help={errors.password && touched.password ? errors.password : ""}
+														>
+															<Input
+																name="password"
+																value={values.password}
+																onChange={handleChange}
+																onBlur={handleBlur}
+																disabled={isSubmitting}
+															/>
+														</Form.Item>
+
+														<FormButtons isSubmitting={isSubmitting} />
+													</form>
+												);
+											}}
+										</Formik>
 									</div>
 								</TabContent>
 							)}

@@ -8,7 +8,7 @@ const KeyType = Crypto.KeyType;
 const CurveLabel = Crypto.CurveLabel;
 
 export function getWallet(walletEncoded) {
-	if (walletEncoded == null) {
+	if (!walletEncoded) {
 		throw new Error("Missing wallet data.");
 	}
 	return Wallet.parseJsonObj(walletEncoded);
