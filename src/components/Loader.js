@@ -16,10 +16,10 @@ const Bg = styled.div`
 `;
 
 // TODO: better error display
-export const Loader = props => {
-	if (props.error) {
+export const Loader = ({ error, pastDelay }) => {
+	if (error) {
 		return <div>Oh no, something went wrong!</div>;
-	} else if (props.delay) {
+	} else if (pastDelay) {
 		return (
 			<Bg>
 				<img src={loaderSvg} alt="loader" />

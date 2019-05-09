@@ -142,7 +142,9 @@ function mapStateToProps(state) {
 	};
 }
 
-export const SideBarContainer = compose(
+Sidebar = compose(
 	withRouter,
 	connect(mapStateToProps)
 )(Sidebar);
+
+export default Sidebar;

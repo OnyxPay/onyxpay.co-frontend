@@ -11,45 +11,32 @@ const Deposit2 = props => <div>Agent's deposit...</div>;
 
 let Dashboard = Loadable({
 	loader: () => import(/* webpackChunkName: "Home" */ "./pages/dashboard"),
-	loading() {
-		return <Loader />;
-	},
-	delay: 300,
+	loading: Loader,
 });
 
 const Login = Loadable({
 	loader: () => import(/* webpackChunkName: "Login" */ "./pages/login"),
-	loading() {
-		return <Loader />;
-	},
+	loading: Loader,
 });
 
 const Registration = Loadable({
 	loader: () => import(/* webpackChunkName: "Registration" */ "./pages/registration"),
-	loading() {
-		return <Loader />;
-	},
+	loading: Loader,
 });
 
 const WalletUnlock = Loadable({
 	loader: () => import(/* webpackChunkName: "WalletUnlock" */ "./pages/wallet-unlock"),
-	loading() {
-		return <Loader />;
-	},
+	loading: Loader,
 });
 
 let Page404 = Loadable({
 	loader: () => import(/* webpackChunkName: "Page404" */ "./pages/404"),
-	loading() {
-		return <Loader />;
-	},
+	loading: Loader,
 });
 
 const Deposit = Loadable({
 	loader: () => import(/* webpackChunkName: "Page404" */ "./pages/deposit"),
-	loading() {
-		return <Loader />;
-	},
+	loading: Loader,
 });
 
 // permissions

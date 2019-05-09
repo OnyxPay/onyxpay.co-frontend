@@ -1,6 +1,9 @@
 import React from "react";
 import { Layout as AntLayout } from "antd";
-import { Header, Footer, MainContent, Sidebar } from "../index";
+import { HeaderComponent as Header } from "./Header";
+import { MainContent } from "./MainContent";
+import Sidebar from "./Sidebar";
+import { FooterComponent as Footer } from "./Footer";
 import { withRouter } from "react-router-dom";
 import styled from "styled-components";
 
