@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import loaderSvg from "../assets/icons/loader.svg";
-// import { Spin } from "antd";
 
 const Bg = styled.div`
 	position: fixed;
@@ -16,10 +15,17 @@ const Bg = styled.div`
 	justify-content: center;
 `;
 
-export const LoadingIndicator = () => {
-	return (
-		<Bg>
-			<img src={loaderSvg} alt="loader" />
-		</Bg>
-	);
+// TODO: better error display
+export const Loader = props => {
+	if (props.error) {
+		return <div>Oh no, something went wrong!</div>;
+	} else if (props.delay) {
+		return (
+			<Bg>
+				<img src={loaderSvg} alt="loader" />
+			</Bg>
+		);
+	} else {
+		return null;
+	}
 };

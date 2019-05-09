@@ -3,10 +3,10 @@ import { FooterComponent as Footer } from "./layout/Footer";
 import { MainContent } from "./layout/MainContent";
 import { SideBarContainer as Sidebar } from "./layout/Sidebar";
 import { PageTitle, Container } from "./styled";
-import TransactonsTable from "./TransactionsTable";
+import TransactionsTable from "./TransactionsTable";
 import { BalanceCard } from "./balance/Card";
 import { ExternalRedirect } from "./ExternalRedirect";
-import { LoadingIndicator } from "./LoadingIndicator";
+import { Loader } from "./Loader";
 
 export {
 	Header,
@@ -14,9 +14,9 @@ export {
 	MainContent,
 	Sidebar,
 	PageTitle,
-	TransactonsTable,
+	TransactionsTable,
 	Container,
 	BalanceCard,
 	ExternalRedirect,
-	LoadingIndicator,
+	Loader,
 };

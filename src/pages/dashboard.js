@@ -1,16 +1,18 @@
 import React from "react";
-import { PageTitle, TransactonsTable } from "../components";
+import { PageTitle, TransactionsTable } from "../components";
 import { Card } from "antd";
 import Balance from "../components/balance/Balance";
 
-export const Home = () => {
+const Home = () => {
 	return (
 		<>
 			<PageTitle>Dashboard</PageTitle>
 			<Balance />
 			<Card title="Recent Transactions">
-				<TransactonsTable />
+				<TransactionsTable />
 			</Card>
 		</>
 	);
 };
+
+export default Home;
