@@ -48,7 +48,7 @@ export const UnlockTitle = styled.div`
 	}
 `;
 
-const FormButtonsGroup = styled.div`
+export const FormButtonsGroup = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -87,7 +87,7 @@ export const FormButtons = ({ isSubmitting, type }) => {
 				</Link>
 				<Button type="primary" htmlType="submit" disabled={isSubmitting} loading={isSubmitting}>
 					Unlock wallet
-					<Icon type="right" />
+					<Icon type="arrow-right" />
 				</Button>
 			</FormButtonsGroup>
 		);

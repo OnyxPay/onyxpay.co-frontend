@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import styled from "styled-components";
@@ -26,6 +28,11 @@ const LoginCard = styled.div`
 `;
 
 class Login extends Component {
+	openDashboard = () => {
+		this.props.saveUser({ name: "Lucas", role: "user" });
+		this.props.history.push("/");
+	};
+
 	render() {
 		return (
 			<UnderlayBg img={bgImg}>
@@ -36,10 +43,13 @@ class Login extends Component {
 					<Button block type="primary" style={{ marginBottom: 5 }}>
 						<Link to={{ pathname: "/wallet-unlock", state: { from: "login" } }}>Login</Link>
 					</Button>
-					<Button block type="primary">
+					<Button block type="primary" style={{ marginBottom: 5 }}>
 						<Link to={{ pathname: "/wallet-create", state: { from: "create_account" } }}>
 							Create account
 						</Link>
+					</Button>
+					<Button block onClick={this.openDashboard} type="danger">
+						Open Dashboard
 					</Button>
 				</LoginCard>
 			</UnderlayBg>
@@ -47,4 +57,7 @@ class Login extends Component {
 	}
 }
 
-export default Login;
+export default connect(
+	null,
+	{ saveUser: Actions.user.saveUser }
+)(Login);
