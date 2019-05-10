@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Formik } from "formik";
 import { Typography, Form, Input, Checkbox } from "antd";
+import { saveAs } from "file-saver";
 import { Wrapper, Card, CardBody, FormButtons } from "../wallet-unlock/styled";
 import { samePassword } from "../../utils/validate";
 import { createWalletAccount } from "../../api/wallet";
@@ -13,13 +14,26 @@ class WalletCreate extends Component {
 	handleCreateWallet = async ({ password }, { setSubmitting, resetForm }) => {
 		try {
 			const { mnemonics, wif, wallet } = await createWalletAccount(password);
+			// save data into state
+			// export file
 			console.log({ mnemonics, wif, wallet });
+			this.handleExport(wallet);
 		} catch (error) {
 			console.log(error);
 		} finally {
 			setSubmitting(false);
 		}
 	};
+
+	handleExport = wallet => {
+		const blob = new Blob([wallet], {
+			type: "text/plain;charset=utf-8",
+		});
+		const now = new Date().toLocaleDateString();
+		const name = `onyx_pay_wallet_${now}.dat`;
+		saveAs(blob, name);
+	};
+
 	render() {
 		return (
 			<Wrapper>
