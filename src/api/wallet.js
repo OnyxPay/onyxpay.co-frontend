@@ -1,4 +1,4 @@
-import { Account, Crypto, Wallet } from "ontology-ts-sdk";
+import { Account, Crypto, Wallet, utils } from "ontology-ts-sdk";
 import { v4 as uuid } from "uuid";
 import { Reader } from "ontology-ts-crypto";
 
@@ -12,6 +12,17 @@ export function getWallet(walletEncoded) {
 		throw new Error("Missing wallet data.");
 	}
 	return Wallet.parseJsonObj(walletEncoded);
+}
+
+export function createMnemonicsAndPk() {
+	const mnemonics = utils.generateMnemonic(32);
+	const wif = PrivateKey.generateFromMnemonic(mnemonics, "m/44'/888'/0'/0/0").serializeWIF();
+	return { mnemonics, wif };
+}
+
+export async function createWalletAccount(password) {
+	const { mnemonics } = createMnemonicsAndPk();
+	return await importMnemonics(mnemonics, password);
 }
 
 export async function importPrivateKey(privateKeyStr, password, wallet) {

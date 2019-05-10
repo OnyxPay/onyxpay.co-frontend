@@ -3,11 +3,23 @@ import { Formik } from "formik";
 import { Typography, Form, Input, Checkbox } from "antd";
 import { Wrapper, Card, CardBody, FormButtons } from "../wallet-unlock/styled";
 import { samePassword } from "../../utils/validate";
+import { createWalletAccount } from "../../api/wallet";
 
 const { Text, Title } = Typography;
 
 class WalletCreate extends Component {
 	state = {};
+
+	handleCreateWallet = async ({ password }, { setSubmitting, resetForm }) => {
+		try {
+			const { mnemonics, wif, wallet } = await createWalletAccount(password);
+			console.log({ mnemonics, wif, wallet });
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setSubmitting(false);
+		}
+	};
 	render() {
 		return (
 			<Wrapper>
@@ -18,7 +30,7 @@ class WalletCreate extends Component {
 						</Title>
 						<div>
 							<Formik
-								onSubmit={this.handleUnlockWithMnemonics}
+								onSubmit={this.handleCreateWallet}
 								initialValues={{ password: "", password_confirm: "", terms_confirm: false }}
 								validate={({ password, password_confirm, terms_confirm }) => {
 									let errors = {};
