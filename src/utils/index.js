@@ -20,7 +20,7 @@ export function getCookie(cname) {
 	return "";
 }
 
-export const wait = (ms, resolveWith) => {
+export const wait = (ms = 300, resolveWith = null) => {
 	return new Promise(resolve => {
 		setTimeout(() => resolve(resolveWith), ms);
 	});

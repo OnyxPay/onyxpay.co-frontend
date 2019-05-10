@@ -4,6 +4,7 @@ import { Typography, Form, Input, Checkbox, Button, Icon } from "antd";
 import { saveAs } from "file-saver";
 import { Wrapper, Card, CardBody, FormButtons, FormButtonsGroup } from "../wallet-unlock/styled";
 import { samePassword } from "../../utils/validate";
+import { wait } from "../../utils";
 import { createWalletAccount } from "../../api/wallet";
 import styled from "styled-components";
 const { Text, Title } = Typography;
@@ -31,10 +32,17 @@ const Label = styled.div`
 	margin-bottom: 5px;
 `;
 
+const BackupTitle = styled.div`
+	font-size: 16px;
+	font-weight: 500;
+	margin-bottom: 10px;
+	color: #cf1322;
+`;
+
 const Nav = ({ changeView }) => {
 	return (
 		<FormButtonsGroup>
-			<Button type="link" style={{ paddingLeft: 0 }} onClick={changeView(0)}>
+			<Button type="link" style={{ paddingLeft: 0 }} onClick={changeView(0, true)}>
 				<Icon type="arrow-left" /> Go back
 			</Button>
 			<Button type="primary" onClick={changeView(2)}>
@@ -46,16 +54,22 @@ const Nav = ({ changeView }) => {
 };
 
 class WalletCreate extends Component {
-	state = {
-		viewIndex: 0,
-	};
+	state = this.initState();
+
+	initState() {
+		return {
+			viewIndex: 0,
+			pk: "",
+			mnemonics: "",
+		};
+	}
 
 	handleCreateWallet = async ({ password }, { setSubmitting, resetForm }) => {
 		try {
 			const { mnemonics, wif, wallet } = await createWalletAccount(password);
-			// save data into state
-			console.log({ mnemonics, wif, wallet });
 			this.handleExport(wallet);
+			this.setState({ pk: wif, mnemonics });
+			await wait(500);
 			this.handleNav(1)();
 		} catch (error) {
 			console.log(error);
@@ -73,12 +87,16 @@ class WalletCreate extends Component {
 		saveAs(blob, name);
 	};
 
-	handleNav = index => () => {
-		this.setState({ viewIndex: index });
+	handleNav = (index, resetState) => () => {
+		if (resetState) {
+			this.setState({ ...this.initState(), viewIndex: index });
+		} else {
+			this.setState({ viewIndex: index });
+		}
 	};
 
 	render() {
-		const { viewIndex } = this.state;
+		const { viewIndex, mnemonics, pk } = this.state;
 
 		return (
 			<Wrapper>
@@ -190,16 +208,17 @@ class WalletCreate extends Component {
 
 						{viewIndex === 1 && (
 							<div>
+								<BackupTitle>
+									<Icon type="edit" /> Write down the text below on paper and keep it somewhere
+									secret and safe!
+								</BackupTitle>
 								<Label>Mnemonics phrase</Label>
 								<PrivateText mb="24px">
-									<MnemonicsText>
-										flame brown anger fresh original slim merit aim skill issue long citizen tattoo
-										hollow sphere frown sentence mammal job exist assault trim legend gorilla
-									</MnemonicsText>
+									<MnemonicsText>{mnemonics}</MnemonicsText>
 								</PrivateText>
 								<Label>Private key (WIF format)</Label>
 								<PrivateText mb="24px">
-									<PkText>L1G8L7ux8VBepd9u6hPMhqcJfsnmrcG3koqadiNu4v7yPQEfmE1b</PkText>
+									<PkText>{pk}</PkText>
 								</PrivateText>
 								<Nav changeView={this.handleNav} />
 							</div>
