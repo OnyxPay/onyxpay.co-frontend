@@ -2,16 +2,10 @@ import React, { Component } from "react";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import styled from "styled-components";
-import { Typography, Button, Icon } from "antd";
+import { Typography, Button } from "antd";
 import { Link } from "react-router-dom";
-import { ReactComponent as NewUserSvg } from "../../assets/icons/new-user.svg";
 
-const { Title, Text } = Typography;
-
-const LinksBlock = styled.div`
-	margin: 15px 0;
-	text-align: center;
-`;
+const { Title } = Typography;
 
 const LoginCard = styled.div`
 	border: 1px solid #e8e8e8;
@@ -31,43 +25,22 @@ const LoginCard = styled.div`
 	}
 `;
 
-const IconBox = styled.span`
-	i {
-		font-size: 16px;
-		padding-right: 5px;
-	}
-`;
-
 class Login extends Component {
 	render() {
 		return (
 			<UnderlayBg img={bgImg}>
 				<LoginCard>
-					<Title level={4}>Login to your account</Title>
-					<Button block type="primary">
-						<Link to="/wallet-unlock">Login</Link>
+					<Title level={4} style={{ textAlign: "center", marginBottom: 24 }} type="secondary">
+						Welcome to OnyxPay
+					</Title>
+					<Button block type="primary" style={{ marginBottom: 5 }}>
+						<Link to={{ pathname: "/wallet-unlock", state: { from: "login" } }}>Login</Link>
 					</Button>
-					<LinksBlock>
-						<Text>Don't have account yet?</Text>
-						<div>
-							<IconBox>
-								<Icon component={NewUserSvg} />
-							</IconBox>
-							<Link to="/registration">Create Customer Account</Link>
-						</div>
-						<div>
-							<IconBox>
-								<Icon component={NewUserSvg} />
-							</IconBox>
-							<Link to="/registration">Create Agent Account</Link>
-						</div>
-						<div>
-							<IconBox>
-								<Icon component={NewUserSvg} />
-							</IconBox>
-							<Link to="/registration">Create Super Agent Account</Link>
-						</div>
-					</LinksBlock>
+					<Button block type="primary">
+						<Link to={{ pathname: "/wallet-create", state: { from: "create_account" } }}>
+							Create account
+						</Link>
+					</Button>
 				</LoginCard>
 			</UnderlayBg>
 		);

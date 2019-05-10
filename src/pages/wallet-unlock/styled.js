@@ -13,7 +13,7 @@ export const Wrapper = styled.div`
 export const Card = styled.div`
 	margin-top: 120px;
 	margin-bottom: 30px;
-	width: 850px;
+	width: ${p => (p.wide ? "850px" : "600px")};
 	@media (max-width: 992px) {
 		margin-top: 0;
 		width: 100%;
@@ -59,16 +59,37 @@ const linkDisabled = {
 	cursor: "default",
 	color: "rgba(0, 0, 0, 0.25)",
 };
-export const FormButtons = ({ isSubmitting }) => {
-	return (
-		<FormButtonsGroup>
-			<Link to="/registration" style={isSubmitting ? linkDisabled : {}}>
-				Create a new wallet
-			</Link>
-			<Button type="primary" htmlType="submit" disabled={isSubmitting} loading={isSubmitting}>
-				Unlock wallet
-				<Icon type="right" />
-			</Button>
-		</FormButtonsGroup>
-	);
+
+export const FormButtons = ({ isSubmitting, type }) => {
+	if (type && type === "create") {
+		return (
+			<FormButtonsGroup>
+				<Link
+					to={{ pathname: "/wallet-unlock", state: { from: "create_account" } }}
+					style={isSubmitting ? linkDisabled : {}}
+				>
+					Use existing wallet
+				</Link>
+				<Button type="primary" htmlType="submit" disabled={isSubmitting} loading={isSubmitting}>
+					Download wallet file
+					<Icon type="arrow-right" />
+				</Button>
+			</FormButtonsGroup>
+		);
+	} else {
+		return (
+			<FormButtonsGroup>
+				<Link
+					to={{ pathname: "/wallet-create", state: { from: "login" } }}
+					style={isSubmitting ? linkDisabled : {}}
+				>
+					Create a new wallet
+				</Link>
+				<Button type="primary" htmlType="submit" disabled={isSubmitting} loading={isSubmitting}>
+					Unlock wallet
+					<Icon type="right" />
+				</Button>
+			</FormButtonsGroup>
+		);
+	}
 };

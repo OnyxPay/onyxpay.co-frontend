@@ -134,7 +134,7 @@ class WalletUnlock extends Component {
 		const { activeTabIndex, fileList, fileReadError, uploadedWallet } = this.state;
 		return (
 			<Wrapper>
-				<Card>
+				<Card wide>
 					<CardBody>
 						<Title level={3} style={{ textAlign: "center" }}>
 							Unlock Your Wallet

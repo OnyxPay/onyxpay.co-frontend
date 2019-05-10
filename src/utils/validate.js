@@ -40,11 +40,11 @@ export function isPkValid(privateKeyStr) {
 
 export function samePassword(values) {
 	const password = get(values, "password", "");
-	const passwordAgain = get(values, "passwordAgain", "");
+	const passwordAgain = get(values, "password_confirm", "");
 
 	if (password !== passwordAgain) {
 		return {
-			passwordAgain: "Password does not match",
+			password_confirm: "Password does not match",
 		};
 	}
 
