@@ -97,7 +97,7 @@ class WalletUnlock extends Component {
 		}
 	};
 
-	handleFileUpload = (file, fileList) => {
+	handleFileUpload = setFieldValue => (file, fileList) => {
 		const isLt1M = isLtSize(file, 1);
 
 		if (isLt1M) {
@@ -106,7 +106,16 @@ class WalletUnlock extends Component {
 				let data = get(e.target, "result");
 				try {
 					const wallet = getWallet(JSON.parse(data)).toJsonObj();
-					this.setState({ uploadedWallet: wallet });
+					this.setState({ uploadedWallet: wallet }, () => {
+						if (this.state.uploadedWallet.accounts.length === 1) {
+							setFieldValue(
+								"wallet_account_address",
+								this.state.uploadedWallet.accounts[0].address
+							);
+						} else {
+							setFieldValue("wallet_account_address", "");
+						}
+					});
 				} catch (e) {
 					this.setState({ fileReadError: "wallet file is not valid" });
 				}
@@ -119,10 +128,11 @@ class WalletUnlock extends Component {
 		return false;
 	};
 
-	handleFileRemoval = file => {
+	handleFileRemoval = setFieldValue => file => {
 		const { fileList } = this.state;
 		if (file.name === fileList[0].name) {
 			this.setState({ uploadedWallet: null });
+			setFieldValue("wallet_account_address", "");
 		}
 	};
 
@@ -208,8 +218,8 @@ class WalletUnlock extends Component {
 																fileList={fileList}
 																multiple={false}
 																onChange={this.handleFileChange}
-																beforeUpload={this.handleFileUpload}
-																onRemove={this.handleFileRemoval}
+																beforeUpload={this.handleFileUpload(setFieldValue)}
+																onRemove={this.handleFileRemoval(setFieldValue)}
 															>
 																<Button block>
 																	<Icon type="upload" /> Click here to upload file
@@ -235,7 +245,11 @@ class WalletUnlock extends Component {
 																showSearch
 																name="wallet_account_address"
 																optionFilterProp="children"
-																value={uploadedWallet && values.wallet_account_address}
+																value={
+																	uploadedWallet && uploadedWallet.accounts.length === 1
+																		? uploadedWallet.accounts[0].address
+																		: values.wallet_account_address
+																}
 																onChange={this.handleAccountChange(setFieldValue)}
 																filterOption={(input, option) =>
 																	option.props.children
