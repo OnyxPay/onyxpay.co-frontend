@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
+import styled from "styled-components";
 import { Typography, Form, Input, Checkbox, Button, Icon } from "antd";
 import { saveAs } from "file-saver";
 import Actions from "../../redux/actions";
@@ -8,7 +9,7 @@ import { Wrapper, Card, CardBody, FormButtons, FormButtonsGroup } from "../walle
 import { samePassword, isMnemonicsValid } from "../../utils/validate";
 import { wait } from "../../utils";
 import { createWalletAccount } from "../../api/wallet";
-import styled from "styled-components";
+import RegistrationModal from "../../components/modals/Registration";
 const { Text, Title } = Typography;
 
 const PrivateText = styled.div`
@@ -84,10 +85,11 @@ class WalletCreate extends Component {
 
 	initState() {
 		return {
-			viewIndex: 0,
+			viewIndex: 3,
 			pk: "",
 			mnemonics: "",
 			wallet: "",
+			isModalVisible: false,
 		};
 	}
 
@@ -136,8 +138,16 @@ class WalletCreate extends Component {
 		}
 	};
 
+	showModal = () => {
+		this.setState({ isModalVisible: true });
+	};
+
+	hideModal = () => {
+		this.setState({ isModalVisible: false });
+	};
+
 	render() {
-		const { viewIndex, mnemonics, pk } = this.state;
+		const { viewIndex, mnemonics, pk, isModalVisible } = this.state;
 
 		return (
 			<Wrapper>
@@ -333,15 +343,19 @@ class WalletCreate extends Component {
 						)}
 
 						{viewIndex === 3 && (
-							<WalletCreatedContainer>
-								<Icon
-									type="check-circle"
-									theme="twoTone"
-									twoToneColor="#52c41a"
-									style={{ fontSize: 70 }}
-								/>
-								<WalletCreatedText>You have successfully created wallet</WalletCreatedText>
-							</WalletCreatedContainer>
+							<>
+								<WalletCreatedContainer>
+									<Icon
+										type="check-circle"
+										theme="twoTone"
+										twoToneColor="#52c41a"
+										style={{ fontSize: 70 }}
+									/>
+									<WalletCreatedText>You have successfully created wallet</WalletCreatedText>
+									<Button onClick={this.showModal}>Create account for onyxpay.co</Button>
+								</WalletCreatedContainer>
+								<RegistrationModal isModalVisible={isModalVisible} hideModal={this.hideModal} />
+							</>
 						)}
 					</CardBody>
 				</Card>

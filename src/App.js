@@ -19,11 +19,6 @@ const Login = Loadable({
 	loading: Loader,
 });
 
-const Registration = Loadable({
-	loader: () => import(/* webpackChunkName: "Registration" */ "./pages/registration"),
-	loading: Loader,
-});
-
 const WalletUnlock = Loadable({
 	loader: () => import(/* webpackChunkName: "WalletUnlock" */ "./pages/wallet-unlock"),
 	loading: Loader,
@@ -78,12 +73,11 @@ class App extends Component {
 			<Layout
 				isSideBarCollapsed={collapsed}
 				toggleSidebar={this.toggleSidebar}
-				simplified={["/login", "/registration", "/wallet-unlock", "/wallet-create"]}
+				simplified={["/login", "/wallet-unlock", "/wallet-create"]}
 			>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/registration" exact component={Registration} />
 					<Route path="/wallet-unlock" exact component={WalletUnlock} />
 					<Route path="/wallet-create" exact component={WalletCreate} />
 					<Route path="/deposit" component={UserDeposit} />

@@ -43,3 +43,17 @@
 		display: block;
 	}
 }
+
+.registration-modal {
+	.ant-modal-custom-footer {
+		margin: 0 -24px -24px -24px;
+		padding: 10px 24px;
+		text-align: right;
+		background: transparent;
+		border-top: 1px solid #e8e8e8;
+		margin-top: 50px;
+	}
+	.ant-form-item {
+		margin-bottom: 12px;
+	}
+}
