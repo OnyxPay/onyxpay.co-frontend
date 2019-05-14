@@ -44,6 +44,7 @@
 	}
 }
 
+// TODO: extract styles
 .registration-modal {
 	.ant-modal-custom-footer {
 		margin: 0 -24px -24px -24px;
@@ -55,5 +56,46 @@
 	}
 	.ant-form-item {
 		margin-bottom: 12px;
+	}
+}
+
+.import-wallet-modal {
+	width: 850px !important;
+	.ant-modal-body {
+		padding: 40px 60px;
+	}
+}
+
+.create-wallet-modal {
+	width: 600px !important;
+	.ant-modal-body {
+		padding: 40px 60px;
+	}
+}
+
+@media (max-width: 991px) {
+	.import-wallet-modal {
+		width: calc(100vw - 16px) !important;
+		.ant-modal-body {
+			padding: 40px 30px;
+		}
+	}
+}
+
+@media (max-width: 767px) {
+	.create-wallet-modal {
+		width: calc(100vw - 16px) !important;
+		.ant-modal-body {
+			padding: 40px 30px;
+		}
+	}
+}
+
+@media (max-width: 575px) {
+	.import-wallet-modal,
+	.create-wallet-modal {
+		.ant-modal-body {
+			padding: 30px 15px;
+		}
 	}
 }

@@ -19,16 +19,6 @@ const Login = Loadable({
 	loading: Loader,
 });
 
-const WalletUnlock = Loadable({
-	loader: () => import(/* webpackChunkName: "WalletUnlock" */ "./pages/wallet-unlock"),
-	loading: Loader,
-});
-
-const WalletCreate = Loadable({
-	loader: () => import(/* webpackChunkName: "WalletCreate" */ "./pages/wallet-create"),
-	loading: Loader,
-});
-
 let Page404 = Loadable({
 	loader: () => import(/* webpackChunkName: "Page404" */ "./pages/404"),
 	loading: Loader,
@@ -73,13 +63,11 @@ class App extends Component {
 			<Layout
 				isSideBarCollapsed={collapsed}
 				toggleSidebar={this.toggleSidebar}
-				simplified={["/login", "/wallet-unlock", "/wallet-create"]}
+				simplified={["/login"]}
 			>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/wallet-unlock" exact component={WalletUnlock} />
-					<Route path="/wallet-create" exact component={WalletCreate} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route component={Page404} />
