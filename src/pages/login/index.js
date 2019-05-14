@@ -4,13 +4,20 @@ import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import styled from "styled-components";
-import { Typography, Button } from "antd";
+import { Typography, Button, message } from "antd";
 import { Link } from "react-router-dom";
 import AddWallet from "./AddWallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
+import RegistrationModal from "../../components/modals/Registration";
 
 const { Title } = Typography;
+
+const modals = {
+	IMPORT_WALLET_MODAL: "IMPORT_WALLET_MODAL",
+	CREATE_WALLET_MODAL: "CREATE_WALLET_MODAL",
+	REGISTRATION_MODAL: "REGISTRATION_MODAL",
+};
 
 const LoginCard = styled.div`
 	border: 1px solid #e8e8e8;
@@ -32,8 +39,9 @@ const LoginCard = styled.div`
 
 class Login extends Component {
 	state = {
-		isImportWalletModalVisible: false,
-		isCreateWalletModalVisible: false,
+		IMPORT_WALLET_MODAL: false,
+		CREATE_WALLET_MODAL: false,
+		REGISTRATION_MODAL: false,
 	};
 
 	openDashboard = () => {
@@ -41,35 +49,32 @@ class Login extends Component {
 		this.props.history.push("/");
 	};
 
-	hideImportWalletModal = () => {
-		this.setState({ isImportWalletModalVisible: false });
+	hideModal = type => () => {
+		this.setState({ [type]: false });
 	};
 
-	showImportWalletModal = () => {
-		this.setState({ isImportWalletModalVisible: true });
-	};
-
-	hideCreateWalletModal = () => {
-		this.setState({ isCreateWalletModalVisible: false });
-	};
-
-	showCreateWalletModal = () => {
-		this.setState({ isCreateWalletModalVisible: true });
+	showModal = type => () => {
+		this.setState({ [type]: true });
 	};
 
 	switchModal = to => () => {
-		if (to === "CreateWalletModal") {
-			this.hideImportWalletModal();
-			this.showCreateWalletModal();
+		if (to === modals.CREATE_WALLET_MODAL) {
+			this.hideModal(modals.IMPORT_WALLET_MODAL)();
+			this.showModal(modals.CREATE_WALLET_MODAL)();
 		} else {
-			this.hideCreateWalletModal();
-			this.showImportWalletModal();
+			this.hideModal(modals.CREATE_WALLET_MODAL)();
+			this.showModal(modals.IMPORT_WALLET_MODAL)();
 		}
 	};
 
-	render() {
-		const { isImportWalletModalVisible, isCreateWalletModalVisible } = this.state;
+	handleClearWallet = () => {
+		const { clearWallet } = this.props;
+		clearWallet();
+		message.success("You successfully closed your wallet", 5);
+	};
 
+	render() {
+		const { wallet } = this.props;
 		return (
 			<UnderlayBg img={bgImg}>
 				<LoginCard>
@@ -80,31 +85,40 @@ class Login extends Component {
 					>
 						Welcome to OnyxPay{" "}
 						<AddWallet
-							showImportWalletModal={this.showImportWalletModal}
-							showCreateWalletModal={this.showCreateWalletModal}
+							showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
+							wallet={wallet}
+							clearWallet={this.handleClearWallet}
 						/>
 					</Title>
 
-					<Button block type="primary" style={{ marginBottom: 5 }} disabled>
-						<Link to={{ pathname: "/wallet-unlock", state: { from: "login" } }}>Login</Link>
+					<Button block type="primary" style={{ marginBottom: 5 }} disabled={!wallet}>
+						Login
 					</Button>
-					<Button block type="primary" style={{ marginBottom: 5 }} disabled>
-						<Link to={{ pathname: "/wallet-create", state: { from: "create_account" } }}>
-							Create account
-						</Link>
+					<Button
+						block
+						type="primary"
+						style={{ marginBottom: 5 }}
+						disabled={!wallet}
+						onClick={this.showModal(modals.REGISTRATION_MODAL)}
+					>
+						Create account
 					</Button>
-					<Button block onClick={this.openDashboard} type="danger">
+					{/* <Button block onClick={this.openDashboard} type="danger">
 						Open Dashboard
-					</Button>
+					</Button> */}
 					<ImportWalletModal
-						isModalVisible={isImportWalletModalVisible}
-						hideModal={this.hideImportWalletModal}
-						switchModal={this.switchModal("CreateWalletModal")}
+						isModalVisible={this.state.IMPORT_WALLET_MODAL}
+						hideModal={this.hideModal(modals.IMPORT_WALLET_MODAL)}
+						switchModal={this.switchModal(modals.CREATE_WALLET_MODAL)}
 					/>
 					<CreateWalletModal
-						isModalVisible={isCreateWalletModalVisible}
-						hideModal={this.hideCreateWalletModal}
-						switchModal={this.switchModal("ImportWalletModal")}
+						isModalVisible={this.state.CREATE_WALLET_MODAL}
+						hideModal={this.hideModal(modals.CREATE_WALLET_MODAL)}
+						switchModal={this.switchModal(modals.IMPORT_WALLET_MODAL)}
+					/>
+					<RegistrationModal
+						isModalVisible={this.state.REGISTRATION_MODAL}
+						hideModal={this.hideModal(modals.REGISTRATION_MODAL)}
 					/>
 				</LoginCard>
 			</UnderlayBg>
@@ -113,6 +127,8 @@ class Login extends Component {
 }
 
 export default connect(
-	null,
-	{ saveUser: Actions.user.saveUser }
+	state => {
+		return { wallet: state.wallet };
+	},
+	{ saveUser: Actions.user.saveUser, clearWallet: Actions.wallet.clearWallet }
 )(Login);

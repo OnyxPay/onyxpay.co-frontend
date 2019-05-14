@@ -1,19 +1,20 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Modal, Typography, Select, Form, Input, Upload, Button, Icon } from "antd";
+import { Modal, Typography, Select, Form, Input, Upload, Button, Icon, message } from "antd";
 import { get } from "lodash";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { SelectContainer, ImportTitle, FormButtons } from "./styled";
 import { importMnemonics, importPrivateKey, getWallet, decryptWallet } from "../../../api/wallet";
-import { isMnemonicsValid, isPkValid } from "../../../utils/validate";
+import { isMnemonicsValid, isPkValid, samePassword } from "../../../utils/validate";
 import Actions from "../../../redux/actions";
 
 /* 
 	TODO:
 	* debounce validation
-	* pass data to login API
+	* refactor repetition
 */
+
 const { Title } = Typography;
 const Option = Select.Option;
 const { TextArea } = Input;
@@ -39,45 +40,53 @@ class ImportWalletModal extends Component {
 		this.setState({ ...initialState, activeTabIndex: Number(activeTabIndex) });
 	};
 
-	handleUnlockWithMnemonics = async ({ mnemonics, password }, { setSubmitting, resetForm }) => {
-		console.log("sending", mnemonics, password);
-
+	handleUnlockWithMnemonics = async ({ mnemonics, password }, formActions) => {
+		const { hideModal } = this.props;
 		try {
 			const { wallet } = await importMnemonics(mnemonics, password);
 			this.props.setWallet(wallet);
+			formActions.resetForm();
+			this.setState({ ...this.initState() });
+			hideModal();
+			message.success("You successfully imported your wallet", 5);
 		} catch (error) {
 			console.log(error);
 		} finally {
-			setSubmitting(false);
+			formActions.setSubmitting(false);
 		}
 	};
 
-	handleUnlockWithPk = async ({ pk, password }, { setSubmitting, resetForm }) => {
-		console.log("sending", pk, password);
-
+	handleUnlockWithPk = async ({ pk, password }, formActions) => {
+		const { hideModal } = this.props;
 		try {
 			const { wallet } = await importPrivateKey(pk, password);
-			console.log(wallet);
 			this.props.setWallet(wallet);
+			formActions.resetForm();
+			this.setState({ ...this.initState() });
+			hideModal();
+			message.success("You successfully imported your wallet", 5);
 		} catch (error) {
 			console.log(error);
 		} finally {
-			setSubmitting(false);
+			formActions.setSubmitting(false);
 		}
 	};
 
 	handleUnlockWithFile = async ({ wallet_account_address, password }, formActions) => {
 		const { uploadedWallet } = this.state;
+		const { hideModal } = this.props;
 		const accounts = uploadedWallet.accounts.filter(acc => acc.address === wallet_account_address);
 		uploadedWallet.accounts = accounts;
 		uploadedWallet.defaultAccountAddress = wallet_account_address;
-		const parsedWallet = getWallet(uploadedWallet);
 
 		try {
-			const { pk, wif, wallet } = await decryptWallet(parsedWallet, password);
-			console.log("handleUnlockWithFile", pk, wif);
-
+			const { wallet } = await decryptWallet(uploadedWallet, password);
+			console.log("handleUnlockWithFile", wallet);
 			this.props.setWallet(wallet);
+			formActions.resetForm();
+			this.setState({ ...this.initState() });
+			hideModal();
+			message.success("You successfully imported your wallet", 5);
 		} catch (error) {
 			if (error === 53000) {
 				formActions.setFieldError("password", "account's password is not correct");
@@ -103,7 +112,7 @@ class ImportWalletModal extends Component {
 
 		if (isLt1M) {
 			const reader = new FileReader();
-			reader.onloadend = async (e: any) => {
+			reader.onloadend = async e => {
 				let data = get(e.target, "result");
 				try {
 					const wallet = getWallet(JSON.parse(data)).toJsonObj();
@@ -284,8 +293,9 @@ class ImportWalletModal extends Component {
 														validateStatus={errors.password && touched.password ? "error" : ""}
 														help={errors.password && touched.password ? errors.password : ""}
 													>
-														<Input
+														<Input.Password
 															name="password"
+															type="password"
 															value={values.password}
 															onChange={handleChange}
 															onBlur={handleBlur}
@@ -307,8 +317,8 @@ class ImportWalletModal extends Component {
 								<div>
 									<Formik
 										onSubmit={this.handleUnlockWithMnemonics}
-										initialValues={{ mnemonics: "", password: "" }}
-										validate={({ mnemonics, password }) => {
+										initialValues={{ mnemonics: "", password: "", password_confirm: "" }}
+										validate={({ mnemonics, password, password_confirm }) => {
 											let errors = {};
 											if (!mnemonics) {
 												errors.mnemonics = "required";
@@ -317,6 +327,10 @@ class ImportWalletModal extends Component {
 											}
 											if (!password) {
 												errors.password = "required";
+											} else if (!password_confirm) {
+												errors.password_confirm = "required";
+											} else {
+												errors = samePassword({ password, password_confirm });
 											}
 											return errors;
 										}}
@@ -335,7 +349,6 @@ class ImportWalletModal extends Component {
 												<form onSubmit={handleSubmit}>
 													<Form.Item
 														label="Please enter your 24 word phrase"
-														required
 														validateStatus={errors.mnemonics && touched.mnemonics ? "error" : ""}
 														help={errors.mnemonics && touched.mnemonics ? errors.mnemonics : ""}
 													>
@@ -351,15 +364,37 @@ class ImportWalletModal extends Component {
 													</Form.Item>
 
 													<Form.Item
-														label="Temporary session password"
+														label="Password"
 														className="ant-form-item--lh32"
-														required
 														validateStatus={errors.password && touched.password ? "error" : ""}
 														help={errors.password && touched.password ? errors.password : ""}
 													>
-														<Input
+														<Input.Password
 															name="password"
+															type="password"
 															value={values.password}
+															onChange={handleChange}
+															onBlur={handleBlur}
+															disabled={isSubmitting}
+														/>
+													</Form.Item>
+
+													<Form.Item
+														label="Confirm password"
+														className="ant-form-item--lh32"
+														validateStatus={
+															errors.password_confirm && touched.password_confirm ? "error" : ""
+														}
+														help={
+															errors.password_confirm && touched.password_confirm
+																? errors.password_confirm
+																: ""
+														}
+													>
+														<Input.Password
+															name="password_confirm"
+															type="password"
+															value={values.password_confirm}
 															onChange={handleChange}
 															onBlur={handleBlur}
 															disabled={isSubmitting}
@@ -380,8 +415,8 @@ class ImportWalletModal extends Component {
 								<div>
 									<Formik
 										onSubmit={this.handleUnlockWithPk}
-										initialValues={{ pk: "", password: "" }}
-										validate={({ pk, password }) => {
+										initialValues={{ pk: "", password: "", password_confirm: "" }}
+										validate={({ pk, password, password_confirm }) => {
 											let errors = {};
 											if (!pk) {
 												errors.pk = "required";
@@ -390,6 +425,10 @@ class ImportWalletModal extends Component {
 											}
 											if (!password) {
 												errors.password = "required";
+											} else if (!password_confirm) {
+												errors.password_confirm = "required";
+											} else {
+												errors = samePassword({ password, password_confirm });
 											}
 											return errors;
 										}}
@@ -408,7 +447,6 @@ class ImportWalletModal extends Component {
 												<form onSubmit={handleSubmit}>
 													<Form.Item
 														label="Please enter your private key"
-														required
 														validateStatus={errors.pk && touched.pk ? "error" : ""}
 														help={errors.pk && touched.pk ? errors.pk : ""}
 													>
@@ -424,15 +462,37 @@ class ImportWalletModal extends Component {
 													</Form.Item>
 
 													<Form.Item
-														label="Temporary session password"
+														label="Password"
 														className="ant-form-item--lh32"
-														required
 														validateStatus={errors.password && touched.password ? "error" : ""}
 														help={errors.password && touched.password ? errors.password : ""}
 													>
-														<Input
+														<Input.Password
 															name="password"
+															type="password"
 															value={values.password}
+															onChange={handleChange}
+															onBlur={handleBlur}
+															disabled={isSubmitting}
+														/>
+													</Form.Item>
+
+													<Form.Item
+														label="Confirm password"
+														className="ant-form-item--lh32"
+														validateStatus={
+															errors.password_confirm && touched.password_confirm ? "error" : ""
+														}
+														help={
+															errors.password_confirm && touched.password_confirm
+																? errors.password_confirm
+																: ""
+														}
+													>
+														<Input.Password
+															name="password_confirm"
+															type="password"
+															value={values.password_confirm}
 															onChange={handleChange}
 															onBlur={handleBlur}
 															disabled={isSubmitting}

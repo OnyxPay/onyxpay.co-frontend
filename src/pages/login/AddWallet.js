@@ -19,15 +19,18 @@ const Container = styled.div`
 	}
 `;
 
-const AddWallet = ({ showImportWalletModal, showCreateWalletModal }) => {
+const AddWallet = ({ showImportWalletModal, wallet, clearWallet }) => {
 	return (
 		<Container>
-			{/* <Tooltip title="Close wallet" placement="bottom">
-				<Icon component={WalletSvg} onClick={showCreateWalletModal} className="wallet-icon" />
-			</Tooltip> */}
-			<Tooltip title="Import wallet" placement="bottom">
-				<Icon component={DownloadSvg} onClick={showImportWalletModal} className="download-icon" />
-			</Tooltip>
+			{wallet ? (
+				<Tooltip title="Close wallet" placement="bottom">
+					<Icon component={WalletSvg} onClick={clearWallet} className="wallet-icon" />
+				</Tooltip>
+			) : (
+				<Tooltip title="Import wallet" placement="bottom">
+					<Icon component={DownloadSvg} onClick={showImportWalletModal} className="download-icon" />
+				</Tooltip>
+			)}
 		</Container>
 	);
 };

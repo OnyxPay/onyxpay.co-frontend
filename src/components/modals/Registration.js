@@ -22,7 +22,7 @@ class RegistrationModal extends Component {
 	};
 
 	render() {
-		const { isModalVisible, hideModal, openTestModal } = this.props;
+		const { isModalVisible, hideModal } = this.props;
 		return (
 			<Modal
 				title=""
@@ -136,7 +136,6 @@ class RegistrationModal extends Component {
 									<Button key="back" onClick={hideModal} style={{ marginRight: 10 }}>
 										Cancel
 									</Button>
-									<Button onClick={openTestModal}>Open modal</Button>
 									<Button type="primary" htmlType="submit" disabled={isSubmitting}>
 										Submit
 									</Button>

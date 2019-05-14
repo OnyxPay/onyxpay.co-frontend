@@ -154,11 +154,10 @@ class CreateWalletModal extends Component {
 											<Form.Item
 												label="Password"
 												className="ant-form-item--lh32"
-												// required
 												validateStatus={errors.password && touched.password ? "error" : ""}
 												help={errors.password && touched.password ? errors.password : ""}
 											>
-												<Input
+												<Input.Password
 													name="password"
 													value={values.password}
 													onChange={handleChange}
@@ -169,7 +168,6 @@ class CreateWalletModal extends Component {
 											<Form.Item
 												label="Confirm password"
 												className="ant-form-item--lh32"
-												// required
 												validateStatus={
 													errors.password_confirm && touched.password_confirm ? "error" : ""
 												}
@@ -179,7 +177,7 @@ class CreateWalletModal extends Component {
 														: ""
 												}
 											>
-												<Input
+												<Input.Password
 													name="password_confirm"
 													value={values.password_confirm}
 													onChange={handleChange}
