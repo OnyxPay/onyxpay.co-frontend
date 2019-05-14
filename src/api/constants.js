@@ -8,4 +8,4 @@ export const OnyxCashAddress = "28591a819021a3a7f6d541a42b4e80a7aaa8d43e";
 export const OnyxCashDecimals = 8;
 export const OnyxCashSymbol = "OCH";
 
-export const Backend = "http://preprod.onyxcoin.io";
+export const BackendUrl = "https://preprod.onyxpay.co";
