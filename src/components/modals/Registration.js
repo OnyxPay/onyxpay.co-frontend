@@ -1,7 +1,9 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Modal, Button, Form, Input, Select } from "antd";
 import { country_list } from "../../assets/country_list";
+import Actions from "../../redux/actions";
 
 const { Option } = Select;
 
@@ -15,6 +17,13 @@ const initialValues = {
 class RegistrationModal extends Component {
 	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
 		console.log("sending", values);
+		try {
+			this.props.unlockWallet();
+		} catch (error) {
+			console.log(error);
+		} finally {
+			resetForm();
+		}
 	};
 
 	handleSelectChange = setFieldValue => (value, option) => {
@@ -149,4 +158,7 @@ class RegistrationModal extends Component {
 	}
 }
 
-export default RegistrationModal;
+export default connect(
+	null,
+	{ unlockWallet: Actions.walletUnlock.showWalletUnlockModal }
+)(RegistrationModal);

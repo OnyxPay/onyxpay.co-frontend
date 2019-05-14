@@ -6,6 +6,7 @@ import Loadable from "react-loadable";
 import { Loader } from "./components";
 // import { getContractsAddress } from "./api/contracts";
 // import { initBalanceProvider } from "./providers/balanceProvider";
+import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -72,6 +73,7 @@ class App extends Component {
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route component={Page404} />
 				</Switch>
+				<UnlockWalletModal />
 			</Layout>
 		);
 	}
