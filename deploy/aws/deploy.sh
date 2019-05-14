@@ -9,5 +9,5 @@ docker push 866680356172.dkr.ecr.us-east-2.amazonaws.com/onyxpayco-frontend:$TAG
 CLUSTER=onyxpayco-$TAG
 SERVICE=$CLUSTER-frontend-srv
 
-aws ecs update-service --cluster $CLUSTER --region us-east-2 --force-new-deployment  --service $SERVICE
+#aws ecs update-service --cluster $CLUSTER --region us-east-2 --force-new-deployment  --service $SERVICE
 
