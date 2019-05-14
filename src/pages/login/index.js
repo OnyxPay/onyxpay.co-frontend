@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+
 import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import styled from "styled-components";
 import { Typography, Button } from "antd";
 import { Link } from "react-router-dom";
+import AddWallet from "./AddWallet";
 
 const { Title } = Typography;
 
@@ -37,13 +39,18 @@ class Login extends Component {
 		return (
 			<UnderlayBg img={bgImg}>
 				<LoginCard>
-					<Title level={4} style={{ textAlign: "center", marginBottom: 24 }} type="secondary">
-						Welcome to OnyxPay
+					<Title
+						level={2}
+						style={{ textAlign: "center", marginBottom: 24, fontWeight: 400 }}
+						type="secondary"
+					>
+						Welcome to OnyxPay <AddWallet />
 					</Title>
-					<Button block type="primary" style={{ marginBottom: 5 }}>
+
+					<Button block type="primary" style={{ marginBottom: 5 }} disabled={true}>
 						<Link to={{ pathname: "/wallet-unlock", state: { from: "login" } }}>Login</Link>
 					</Button>
-					<Button block type="primary" style={{ marginBottom: 5 }}>
+					<Button block type="primary" style={{ marginBottom: 5 }} disabled={true}>
 						<Link to={{ pathname: "/wallet-create", state: { from: "create_account" } }}>
 							Create account
 						</Link>

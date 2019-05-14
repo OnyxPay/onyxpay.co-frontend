@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import { Formik } from "formik";
-import { Modal, Typography, Button, Form, Input, Select, Row, Col } from "antd";
+import { Modal, Button, Form, Input, Select } from "antd";
 import { country_list } from "../../assets/country_list";
 
-const { Title, Text } = Typography;
 const { Option } = Select;
 
 const initialValues = {
@@ -19,12 +18,11 @@ class RegistrationModal extends Component {
 	};
 
 	handleSelectChange = setFieldValue => (value, option) => {
-		console.log(value, option);
 		setFieldValue("country", value);
 	};
 
 	render() {
-		const { isModalVisible, hideModal } = this.props;
+		const { isModalVisible, hideModal, openTestModal } = this.props;
 		return (
 			<Modal
 				title=""
@@ -138,6 +136,7 @@ class RegistrationModal extends Component {
 									<Button key="back" onClick={hideModal} style={{ marginRight: 10 }}>
 										Cancel
 									</Button>
+									<Button onClick={openTestModal}>Open modal</Button>
 									<Button type="primary" htmlType="submit" disabled={isSubmitting}>
 										Submit
 									</Button>

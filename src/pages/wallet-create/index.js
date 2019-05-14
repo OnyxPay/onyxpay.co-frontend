@@ -10,6 +10,8 @@ import { samePassword, isMnemonicsValid } from "../../utils/validate";
 import { wait } from "../../utils";
 import { createWalletAccount } from "../../api/wallet";
 import RegistrationModal from "../../components/modals/Registration";
+import TestModal from "../../components/modals/TestModal";
+
 const { Text, Title } = Typography;
 
 const PrivateText = styled.div`
@@ -90,6 +92,7 @@ class WalletCreate extends Component {
 			mnemonics: "",
 			wallet: "",
 			isModalVisible: false,
+			isModalVisible2: false,
 		};
 	}
 
@@ -140,6 +143,10 @@ class WalletCreate extends Component {
 
 	showModal = () => {
 		this.setState({ isModalVisible: true });
+	};
+
+	openTestModal = () => {
+		this.setState({ isModalVisible2: true });
 	};
 
 	hideModal = () => {
@@ -354,7 +361,12 @@ class WalletCreate extends Component {
 									<WalletCreatedText>You have successfully created wallet</WalletCreatedText>
 									<Button onClick={this.showModal}>Create account for onyxpay.co</Button>
 								</WalletCreatedContainer>
-								<RegistrationModal isModalVisible={isModalVisible} hideModal={this.hideModal} />
+								<RegistrationModal
+									isModalVisible={isModalVisible}
+									hideModal={this.hideModal}
+									openTestModal={this.openTestModal}
+								/>
+								<TestModal isModalVisible={this.state.isModalVisible2} />
 							</>
 						)}
 					</CardBody>
