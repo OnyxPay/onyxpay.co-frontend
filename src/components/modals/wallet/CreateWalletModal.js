@@ -114,6 +114,7 @@ class CreateWalletModal extends Component {
 				onCancel={hideModal}
 				footer={null}
 				className="create-wallet-modal"
+				// destroyOnClose
 			>
 				<div>
 					{viewIndex === 0 && (
@@ -314,8 +315,9 @@ class CreateWalletModal extends Component {
 									twoToneColor="#52c41a"
 									style={{ fontSize: 70 }}
 								/>
-								<WalletCreatedText>You have successfully created wallet</WalletCreatedText>
-								<Button onClick={this.showModal}>Create account for onyxpay.co</Button>
+								<WalletCreatedText>
+									You have successfully created the wallet, also it was already imported for you
+								</WalletCreatedText>
 							</WalletCreatedContainer>
 						</>
 					)}

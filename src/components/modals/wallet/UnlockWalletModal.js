@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Modal, Typography, Form, Input, Button } from "antd";
-import { FormButtons } from "./styled";
 import Actions from "../../../redux/actions";
 
 const { Title } = Typography;

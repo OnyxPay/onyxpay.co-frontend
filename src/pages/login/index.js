@@ -5,7 +5,6 @@ import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import styled from "styled-components";
 import { Typography, Button, message } from "antd";
-import { Link } from "react-router-dom";
 import AddWallet from "./AddWallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
