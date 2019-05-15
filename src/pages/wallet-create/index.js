@@ -1,9 +1,12 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Typography, Form, Input, Checkbox, Button, Icon } from "antd";
 import { saveAs } from "file-saver";
+import Actions from "../../redux/actions";
 import { Wrapper, Card, CardBody, FormButtons, FormButtonsGroup } from "../wallet-unlock/styled";
-import { samePassword } from "../../utils/validate";
+import { samePassword, isMnemonicsValid } from "../../utils/validate";
+import { wait } from "../../utils";
 import { createWalletAccount } from "../../api/wallet";
 import styled from "styled-components";
 const { Text, Title } = Typography;
@@ -31,37 +34,89 @@ const Label = styled.div`
 	margin-bottom: 5px;
 `;
 
-const Nav = ({ changeView }) => {
+const BackupTitle = styled.div`
+	font-size: 16px;
+	font-weight: 500;
+	margin-bottom: 10px;
+	color: #cf1322;
+`;
+
+const WalletCreatedContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+`;
+
+const WalletCreatedText = styled.div`
+	margin-top: 30px;
+	font-size: 20px;
+	text-align: center;
+`;
+
+const Nav = ({ changeView, direction, resetWalletState, submitForm, isSubmitting }) => {
 	return (
 		<FormButtonsGroup>
-			<Button type="link" style={{ paddingLeft: 0 }} onClick={changeView(0)}>
+			<Button
+				type="link"
+				style={{ paddingLeft: 0 }}
+				onClick={changeView(direction.back, resetWalletState)}
+			>
 				<Icon type="arrow-left" /> Go back
 			</Button>
-			<Button type="primary" onClick={changeView(2)}>
-				Continue
-				<Icon type="arrow-right" />
-			</Button>
+			{submitForm ? (
+				<Button type="primary" htmlType="submit" disabled={isSubmitting} loading={isSubmitting}>
+					Continue
+					<Icon type="arrow-right" />
+				</Button>
+			) : (
+				<Button type="primary" onClick={changeView(direction.forward)}>
+					Continue
+					<Icon type="arrow-right" />
+				</Button>
+			)}
 		</FormButtonsGroup>
 	);
 };
 
 class WalletCreate extends Component {
-	state = {
-		viewIndex: 0,
-	};
+	state = this.initState();
 
-	handleCreateWallet = async ({ password }, { setSubmitting, resetForm }) => {
+	initState() {
+		return {
+			viewIndex: 0,
+			pk: "",
+			mnemonics: "",
+			wallet: "",
+		};
+	}
+
+	handleCreateWallet = async ({ password }, formActions) => {
 		try {
 			const { mnemonics, wif, wallet } = await createWalletAccount(password);
-			// save data into state
-			console.log({ mnemonics, wif, wallet });
 			this.handleExport(wallet);
+			this.setState({ pk: wif, mnemonics, wallet });
+			await wait(500);
 			this.handleNav(1)();
 		} catch (error) {
 			console.log(error);
 		} finally {
-			setSubmitting(false);
+			formActions.setSubmitting(false);
 		}
+	};
+
+	finishWalletCreation = ({ mnemonics }, formActions) => {
+		const { wallet, mnemonics: generatedMnemonics } = this.state;
+		const { setWallet } = this.props;
+
+		if (generatedMnemonics !== mnemonics) {
+			formActions.setFieldError("mnemonics", "mnemonics don't match");
+		} else {
+			// save wallet
+			setWallet(wallet);
+			this.handleNav(3, true)();
+		}
+		formActions.setSubmitting(false);
 	};
 
 	handleExport = wallet => {
@@ -73,23 +128,26 @@ class WalletCreate extends Component {
 		saveAs(blob, name);
 	};
 
-	handleNav = index => () => {
-		this.setState({ viewIndex: index });
+	handleNav = (index, resetWalletState) => () => {
+		if (resetWalletState) {
+			this.setState({ ...this.initState(), viewIndex: index });
+		} else {
+			this.setState({ viewIndex: index });
+		}
 	};
 
 	render() {
-		const { viewIndex } = this.state;
+		const { viewIndex, mnemonics, pk } = this.state;
 
 		return (
 			<Wrapper>
 				<Card>
 					<CardBody>
-						<Title level={3} style={{ textAlign: "center" }}>
-							Create New Wallet
-						</Title>
-
 						{viewIndex === 0 && (
 							<div>
+								<Title level={3} style={{ textAlign: "center" }}>
+									Create New Wallet
+								</Title>
 								<Formik
 									onSubmit={this.handleCreateWallet}
 									initialValues={{ password: "", password_confirm: "", terms_confirm: false }}
@@ -190,19 +248,100 @@ class WalletCreate extends Component {
 
 						{viewIndex === 1 && (
 							<div>
-								<Label>Mnemonics phrase</Label>
-								<PrivateText mb="24px">
-									<MnemonicsText>
-										flame brown anger fresh original slim merit aim skill issue long citizen tattoo
-										hollow sphere frown sentence mammal job exist assault trim legend gorilla
-									</MnemonicsText>
-								</PrivateText>
-								<Label>Private key (WIF format)</Label>
-								<PrivateText mb="24px">
-									<PkText>L1G8L7ux8VBepd9u6hPMhqcJfsnmrcG3koqadiNu4v7yPQEfmE1b</PkText>
-								</PrivateText>
-								<Nav changeView={this.handleNav} />
+								<Title level={3} style={{ textAlign: "center" }}>
+									Create New Wallet
+								</Title>
+								<div>
+									<BackupTitle>
+										<Icon type="edit" /> Write down the text below on paper and keep it somewhere
+										secret and safe!
+									</BackupTitle>
+									<Label>Mnemonics phrase</Label>
+									<PrivateText mb="24px">
+										<MnemonicsText>{mnemonics}</MnemonicsText>
+									</PrivateText>
+									<Label>Private key (WIF format)</Label>
+									<PrivateText mb="24px">
+										<PkText>{pk}</PkText>
+									</PrivateText>
+									<Nav
+										changeView={this.handleNav}
+										direction={{ back: 0, forward: 2 }}
+										resetWalletState={true}
+									/>
+								</div>
 							</div>
+						)}
+
+						{viewIndex === 2 && (
+							<div>
+								<Title level={3} style={{ textAlign: "center" }}>
+									Create New Wallet
+								</Title>
+								<Formik
+									onSubmit={this.finishWalletCreation}
+									initialValues={{ mnemonics: "" }}
+									validate={({ mnemonics }) => {
+										let errors = {};
+										if (!mnemonics) {
+											errors.mnemonics = "required";
+										} else if (!isMnemonicsValid(mnemonics)) {
+											errors.mnemonics = "mnemonics phrase is not valid";
+										}
+										return errors;
+									}}
+								>
+									{({
+										values,
+										errors,
+										touched,
+										isSubmitting,
+										handleChange,
+										handleBlur,
+										handleSubmit,
+										...rest
+									}) => {
+										return (
+											<form onSubmit={handleSubmit}>
+												<Form.Item
+													label="Please, enter Mnemonics phrase"
+													validateStatus={errors.mnemonics && touched.mnemonics ? "error" : ""}
+													help={errors.mnemonics && touched.mnemonics ? errors.mnemonics : ""}
+												>
+													<Input.TextArea
+														name="mnemonics"
+														value={values.mnemonics}
+														onChange={handleChange}
+														onBlur={handleBlur}
+														disabled={isSubmitting}
+														rows={3}
+														style={{ resize: "none" }}
+													/>
+												</Form.Item>
+
+												<Nav
+													changeView={this.handleNav}
+													direction={{ back: 1 }}
+													submitForm
+													isSubmitting={isSubmitting}
+												/>
+											</form>
+										);
+									}}
+								</Formik>
+							</div>
+						)}
+
+						{viewIndex === 3 && (
+							<WalletCreatedContainer>
+								<Icon
+									type="check-circle"
+									theme="twoTone"
+									twoToneColor="#52c41a"
+									style={{ fontSize: 70 }}
+								/>
+								<WalletCreatedText>You have successfully created wallet</WalletCreatedText>
+							</WalletCreatedContainer>
 						)}
 					</CardBody>
 				</Card>
@@ -211,4 +350,7 @@ class WalletCreate extends Component {
 	}
 }
 
-export default WalletCreate;
+export default connect(
+	null,
+	{ setWallet: Actions.wallet.setWallet }
+)(WalletCreate);
