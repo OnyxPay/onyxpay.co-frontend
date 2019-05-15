@@ -1,4 +1,4 @@
-FROM yarnpkg/dev 
+FROM node:12
 MAINTAINER toktor <ak.toktor@gmail.com>
 
 VOLUME [/frontend]

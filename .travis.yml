@@ -23,6 +23,6 @@ script:
 deploy:
 - provider: script
   script: bash aws/deploy.sh $TRAVIS_TAG
-#  on:
-#    tags: true 
-#    condition: $TRAVIS_TAG =~ ^prod|preprod$
+  on:
+    tags: true 
+    condition: $TRAVIS_TAG =~ ^prod|preprod$
