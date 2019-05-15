@@ -4,6 +4,7 @@ import { Formik } from "formik";
 import { Modal, Button, Form, Input, Select } from "antd";
 import { country_list } from "../../assets/country_list";
 import Actions from "../../redux/actions";
+import { unlockWalletAccount } from "../../api/wallet";
 
 const { Option } = Select;
 
@@ -15,14 +16,19 @@ const initialValues = {
 };
 
 class RegistrationModal extends Component {
-	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
+	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
 		console.log("sending", values);
 		try {
-			this.props.unlockWallet();
+			const unlocked = await unlockWalletAccount();
+			// TODO: make API request to SignUp
+			console.log(unlocked);
+			setSubmitting(false);
+			resetForm();
 		} catch (error) {
 			console.log(error);
+			setSubmitting(false);
 		} finally {
-			resetForm();
+			// resetForm();
 		}
 	};
 
@@ -145,7 +151,12 @@ class RegistrationModal extends Component {
 									<Button key="back" onClick={hideModal} style={{ marginRight: 10 }}>
 										Cancel
 									</Button>
-									<Button type="primary" htmlType="submit" disabled={isSubmitting}>
+									<Button
+										type="primary"
+										htmlType="submit"
+										disabled={isSubmitting}
+										loading={isSubmitting}
+									>
 										Submit
 									</Button>
 								</div>

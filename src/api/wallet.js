@@ -1,6 +1,8 @@
 import { Account, Crypto, Wallet, utils } from "ontology-ts-sdk";
 import { v4 as uuid } from "uuid";
 import { Reader } from "ontology-ts-crypto";
+import { getStore } from "../store";
+import Actions from "../redux/actions";
 
 const PrivateKey = Crypto.PrivateKey;
 const KeyParameters = Crypto.KeyParameters;
@@ -101,12 +103,18 @@ export function decryptWallet(wallet, password) {
 	const encryptedKey = account.encryptedKey;
 	const scrypt = currentWallet.scrypt;
 
-	encryptedKey.decrypt(password, account.address, saltHex, {
+	const pk = encryptedKey.decrypt(password, account.address, saltHex, {
 		blockSize: scrypt.r,
 		cost: scrypt.n,
 		parallel: scrypt.p,
 		size: scrypt.dkLen,
 	});
+	return { wallet: currentWallet.toJson(), pk };
+}
 
-	return { wallet: currentWallet.toJson() };
+export async function unlockWalletAccount() {
+	const store = getStore();
+	const wallet = store.getState().wallet;
+	const { password } = await store.dispatch(Actions.walletUnlock.getWalletPassword());
+	return await decryptWallet(wallet, password);
 }
