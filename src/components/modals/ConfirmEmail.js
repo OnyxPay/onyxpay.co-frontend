@@ -17,7 +17,6 @@ class ConfirmEmailModal extends Component {
 			<Modal
 				title=""
 				visible={isModalVisible}
-				// onCancel={hideModal}
 				footer={null}
 				closable={false}
 				destroyOnClose={true}
