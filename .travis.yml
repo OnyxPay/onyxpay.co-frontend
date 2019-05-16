@@ -22,7 +22,9 @@ script:
 
 deploy:
 - provider: script
-  script: bash aws/deploy.sh $TRAVIS_TAG
+  script: |
+          docker login -u DOCKERHUB_LOGIN -p $DOCKERHUB_PASSWORD 
+          docker push unyxpay:$TRAVIS_TAG
   on:
     tags: true 
     condition: $TRAVIS_TAG =~ ^prod|preprod$

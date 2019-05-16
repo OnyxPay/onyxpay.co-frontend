@@ -1,7 +1,7 @@
 version: '3.2'
 services:
     frontend:
-        image: 866680356172.dkr.ecr.us-east-2.amazonaws.com/onyxpayco-frontend:${tag}
+        image: onyxpay:${tag}
         build: 
             context: ..
             dockerfile: deploy/Dockerfile
