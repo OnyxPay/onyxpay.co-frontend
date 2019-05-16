@@ -5,10 +5,9 @@ services:
 - docker
 - docker-compose
 
-#branches:
-#  only:
-#  - prod
-#  - preprod
+branches:
+  only:
+  - /.*/
 
 before_script: 
 - cd deploy
@@ -22,7 +21,8 @@ script:
 
 deploy:
 - provider: script
-  script: bash aws/deploy.sh $TRAVIS_TAG
+  script: docker login --help ; echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_LOGIN" --password-stdin ; docker push onyxpay/onyxpay:$TRAVIS_TAG
+
   on:
     tags: true 
     condition: $TRAVIS_TAG =~ ^prod|preprod$
