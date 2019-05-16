@@ -102,9 +102,9 @@ class Login extends Component {
 					>
 						Create account
 					</Button>
-					{/* <Button block onClick={this.openDashboard} type="danger">
+					<Button block onClick={this.openDashboard} type="danger">
 						Open Dashboard
-					</Button> */}
+					</Button>
 					<ImportWalletModal
 						isModalVisible={this.state.IMPORT_WALLET_MODAL}
 						hideModal={this.hideModal(modals.IMPORT_WALLET_MODAL)}

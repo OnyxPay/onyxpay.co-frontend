@@ -1,3 +1,12 @@
+/* 
+const UserScheme = {
+	verified: boolean,
+	firstName: "",
+	lastName: "",
+	role: ""
+}
+*/
+
 const initialState = null;
 
 const SAVE_USER = "SAVE_USER";
