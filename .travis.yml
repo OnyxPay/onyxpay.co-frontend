@@ -5,10 +5,9 @@ services:
 - docker
 - docker-compose
 
-#branches:
-#  only:
-#  - prod
-#  - preprod
+branches:
+  only:
+  - /.*/
 
 before_script: 
 - cd deploy
