@@ -1,5 +1,9 @@
-export const wsEndpoint = "ws://cepheus5.onyxpay.co:20335";
-export const restEndpoint = "http://cepheus5.onyxpay.co:20334";
+export const bcEndpoints = {
+	ws: "ws://cepheus5.onyxpay.co:20335",
+	rest: "http://cepheus5.onyxpay.co:20334",
+};
+
+export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
 
 export const addressOfHead = "9aa5af1bbb814daa6d8c48d7788ac75b3f389f41";
 

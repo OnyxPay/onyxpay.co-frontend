@@ -9,31 +9,36 @@ import { unlockWalletAccount } from "../../api/wallet";
 const { Option } = Select;
 
 const initialValues = {
-	firstName: "",
-	lastName: "",
-	country: "",
-	referralCode: "",
+	first_name: "",
+	last_name: "",
+	country_id: "",
+	referral_code: "",
 };
 
 class RegistrationModal extends Component {
-	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
-		console.log("sending", values);
+	handleFormSubmit = async (values, formActions) => {
+		const { signUp } = this.props;
 		try {
 			const unlocked = await unlockWalletAccount();
-			// TODO: make API request to SignUp
 			console.log(unlocked);
-			setSubmitting(false);
-			resetForm();
+			const response = await signUp(values);
+			if (response && response.error) {
+				formActions.setErrors(response.data);
+			}
+			console.log("RegistrationModal$$$", response);
+			// sign magic with pk
+			// make api request
+			formActions.setSubmitting(false);
+			// formActions.resetForm();
 		} catch (error) {
 			console.log(error);
-			setSubmitting(false);
+			formActions.setSubmitting(false);
 		} finally {
-			// resetForm();
 		}
 	};
 
 	handleSelectChange = setFieldValue => (value, option) => {
-		setFieldValue("country", value);
+		setFieldValue("country_id", value);
 	};
 
 	render() {
@@ -51,14 +56,14 @@ class RegistrationModal extends Component {
 					initialValues={initialValues}
 					validate={values => {
 						let errors = {};
-						if (!values.firstName) {
-							errors.firstName = "required";
+						if (!values.first_name) {
+							errors.first_name = "required";
 						}
-						if (!values.lastName) {
-							errors.lastName = "required";
+						if (!values.last_name) {
+							errors.last_name = "required";
 						}
-						if (!values.country) {
-							errors.country = "required";
+						if (!values.country_id) {
+							errors.country_id = "required";
 						}
 
 						return errors;
@@ -80,13 +85,13 @@ class RegistrationModal extends Component {
 								<Form.Item
 									label="First name"
 									required
-									validateStatus={errors.firstName && touched.firstName ? "error" : ""}
-									help={errors.firstName && touched.firstName ? errors.firstName : ""}
+									validateStatus={errors.first_name && touched.first_name ? "error" : ""}
+									help={errors.first_name && touched.first_name ? errors.first_name : ""}
 								>
 									<Input
-										name="firstName"
+										name="first_name"
 										placeholder="Enter your first name"
-										value={values.firstName}
+										value={values.first_name}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}
@@ -96,13 +101,13 @@ class RegistrationModal extends Component {
 								<Form.Item
 									label="Last name"
 									required
-									validateStatus={errors.lastName && touched.lastName ? "error" : ""}
-									help={errors.lastName && touched.lastName ? errors.lastName : ""}
+									validateStatus={errors.last_name && touched.last_name ? "error" : ""}
+									help={errors.last_name && touched.last_name ? errors.last_name : ""}
 								>
 									<Input
-										name="lastName"
+										name="last_name"
 										placeholder="Enter your last name"
-										value={values.lastName}
+										value={values.last_name}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}
@@ -112,15 +117,15 @@ class RegistrationModal extends Component {
 								<Form.Item
 									label="Country"
 									required
-									validateStatus={errors.country && touched.country ? "error" : ""}
-									help={errors.country && touched.country ? errors.country : ""}
+									validateStatus={errors.country_id && touched.country_id ? "error" : ""}
+									help={errors.country_id && touched.country_id ? errors.country_id : ""}
 								>
 									<Select
 										showSearch
-										name="country"
+										name="country_id"
 										placeholder="Select a country"
 										optionFilterProp="children"
-										value={values.country}
+										value={values.country_id}
 										onChange={this.handleSelectChange(setFieldValue)}
 										filterOption={(input, option) =>
 											option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -171,5 +176,5 @@ class RegistrationModal extends Component {
 
 export default connect(
 	null,
-	{ unlockWallet: Actions.walletUnlock.showWalletUnlockModal }
+	{ unlockWallet: Actions.walletUnlock.showWalletUnlockModal, signUp: Actions.auth.signUp }
 )(RegistrationModal);

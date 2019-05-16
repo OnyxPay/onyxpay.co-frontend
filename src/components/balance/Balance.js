@@ -77,7 +77,6 @@ class Balance extends Component {
 		const onyxCashReward = get(balance, "reward.onyxCash");
 		const assetsMain = get(balance, "main.assets");
 		const assetsReward = get(balance, "reward.assets");
-		console.log(assetsMain, assetsReward);
 
 		const assetsMainConverted = this.convertAssets(assetsMain);
 		const assetsRewardConverted = this.convertAssets(assetsReward);
