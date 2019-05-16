@@ -22,8 +22,8 @@ script:
 deploy:
 - provider: script
   script: |
-          docker login -u DOCKERHUB_LOGIN -p $DOCKERHUB_PASSWORD 
-          docker push unyxpay:$TRAVIS_TAG
+          docker login -u $DOCKERHUB_LOGIN -p $DOCKERHUB_PASSWORD 
+          docker push onyxpay/onyxpay:$TRAVIS_TAG
   on:
     tags: true 
     condition: $TRAVIS_TAG =~ ^prod|preprod$
