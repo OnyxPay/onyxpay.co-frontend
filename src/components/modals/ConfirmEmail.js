@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Formik } from "formik";
 import { Modal, Button, Form, Input } from "antd";
-
+import { isEmailValid } from "../../utils/validate";
 class ConfirmEmailModal extends Component {
 	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
 		console.log("sending", values);
@@ -31,9 +31,12 @@ class ConfirmEmailModal extends Component {
 					onSubmit={this.handleFormSubmit}
 					initialValues={{ email: "" }}
 					validate={values => {
+						console.log(values);
 						let errors = {};
 						if (!values.email) {
 							errors.email = "required";
+						} else if (!isEmailValid(values.email)) {
+							errors.email = "Enter valid email";
 						}
 						return errors;
 					}}
@@ -57,9 +60,9 @@ class ConfirmEmailModal extends Component {
 								>
 									<Input
 										placeholder="Please, enter your email address"
-										name="referralCode"
+										name="email"
 										type="email"
-										value={values.referralCode}
+										value={values.email}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}
