@@ -103,18 +103,24 @@ class CreateWalletModal extends Component {
 		}
 	};
 
+	handleCloseModal = () => {
+		const { hideModal } = this.props;
+		hideModal();
+		this.setState({ ...this.initState() });
+	};
+
 	render() {
-		const { isModalVisible, hideModal, switchModal } = this.props;
+		const { isModalVisible, switchModal } = this.props;
 		const { viewIndex, mnemonics, pk } = this.state;
 
 		return (
 			<Modal
 				title=""
 				visible={isModalVisible}
-				onCancel={hideModal}
+				onCancel={this.handleCloseModal}
 				footer={null}
 				className="create-wallet-modal"
-				// destroyOnClose
+				destroyOnClose
 			>
 				<div>
 					{viewIndex === 0 && (

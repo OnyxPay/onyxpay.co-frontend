@@ -75,6 +75,10 @@
 }
 
 @media (max-width: 991px) {
+	.ant-modal {
+		top: 30px !important;
+	}
+
 	.import-wallet-modal {
 		width: calc(100vw - 16px) !important;
 		.ant-modal-body {

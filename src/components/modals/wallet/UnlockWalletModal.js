@@ -3,6 +3,9 @@ import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Modal, Typography, Form, Input, Button } from "antd";
 import Actions from "../../../redux/actions";
+// eslint-disable-next-line no-unused-vars
+import { tempWalletPassword } from "../../../api/constants";
+import { decryptWallet } from "../../../api/wallet";
 
 const { Title } = Typography;
 
@@ -18,10 +21,16 @@ class CreateWalletModal extends Component {
 	}
 
 	handleUnlockWallet = async ({ password }, formActions) => {
+		const { wallet, setUnlockWallet, hideModal } = this.props;
 		try {
-			console.log("password", password);
+			await decryptWallet(wallet, password);
+			tempWalletPassword.password = password;
+			setUnlockWallet();
+			hideModal();
 		} catch (error) {
-			console.log(error);
+			if (error === 53000) {
+				formActions.setFieldError("password", "account's password is not correct");
+			}
 		} finally {
 			formActions.setSubmitting(false);
 		}
@@ -84,7 +93,12 @@ class CreateWalletModal extends Component {
 										<Button key="back" onClick={hideModal} style={{ marginRight: 10 }}>
 											Cancel
 										</Button>
-										<Button type="primary" htmlType="submit" disabled={isSubmitting}>
+										<Button
+											type="primary"
+											htmlType="submit"
+											disabled={isSubmitting}
+											loading={isSubmitting}
+										>
 											Unlock
 										</Button>
 									</div>
@@ -102,7 +116,11 @@ export default connect(
 	state => {
 		return {
 			isModalVisible: state.walletUnlock.isModalVisible,
+			wallet: state.wallet,
 		};
 	},
-	{ hideModal: Actions.walletUnlock.hideWalletUnlockModal }
+	{
+		hideModal: Actions.walletUnlock.hideWalletUnlockModal,
+		setUnlockWallet: Actions.walletUnlock.setUnlockWallet,
+	}
 )(CreateWalletModal);
