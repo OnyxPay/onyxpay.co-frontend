@@ -22,7 +22,8 @@ script:
 deploy:
 - provider: script
   script: |
-          echo "$DOCKERHUB_PASSWORD" | docker login -u $DOCKERHUB_LOGIN --password-stdin 
+          docker login --help
+          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_LOGIN --password-stdin 
           docker push onyxpay/onyxpay:$TRAVIS_TAG
   on:
     tags: true 
