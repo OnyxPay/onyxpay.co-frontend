@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Typography, Button, message } from "antd";
+import { push } from "connected-react-router";
+import styled from "styled-components";
 import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
-import styled from "styled-components";
-import { Typography, Button, message } from "antd";
 import AddWallet from "./AddWallet";
+import { unlockWalletAccount } from "../../api/wallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
 import RegistrationModal from "../../components/modals/Registration";
@@ -72,6 +74,23 @@ class Login extends Component {
 		message.success("You successfully closed your wallet", 5);
 	};
 
+	handleLogin = async () => {
+		const { push, login } = this.props;
+		try {
+			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
+			const res = await login(publicKey);
+
+			if (res && res.error) {
+				/* 
+						network error
+						not valid credentials
+					*/
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	render() {
 		const { wallet } = this.props;
 		return (
@@ -90,7 +109,13 @@ class Login extends Component {
 						/>
 					</Title>
 
-					<Button block type="primary" style={{ marginBottom: 5 }} disabled={!wallet}>
+					<Button
+						block
+						type="primary"
+						style={{ marginBottom: 5 }}
+						disabled={!wallet}
+						onClick={this.handleLogin}
+					>
 						Login
 					</Button>
 					<Button
@@ -129,5 +154,11 @@ export default connect(
 	state => {
 		return { wallet: state.wallet };
 	},
-	{ saveUser: Actions.user.saveUser, clearWallet: Actions.wallet.clearWallet }
+	{
+		saveUser: Actions.user.saveUser,
+		clearWallet: Actions.wallet.clearWallet,
+		unlockWallet: Actions.walletUnlock.showWalletUnlockModal,
+		login: Actions.auth.login,
+		push,
+	}
 )(Login);

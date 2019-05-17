@@ -59,6 +59,8 @@ class RegistrationModal extends Component {
 				message.success(text.modals.registration.reg_success, 5);
 				formActions.resetForm();
 				push("/");
+			} else if (response && response.error) {
+				message.error(response.error.message, 5);
 			}
 
 			formActions.setSubmitting(false);
@@ -94,20 +96,20 @@ class RegistrationModal extends Component {
 				<Formik
 					onSubmit={this.handleFormSubmit}
 					initialValues={initialValues}
-					// validate={values => {
-					// 	let errors = {};
-					// 	if (!values.first_name) {
-					// 		errors.first_name = "required";
-					// 	}
-					// 	if (!values.last_name) {
-					// 		errors.last_name = "required";
-					// 	}
-					// 	if (!values.country_id) {
-					// 		errors.country_id = "required";
-					// 	}
+					validate={values => {
+						let errors = {};
+						if (!values.first_name) {
+							errors.first_name = "required";
+						}
+						if (!values.last_name) {
+							errors.last_name = "required";
+						}
+						if (!values.country_id) {
+							errors.country_id = "required";
+						}
 
-					// 	return errors;
-					// }}
+						return errors;
+					}}
 				>
 					{({
 						values,

@@ -27,3 +27,13 @@ export const signUp = data => async (dispatch, getState) => {
 		return handleReqError(er);
 	}
 };
+
+export const login = data => async (dispatch, getState) => {
+	const formData = makeFormDate(data);
+
+	try {
+		const { data } = await client.post("login", formData);
+	} catch (er) {
+		return handleReqError(er);
+	}
+};
