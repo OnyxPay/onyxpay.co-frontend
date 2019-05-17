@@ -1,5 +1,5 @@
-import { restClient, makeFormDate, handleReqError } from "../api/network";
-
+import { getRestClient, makeFormDate, handleReqError } from "../api/network";
+const client = getRestClient();
 export const SIGN_UP = "SIGN_UP";
 
 const initialState = {
@@ -9,6 +9,7 @@ const initialState = {
 export const authReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SIGN_UP:
+			sessionStorage.setItem("token", action.payload.token);
 			return action.payload;
 		default:
 			return state;
@@ -16,12 +17,11 @@ export const authReducer = (state = initialState, action) => {
 };
 
 export const signUp = data => async (dispatch, getState) => {
-	console.log(data);
 	const formData = makeFormDate(data);
 	formData.set("country_id", 1);
 
 	try {
-		const { data } = await restClient.post("sign-up", formData);
+		const { data } = await client.post("sign-up", formData);
 		dispatch({ type: SIGN_UP, payload: data });
 	} catch (er) {
 		return handleReqError(er);

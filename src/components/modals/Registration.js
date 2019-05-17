@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { push } from "connected-react-router";
 import { Formik } from "formik";
-import { Modal, Button, Form, Input, Select } from "antd";
+import { Modal, Button, Form, Input, Select, message } from "antd";
 import { country_list } from "../../assets/country_list";
 import Actions from "../../redux/actions";
 import { unlockWalletAccount } from "../../api/wallet";
@@ -33,7 +34,8 @@ class RegistrationModal extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { signUp } = this.props;
+		const { signUp, push, getUserData } = this.props;
+		// getUserData();
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
 			const algorithm = pk.algorithm;
@@ -47,18 +49,22 @@ class RegistrationModal extends Component {
 			console.log({ algorithm, curve, publicKey, accountAddress });
 
 			const response = await signUp(values);
-			if (response && response.error) {
+			if (response && response.error && response.data) {
 				formActions.setErrors(response.data);
 				if (areBcErrors(response.data)) {
 					this.setState({ isBcValidationError: true });
 				}
+			} else if (response && !response.error) {
+				getUserData();
+				message.success(text.modals.registration.reg_success, 5);
+				formActions.resetForm();
+				push("/");
 			}
 
 			formActions.setSubmitting(false);
 		} catch (error) {
 			console.log(error);
 			formActions.setSubmitting(false);
-		} finally {
 		}
 	};
 
@@ -186,7 +192,7 @@ class RegistrationModal extends Component {
 									/>
 								</Form.Item>
 
-								{isBcValidationError && <ErrorText>{text.modals.registration.bcError}</ErrorText>}
+								{isBcValidationError && <ErrorText>{text.modals.registration.bc_error}</ErrorText>}
 
 								<div className="ant-modal-custom-footer">
 									<Button key="back" onClick={this.handleHideModal} style={{ marginRight: 10 }}>
@@ -212,5 +218,10 @@ class RegistrationModal extends Component {
 
 export default connect(
 	null,
-	{ unlockWallet: Actions.walletUnlock.showWalletUnlockModal, signUp: Actions.auth.signUp }
+	{
+		unlockWallet: Actions.walletUnlock.showWalletUnlockModal,
+		getUserData: Actions.user.getUserData,
+		signUp: Actions.auth.signUp,
+		push,
+	}
 )(RegistrationModal);

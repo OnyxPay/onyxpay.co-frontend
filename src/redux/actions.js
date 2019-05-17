@@ -2,7 +2,7 @@ import { setWallet, clearWallet } from "./wallet";
 import { resolveContractAddress } from "./contracts";
 import { setAssetsBalance, setOnyxCashBalance } from "./balance";
 import { setExchangeRates } from "./exchangeRates";
-import { saveUser } from "./user";
+import { saveUser, getUserData } from "./user";
 import {
 	showWalletUnlockModal,
 	hideWalletUnlockModal,
@@ -16,7 +16,7 @@ export default {
 	contracts: { resolveContractAddress },
 	balance: { setAssetsBalance, setOnyxCashBalance },
 	exchangeRates: { setExchangeRates },
-	user: { saveUser },
+	user: { saveUser, getUserData },
 	walletUnlock: {
 		showWalletUnlockModal,
 		hideWalletUnlockModal,

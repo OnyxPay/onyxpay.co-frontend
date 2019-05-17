@@ -12,8 +12,23 @@ export function getBcClient(rest) {
 	return bcRestClient;
 }
 
-export const restClient = axios.create({
+export function getRestClient({ type } = {}) {
+	if (type === "explorer") {
+		return axios;
+	}
+	return customRestClient;
+}
+
+export function getToken() {
+	return sessionStorage.getItem("token");
+}
+
+const token = getToken();
+
+export const customRestClient = axios.create({
 	baseURL: backEndRestEndpoint,
+	headers: { Authorization: token && `Bearer ${token}` },
+	withCredentials: token ? true : false,
 });
 
 export function handleReqError(error) {
@@ -25,12 +40,11 @@ export function handleReqError(error) {
 		}
 	} else if (error.request) {
 		// The request was made but no response was received
-		return { error: true, data: { message: "Server does not respond" } };
+		return { error: { message: "Server does not respond" } };
 	} else {
 		// Something happened in setting up the request that triggered an Error
 		return {
-			error: true,
-			data: {
+			error: {
 				message: "Error happened in setting up the request, please, check internet connection",
 			},
 		};
