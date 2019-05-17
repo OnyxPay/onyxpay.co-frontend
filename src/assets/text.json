@@ -1,0 +1,7 @@
+{
+	"modals": {
+		"registration": {
+			"bcError": "The account from imported wallet has already been used for registration"
+		}
+	}
+}

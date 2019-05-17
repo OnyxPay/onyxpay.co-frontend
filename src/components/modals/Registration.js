@@ -5,6 +5,8 @@ import { Modal, Button, Form, Input, Select } from "antd";
 import { country_list } from "../../assets/country_list";
 import Actions from "../../redux/actions";
 import { unlockWalletAccount } from "../../api/wallet";
+import { ErrorText } from "../styled";
+import text from "../../assets/text.json";
 
 const { Option } = Select;
 
@@ -15,7 +17,20 @@ const initialValues = {
 	referral_code: "",
 };
 
+function areBcErrors(data) {
+	const keysToCheck = ["public_key", "wallet_addr"];
+	return keysToCheck.some(key => data.hasOwnProperty(key));
+}
+
 class RegistrationModal extends Component {
+	state = this.getInitialState();
+
+	getInitialState() {
+		return {
+			isBcValidationError: false,
+		};
+	}
+
 	handleFormSubmit = async (values, formActions) => {
 		const { signUp } = this.props;
 		try {
@@ -24,6 +39,9 @@ class RegistrationModal extends Component {
 			const response = await signUp(values);
 			if (response && response.error) {
 				formActions.setErrors(response.data);
+				if (areBcErrors(response.data)) {
+					this.setState({ isBcValidationError: true });
+				}
 			}
 			console.log("RegistrationModal$$$", response);
 			// sign magic with pk
@@ -41,15 +59,24 @@ class RegistrationModal extends Component {
 		setFieldValue("country_id", value);
 	};
 
+	handleHideModal = () => {
+		const { hideModal } = this.props;
+		hideModal();
+		this.setState(this.getInitialState());
+	};
+
 	render() {
-		const { isModalVisible, hideModal } = this.props;
+		const { isModalVisible } = this.props;
+		const { isBcValidationError } = this.state;
+
 		return (
 			<Modal
 				title=""
 				visible={isModalVisible}
-				onCancel={hideModal}
+				onCancel={this.handleHideModal}
 				footer={null}
 				className="registration-modal"
+				destroyOnClose={true}
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
@@ -152,8 +179,10 @@ class RegistrationModal extends Component {
 									/>
 								</Form.Item>
 
+								{isBcValidationError && <ErrorText>{text.modals.registration.bcError}</ErrorText>}
+
 								<div className="ant-modal-custom-footer">
-									<Button key="back" onClick={hideModal} style={{ marginRight: 10 }}>
+									<Button key="back" onClick={this.handleHideModal} style={{ marginRight: 10 }}>
 										Cancel
 									</Button>
 									<Button

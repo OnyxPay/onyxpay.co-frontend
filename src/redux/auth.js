@@ -1,6 +1,7 @@
 import { restClient, makeFormDate, handleReqError } from "../api/network";
 
 export const SIGN_UP = "SIGN_UP";
+
 const initialState = {
 	token: null,
 };
