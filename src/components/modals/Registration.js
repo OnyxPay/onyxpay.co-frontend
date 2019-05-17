@@ -7,6 +7,7 @@ import Actions from "../../redux/actions";
 import { unlockWalletAccount } from "../../api/wallet";
 import { ErrorText } from "../styled";
 import text from "../../assets/text.json";
+import { signWithPk } from "../../utils/blockchain";
 
 const { Option } = Select;
 
@@ -34,8 +35,17 @@ class RegistrationModal extends Component {
 	handleFormSubmit = async (values, formActions) => {
 		const { signUp } = this.props;
 		try {
-			const unlocked = await unlockWalletAccount();
-			console.log(unlocked);
+			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
+			const algorithm = pk.algorithm;
+			const curve = pk.parameters.curve;
+			const { value: signedMsg } = signWithPk("MAGIC", pk);
+
+			values.public_key = publicKey;
+			values.wallet_addr = accountAddress;
+			values.signed_msg = signedMsg;
+
+			console.log({ algorithm, curve, publicKey, accountAddress });
+
 			const response = await signUp(values);
 			if (response && response.error) {
 				formActions.setErrors(response.data);
@@ -43,11 +53,8 @@ class RegistrationModal extends Component {
 					this.setState({ isBcValidationError: true });
 				}
 			}
-			console.log("RegistrationModal$$$", response);
-			// sign magic with pk
-			// make api request
+
 			formActions.setSubmitting(false);
-			// formActions.resetForm();
 		} catch (error) {
 			console.log(error);
 			formActions.setSubmitting(false);
@@ -71,7 +78,7 @@ class RegistrationModal extends Component {
 
 		return (
 			<Modal
-				title=""
+				title="Create Client account"
 				visible={isModalVisible}
 				onCancel={this.handleHideModal}
 				footer={null}
@@ -81,20 +88,20 @@ class RegistrationModal extends Component {
 				<Formik
 					onSubmit={this.handleFormSubmit}
 					initialValues={initialValues}
-					validate={values => {
-						let errors = {};
-						if (!values.first_name) {
-							errors.first_name = "required";
-						}
-						if (!values.last_name) {
-							errors.last_name = "required";
-						}
-						if (!values.country_id) {
-							errors.country_id = "required";
-						}
+					// validate={values => {
+					// 	let errors = {};
+					// 	if (!values.first_name) {
+					// 		errors.first_name = "required";
+					// 	}
+					// 	if (!values.last_name) {
+					// 		errors.last_name = "required";
+					// 	}
+					// 	if (!values.country_id) {
+					// 		errors.country_id = "required";
+					// 	}
 
-						return errors;
-					}}
+					// 	return errors;
+					// }}
 				>
 					{({
 						values,

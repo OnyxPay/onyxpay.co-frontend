@@ -16,13 +16,8 @@ export const authReducer = (state = initialState, action) => {
 };
 
 export const signUp = data => async (dispatch, getState) => {
+	console.log(data);
 	const formData = makeFormDate(data);
-
-	formData.append(
-		"public_key",
-		"0364851c12f1f8d753333faf521bd50b7cbd72251a6d651871bc3bef1c27311932a"
-	);
-	formData.append("wallet_addr", "AK3Axgz3dJyUWbzmyZDbixyn5TVZJxM8wu");
 	formData.set("country_id", 1);
 
 	try {
