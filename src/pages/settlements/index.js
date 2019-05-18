@@ -1,231 +1,150 @@
 import React, { Component } from "react";
-import { Typography, Card, Button, Input, Row, Col, Form, List, Avatar, Skeleton } from "antd";
+import {
+	Typography,
+	Card,
+	Button,
+	Input,
+	Row,
+	Col,
+	Form,
+	List,
+	Avatar,
+	Skeleton,
+	Popconfirm,
+	Table,
+} from "antd";
+
 import { PageTitle } from "../../components";
 import * as axios from "axios";
-import { Formik } from "formik";
-import { BackendUrl } from "../../api/constants";
+import { BackendUrl, temporaryToken } from "../../api/constants";
+import AddSettlementtModal from "../../components/modals/addSettlementsModal";
 
-const { Title } = Typography;
-const { TextArea } = Input;
+const modals = {
+	ADD_SETTLEMENTS_MODAL: "ADD_SETTLEMENTS_MODAL",
+};
+
+let columns = [];
+
+const headers = {
+	authorization: `bearer ${temporaryToken}`,
+};
 
 class Settlement extends Component {
 	state = {
 		initLoading: true,
-		loading: false,
-		listData: [],
+		dataSource: [],
+		ADD_SETTLEMENT_MODAL: false,
 	};
 
 	componentDidMount() {
-		const headers = {
-			authorization:
-				"bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvcHJlcHJvZC5vbnl4cGF5LmNvXC9hcGlcL3YxXC9sb2dpbiIsImlhdCI6MTU1Nzk0MTE0NiwiZXhwIjoxNTU3OTQ0NzQ2LCJuYmYiOjE1NTc5NDExNDYsImp0aSI6Ild4alNjRGx6SUpBeWhua2oiLCJzdWIiOjEsInBydiI6IjQzZDY4YjU4M2JhNTMwN2Y5ZWUyY2RkZTE0ZDBiYThlZmVjN2M1MTcifQ.qW5fG-D-K2gPDvK4Gr3SiuQzkiwU35YOzbjInDePMpA",
-		};
-
 		// let formData = new FormData();
 		// formData.append("first_name", "first_name");
 		// formData.append("last_name", "last_name");
-		// formData.append("wallet_addr", "wallet_addr");
-		// formData.append("public_key", "public_key");
+		// formData.append("wallet_addr", "21");
+		// formData.append("public_key", "1");
 		// formData.append("country_id", 1324567890);
-		// axios.post(`${BackendUrl}/api/v1/login`, formData).then(res => {
+		// axios.post(`${BackendUrl}/api/v1/sign-up`, formData).then(res => {
 		// 	console.log("/api/v1/sign-up ", res);
 		// });
 
 		// ------------- GET
 		axios.get(`${BackendUrl}/api/v1/settlements`, { headers }).then(res => {
 			console.log("GET Settlements ", res.data.data);
-
 			this.setState({
 				initLoading: false,
-				listData: res.data.data,
+				dataSource: res.data.data,
 			});
 		});
 
-		// ------------- ADD
-		// let formData = new FormData();
-		// formData.append("account_number", "250");
-		// formData.append("account_name", "account_name");
-		// formData.append("description", "description");
-		// formData.append("brief_notes", "brief_notes");
-		// axios
-		// 	.post(`${BackendUrl}/api/v1/settlements`, formData, {
-		// 		headers: headers,
-		// 	})
-		// 	.then(res => {
-		// 		console.log("/api/v1/settlements ", res.data);
-		// 	});
-
-		// ------------- DELETE
-		// axios
-		// 	.delete(`${BackendUrl}/api/v1/settlements/1`, {
-		// 		headers: headers,
-		// 	})
-		// 	.then(res => {
-		// 		console.log("DELETE ", res.data);
-		// 	});
+		columns = [
+			{
+				title: "Name",
+				key: "accountName",
+				dataIndex: "accountName",
+			},
+			{
+				title: "Number",
+				key: "accountNumber",
+				dataIndex: "accountNumber",
+			},
+			{
+				title: "Brief Notes",
+				key: "briefNotes",
+				dataIndex: "briefNotes",
+			},
+			{
+				title: "Description",
+				key: "description",
+				dataIndex: "description",
+			},
+			{
+				title: "Action",
+				key: "action",
+				render: record =>
+					this.state.dataSource.length >= 1 ? (
+						<Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
+							<a href="javascript:;">Delete</a>
+						</Popconfirm>
+					) : null,
+			},
+		];
 	}
 
-	handleFormSubmit = (values, { resetForm }) => {
-		console.log("sending", values);
-		resetForm();
+	handleDelete = key => {
+		axios
+			.delete(`${BackendUrl}/api/v1/settlements/${key}`, {
+				headers: headers,
+			})
+			.then(res => {
+				const dataSource = [...this.state.dataSource];
+				this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
+				console.log("DELETE ", res.data);
+			});
+	};
+
+	showModal = type => () => {
+		this.setState({ ADD_SETTLEMENT_MODAL: true });
+	};
+
+	hideModal = type => () => {
+		this.setState({ ADD_SETTLEMENT_MODAL: false });
 	};
 
 	render() {
-		const { initLoading, listData } = this.state;
+		const { initLoading, dataSource } = this.state;
 
 		return (
 			<>
 				<PageTitle>Settlement Accounts</PageTitle>
 				<Card>
 					<Row gutter={10}>
-						<Col md={24} lg={11}>
-							<h2>Add new Settlemt</h2>
-							<Formik
-								onSubmit={this.handleFormSubmit}
-								initialValues={{
-									account_number: "",
-									account_name: "",
-									description: "",
-									brief_notes: "",
-								}}
-								validate={values => {
-									let errors = {};
-									if (!values.account_number) {
-										errors.account_number = "required";
-									}
-									if (!values.account_name) {
-										errors.account_name = "required";
-									}
-									if (!values.description) {
-										errors.description = "required";
-									}
-									if (!values.brief_notes) {
-										errors.brief_notes = "required";
-									}
-									return errors;
-								}}
-							>
-								{({ values, errors, isSubmitting, handleChange, handleBlur, handleSubmit }) => {
-									return (
-										<form onSubmit={handleSubmit}>
-											<Form.Item
-												validateStatus={errors.account_number ? "error" : ""}
-												help={errors.account_number ? errors.account_number : ""}
-												required
-											>
-												<Input
-													size="large"
-													name="account_number"
-													placeholder="Account number"
-													value={values.account_number}
-													onChange={handleChange}
-													onBlur={handleBlur}
-													disabled={isSubmitting}
-												/>
-											</Form.Item>
-
-											<Form.Item
-												validateStatus={errors.account_name ? "error" : ""}
-												help={errors.account_name ? errors.account_name : ""}
-												required
-											>
-												<Input
-													size="large"
-													name="account_name"
-													placeholder="Account name"
-													value={values.account_name}
-													onChange={handleChange}
-													onBlur={handleBlur}
-													disabled={isSubmitting}
-												/>
-											</Form.Item>
-
-											<Form.Item
-												validateStatus={errors.description ? "error" : ""}
-												help={errors.description ? errors.description : ""}
-												required
-											>
-												<TextArea
-													rows={4}
-													name="description"
-													placeholder="Description"
-													value={values.description}
-													onChange={handleChange}
-												/>
-											</Form.Item>
-
-											<Form.Item
-												validateStatus={errors.brief_notes ? "error" : ""}
-												help={errors.brief_notes ? errors.brief_notes : ""}
-												required
-											>
-												<Input
-													size="large"
-													name="brief_notes"
-													placeholder="Brief notes"
-													value={values.brief_notes}
-													onChange={handleChange}
-													onBlur={handleBlur}
-													disabled={isSubmitting}
-												/>
-											</Form.Item>
-
-											<Button type="primary" htmlType="submit" disabled={isSubmitting}>
-												Submit
-											</Button>
-										</form>
-									);
-								}}
-							</Formik>
-						</Col>
-						<Col md={24} lg={11}>
-							<h2>Settlemts list</h2>
-							<List
-								className="demo-loadmore-list"
+						<Col md={24} lg={24}>
+							<Table
+								rowKey={record => record.id}
+								columns={columns}
 								loading={initLoading}
-								itemLayout="horizontal"
-								dataSource={listData}
-								renderItem={item => (
-									<List.Item actions={[<a>edit</a>, <a>delete</a>]}>
-										<Skeleton avatar title={false} loading={item.loading} active>
-											{/* {console.log(item[Object.keys(item)[0]].accountName)} */}
-
-											<List.Item.Meta description={item.description} />
-											<div>
-												id - {item.id} <br />
-												briefNotes - {item.briefNotes}
-												<br />
-												accountNumber - {item.accountNumber}
-												<br />
-												accountName - {item.accountName}
-												<br />
-											</div>
-										</Skeleton>
-									</List.Item>
-								)}
+								dataSource={dataSource}
 							/>
+
+							<Button
+								block
+								type="primary"
+								style={{ marginBottom: 5, marginTop: 20, width: "auto" }}
+								onClick={this.showModal(modals.ADD_SETTLEMENTS_MODAL)}
+							>
+								Add settlemt account
+							</Button>
 						</Col>
 					</Row>
 				</Card>
+
+				<AddSettlementtModal
+					isModalVisible={this.state.ADD_SETTLEMENT_MODAL}
+					hideModal={this.hideModal(modals.ADD_SETTLEMENT_MODAL)}
+				/>
 			</>
 		);
 	}
 }
 
 export default Settlement;
-
-// Registration (url: /api/v1/sign-up, method: POST)
-// Get settlement accounts (url: /api/v1/settlements, method: GET)
-// Store settlement account (url: /api/v1/settlements, method: POST)
-// Remove settlement account (url: /api/v1/settlements/{id}, method: DELETE)
-
-// Store settlement account (url: /api/v1/settlements, method: POST)
-// Request-headers:
-
-// jwt token
-// Request:
-
-// account_number (validation:[required, unique], type: string)
-// description (validation:[required], type: string)
-// account_name (validation:[required], type: string)
-// brief_notes (validation:[required], type: string)
