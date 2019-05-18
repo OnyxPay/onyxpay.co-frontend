@@ -43,3 +43,64 @@
 		display: block;
 	}
 }
+
+// TODO: extract styles
+.registration-modal,
+.wallet-unlock-modal {
+	.ant-modal-custom-footer {
+		margin: 0 -24px -24px -24px;
+		padding: 10px 24px;
+		text-align: right;
+		background: transparent;
+		border-top: 1px solid #e8e8e8;
+		margin-top: 50px;
+	}
+	.ant-form-item {
+		margin-bottom: 12px;
+	}
+}
+
+.import-wallet-modal {
+	width: 850px !important;
+	.ant-modal-body {
+		padding: 40px 60px;
+	}
+}
+
+.create-wallet-modal {
+	width: 600px !important;
+	.ant-modal-body {
+		padding: 40px 60px;
+	}
+}
+
+@media (max-width: 991px) {
+	.ant-modal {
+		top: 30px !important;
+	}
+
+	.import-wallet-modal {
+		width: calc(100vw - 16px) !important;
+		.ant-modal-body {
+			padding: 40px 30px;
+		}
+	}
+}
+
+@media (max-width: 767px) {
+	.create-wallet-modal {
+		width: calc(100vw - 16px) !important;
+		.ant-modal-body {
+			padding: 40px 30px;
+		}
+	}
+}
+
+@media (max-width: 575px) {
+	.import-wallet-modal,
+	.create-wallet-modal {
+		.ant-modal-body {
+			padding: 30px 15px;
+		}
+	}
+}

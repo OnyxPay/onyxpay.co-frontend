@@ -6,6 +6,7 @@ import Loadable from "react-loadable";
 import { Loader } from "./components";
 // import { getContractsAddress } from "./api/contracts";
 // import { initBalanceProvider } from "./providers/balanceProvider";
+import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -16,21 +17,6 @@ let Dashboard = Loadable({
 
 const Login = Loadable({
 	loader: () => import(/* webpackChunkName: "Login" */ "./pages/login"),
-	loading: Loader,
-});
-
-const Registration = Loadable({
-	loader: () => import(/* webpackChunkName: "Registration" */ "./pages/registration"),
-	loading: Loader,
-});
-
-const WalletUnlock = Loadable({
-	loader: () => import(/* webpackChunkName: "WalletUnlock" */ "./pages/wallet-unlock"),
-	loading: Loader,
-});
-
-const WalletCreate = Loadable({
-	loader: () => import(/* webpackChunkName: "WalletCreate" */ "./pages/wallet-create"),
 	loading: Loader,
 });
 
@@ -83,19 +69,17 @@ class App extends Component {
 			<Layout
 				isSideBarCollapsed={collapsed}
 				toggleSidebar={this.toggleSidebar}
-				simplified={["/login", "/registration", "/wallet-unlock", "/wallet-create"]}
+				simplified={["/login"]}
 			>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/registration" exact component={Registration} />
-					<Route path="/wallet-unlock" exact component={WalletUnlock} />
-					<Route path="/wallet-create" exact component={WalletCreate} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route component={Page404} />
 				</Switch>
+				<UnlockWalletModal />
 			</Layout>
 		);
 	}

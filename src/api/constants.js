@@ -9,3 +9,4 @@ export const OnyxCashDecimals = 8;
 export const OnyxCashSymbol = "OCH";
 
 export const BackendUrl = "https://preprod.onyxpay.co";
+export const tempWalletPassword = {};
