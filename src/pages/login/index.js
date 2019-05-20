@@ -27,7 +27,7 @@ const LoginCard = styled.div`
 	background: #fff;
 	border-radius: 2px;
 	transition: all 0.3s;
-	min-width: 300px;
+	width: 380px;
 	position: absolute;
 	right: 10%;
 	top: 50%;
@@ -36,6 +36,10 @@ const LoginCard = styled.div`
 		right: 50%;
 		transform: translate(50%, -50%);
 	}
+	@media (max-width: 575px) {
+		width: auto;
+		min-width: 300px;
+	}
 `;
 
 class Login extends Component {
@@ -43,6 +47,7 @@ class Login extends Component {
 		IMPORT_WALLET_MODAL: false,
 		CREATE_WALLET_MODAL: false,
 		REGISTRATION_MODAL: false,
+		loading: false,
 	};
 
 	openDashboard = () => {
@@ -75,24 +80,32 @@ class Login extends Component {
 	};
 
 	handleLogin = async () => {
-		const { push, login } = this.props;
+		const { push, login, getUserData } = this.props;
+		this.setState({ loading: true });
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
-			const res = await login(publicKey);
+			const { error, data } = await login(publicKey);
 
-			if (res && res.error) {
-				/* 
-						network error
-						not valid credentials
-					*/
+			if (error) {
+				if (data) {
+					// not valid credentials
+				}
+			} else {
+				// ok
+				// get user data
+				await getUserData();
+				push("/");
 			}
 		} catch (error) {
 			console.log(error);
+		} finally {
+			this.setState({ loading: false });
 		}
 	};
 
 	render() {
 		const { wallet } = this.props;
+		const { loading } = this.state;
 		return (
 			<UnderlayBg img={bgImg}>
 				<LoginCard>
@@ -113,7 +126,8 @@ class Login extends Component {
 						block
 						type="primary"
 						style={{ marginBottom: 5 }}
-						disabled={!wallet}
+						disabled={!wallet || loading}
+						loading={loading}
 						onClick={this.handleLogin}
 					>
 						Login
@@ -160,5 +174,6 @@ export default connect(
 		unlockWallet: Actions.walletUnlock.showWalletUnlockModal,
 		login: Actions.auth.login,
 		push,
+		getUserData: Actions.user.getUserData,
 	}
 )(Login);

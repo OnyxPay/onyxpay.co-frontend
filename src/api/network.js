@@ -38,9 +38,7 @@ export function handleReqError(error) {
 		if (error.response.status === 422) {
 			return { error: true, data: error.response.data, status: error.response.status };
 		}
-		// TODO:
-		// 403?
-		// 401 invalid credentials
+		// 403, 401 invalid credentials
 	} else if (error.request) {
 		// The request was made but no response was received
 		return { error: { message: "Server does not respond" } };
@@ -48,7 +46,7 @@ export function handleReqError(error) {
 		// Something happened in setting up the request that triggered an Error
 		return {
 			error: {
-				message: "Error happened in setting up the request, please, check internet connection",
+				message: "Error happened in setting up the request",
 			},
 		};
 	}

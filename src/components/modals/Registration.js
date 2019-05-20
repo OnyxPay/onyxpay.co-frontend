@@ -48,21 +48,23 @@ class RegistrationModal extends Component {
 
 			console.log({ algorithm, curve, publicKey, accountAddress });
 
-			const response = await signUp(values);
-			if (response && response.error && response.data) {
-				formActions.setErrors(response.data);
-				if (areBcErrors(response.data)) {
-					this.setState({ isBcValidationError: true });
+			const { error, data } = await signUp(values);
+
+			if (error) {
+				if (data) {
+					formActions.setErrors(data);
+					if (areBcErrors(data)) {
+						this.setState({ isBcValidationError: true });
+					}
+				} else {
+					message.error(error.message, 5);
 				}
-			} else if (response && !response.error) {
-				getUserData();
+			} else {
+				await getUserData();
 				message.success(text.modals.registration.reg_success, 5);
 				formActions.resetForm();
 				push("/");
-			} else if (response && response.error) {
-				message.error(response.error.message, 5);
 			}
-
 			formActions.setSubmitting(false);
 		} catch (error) {
 			console.log(error);
