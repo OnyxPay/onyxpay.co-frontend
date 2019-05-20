@@ -1,18 +1,22 @@
 import * as axios from "axios";
 import { BackendUrl, temporaryToken } from "../api/constants";
+import { getRestClient, handleReqError } from "../api/network";
+import { startLoading } from "./loading";
+const client = getRestClient();
 
-export const INIT_SETTLEMNTS_LIST = "INIT_SETTLEMNTS_LIST";
+export const INIT_SETTLEMENTS_LIST = "INIT_SETTLEMENTS_LIST";
 export const ADD_SETTLEMENT = "ADD_SETTLEMENT";
 export const DELETE_SETTLEMENT = "DELETE_SETTLEMENT";
 
 const initialState = [];
+
 const headers = {
 	authorization: `bearer ${temporaryToken}`,
 };
 
-export const settlementReducer = (state = initialState, action) => {
+export const settlementsReducer = (state = initialState, action) => {
 	switch (action.type) {
-		case INIT_SETTLEMNTS_LIST:
+		case INIT_SETTLEMENTS_LIST:
 			return action.payload;
 		case ADD_SETTLEMENT:
 			return [...state, action.payload];
@@ -24,7 +28,7 @@ export const settlementReducer = (state = initialState, action) => {
 };
 
 export const setSettlements = settlementsList => ({
-	type: INIT_SETTLEMNTS_LIST,
+	type: INIT_SETTLEMENTS_LIST,
 	payload: settlementsList,
 });
 
@@ -33,22 +37,32 @@ export const addSettlement = settlement => ({
 	payload: settlement,
 });
 
-export const deleteSettlement = settlementId => ({
-	type: DELETE_SETTLEMENT,
-	payload: settlementId,
-});
-
 export const getSettlementsList = () => {
 	return async dispatch => {
-		await axios
-			.get(`${BackendUrl}/api/v1/settlements`, { headers })
-			.then(res => {
-				console.log("GET Settlements ", res.data.data);
-				dispatch(setSettlements(res.data.data));
-			})
-			.catch(error => {
-				console.log("GET /settlements error :", error);
-			});
+		dispatch(startLoading());
+		const plug = [
+			{
+				id: 1,
+				accountNumber: "FA343",
+				description: "Private 24",
+				accountName: "some user",
+				briefNotes: "",
+			},
+			{
+				id: 2,
+				accountNumber: "F2323",
+				description: "Private 24",
+				accountName: "some user 2",
+				briefNotes: "tram tfdsf dsf",
+			},
+		];
+		try {
+			const { data } = await client.get("settlements");
+			dispatch(setSettlements(plug));
+		} catch (error) {
+			// console.log(handleReqError(error));
+			dispatch(setSettlements(plug));
+		}
 	};
 };
 
@@ -67,14 +81,17 @@ export const addItem = formData => {
 	};
 };
 
-export const deleteItem = settlementId => {
+export const deleteSettlement = settlementId => {
 	return async dispatch => {
 		await axios
 			.delete(`${BackendUrl}/api/v1/settlements/${settlementId}`, {
 				headers: headers,
 			})
 			.then(res => {
-				dispatch(deleteSettlement(settlementId));
+				dispatch({
+					type: DELETE_SETTLEMENT,
+					payload: settlementId,
+				});
 			})
 			.catch(error => {
 				console.log("DELETE error :", error);

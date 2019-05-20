@@ -10,12 +10,12 @@ import {
 	getWalletPassword,
 } from "./walletUnlock";
 import { signUp, login, confirmEmail, logOut } from "./auth";
+import { startLoading, finishLoading } from "./loading";
 import {
 	getSettlementsList,
 	setSettlements,
 	addSettlement,
 	deleteSettlement,
-	deleteItem,
 	addItem,
 } from "./settlements";
 
@@ -37,7 +37,10 @@ export default {
 		setSettlements,
 		addSettlement,
 		deleteSettlement,
-		deleteItem,
 		addItem,
+	},
+	loading: {
+		startLoading,
+		finishLoading,
 	},
 };

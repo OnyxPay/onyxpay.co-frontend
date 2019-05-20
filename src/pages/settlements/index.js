@@ -1,12 +1,9 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Card, Button, Row, Col, Popconfirm, Table } from "antd";
-
 import { PageTitle } from "../../components";
-import AddSettlementtModal from "../../components/modals/addSettlementsModal";
-
-import { getStore } from "../../store";
+import AddSettlementModal from "../../components/modals/addSettlementsModal";
 import Actions from "../../redux/actions";
-const store = getStore();
 
 const modals = {
 	ADD_SETTLEMENTS_MODAL: "ADD_SETTLEMENTS_MODAL",
@@ -14,22 +11,33 @@ const modals = {
 
 let columns = [];
 
+// TODO: add h scroll for table
+// test api calls and actions
 class Settlement extends Component {
 	state = {
-		initLoading: true,
-		dataSource: [],
 		ADD_SETTLEMENT_MODAL: false,
 	};
 
 	componentDidMount() {
-		store.subscribe(() => {
-			this.setState({
-				initLoading: false,
-				dataSource: store.getState().settlements,
-			});
-		});
+		const { getSettlementsList } = this.props;
+		getSettlementsList();
+	}
 
-		store.dispatch(Actions.settlements.getSettlementsList());
+	handleDelete = key => {
+		const { deleteSettlement } = this.props;
+		deleteSettlement(key);
+	};
+
+	showModal = type => () => {
+		this.setState({ ADD_SETTLEMENT_MODAL: true });
+	};
+
+	hideModal = type => () => {
+		this.setState({ ADD_SETTLEMENT_MODAL: false });
+	};
+
+	render() {
+		const { settlements, loading } = this.props;
 
 		columns = [
 			{
@@ -56,56 +64,39 @@ class Settlement extends Component {
 				title: "Action",
 				key: "action",
 				render: record =>
-					this.state.dataSource.length >= 1 ? (
+					settlements.length >= 1 ? (
 						<Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
-							<a href="javascript:;">Delete</a>
+							<Button type="link" style={{ padding: 0 }}>
+								Delete
+							</Button>
 						</Popconfirm>
 					) : null,
 			},
 		];
-	}
-
-	handleDelete = key => {
-		store.dispatch(Actions.settlements.deleteItem(key));
-	};
-
-	showModal = type => () => {
-		this.setState({ ADD_SETTLEMENT_MODAL: true });
-	};
-
-	hideModal = type => () => {
-		this.setState({ ADD_SETTLEMENT_MODAL: false });
-	};
-
-	render() {
-		const { initLoading, dataSource } = this.state;
 
 		return (
 			<>
 				<PageTitle>Settlement Accounts</PageTitle>
 				<Card>
+					<div style={{ marginBottom: 30 }}>
+						<Button type="primary" onClick={this.showModal(modals.ADD_SETTLEMENTS_MODAL)}>
+							Add new settlement account
+						</Button>
+					</div>
+
 					<Row gutter={10}>
 						<Col md={24} lg={24}>
 							<Table
 								rowKey={record => record.id}
 								columns={columns}
-								loading={initLoading}
-								dataSource={dataSource}
+								loading={loading}
+								dataSource={settlements}
 							/>
-
-							<Button
-								block
-								type="primary"
-								style={{ marginBottom: 5, marginTop: 20, width: "auto" }}
-								onClick={this.showModal(modals.ADD_SETTLEMENTS_MODAL)}
-							>
-								Add settlemt account
-							</Button>
 						</Col>
 					</Row>
 				</Card>
 
-				<AddSettlementtModal
+				<AddSettlementModal
 					isModalVisible={this.state.ADD_SETTLEMENT_MODAL}
 					hideModal={this.hideModal(modals.ADD_SETTLEMENT_MODAL)}
 				/>
@@ -114,4 +105,16 @@ class Settlement extends Component {
 	}
 }
 
-export default Settlement;
+export default connect(
+	state => {
+		return {
+			settlements: state.settlements,
+			loading: state.loading,
+		};
+	},
+	{
+		deleteSettlement: Actions.settlements.deleteSettlement,
+		startLoading: Actions.loading.startLoading,
+		getSettlementsList: Actions.settlements.getSettlementsList,
+	}
+)(Settlement);

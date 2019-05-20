@@ -7,7 +7,8 @@ import { exchangeRatesReducer } from "./exchangeRates";
 import { userReducer } from "./user";
 import { walletUnlockReducer } from "./walletUnlock";
 import { authReducer } from "./auth";
-import { settlementReducer } from "./settlements";
+import { settlementsReducer } from "./settlements";
+import { loaderReducer } from "./loading";
 
 export default history =>
 	combineReducers({
@@ -19,5 +20,6 @@ export default history =>
 		balance: balanceReducer,
 		exchangeRates: exchangeRatesReducer,
 		auth: authReducer,
-		settlements: settlementReducer,
+		settlements: settlementsReducer,
+		loading: loaderReducer,
 	});
