@@ -9,6 +9,14 @@ import {
 	setUnlockWallet,
 	getWalletPassword,
 } from "./walletUnlock";
+import {
+	getSettlementsList,
+	setSettlements,
+	addSettlement,
+	deleteSettlement,
+	deleteItem,
+	addItem,
+} from "./settlements";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -21,5 +29,13 @@ export default {
 		hideWalletUnlockModal,
 		setUnlockWallet,
 		getWalletPassword,
+	},
+	settlements: {
+		getSettlementsList,
+		setSettlements,
+		addSettlement,
+		deleteSettlement,
+		deleteItem,
+		addItem,
 	},
 };

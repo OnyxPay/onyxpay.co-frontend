@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Modal, Typography, Form, Input, Button, Icon, Checkbox } from "antd";
-import * as axios from "axios";
-import { BackendUrl, temporaryToken } from "../../api/constants";
+import { Modal, Form, Input, Button, Icon, Checkbox } from "antd";
 
-const { Title } = Typography;
+import { getStore } from "../../store";
+import Actions from "../../redux/actions";
+const store = getStore();
+
 const { TextArea } = Input;
 
 class AddSettlementtModal extends Component {
@@ -15,24 +16,15 @@ class AddSettlementtModal extends Component {
 	};
 
 	handleFormSubmit = (values, { resetForm }) => {
-		const headers = {
-			authorization: `bearer ${temporaryToken}`,
-		};
-
 		let formData = new FormData();
 		Object.keys(values).forEach(function(item) {
 			formData.append(item, values[item]);
 		});
 
-		axios
-			.post(`${BackendUrl}/api/v1/settlements`, formData, {
-				headers: headers,
-			})
-			.then(res => {
-				const { hideModal } = this.props;
-				hideModal();
-			});
+		store.dispatch(Actions.settlements.addItem(formData));
 
+		const { hideModal } = this.props;
+		hideModal();
 		resetForm();
 	};
 

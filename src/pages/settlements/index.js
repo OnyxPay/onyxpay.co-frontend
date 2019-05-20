@@ -1,33 +1,18 @@
 import React, { Component } from "react";
-import {
-	Typography,
-	Card,
-	Button,
-	Input,
-	Row,
-	Col,
-	Form,
-	List,
-	Avatar,
-	Skeleton,
-	Popconfirm,
-	Table,
-} from "antd";
+import { Card, Button, Row, Col, Popconfirm, Table } from "antd";
 
 import { PageTitle } from "../../components";
-import * as axios from "axios";
-import { BackendUrl, temporaryToken } from "../../api/constants";
 import AddSettlementtModal from "../../components/modals/addSettlementsModal";
+
+import { getStore } from "../../store";
+import Actions from "../../redux/actions";
+const store = getStore();
 
 const modals = {
 	ADD_SETTLEMENTS_MODAL: "ADD_SETTLEMENTS_MODAL",
 };
 
 let columns = [];
-
-const headers = {
-	authorization: `bearer ${temporaryToken}`,
-};
 
 class Settlement extends Component {
 	state = {
@@ -37,24 +22,14 @@ class Settlement extends Component {
 	};
 
 	componentDidMount() {
-		// let formData = new FormData();
-		// formData.append("first_name", "first_name");
-		// formData.append("last_name", "last_name");
-		// formData.append("wallet_addr", "21");
-		// formData.append("public_key", "1");
-		// formData.append("country_id", 1324567890);
-		// axios.post(`${BackendUrl}/api/v1/sign-up`, formData).then(res => {
-		// 	console.log("/api/v1/sign-up ", res);
-		// });
-
-		// ------------- GET
-		axios.get(`${BackendUrl}/api/v1/settlements`, { headers }).then(res => {
-			console.log("GET Settlements ", res.data.data);
+		store.subscribe(() => {
 			this.setState({
 				initLoading: false,
-				dataSource: res.data.data,
+				dataSource: store.getState().settlements,
 			});
 		});
+
+		store.dispatch(Actions.settlements.getSettlementsList());
 
 		columns = [
 			{
@@ -91,15 +66,7 @@ class Settlement extends Component {
 	}
 
 	handleDelete = key => {
-		axios
-			.delete(`${BackendUrl}/api/v1/settlements/${key}`, {
-				headers: headers,
-			})
-			.then(res => {
-				const dataSource = [...this.state.dataSource];
-				this.setState({ dataSource: dataSource.filter(item => item.key !== key) });
-				console.log("DELETE ", res.data);
-			});
+		store.dispatch(Actions.settlements.deleteItem(key));
 	};
 
 	showModal = type => () => {
