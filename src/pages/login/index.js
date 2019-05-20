@@ -84,10 +84,10 @@ class Login extends Component {
 		this.setState({ loading: true });
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
-			const { error, data } = await login(publicKey);
+			const { error } = await login(publicKey);
 
 			if (error) {
-				if (data) {
+				if (error.data) {
 					// not valid credentials
 				}
 			} else {

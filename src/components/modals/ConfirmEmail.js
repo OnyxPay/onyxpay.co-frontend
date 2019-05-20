@@ -12,21 +12,35 @@ class ConfirmEmailModal extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		const { confirmEmail } = this.props;
-		const { error, data } = await confirmEmail(values.email);
-		if (error && data) {
-			formActions.setErrors(data);
+		const { error } = await confirmEmail(values.email);
+		if (error && error.data) {
+			formActions.setErrors(error.data);
 		} else if (!error) {
 			this.changeView(1)();
 		}
 		formActions.setSubmitting(false);
 	};
 
+	checkUserStatus = async () => {
+		const { getUserData, hideModal } = this.props;
+		const { user, error } = await getUserData();
+		console.log(user, error);
+		if (user) {
+			hideModal();
+			// enable dashboard
+		}
+	};
+
 	changeView = index => () => {
 		this.setState({ viewIndex: index });
 	};
 
+	handleLogout = () => {
+		console.log("logout");
+	};
+
 	render() {
-		const { isModalVisible, hideModal } = this.props;
+		const { isModalVisible } = this.props;
 		const { viewIndex } = this.state;
 
 		return (
@@ -86,7 +100,7 @@ class ConfirmEmailModal extends Component {
 										</Form.Item>
 
 										<div className="ant-modal-custom-footer">
-											<Button key="back" onClick={hideModal} style={{ marginRight: 10 }}>
+											<Button key="back" onClick={this.handleLogout} style={{ marginRight: 10 }}>
 												Logout
 											</Button>
 											<Button
@@ -110,13 +124,17 @@ class ConfirmEmailModal extends Component {
 						<h1>You are almost there!</h1>
 						<p>
 							Now, please, check your email and follow the instructions, after that, click on this
-							<Button type="link" style={{ padding: "0 2px", height: "auto" }}>
+							<Button
+								type="link"
+								style={{ padding: "0 2px", height: "auto" }}
+								onClick={this.checkUserStatus}
+							>
 								confirm
 							</Button>
 							link...
 						</p>
 						<div className="ant-modal-custom-footer">
-							<Button key="back" onClick={hideModal} style={{ marginRight: 10 }}>
+							<Button key="back" onClick={this.handleLogout} style={{ marginRight: 10 }}>
 								Logout
 							</Button>
 							<Button onClick={this.changeView(0)}>Go back</Button>
@@ -130,5 +148,5 @@ class ConfirmEmailModal extends Component {
 
 export default connect(
 	null,
-	{ confirmEmail: Actions.auth.confirmEmail }
+	{ confirmEmail: Actions.auth.confirmEmail, getUserData: Actions.user.getUserData }
 )(ConfirmEmailModal);

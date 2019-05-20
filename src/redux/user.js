@@ -22,10 +22,10 @@ export const saveUser = user => {
 export const getUserData = () => async (dispatch, getState) => {
 	try {
 		const { data } = await client.post("info");
-		dispatch(saveUser(data));
 		console.log(data);
+		dispatch(saveUser(data));
+		return { user: data };
 	} catch (er) {
-		console.log("!!!", er);
-		console.log(handleReqError(er));
+		return handleReqError(er);
 	}
 };

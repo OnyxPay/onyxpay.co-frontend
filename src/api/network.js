@@ -1,6 +1,7 @@
 import axios from "axios";
 import { WebsocketClient, RestClient } from "ontology-ts-sdk";
 import { bcEndpoints, backEndRestEndpoint } from "./constants";
+import { message } from "antd";
 
 const bcWsClient = new WebsocketClient(bcEndpoints.ws, false, false);
 const bcRestClient = new RestClient(bcEndpoints.rest);
@@ -38,17 +39,23 @@ export function handleReqError(error) {
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
 		if (error.response.status === 422) {
-			return { error: true, data: error.response.data, status: error.response.status };
+			return {
+				error: {
+					data: error.response.data,
+					status: error.response.status,
+				},
+			};
 		}
 		// 403, 401 invalid credentials
 	} else if (error.request) {
-		console.error(error.message, error.request);
 		// The request was made but no response was received
+		console.error(error.message, error.request);
+		message.error("Network error", 5);
 		return { error: { message: "Server does not respond" } };
 	} else {
-		console.error(error.message, error);
-
 		// Something happened in setting up the request that triggered an Error
+		console.error(error.message, error);
+		message.error("Network error", 5);
 		return {
 			error: {
 				message: "Error happened in setting up the request",

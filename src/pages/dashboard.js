@@ -45,7 +45,7 @@ class Home extends Component {
 				<Card title="Recent Transactions">
 					<TransactionsTable />
 				</Card>
-				<ConfirmEmailModal isModalVisible={isConfirmEmailModalVisible} />
+				<ConfirmEmailModal isModalVisible={isConfirmEmailModalVisible} hideModal={this.hideModal} />
 			</>
 		);
 	}
