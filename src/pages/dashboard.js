@@ -11,7 +11,7 @@ class Home extends Component {
 	};
 
 	componentDidMount() {
-		if (!this.isUserVerified()) {
+		if (this.isUserVerified()) {
 			this.showModal();
 		}
 	}
