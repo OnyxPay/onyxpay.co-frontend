@@ -76,7 +76,7 @@ export async function importMnemonics(mnemonics, password) {
 	};
 }
 
-export function deserializePrivateKey(str: string): PrivateKey {
+export function deserializePrivateKey(str) {
 	const b = new Buffer(str, "hex");
 	const r = new Reader(b);
 

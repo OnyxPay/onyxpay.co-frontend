@@ -110,8 +110,8 @@ class Sidebar extends React.Component {
 						<Menu.Item key="3dasd">Agent active requests</Menu.Item>
 					</SubMenu>
 
-					<Menu.Item key="/settlement accounts">
-						<Link to="/settlement accounts" className="ant-menu-item-content">
+					<Menu.Item key="/settlement-accounts">
+						<Link to="/settlement-accounts" className="ant-menu-item-content">
 							<Icon type="pay-circle" />
 							<span>Settlement accounts</span>
 						</Link>

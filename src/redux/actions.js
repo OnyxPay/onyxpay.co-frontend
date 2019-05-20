@@ -10,6 +10,14 @@ import {
 	getWalletPassword,
 } from "./walletUnlock";
 import { signUp, login, confirmEmail, logOut } from "./auth";
+import {
+	getSettlementsList,
+	setSettlements,
+	addSettlement,
+	deleteSettlement,
+	deleteItem,
+	addItem,
+} from "./settlements";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -24,4 +32,12 @@ export default {
 		getWalletPassword,
 	},
 	auth: { signUp, login, confirmEmail, logOut },
+	settlements: {
+		getSettlementsList,
+		setSettlements,
+		addSettlement,
+		deleteSettlement,
+		deleteItem,
+		addItem,
+	},
 };
