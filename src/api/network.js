@@ -33,6 +33,8 @@ export const customRestClient = axios.create({
 
 export function handleReqError(error) {
 	if (error.response) {
+		console.error(error.message, error.response);
+
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
 		if (error.response.status === 422) {
@@ -40,9 +42,12 @@ export function handleReqError(error) {
 		}
 		// 403, 401 invalid credentials
 	} else if (error.request) {
+		console.error(error.message, error.request);
 		// The request was made but no response was received
 		return { error: { message: "Server does not respond" } };
 	} else {
+		console.error(error.message, error);
+
 		// Something happened in setting up the request that triggered an Error
 		return {
 			error: {

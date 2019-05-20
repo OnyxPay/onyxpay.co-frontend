@@ -41,9 +41,17 @@ export const login = data => async (dispatch, getState) => {
 
 	try {
 		const { data } = await client.post("login", formData);
-		// token: <string>,
-		// expires: <int>,
 		dispatch({ type: LOG_IN, payload: data });
+	} catch (er) {
+		return handleReqError(er);
+	}
+};
+
+export const confirmEmail = email => async (dispatch, getState) => {
+	const formData = makeFormDate(email);
+	try {
+		const { data } = await client.post("confirm-data", formData);
+		console.log("confirmEmail", data);
 	} catch (er) {
 		return handleReqError(er);
 	}
