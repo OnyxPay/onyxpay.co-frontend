@@ -9,7 +9,7 @@ import {
 	setUnlockWallet,
 	getWalletPassword,
 } from "./walletUnlock";
-import { signUp, login, confirmEmail } from "./auth";
+import { signUp, login, confirmEmail, logOut } from "./auth";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -23,5 +23,5 @@ export default {
 		setUnlockWallet,
 		getWalletPassword,
 	},
-	auth: { signUp, login, confirmEmail },
+	auth: { signUp, login, confirmEmail, logOut },
 };

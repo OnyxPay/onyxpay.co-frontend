@@ -8,6 +8,7 @@ import Actions from "../../redux/actions";
 class ConfirmEmailModal extends Component {
 	state = {
 		viewIndex: 0,
+		loading: false,
 	};
 
 	handleFormSubmit = async (values, formActions) => {
@@ -36,12 +37,14 @@ class ConfirmEmailModal extends Component {
 	};
 
 	handleLogout = () => {
-		console.log("logout");
+		const { logOut } = this.props;
+		this.setState({ loading: true });
+		logOut();
 	};
 
 	render() {
 		const { isModalVisible } = this.props;
-		const { viewIndex } = this.state;
+		const { viewIndex, loading } = this.state;
 
 		return (
 			<Modal
@@ -100,13 +103,19 @@ class ConfirmEmailModal extends Component {
 										</Form.Item>
 
 										<div className="ant-modal-custom-footer">
-											<Button key="back" onClick={this.handleLogout} style={{ marginRight: 10 }}>
+											<Button
+												key="back"
+												onClick={this.handleLogout}
+												style={{ marginRight: 10 }}
+												disabled={isSubmitting || loading}
+												loading={loading}
+											>
 												Logout
 											</Button>
 											<Button
 												type="primary"
 												htmlType="submit"
-												disabled={isSubmitting}
+												disabled={isSubmitting || loading}
 												loading={isSubmitting}
 											>
 												Confirm Email
@@ -134,10 +143,18 @@ class ConfirmEmailModal extends Component {
 							link...
 						</p>
 						<div className="ant-modal-custom-footer">
-							<Button key="back" onClick={this.handleLogout} style={{ marginRight: 10 }}>
+							<Button
+								key="back"
+								onClick={this.handleLogout}
+								style={{ marginRight: 10 }}
+								disabled={loading}
+								loading={loading}
+							>
 								Logout
 							</Button>
-							<Button onClick={this.changeView(0)}>Go back</Button>
+							<Button onClick={this.changeView(0)} disabled={loading}>
+								Go back
+							</Button>
 						</div>
 					</div>
 				)}
@@ -148,5 +165,9 @@ class ConfirmEmailModal extends Component {
 
 export default connect(
 	null,
-	{ confirmEmail: Actions.auth.confirmEmail, getUserData: Actions.user.getUserData }
+	{
+		confirmEmail: Actions.auth.confirmEmail,
+		getUserData: Actions.user.getUserData,
+		logOut: Actions.auth.logOut,
+	}
 )(ConfirmEmailModal);

@@ -56,3 +56,16 @@ export const confirmEmail = email => async (dispatch, getState) => {
 		return handleReqError(er);
 	}
 };
+
+export const logOut = () => async (dispatch, getState) => {
+	// TODO: test logout req
+	try {
+		const { data } = await client.post("logout");
+		console.log(data);
+	} catch (error) {
+		console.log(handleReqError(error));
+	} finally {
+		sessionStorage.removeItem("token");
+		window.location.reload();
+	}
+};
