@@ -50,14 +50,13 @@ class RegistrationModal extends Component {
 
 			const { error } = await signUp(values);
 
+			console.log("handleFormSubmit", error);
 			if (error) {
 				if (error.data) {
 					formActions.setErrors(error.data);
 					if (areBcErrors(error.data)) {
 						this.setState({ isBcValidationError: true });
 					}
-				} else {
-					message.error(error.message, 5);
 				}
 			} else {
 				await getUserData();

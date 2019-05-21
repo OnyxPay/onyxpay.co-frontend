@@ -9,7 +9,7 @@ import { decryptWallet } from "../../../api/wallet";
 
 const { Title } = Typography;
 
-class CreateWalletModal extends Component {
+class UnlockWalletModal extends Component {
 	state = this.initState();
 
 	initState() {
@@ -47,6 +47,7 @@ class CreateWalletModal extends Component {
 				footer={null}
 				className="wallet-unlock-modal"
 				destroyOnClose={true}
+				zIndex={9999}
 			>
 				<div>
 					<Title level={3} style={{ textAlign: "center" }}>
@@ -124,4 +125,4 @@ export default connect(
 		hideModal: Actions.walletUnlock.hideWalletUnlockModal,
 		setUnlockWallet: Actions.walletUnlock.setUnlockWallet,
 	}
-)(CreateWalletModal);
+)(UnlockWalletModal);
