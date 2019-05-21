@@ -1,8 +1,9 @@
-import { getRestClient, makeFormDate, handleReqError } from "../api/network";
+import { getRestClient, makeFormDate, handleReqError, getAuthHeader } from "../api/network";
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
 export const LOG_IN = "LOG_IN";
+export const LOG_OUT = "LOG_OUT";
 
 const initialState = (sessionStorage.getItem("token") && {
 	token: sessionStorage.getItem("token"),
@@ -16,6 +17,9 @@ export const authReducer = (state = initialState, action) => {
 		case LOG_IN:
 			sessionStorage.setItem("token", action.payload.token);
 			return action.payload;
+		case LOG_OUT:
+			sessionStorage.removeItem("token");
+			return { toke: null };
 		default:
 			return state;
 	}
@@ -46,25 +50,34 @@ export const login = data => async (dispatch, getState) => {
 };
 
 export const confirmEmail = email => async (dispatch, getState) => {
+	const authHeader = getAuthHeader();
 	const formData = makeFormDate(email);
 	try {
-		const { data } = await client.post("confirm-data", formData);
-		console.log("confirmEmail", data);
+		await client.post("confirm-data", formData, {
+			headers: {
+				...authHeader,
+			},
+		});
 	} catch (er) {
 		return handleReqError(er);
 	}
 };
 
-export const logOut = () => async (dispatch, getState) => {
-	// TODO: test logout req
+export const logOut = notReload => async (dispatch, getState) => {
+	const authHeader = getAuthHeader();
+
 	try {
-		const { data } = await client.post("logout");
-		console.log(data);
+		await client.post("logout", null, {
+			headers: {
+				...authHeader,
+			},
+		});
 	} catch (error) {
-		console.log(handleReqError(error));
+		handleReqError(error);
 	} finally {
-		sessionStorage.removeItem("token");
-		sessionStorage.removeItem("user");
-		window.location.reload();
+		dispatch({ type: LOG_OUT });
+		if (!notReload) {
+			window.location.reload();
+		}
 	}
 };

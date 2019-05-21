@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Modal, Form, Input, Button, Icon, Checkbox } from "antd";
+import { Modal, Form, Input, Button } from "antd";
 
 import { getStore } from "../../store";
 import Actions from "../../redux/actions";

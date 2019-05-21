@@ -48,13 +48,12 @@ class RegistrationModal extends Component {
 
 			console.log({ algorithm, curve, publicKey, accountAddress });
 
-			const { error } = await signUp(values);
+			const res = await signUp(values);
 
-			console.log("handleFormSubmit", error);
-			if (error) {
-				if (error.data) {
-					formActions.setErrors(error.data);
-					if (areBcErrors(error.data)) {
+			if (res && res.error) {
+				if (res.error.data) {
+					formActions.setErrors(res.error.data);
+					if (areBcErrors(res.error.data)) {
 						this.setState({ isBcValidationError: true });
 					}
 				}

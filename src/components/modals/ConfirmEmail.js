@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Modal, Button, Form, Input } from "antd";
+import { Modal, Button, Form, Input, message } from "antd";
 import { isEmailValid } from "../../utils/validate";
 import Actions from "../../redux/actions";
 
@@ -13,10 +13,14 @@ class ConfirmEmailModal extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		const { confirmEmail } = this.props;
-		const { error } = await confirmEmail(values.email);
-		if (error && error.data) {
-			formActions.setErrors(error.data);
-		} else if (!error) {
+		const res = await confirmEmail(values);
+		if (res && res.error) {
+			if (res.error.status === 422 && res.error.data) {
+				formActions.setErrors(res.error.data);
+			} else if (res.error.status === 403) {
+				message.error("Server error", 5);
+			}
+		} else {
 			this.changeView(1)();
 		}
 		formActions.setSubmitting(false);

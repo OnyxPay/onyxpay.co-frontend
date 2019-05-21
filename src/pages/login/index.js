@@ -51,10 +51,13 @@ class Login extends Component {
 		loading: false,
 	};
 
-	openDashboard = () => {
-		this.props.saveUser({ name: "Lucas", role: "user" });
-		this.props.history.push("/");
-	};
+	componentDidMount() {
+		this._isMounted = true;
+	}
+
+	componentWillUnmount() {
+		this._isMounted = false;
+	}
 
 	hideModal = type => () => {
 		this.setState({ [type]: false });
@@ -75,8 +78,9 @@ class Login extends Component {
 	};
 
 	handleClearWallet = () => {
-		const { clearWallet } = this.props;
+		const { clearWallet, logOut } = this.props;
 		clearWallet();
+		logOut(true);
 		message.success("You successfully closed your wallet", 5);
 	};
 
@@ -94,6 +98,7 @@ class Login extends Component {
 			if (res && res.error) {
 				if (res.error.data) {
 					// not valid credentials
+					message.error("Invalid credentials, maybe, this wallet  is not registered", 5);
 				}
 			} else {
 				await getUserData();
@@ -102,7 +107,9 @@ class Login extends Component {
 		} catch (er) {
 			console.log(er);
 		} finally {
-			this.setState({ loading: false });
+			if (this._isMounted) {
+				this.setState({ loading: false });
+			}
 		}
 	};
 

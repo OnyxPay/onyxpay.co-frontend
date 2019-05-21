@@ -24,7 +24,6 @@ class Home extends Component {
 
 	isUserVerified() {
 		const { user } = this.props;
-		console.log(user);
 		return user.status === 2 ? true : false;
 	}
 

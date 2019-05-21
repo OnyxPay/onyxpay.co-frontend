@@ -1,6 +1,6 @@
 import * as axios from "axios";
 import { BackendUrl, temporaryToken } from "../api/constants";
-import { getRestClient, handleReqError } from "../api/network";
+import { getRestClient /* handleReqError */ } from "../api/network";
 import { startLoading } from "./loading";
 const client = getRestClient();
 
@@ -58,6 +58,7 @@ export const getSettlementsList = () => {
 		];
 		try {
 			const { data } = await client.get("settlements");
+			console.log(data);
 			dispatch(setSettlements(plug));
 		} catch (error) {
 			// console.log(handleReqError(error));

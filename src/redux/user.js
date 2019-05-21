@@ -1,4 +1,5 @@
 import { getRestClient, handleReqError, getAuthHeader } from "../api/network";
+import { LOG_OUT } from "./auth";
 
 const client = getRestClient();
 
@@ -16,6 +17,9 @@ export const userReducer = (state = initialState, action) => {
 		case SAVE_USER:
 			sessionStorage.setItem("user", JSON.stringify(action.payload));
 			return action.payload;
+		case LOG_OUT:
+			sessionStorage.removeItem("user");
+			return null;
 		default:
 			return state;
 	}

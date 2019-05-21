@@ -44,7 +44,11 @@ export function handleReqError(error) {
 
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
-		if (error.response.status === 422) {
+		if (
+			error.response.status === 422 ||
+			error.response.status === 403 ||
+			error.response.status === 401
+		) {
 			return {
 				error: {
 					data: error.response.data,

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Avatar, Menu, Dropdown, Button } from "antd";
+import { Avatar, Menu, Dropdown } from "antd";
 import Actions from "../../redux/actions";
 
 const UpgradeLink = styled.span`
