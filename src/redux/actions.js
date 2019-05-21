@@ -11,13 +11,7 @@ import {
 } from "./walletUnlock";
 import { signUp, login, confirmEmail, logOut } from "./auth";
 import { startLoading, finishLoading } from "./loading";
-import {
-	getSettlementsList,
-	setSettlements,
-	addSettlement,
-	deleteSettlement,
-	addItem,
-} from "./settlements";
+import { getSettlementsList, setSettlements, deleteSettlement, add } from "./settlements";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -35,9 +29,8 @@ export default {
 	settlements: {
 		getSettlementsList,
 		setSettlements,
-		addSettlement,
 		deleteSettlement,
-		addItem,
+		add,
 	},
 	loading: {
 		startLoading,

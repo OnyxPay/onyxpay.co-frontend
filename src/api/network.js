@@ -74,7 +74,7 @@ export function handleReqError(error) {
 	}
 }
 
-export function makeFormDate(data) {
+export function makeFormData(data) {
 	const formData = new FormData();
 
 	for (const field in data) {

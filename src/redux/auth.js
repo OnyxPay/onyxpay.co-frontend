@@ -1,4 +1,4 @@
-import { getRestClient, makeFormDate, handleReqError, getAuthHeader } from "../api/network";
+import { getRestClient, makeFormData, handleReqError, getAuthHeader } from "../api/network";
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
@@ -26,7 +26,7 @@ export const authReducer = (state = initialState, action) => {
 };
 
 export const signUp = data => async (dispatch, getState) => {
-	const formData = makeFormDate(data);
+	const formData = makeFormData(data);
 	// TODO: get actual country_id from server
 	formData.set("country_id", 1);
 
@@ -39,7 +39,7 @@ export const signUp = data => async (dispatch, getState) => {
 };
 
 export const login = data => async (dispatch, getState) => {
-	const formData = makeFormDate(data);
+	const formData = makeFormData(data);
 
 	try {
 		const { data } = await client.post("login", formData);
@@ -51,7 +51,7 @@ export const login = data => async (dispatch, getState) => {
 
 export const confirmEmail = email => async (dispatch, getState) => {
 	const authHeader = getAuthHeader();
-	const formData = makeFormDate(email);
+	const formData = makeFormData(email);
 	try {
 		await client.post("confirm-data", formData, {
 			headers: {

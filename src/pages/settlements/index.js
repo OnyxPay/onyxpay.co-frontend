@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Card, Button, Row, Col, Popconfirm, Table } from "antd";
 import { PageTitle } from "../../components";
-import AddSettlementModal from "../../components/modals/addSettlementsModal";
+import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import Actions from "../../redux/actions";
 
 const modals = {
