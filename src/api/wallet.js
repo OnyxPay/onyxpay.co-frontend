@@ -1,6 +1,8 @@
 import { Account, Crypto, Wallet, utils } from "ontology-ts-sdk";
 import { v4 as uuid } from "uuid";
 import { Reader } from "ontology-ts-crypto";
+import { getStore } from "../store";
+import Actions from "../redux/actions";
 
 const PrivateKey = Crypto.PrivateKey;
 const KeyParameters = Crypto.KeyParameters;
@@ -52,12 +54,15 @@ export async function importPrivateKey(privateKeyStr, password, wallet) {
 
 	currentWallet.addAccount(account);
 	currentWallet.setDefaultAccount(account.address.toBase58());
-
-	return {
+	const res = {
 		encryptedWif: account.encryptedKey.serializeWIF(),
 		wallet: currentWallet.toJson(),
 		wif: privateKey.serializeWIF(),
+		publicKey: privateKey.getPublicKey(),
+		accountAddress: account.address.toBase58(),
 	};
+	console.log(res);
+	return res;
 }
 
 export async function importMnemonics(mnemonics, password) {
@@ -71,7 +76,7 @@ export async function importMnemonics(mnemonics, password) {
 	};
 }
 
-export function deserializePrivateKey(str: string): PrivateKey {
+export function deserializePrivateKey(str) {
 	const b = new Buffer(str, "hex");
 	const r = new Reader(b);
 
@@ -95,10 +100,11 @@ export function deserializePrivateKey(str: string): PrivateKey {
 }
 
 export function decryptWallet(wallet, password) {
-	const account = wallet.accounts[0];
+	let currentWallet = getWallet(wallet);
+	const account = currentWallet.accounts[0];
 	const saltHex = Buffer.from(account.salt, "base64").toString("hex");
 	const encryptedKey = account.encryptedKey;
-	const scrypt = wallet.scrypt;
+	const scrypt = currentWallet.scrypt;
 
 	const pk = encryptedKey.decrypt(password, account.address, saltHex, {
 		blockSize: scrypt.r,
@@ -106,6 +112,17 @@ export function decryptWallet(wallet, password) {
 		parallel: scrypt.p,
 		size: scrypt.dkLen,
 	});
+	return {
+		wallet: currentWallet.toJson(),
+		pk,
+		publicKey: pk.getPublicKey().key,
+		accountAddress: account.address.value,
+	};
+}
 
-	return { pk, wif: pk.serializeWIF(), wallet: wallet.toJson() };
+export async function unlockWalletAccount() {
+	const store = getStore();
+	const wallet = store.getState().wallet;
+	const { password } = await store.dispatch(Actions.walletUnlock.getWalletPassword());
+	return await decryptWallet(wallet, password);
 }

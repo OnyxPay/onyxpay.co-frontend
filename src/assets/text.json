@@ -1,0 +1,8 @@
+{
+	"modals": {
+		"registration": {
+			"bc_error": "The account from imported wallet has already been used for registration",
+			"reg_success": "You have successfully created account"
+		}
+	}
+}
