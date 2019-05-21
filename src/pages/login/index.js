@@ -4,10 +4,19 @@ import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import styled from "styled-components";
-import { Typography, Button } from "antd";
-import { Link } from "react-router-dom";
+import { Typography, Button, message } from "antd";
+import AddWallet from "./AddWallet";
+import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
+import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
+import RegistrationModal from "../../components/modals/Registration";
 
 const { Title } = Typography;
+
+const modals = {
+	IMPORT_WALLET_MODAL: "IMPORT_WALLET_MODAL",
+	CREATE_WALLET_MODAL: "CREATE_WALLET_MODAL",
+	REGISTRATION_MODAL: "REGISTRATION_MODAL",
+};
 
 const LoginCard = styled.div`
 	border: 1px solid #e8e8e8;
@@ -28,6 +37,12 @@ const LoginCard = styled.div`
 `;
 
 class Login extends Component {
+	state = {
+		IMPORT_WALLET_MODAL: false,
+		CREATE_WALLET_MODAL: false,
+		REGISTRATION_MODAL: false,
+	};
+
 	openDashboard = () => {
 		this.props.saveUser({ name: "Lucas", role: "user" });
 		this.props.history.push("/");
@@ -37,27 +52,83 @@ class Login extends Component {
 		this.props.history.push("/admin/investments");
 	};
 
+	hideModal = type => () => {
+		this.setState({ [type]: false });
+	};
+
+	showModal = type => () => {
+		this.setState({ [type]: true });
+	};
+
+	switchModal = to => () => {
+		if (to === modals.CREATE_WALLET_MODAL) {
+			this.hideModal(modals.IMPORT_WALLET_MODAL)();
+			this.showModal(modals.CREATE_WALLET_MODAL)();
+		} else {
+			this.hideModal(modals.CREATE_WALLET_MODAL)();
+			this.showModal(modals.IMPORT_WALLET_MODAL)();
+		}
+	};
+
+	handleClearWallet = () => {
+		const { clearWallet } = this.props;
+		clearWallet();
+		message.success("You successfully closed your wallet", 5);
+	};
+
 	render() {
+		const { wallet } = this.props;
 		return (
 			<UnderlayBg img={bgImg}>
 				<LoginCard>
-					<Title level={4} style={{ textAlign: "center", marginBottom: 24 }} type="secondary">
-						Welcome to OnyxPay
+					<Title
+						level={2}
+						style={{ textAlign: "center", marginBottom: 24, fontWeight: 400 }}
+						type="secondary"
+					>
+						Welcome to OnyxPay{" "}
+						<AddWallet
+							showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
+							wallet={wallet}
+							clearWallet={this.handleClearWallet}
+						/>
 					</Title>
-					<Button block type="primary" style={{ marginBottom: 5 }}>
-						<Link to={{ pathname: "/wallet-unlock", state: { from: "login" } }}>Login</Link>
+					<Button block type="primary" style={{ marginBottom: 5 }} disabled={!wallet}>
+						Login
 					</Button>
-					<Button block type="primary" style={{ marginBottom: 5 }}>
-						<Link to={{ pathname: "/wallet-create", state: { from: "create_account" } }}>
-							Create account
-						</Link>
+					<Button
+						block
+						type="primary"
+						style={{ marginBottom: 5 }}
+						disabled={!wallet}
+						onClick={this.showModal(modals.REGISTRATION_MODAL)}
+					>
+						Create account
 					</Button>
-					<Button block onClick={this.openDashboard} type="danger">
+					{/* <Button block onClick={this.openDashboard} type="danger">
 						Open Dashboard
+<<<<<<< HEAD
 					</Button>
 					<Button block onClick={this.openAdminPanel} type="danger">
 						Enter asset admin
 					</Button>
+=======
+					</Button> */}
+					<ImportWalletModal
+						isModalVisible={this.state.IMPORT_WALLET_MODAL}
+						hideModal={this.hideModal(modals.IMPORT_WALLET_MODAL)}
+						switchModal={this.switchModal(modals.CREATE_WALLET_MODAL)}
+					/>
+					<CreateWalletModal
+						isModalVisible={this.state.CREATE_WALLET_MODAL}
+						hideModal={this.hideModal(modals.CREATE_WALLET_MODAL)}
+						switchModal={this.switchModal(modals.IMPORT_WALLET_MODAL)}
+					/>
+					<RegistrationModal
+						isModalVisible={this.state.REGISTRATION_MODAL}
+						hideModal={this.hideModal(modals.REGISTRATION_MODAL)}
+					/>
+					>>>>>>> dev
 				</LoginCard>
 			</UnderlayBg>
 		);
@@ -65,6 +136,8 @@ class Login extends Component {
 }
 
 export default connect(
-	null,
-	{ saveUser: Actions.user.saveUser }
+	state => {
+		return { wallet: state.wallet };
+	},
+	{ saveUser: Actions.user.saveUser, clearWallet: Actions.wallet.clearWallet }
 )(Login);

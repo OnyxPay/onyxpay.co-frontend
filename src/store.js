@@ -10,28 +10,28 @@ const enhancers = [];
 const middlewares = [thunk, routerMiddleware(history)];
 
 if (process.env.NODE_ENV === "development") {
-  const devToolsExtension = window.__REDUX_DEVTOOLS_EXTENSION__;
+	const devToolsExtension = window.__REDUX_DEVTOOLS_EXTENSION__;
 
-  if (typeof devToolsExtension === "function") {
-    enhancers.push(devToolsExtension());
-  }
+	if (typeof devToolsExtension === "function") {
+		enhancers.push(devToolsExtension());
+	}
 }
 
 function configureStore(initialState) {
-  const store = createStore(
-    createRootReducer(history), // root reducer with router state
-    initialState,
-    compose(
-      applyMiddleware(...middlewares),
-      ...enhancers
-    )
-  );
+	const store = createStore(
+		createRootReducer(history), // root reducer with router state
+		initialState,
+		compose(
+			applyMiddleware(...middlewares),
+			...enhancers
+		)
+	);
 
-  return store;
+	return store;
 }
 
 const store = configureStore({});
 
 export function getStore() {
-  return store;
+	return store;
 }
