@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Row, Col, Popconfirm, Table } from "antd";
+import { Card, Button, Row, Col, Popconfirm, Table, Icon } from "antd";
 import { PageTitle } from "../../components";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import Actions from "../../redux/actions";
@@ -41,19 +41,14 @@ class Settlement extends Component {
 
 		columns = [
 			{
-				title: "Name",
-				key: "accountName",
-				dataIndex: "accountName",
-			},
-			{
 				title: "Number",
 				key: "accountNumber",
 				dataIndex: "accountNumber",
 			},
 			{
-				title: "Brief Notes",
-				key: "briefNotes",
-				dataIndex: "briefNotes",
+				title: "Name",
+				key: "accountName",
+				dataIndex: "accountName",
 			},
 			{
 				title: "Description",
@@ -61,12 +56,19 @@ class Settlement extends Component {
 				dataIndex: "description",
 			},
 			{
+				title: "Brief Notes",
+				key: "briefNotes",
+				dataIndex: "briefNotes",
+			},
+
+			{
 				title: "Action",
 				key: "action",
 				render: record =>
 					settlements.length >= 1 ? (
 						<Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
-							<Button type="link" style={{ padding: 0 }}>
+							<Button type="danger">
+								<Icon type="delete" />
 								Delete
 							</Button>
 						</Popconfirm>
@@ -80,20 +82,17 @@ class Settlement extends Component {
 				<Card>
 					<div style={{ marginBottom: 30 }}>
 						<Button type="primary" onClick={this.showModal(modals.ADD_SETTLEMENTS_MODAL)}>
-							Add new settlement account
+							<Icon type="plus" /> Add new settlement account
 						</Button>
 					</div>
 
-					<Row gutter={10}>
-						<Col md={24} lg={24}>
-							<Table
-								rowKey={record => record.id}
-								columns={columns}
-								loading={loading}
-								dataSource={settlements}
-							/>
-						</Col>
-					</Row>
+					<Table
+						rowKey={record => record.id}
+						columns={columns}
+						loading={loading}
+						dataSource={settlements}
+						style={{ overflowX: "auto" }}
+					/>
 				</Card>
 
 				<AddSettlementModal
