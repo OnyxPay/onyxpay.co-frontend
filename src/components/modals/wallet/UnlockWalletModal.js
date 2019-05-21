@@ -46,6 +46,7 @@ class CreateWalletModal extends Component {
 				onCancel={hideModal}
 				footer={null}
 				className="wallet-unlock-modal"
+				destroyOnClose={true}
 			>
 				<div>
 					<Title level={3} style={{ textAlign: "center" }}>

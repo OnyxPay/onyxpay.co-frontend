@@ -20,3 +20,7 @@ export const UnderlayBg = styled.div`
 	background-size: cover;
 	background-image: url(${p => p.img});
 `;
+
+export const ErrorText = styled.div`
+	color: #f5222d;
+`;

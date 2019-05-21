@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Typography, Button, message } from "antd";
+import { push } from "connected-react-router";
+import styled from "styled-components";
 import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
-import styled from "styled-components";
-import { Typography, Button, message } from "antd";
 import AddWallet from "./AddWallet";
+import { unlockWalletAccount } from "../../api/wallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
 import RegistrationModal from "../../components/modals/Registration";
@@ -25,7 +27,7 @@ const LoginCard = styled.div`
 	background: #fff;
 	border-radius: 2px;
 	transition: all 0.3s;
-	min-width: 300px;
+	width: 380px;
 	position: absolute;
 	right: 10%;
 	top: 50%;
@@ -34,6 +36,10 @@ const LoginCard = styled.div`
 		right: 50%;
 		transform: translate(50%, -50%);
 	}
+	@media (max-width: 575px) {
+		width: auto;
+		min-width: 300px;
+	}
 `;
 
 class Login extends Component {
@@ -41,6 +47,7 @@ class Login extends Component {
 		IMPORT_WALLET_MODAL: false,
 		CREATE_WALLET_MODAL: false,
 		REGISTRATION_MODAL: false,
+		loading: false,
 	};
 
 	openDashboard = () => {
@@ -72,8 +79,33 @@ class Login extends Component {
 		message.success("You successfully closed your wallet", 5);
 	};
 
+	handleLogin = async () => {
+		const { push, login, getUserData } = this.props;
+		this.setState({ loading: true });
+		try {
+			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
+			const { error } = await login(publicKey);
+
+			if (error) {
+				if (error.data) {
+					// not valid credentials
+				}
+			} else {
+				// ok
+				// get user data
+				await getUserData();
+				push("/");
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			this.setState({ loading: false });
+		}
+	};
+
 	render() {
 		const { wallet } = this.props;
+		const { loading } = this.state;
 		return (
 			<UnderlayBg img={bgImg}>
 				<LoginCard>
@@ -90,7 +122,14 @@ class Login extends Component {
 						/>
 					</Title>
 
-					<Button block type="primary" style={{ marginBottom: 5 }} disabled={!wallet}>
+					<Button
+						block
+						type="primary"
+						style={{ marginBottom: 5 }}
+						disabled={!wallet || loading}
+						loading={loading}
+						onClick={this.handleLogin}
+					>
 						Login
 					</Button>
 					<Button
@@ -102,9 +141,9 @@ class Login extends Component {
 					>
 						Create account
 					</Button>
-					{/* <Button block onClick={this.openDashboard} type="danger">
+					<Button block onClick={this.openDashboard} type="danger">
 						Open Dashboard
-					</Button> */}
+					</Button>
 					<ImportWalletModal
 						isModalVisible={this.state.IMPORT_WALLET_MODAL}
 						hideModal={this.hideModal(modals.IMPORT_WALLET_MODAL)}
@@ -129,5 +168,12 @@ export default connect(
 	state => {
 		return { wallet: state.wallet };
 	},
-	{ saveUser: Actions.user.saveUser, clearWallet: Actions.wallet.clearWallet }
+	{
+		saveUser: Actions.user.saveUser,
+		clearWallet: Actions.wallet.clearWallet,
+		unlockWallet: Actions.walletUnlock.showWalletUnlockModal,
+		login: Actions.auth.login,
+		push,
+		getUserData: Actions.user.getUserData,
+	}
 )(Login);

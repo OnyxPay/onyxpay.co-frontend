@@ -1,10 +1,9 @@
-version: '3.2'
+version: "3.2"
 services:
-    frontend:
-        image: onyxpay/onyxpay:${tag}
-        build: 
-            context: ..
-            dockerfile: deploy/Dockerfile
-            args:
-                BRANCH: ${tag}
-
+  frontend:
+    image: onyxpay/onyxpay:${tag}
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        BRANCH: ${tag}

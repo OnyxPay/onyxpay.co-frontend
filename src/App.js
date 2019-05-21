@@ -30,6 +30,11 @@ const Deposit = Loadable({
 	loading: Loader,
 });
 
+const Settlement = Loadable({
+	loader: () => import(/* webpackChunkName: "Settlement" */ "./pages/settlements"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization(["user"]);
 const Agent = Authorization(["agent", "super agent"]);
@@ -71,6 +76,7 @@ class App extends Component {
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
