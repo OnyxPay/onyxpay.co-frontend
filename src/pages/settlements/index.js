@@ -24,8 +24,8 @@ class Settlement extends Component {
 	}
 
 	handleDelete = key => {
-		const { deleteSettlement } = this.props;
-		deleteSettlement(key);
+		const { deleteAccount } = this.props;
+		deleteAccount(key);
 	};
 
 	showModal = type => () => {
@@ -113,7 +113,7 @@ export default connect(
 		};
 	},
 	{
-		deleteSettlement: Actions.settlements.deleteSettlement,
+		deleteAccount: Actions.settlements.deleteAccount,
 		startLoading: Actions.loading.startLoading,
 		getSettlementsList: Actions.settlements.getSettlementsList,
 	}
