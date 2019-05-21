@@ -7,6 +7,7 @@ import { ReactComponent as DownloadSvg } from "../../assets/icons/download.svg";
 const Container = styled.div`
 	display: inline-block;
 	text-align: center;
+	padding-left: 10px;
 	.wallet-icon,
 	.download-icon {
 		font-size: 35px;

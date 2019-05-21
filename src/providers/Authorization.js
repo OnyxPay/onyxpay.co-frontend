@@ -19,9 +19,9 @@ function Authorization(allowedRoles) {
 				const { user, location } = this.props;
 				if (!user) {
 					return <Redirect to="/login" />;
-				} else if (allowedRoles.includes(user.role) && user.verified) {
+				} else if (allowedRoles.includes(user.role) && user.status === 2) {
 					return <WrappedComponent {...this.props} />;
-				} else if (allowedRoles.includes(user.role) && !user.verified && location === "/") {
+				} else if (allowedRoles.includes(user.role) && user.status !== 2 && location === "/") {
 					return <WrappedComponent {...this.props} />;
 				} else {
 					return <Redirect to="/" />;

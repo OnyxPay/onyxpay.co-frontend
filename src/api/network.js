@@ -8,9 +8,9 @@ const bcRestClient = new RestClient(bcEndpoints.rest);
 
 export function getBcClient(rest) {
 	if (rest) {
-		return bcWsClient;
+		return bcRestClient;
 	}
-	return bcRestClient;
+	return bcWsClient;
 }
 
 export function getRestClient({ type } = {}) {
@@ -24,12 +24,18 @@ export function getToken() {
 	return sessionStorage.getItem("token");
 }
 
-const token = getToken();
+export function getAuthHeader() {
+	const token = getToken();
+	if (token) {
+		return {
+			Authorization: `Bearer ${token}`,
+		};
+	}
+	throw new Error("no token");
+}
 
 export const customRestClient = axios.create({
 	baseURL: backEndRestEndpoint,
-	headers: { Authorization: token && `Bearer ${token}` },
-	withCredentials: token ? true : false,
 });
 
 export function handleReqError(error) {

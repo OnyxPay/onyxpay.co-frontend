@@ -4,11 +4,9 @@ const client = getRestClient();
 export const SIGN_UP = "SIGN_UP";
 export const LOG_IN = "LOG_IN";
 
-const initialState = {
-	token: null,
-	// token_type
-	// expires_in
-};
+const initialState = (sessionStorage.getItem("token") && {
+	token: sessionStorage.getItem("token"),
+}) || { token: null };
 
 export const authReducer = (state = initialState, action) => {
 	switch (action.type) {
@@ -66,6 +64,7 @@ export const logOut = () => async (dispatch, getState) => {
 		console.log(handleReqError(error));
 	} finally {
 		sessionStorage.removeItem("token");
+		sessionStorage.removeItem("user");
 		window.location.reload();
 	}
 };

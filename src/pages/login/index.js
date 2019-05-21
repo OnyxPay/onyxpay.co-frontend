@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { Typography, Button, message } from "antd";
 import { push } from "connected-react-router";
@@ -83,28 +84,35 @@ class Login extends Component {
 		const { push, login, getUserData } = this.props;
 		this.setState({ loading: true });
 		try {
-			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
-			const { error } = await login(publicKey);
+			const { /* pk, accountAddress, */ publicKey } = await unlockWalletAccount();
+			const res = await login({ public_key: publicKey });
+			/* 
+				TODO:
+				if token is expired show error
+			*/
 
-			if (error) {
-				if (error.data) {
+			if (res && res.error) {
+				if (res.error.data) {
 					// not valid credentials
 				}
 			} else {
-				// ok
-				// get user data
 				await getUserData();
 				push("/");
 			}
-		} catch (error) {
-			console.log(error);
+		} catch (er) {
+			console.log(er);
 		} finally {
 			this.setState({ loading: false });
 		}
 	};
 
+	isAuthenticated() {
+		const { user, authenticated } = this.props;
+		return user && authenticated;
+	}
+
 	render() {
-		const { wallet } = this.props;
+		const { wallet, logOut } = this.props;
 		const { loading } = this.state;
 		return (
 			<UnderlayBg img={bgImg}>
@@ -114,7 +122,7 @@ class Login extends Component {
 						style={{ textAlign: "center", marginBottom: 24, fontWeight: 400 }}
 						type="secondary"
 					>
-						Welcome to OnyxPay{" "}
+						Welcome to OnyxPay
 						<AddWallet
 							showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
 							wallet={wallet}
@@ -122,28 +130,40 @@ class Login extends Component {
 						/>
 					</Title>
 
-					<Button
-						block
-						type="primary"
-						style={{ marginBottom: 5 }}
-						disabled={!wallet || loading}
-						loading={loading}
-						onClick={this.handleLogin}
-					>
-						Login
-					</Button>
-					<Button
-						block
-						type="primary"
-						style={{ marginBottom: 5 }}
-						disabled={!wallet}
-						onClick={this.showModal(modals.REGISTRATION_MODAL)}
-					>
-						Create account
-					</Button>
-					<Button block onClick={this.openDashboard} type="danger">
-						Open Dashboard
-					</Button>
+					{this.isAuthenticated() ? (
+						<div>
+							<Button onClick={logOut} block style={{ marginBottom: 5 }}>
+								Logout
+							</Button>
+							<Button block>
+								<Link to="/">Open Dashboard</Link>
+							</Button>
+						</div>
+					) : (
+						<div>
+							<Button
+								block
+								type="primary"
+								style={{ marginBottom: 5 }}
+								disabled={!wallet || loading}
+								loading={loading}
+								onClick={this.handleLogin}
+							>
+								Login
+							</Button>
+
+							<Button
+								block
+								type="primary"
+								style={{ marginBottom: 5 }}
+								disabled={!wallet}
+								onClick={this.showModal(modals.REGISTRATION_MODAL)}
+							>
+								Create account
+							</Button>
+						</div>
+					)}
+
 					<ImportWalletModal
 						isModalVisible={this.state.IMPORT_WALLET_MODAL}
 						hideModal={this.hideModal(modals.IMPORT_WALLET_MODAL)}
@@ -166,7 +186,7 @@ class Login extends Component {
 
 export default connect(
 	state => {
-		return { wallet: state.wallet };
+		return { wallet: state.wallet, user: state.user, authenticated: state.auth.token };
 	},
 	{
 		saveUser: Actions.user.saveUser,
@@ -175,5 +195,6 @@ export default connect(
 		login: Actions.auth.login,
 		push,
 		getUserData: Actions.user.getUserData,
+		logOut: Actions.auth.logOut,
 	}
 )(Login);

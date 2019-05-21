@@ -11,7 +11,7 @@ class Home extends Component {
 	};
 
 	componentDidMount() {
-		if (this.isUserVerified()) {
+		if (!this.isUserVerified()) {
 			this.showModal();
 		}
 	}
@@ -24,7 +24,8 @@ class Home extends Component {
 
 	isUserVerified() {
 		const { user } = this.props;
-		return user.verified ? true : false;
+		console.log(user);
+		return user.status === 2 ? true : false;
 	}
 
 	showModal = () => {
