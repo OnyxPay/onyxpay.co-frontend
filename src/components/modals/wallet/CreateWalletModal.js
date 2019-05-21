@@ -141,7 +141,7 @@ class CreateWalletModal extends Component {
 										errors = samePassword({ password, password_confirm });
 									}
 									if (!terms_confirm) {
-										errors.terms_confirm = "You should accept these terms to continue";
+										errors.terms_confirm = "You should accept these terms to continue!";
 									}
 									return errors;
 								}}
