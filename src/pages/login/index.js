@@ -32,6 +32,10 @@ class Login extends Component {
 		this.props.saveUser({ name: "Lucas", role: "user" });
 		this.props.history.push("/");
 	};
+	openAdminPanel = () => {
+		this.props.saveUser({ name: "jon", role: "super admin" });
+		this.props.history.push("/admin/investments");
+	};
 
 	render() {
 		return (
@@ -50,6 +54,9 @@ class Login extends Component {
 					</Button>
 					<Button block onClick={this.openDashboard} type="danger">
 						Open Dashboard
+					</Button>
+					<Button block onClick={this.openAdminPanel} type="danger">
+						Enter asset admin
 					</Button>
 				</LoginCard>
 			</UnderlayBg>

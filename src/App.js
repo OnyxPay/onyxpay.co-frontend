@@ -4,6 +4,8 @@ import Layout from "./components/layout";
 import Authorization from "./providers/Authorization";
 import Loadable from "react-loadable";
 import { Loader } from "./components";
+import SetAmount from "./pages/admin-panel/investments/SetAmount";
+import GetUnclaimed from "./pages/admin-panel/investments/GetUnclaimed";
 // import { getContractsAddress } from "./api/contracts";
 // import { initBalanceProvider } from "./providers/balanceProvider";
 
@@ -11,6 +13,11 @@ const Deposit2 = props => <div>Agent's deposit...</div>;
 
 let Dashboard = Loadable({
 	loader: () => import(/* webpackChunkName: "Home" */ "./pages/dashboard"),
+	loading: Loader,
+});
+
+let AdminPanel = Loadable({
+	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/investments"),
 	loading: Loader,
 });
 
@@ -48,11 +55,13 @@ const Deposit = Loadable({
 const User = Authorization(["user"]);
 const Agent = Authorization(["agent", "super agent"]);
 const All = Authorization(["user", "agent", "super agent"]);
+const Admin = Authorization(["admin", "super admin"]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
 const UserDeposit = User(Deposit);
 const AgentDeposit = Agent(Deposit2);
+const SuperAdmin = Admin(AdminPanel);
 Page404 = All(Page404);
 
 class App extends Component {
@@ -82,6 +91,7 @@ class App extends Component {
 			>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
+					<Route path="/admin/investments" exact component={SuperAdmin} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/registration" exact component={Registration} />
 					<Route path="/wallet-unlock" exact component={WalletUnlock} />
