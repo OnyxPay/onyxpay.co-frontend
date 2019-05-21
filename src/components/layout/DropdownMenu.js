@@ -18,7 +18,7 @@ const DropdownMenu = ({ logOut }) => {
 				<UpgradeLink>Upgrade to Super Agent</UpgradeLink>
 			</Menu.Item>
 			<Menu.Divider />
-			<Menu.Item onClick={logOut}>
+			<Menu.Item onClick={() => logOut()}>
 				<span>Logout</span>
 			</Menu.Item>
 		</Menu>

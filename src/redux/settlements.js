@@ -1,5 +1,3 @@
-import * as axios from "axios";
-import { BackendUrl } from "../api/constants";
 import { getRestClient, handleReqError, getAuthHeader, makeFormData } from "../api/network";
 import { startLoading, finishLoading } from "./loading";
 import { message } from "antd";

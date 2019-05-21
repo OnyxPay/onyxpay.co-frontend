@@ -1,4 +1,5 @@
 import { getRestClient, makeFormData, handleReqError, getAuthHeader } from "../api/network";
+import { push } from "connected-react-router";
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
@@ -19,7 +20,7 @@ export const authReducer = (state = initialState, action) => {
 			return action.payload;
 		case LOG_OUT:
 			sessionStorage.removeItem("token");
-			return { toke: null };
+			return { token: null };
 		default:
 			return state;
 	}
@@ -76,7 +77,10 @@ export const logOut = notReload => async (dispatch, getState) => {
 		handleReqError(error);
 	} finally {
 		dispatch({ type: LOG_OUT });
+
 		if (!notReload) {
+			console.log("$$$");
+			dispatch(push("/login"));
 			window.location.reload();
 		}
 	}

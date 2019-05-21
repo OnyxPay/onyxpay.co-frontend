@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Row, Col, Popconfirm, Table, Icon } from "antd";
+import { Card, Button, Popconfirm, Table, Icon } from "antd";
 import { PageTitle } from "../../components";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import Actions from "../../redux/actions";
