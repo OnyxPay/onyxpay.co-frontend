@@ -90,8 +90,8 @@ class CreateWalletModal extends Component {
 		const blob = new Blob([wallet], {
 			type: "text/plain;charset=utf-8",
 		});
-		const now = new Date().toLocaleDateString();
-		const name = `onyx_pay_wallet_${now}.dat`;
+
+		const name = "onyx_pay_wallet.dat";
 		saveAs(blob, name);
 	};
 
