@@ -17,7 +17,7 @@ const Footer = styled.footer`
 export const FooterComponent = () => {
 	return (
 		<Footer>
-			Copyright © 2018{" "}
+			Copyright © 2019{" "}
 			<a href="https://onyxpay.co/mywallet/#" target="_blank" rel="noopener noreferrer">
 				OnyxPay
 			</a>{" "}
