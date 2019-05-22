@@ -24,3 +24,9 @@ export const UnderlayBg = styled.div`
 export const ErrorText = styled.div`
 	color: #f5222d;
 `;
+
+export const Divider = styled.div`
+	height: 1px;
+	background-color: #d9d9d9;
+	margin: ${p => p.margin || "24px 0"};
+`;

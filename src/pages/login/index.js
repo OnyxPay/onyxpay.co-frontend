@@ -5,7 +5,7 @@ import { Typography, Button, message } from "antd";
 import { push } from "connected-react-router";
 import styled from "styled-components";
 import Actions from "../../redux/actions";
-import { UnderlayBg } from "../../components/styled";
+import { UnderlayBg, Divider } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import AddWallet from "./AddWallet";
 import { unlockWalletAccount } from "../../api/wallet";
@@ -126,17 +126,24 @@ class Login extends Component {
 				<LoginCard>
 					<Title
 						level={2}
-						style={{ textAlign: "center", marginBottom: 24, fontWeight: 400 }}
+						style={{ textAlign: "center", margin: "0 0 5px 0", fontWeight: 400 }}
 						type="secondary"
 					>
 						Welcome to OnyxPay
+					</Title>
+					<Title
+						level={3}
+						style={{ textAlign: "center", margin: 0, fontWeight: 400 }}
+						type="secondary"
+					>
+						{wallet ? "Close your wallet" : "Import or create wallet"}
 						<AddWallet
 							showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
 							wallet={wallet}
 							clearWallet={this.handleClearWallet}
 						/>
 					</Title>
-
+					<Divider />
 					{this.isAuthenticated() ? (
 						<div>
 							<Button onClick={logOut} block style={{ marginBottom: 5 }}>
