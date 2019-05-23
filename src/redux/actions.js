@@ -12,6 +12,7 @@ import {
 import { signUp, login, confirmEmail, logOut } from "./auth";
 import { startLoading, finishLoading } from "./loading";
 import { getSettlementsList, add, deleteAccount } from "./settlements";
+import { showSessionExpiredModal } from "./session";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -34,5 +35,8 @@ export default {
 	loading: {
 		startLoading,
 		finishLoading,
+	},
+	session: {
+		showSessionExpiredModal,
 	},
 };

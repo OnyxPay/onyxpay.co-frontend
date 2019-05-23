@@ -47,7 +47,7 @@ class UnlockWalletModal extends Component {
 				footer={null}
 				className="wallet-unlock-modal"
 				destroyOnClose={true}
-				zIndex={9999}
+				zIndex={1000}
 			>
 				<div>
 					<Title level={3} style={{ textAlign: "center" }}>

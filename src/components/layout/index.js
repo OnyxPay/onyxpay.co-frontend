@@ -1,4 +1,5 @@
-import React from "react";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Layout as AntLayout } from "antd";
 import { HeaderComponent as Header } from "./Header";
 import { MainContent } from "./MainContent";
@@ -6,6 +7,8 @@ import Sidebar from "./Sidebar";
 import { FooterComponent as Footer } from "./Footer";
 import { withRouter } from "react-router-dom";
 import styled from "styled-components";
+import { debounce } from "lodash";
+import { compose } from "redux";
 
 const MainLayout = styled.section`
 	min-height: 100vh;
@@ -14,29 +17,87 @@ const MainLayout = styled.section`
 	flex-direction: column;
 `;
 
-const Layout = ({ location, isSideBarCollapsed, toggleSidebar, simplified, children }) => {
-	const onlyFooter = simplified.some(route => {
-		return location.pathname === route;
-	});
+class Layout extends Component {
+	constructor(props) {
+		super(props);
+		this.checkWindowWidth = debounce(this.checkWindowWidth.bind(this), 200);
 
-	return onlyFooter ? (
-		<MainLayout>
-			<MainContent noPadding>{children}</MainContent>
-			<Footer />
-		</MainLayout>
-	) : (
-		<AntLayout className="main-layout">
-			<Header toggleSidebar={toggleSidebar} isSidebarCollapsed={isSideBarCollapsed} />
+		this.state = {
+			xsDevise: this.isXsWidth(),
+			isSideBarCollapsed: this.isXsWidth(),
+		};
+	}
 
-			<AntLayout className={isSideBarCollapsed ? "content-wrapper collapsed" : "content-wrapper"}>
-				<Sidebar collapsed={isSideBarCollapsed} />
-				<AntLayout>
-					<MainContent>{children}</MainContent>
-					<Footer />
+	componentDidMount() {
+		this.checkWindowWidth();
+		window.addEventListener("resize", this.checkWindowWidth);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.checkWindowWidth);
+	}
+
+	checkWindowWidth() {
+		const { xsDevise } = this.state;
+		if (window.innerWidth <= 575 && !xsDevise) {
+			this.setState({ xsDevise: true, isSideBarCollapsed: true });
+		} else if (window.innerWidth > 575 && xsDevise) {
+			this.setState({ xsDevise: false });
+		}
+	}
+
+	isXsWidth() {
+		return window.innerWidth <= 575;
+	}
+
+	toggleSidebar = () => {
+		this.setState({
+			isSideBarCollapsed: !this.state.isSideBarCollapsed,
+		});
+	};
+
+	render() {
+		const { location, simplified, children, user } = this.props;
+		const { xsDevise, isSideBarCollapsed } = this.state;
+		const onlyFooter = simplified.some(route => {
+			return location.pathname === route;
+		});
+
+		return onlyFooter ? (
+			<MainLayout>
+				<MainContent noPadding>{children}</MainContent>
+				<Footer />
+			</MainLayout>
+		) : (
+			<AntLayout className="main-layout">
+				<Header toggleSidebar={this.toggleSidebar} isSidebarCollapsed={isSideBarCollapsed} />
+
+				<AntLayout className={isSideBarCollapsed ? "content-wrapper collapsed" : "content-wrapper"}>
+					<Sidebar
+						collapsed={isSideBarCollapsed}
+						xsDevise={xsDevise}
+						user={user}
+						location={location}
+					/>
+					<AntLayout>
+						<MainContent>{children}</MainContent>
+						<Footer />
+					</AntLayout>
 				</AntLayout>
 			</AntLayout>
-		</AntLayout>
-	);
-};
+		);
+	}
+}
 
-export default withRouter(Layout);
+function mapStateToProps(state) {
+	return {
+		user: state.user,
+	};
+}
+
+Layout = compose(
+	withRouter,
+	connect(mapStateToProps)
+)(Layout);
+
+export default Layout;

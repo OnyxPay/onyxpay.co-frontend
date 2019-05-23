@@ -17,9 +17,11 @@ export const authReducer = (state = initialState, action) => {
 			return action.payload;
 		case LOG_IN:
 			sessionStorage.setItem("token", action.payload.token);
+			localStorage.setItem("logged_in", true);
 			return action.payload;
 		case LOG_OUT:
 			sessionStorage.removeItem("token");
+			localStorage.removeItem("logged_in");
 			return { token: null };
 		default:
 			return state;
@@ -65,21 +67,19 @@ export const confirmEmail = email => async (dispatch, getState) => {
 };
 
 export const logOut = notReload => async (dispatch, getState) => {
-	const authHeader = getAuthHeader();
-
 	try {
+		const authHeader = getAuthHeader();
 		await client.post("logout", null, {
 			headers: {
 				...authHeader,
 			},
 		});
 	} catch (error) {
-		handleReqError(error);
+		// do nothing
 	} finally {
 		dispatch({ type: LOG_OUT });
 
 		if (!notReload) {
-			console.log("$$$");
 			dispatch(push("/login"));
 			window.location.reload();
 		}

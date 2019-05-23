@@ -19,6 +19,7 @@ export const UnderlayBg = styled.div`
 	height: 100%;
 	background-size: cover;
 	background-image: url(${p => p.img});
+	background-position: ${p => p.bgPosition || "unset"};
 `;
 
 export const ErrorText = styled.div`

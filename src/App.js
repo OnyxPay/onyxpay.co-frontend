@@ -6,7 +6,9 @@ import Loadable from "react-loadable";
 import { Loader } from "./components";
 // import { getContractsAddress } from "./api/contracts";
 // import { initBalanceProvider } from "./providers/balanceProvider";
+import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
+import SessionExpiredModal from "./components/modals/SessionExpired";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -47,30 +49,15 @@ const AgentDeposit = Agent(Deposit2);
 Page404 = All(Page404);
 
 class App extends Component {
-	state = {
-		collapsed: false,
-	};
-
 	componentDidMount() {
 		// getContractsAddress();
 		// initBalanceProvider();
+		syncLoginState();
 	}
 
-	toggleSidebar = () => {
-		this.setState({
-			collapsed: !this.state.collapsed,
-		});
-	};
-
 	render() {
-		const { collapsed } = this.state;
-
 		return (
-			<Layout
-				isSideBarCollapsed={collapsed}
-				toggleSidebar={this.toggleSidebar}
-				simplified={["/login"]}
-			>
+			<Layout simplified={["/login"]}>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/login" exact component={Login} />
@@ -80,6 +67,7 @@ class App extends Component {
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
+				<SessionExpiredModal />
 			</Layout>
 		);
 	}
