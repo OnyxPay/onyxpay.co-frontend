@@ -1,6 +1,6 @@
 import { gasPrice, getHeadContractAddress } from "../utils/blockchain";
 import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
-import { getClient } from "../api/network";
+import { getBcClient } from "../api/network";
 import { get } from "lodash";
 
 export const RESOLVE_CONTRACT_ADDRESS = "RESOLVE_CONTRACT_ADDRESS";
@@ -20,7 +20,7 @@ export const contractsReducer = (state = initialState, action) => {
 
 export const resolveContractAddress = contractName => {
 	return async (dispatch, getState) => {
-		const client = getClient();
+		const client = getBcClient();
 		const funcName = "GetContractAddress";
 		const p1 = new Parameter("contractName", ParameterType.String, contractName);
 

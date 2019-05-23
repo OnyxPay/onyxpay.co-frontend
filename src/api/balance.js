@@ -1,5 +1,5 @@
 import { TransactionBuilder, Oep4, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
-import { getClient } from "./network";
+import { getBcClient } from "./network";
 import { cryptoAddress, gasPrice, parseAmounts, parseExchangeRates } from "../utils/blockchain";
 import * as Long from "long";
 import { get, isEmpty } from "lodash";
@@ -8,7 +8,7 @@ import Actions from "../redux/actions";
 export async function getTokenBalance(contract, address) {
 	const builder = new Oep4.Oep4TxBuilder(cryptoAddress(contract));
 
-	const client = getClient();
+	const client = getBcClient();
 	const tx = builder.queryBalanceOf(address);
 	const response = await client.sendRawTransaction(tx.serialize(), true);
 	if (response.Result.Result) {
@@ -20,7 +20,7 @@ export async function getTokenBalance(contract, address) {
 
 export async function getAssetsBalance(contract, address) {
 	//make transaction
-	const client = getClient();
+	const client = getBcClient();
 	const funcName = "balancesOf";
 	const tx = TransactionBuilder.makeInvokeTransaction(
 		funcName,
@@ -43,7 +43,7 @@ export async function getAssetsBalance(contract, address) {
 
 export async function getExchangeRates(store) {
 	let { contracts } = store.getState();
-	const client = getClient();
+	const client = getBcClient();
 	const funcName = "GetExchangeRates";
 	const contractAdress =
 		!isEmpty(contracts) &&

@@ -2,17 +2,11 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Card, Button, Input, Form } from "antd";
-//modules
-import { setAmount } from "./../../../modules/Investments";
-
-//utils
+import { setAmount } from "../../../redux/admin-panel/Investments";
 import { createSecret } from "./../../../utils/secretHash";
-
-//styles
 
 class SetAmount extends Component {
 	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
-		debugger;
 		const { setAmount } = this.props;
 		const { user_name } = values;
 		const { user_password } = values;

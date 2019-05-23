@@ -2,8 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Card, Button, Input, Form } from "antd";
-//import style from "../../style";
-import { Block } from "./../../../modules/Investments";
+import { Block } from "../../../redux/admin-panel/Investments";
 import { createSecret } from "./../../../utils/secretHash";
 
 class BlockInvestor extends Component {
@@ -32,7 +31,6 @@ class BlockInvestor extends Component {
 											id="user_name"
 											placeholder="enter name"
 											disabled={isSubmitting}
-											//style={style.select}
 											size="large"
 											value={values.user_name}
 											onChange={handleChange}
@@ -43,7 +41,6 @@ class BlockInvestor extends Component {
 										<Input
 											id="user_password"
 											placeholder="enter password"
-											//style={style.select}
 											size="large"
 											disabled={isSubmitting}
 											value={values.user_password}

@@ -2,11 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Card, Button, Input, Form } from "antd";
-//modules
-import { Unblock } from "./../../../modules/Investments";
-
-//styles
-//import style from "../../style";
+import { Unblock } from "../../../redux/admin-panel/Investments";
 import { createSecret } from "./../../../utils/secretHash";
 
 class UnblockInvestor extends Component {

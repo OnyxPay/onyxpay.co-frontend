@@ -6,16 +6,12 @@ import UnblockInvestor from "./Unblock";
 import SetAmount from "./SetAmount";
 import GetUnclaimed from "./GetUnclaimed";
 
-const SuperAdmin = () => {
+const Investments = () => {
 	return (
 		<div>
 			<FormWrapper>
 				<h1>Set Amount</h1>
 				<SetAmount />
-			</FormWrapper>
-			<FormWrapper>
-				<h1>Get Unclaimed</h1>
-				<GetUnclaimed />
 			</FormWrapper>
 			<FormWrapper>
 				<h1>Block</h1>
@@ -25,8 +21,12 @@ const SuperAdmin = () => {
 				<h1>Unblock</h1>
 				<UnblockInvestor />
 			</FormWrapper>
+			<FormWrapper>
+				<h1>Get Unclaimed</h1>
+				<GetUnclaimed />
+			</FormWrapper>
 		</div>
 	);
 };
 
-export default SuperAdmin;
+export default Investments;

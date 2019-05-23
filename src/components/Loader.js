@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import loaderSvg from "../assets/icons/loader.svg";
+import { ReactComponent as LoaderSvg } from "../assets/icons/loader.svg";
 
 const Bg = styled.div`
 	position: fixed;
 	z-index: 10000;
-	background-color: rgba(255, 255, 255);
+	background-color: transparent;
 	left: 0;
 	top: 0;
 	right: 0;
@@ -22,7 +22,7 @@ export const Loader = ({ error, pastDelay }) => {
 	} else if (pastDelay) {
 		return (
 			<Bg>
-				<img src={loaderSvg} alt="loader" />
+				<LoaderSvg />
 			</Bg>
 		);
 	} else {

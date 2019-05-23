@@ -1,11 +1,14 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { Typography, Button, message } from "antd";
+import { push } from "connected-react-router";
+import styled from "styled-components";
 import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
-import styled from "styled-components";
-import { Typography, Button, message } from "antd";
 import AddWallet from "./AddWallet";
+import { unlockWalletAccount } from "../../api/wallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
 import RegistrationModal from "../../components/modals/Registration";
@@ -25,7 +28,7 @@ const LoginCard = styled.div`
 	background: #fff;
 	border-radius: 2px;
 	transition: all 0.3s;
-	min-width: 300px;
+	width: 380px;
 	position: absolute;
 	right: 10%;
 	top: 50%;
@@ -34,6 +37,10 @@ const LoginCard = styled.div`
 		right: 50%;
 		transform: translate(50%, -50%);
 	}
+	@media (max-width: 575px) {
+		width: auto;
+		min-width: 300px;
+	}
 `;
 
 class Login extends Component {
@@ -41,16 +48,16 @@ class Login extends Component {
 		IMPORT_WALLET_MODAL: false,
 		CREATE_WALLET_MODAL: false,
 		REGISTRATION_MODAL: false,
+		loading: false,
 	};
 
-	openDashboard = () => {
-		this.props.saveUser({ name: "Lucas", role: "user" });
-		this.props.history.push("/");
-	};
-	openAdminPanel = () => {
-		this.props.saveUser({ name: "jon", role: "super admin" });
-		this.props.history.push("/admin/investments");
-	};
+	componentDidMount() {
+		this._isMounted = true;
+	}
+
+	componentWillUnmount() {
+		this._isMounted = false;
+	}
 
 	hideModal = type => () => {
 		this.setState({ [type]: false });
@@ -58,6 +65,11 @@ class Login extends Component {
 
 	showModal = type => () => {
 		this.setState({ [type]: true });
+	};
+
+	openAdminPanel = () => {
+		this.props.saveUser({ name: "jon", role: "super admin" });
+		this.props.history.push("/admin/investments");
 	};
 
 	switchModal = to => () => {
@@ -71,13 +83,49 @@ class Login extends Component {
 	};
 
 	handleClearWallet = () => {
-		const { clearWallet } = this.props;
+		const { clearWallet, logOut } = this.props;
 		clearWallet();
+		logOut(true);
 		message.success("You successfully closed your wallet", 5);
 	};
 
+	handleLogin = async () => {
+		const { push, login, getUserData } = this.props;
+		this.setState({ loading: true });
+		try {
+			const { /* pk, accountAddress, */ publicKey } = await unlockWalletAccount();
+			const res = await login({ public_key: publicKey });
+			/*
+				TODO:
+				if token is expired show error
+			*/
+
+			if (res && res.error) {
+				if (res.error.data) {
+					// not valid credentials
+					message.error("Invalid credentials, maybe, this wallet  is not registered", 5);
+				}
+			} else {
+				await getUserData();
+				push("/");
+			}
+		} catch (er) {
+			console.log(er);
+		} finally {
+			if (this._isMounted) {
+				this.setState({ loading: false });
+			}
+		}
+	};
+
+	isAuthenticated() {
+		const { user, authenticated } = this.props;
+		return user && authenticated;
+	}
+
 	render() {
-		const { wallet } = this.props;
+		const { wallet, logOut } = this.props;
+		const { loading } = this.state;
 		return (
 			<UnderlayBg img={bgImg}>
 				<LoginCard>
@@ -86,34 +134,51 @@ class Login extends Component {
 						style={{ textAlign: "center", marginBottom: 24, fontWeight: 400 }}
 						type="secondary"
 					>
-						Welcome to OnyxPay{" "}
+						Welcome to OnyxPay
 						<AddWallet
 							showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
 							wallet={wallet}
 							clearWallet={this.handleClearWallet}
 						/>
 					</Title>
-					<Button block type="primary" style={{ marginBottom: 5 }} disabled={!wallet}>
-						Login
-					</Button>
-					<Button
-						block
-						type="primary"
-						style={{ marginBottom: 5 }}
-						disabled={!wallet}
-						onClick={this.showModal(modals.REGISTRATION_MODAL)}
-					>
-						Create account
-					</Button>
-					{/* <Button block onClick={this.openDashboard} type="danger">
-						Open Dashboard
-<<<<<<< HEAD
-					</Button>
-					<Button block onClick={this.openAdminPanel} type="danger">
-						Enter asset admin
-					</Button>
-=======
-					</Button> */}
+
+					{this.isAuthenticated() ? (
+						<div>
+							<Button onClick={logOut} block style={{ marginBottom: 5 }}>
+								Logout
+							</Button>
+							<Button block>
+								<Link to="/">Open Dashboard</Link>
+							</Button>
+						</div>
+					) : (
+						<div>
+							<Button
+								block
+								type="primary"
+								style={{ marginBottom: 5 }}
+								disabled={!wallet || loading}
+								loading={loading}
+								onClick={this.handleLogin}
+							>
+								Login
+							</Button>
+
+							<Button
+								block
+								type="primary"
+								style={{ marginBottom: 5 }}
+								disabled={!wallet}
+								onClick={this.showModal(modals.REGISTRATION_MODAL)}
+							>
+								Create account
+							</Button>
+							<Button block onClick={this.openAdminPanel} type="danger">
+								Enter asset admin
+							</Button>
+						</div>
+					)}
+
 					<ImportWalletModal
 						isModalVisible={this.state.IMPORT_WALLET_MODAL}
 						hideModal={this.hideModal(modals.IMPORT_WALLET_MODAL)}
@@ -128,7 +193,6 @@ class Login extends Component {
 						isModalVisible={this.state.REGISTRATION_MODAL}
 						hideModal={this.hideModal(modals.REGISTRATION_MODAL)}
 					/>
-					>>>>>>> dev
 				</LoginCard>
 			</UnderlayBg>
 		);
@@ -137,7 +201,15 @@ class Login extends Component {
 
 export default connect(
 	state => {
-		return { wallet: state.wallet };
+		return { wallet: state.wallet, user: state.user, authenticated: state.auth.token };
 	},
-	{ saveUser: Actions.user.saveUser, clearWallet: Actions.wallet.clearWallet }
+	{
+		saveUser: Actions.user.saveUser,
+		clearWallet: Actions.wallet.clearWallet,
+		unlockWallet: Actions.walletUnlock.showWalletUnlockModal,
+		login: Actions.auth.login,
+		push,
+		getUserData: Actions.user.getUserData,
+		logOut: Actions.auth.logOut,
+	}
 )(Login);

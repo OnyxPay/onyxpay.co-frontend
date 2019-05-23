@@ -16,10 +16,12 @@ function Authorization(allowedRoles) {
 				user: PropTypes.object,
 			};
 			render() {
-				const { user } = this.props;
+				const { user, location } = this.props;
 				if (!user) {
 					return <Redirect to="/login" />;
-				} else if (allowedRoles.includes(user.role)) {
+				} else if (allowedRoles.includes(user.role) && user.status === 2) {
+					return <WrappedComponent {...this.props} />;
+				} else if (allowedRoles.includes(user.role) && user.status !== 2 && location === "/") {
 					return <WrappedComponent {...this.props} />;
 				} else {
 					return <Redirect to="/" />;
@@ -27,7 +29,7 @@ function Authorization(allowedRoles) {
 			}
 		}
 		return connect(state => {
-			return { user: state.user };
+			return { user: state.user, location: state.router.location.pathname };
 		})(WithAuthorization);
 	};
 }

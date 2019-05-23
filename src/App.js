@@ -8,6 +8,9 @@ import { Loader } from "./components";
 // import { getContractsAddress } from "./api/contracts";
 // import { initBalanceProvider } from "./providers/balanceProvider";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
+//import Admin from "./pages/admin-panel/index";
+import Users from "./pages/admin-panel/users/index";
+import Investments from "./pages/admin-panel/investments/index";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -16,10 +19,10 @@ let Dashboard = Loadable({
 	loading: Loader,
 });
 
-let AdminPanel = Loadable({
-	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/investments"),
+/*let AdminPanel = Loadable({
+	loader: () => import(/!* webpackChunkName: "Admin" *!/ "./pages/admin-panel/investments"),
 	loading: Loader,
-});
+});*/
 
 const Login = Loadable({
 	loader: () => import(/* webpackChunkName: "Login" */ "./pages/login"),
@@ -36,17 +39,22 @@ const Deposit = Loadable({
 	loading: Loader,
 });
 
+const Settlement = Loadable({
+	loader: () => import(/* webpackChunkName: "Settlement" */ "./pages/settlements"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization(["user"]);
 const Agent = Authorization(["agent", "super agent"]);
 const All = Authorization(["user", "agent", "super agent"]);
-const Admin = Authorization(["admin", "super admin"]);
+//const Admin = Authorization(["admin", "super admin"]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
 const UserDeposit = User(Deposit);
 const AgentDeposit = Agent(Deposit2);
-const SuperAdmin = Admin(AdminPanel);
+//const SuperAdmin = Admin(AdminPanel);
 Page404 = All(Page404);
 
 class App extends Component {
@@ -76,10 +84,12 @@ class App extends Component {
 			>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
-					<Route path="/admin/investments" exact component={SuperAdmin} />
+					<Route path="/admin/investments" component={Investments} />
+					<Route path="/admin/users" component={Users} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
