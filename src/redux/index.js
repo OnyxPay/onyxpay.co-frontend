@@ -9,6 +9,7 @@ import { walletUnlockReducer } from "./walletUnlock";
 import { authReducer } from "./auth";
 import { settlementsReducer } from "./settlements";
 import { loaderReducer } from "./loading";
+import { sessionReducer } from "./session";
 
 export default history =>
 	combineReducers({
@@ -22,4 +23,5 @@ export default history =>
 		auth: authReducer,
 		settlements: settlementsReducer,
 		loading: loaderReducer,
+		session: sessionReducer,
 	});

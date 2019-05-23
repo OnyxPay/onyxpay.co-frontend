@@ -8,6 +8,7 @@ import { Loader } from "./components";
 // import { initBalanceProvider } from "./providers/balanceProvider";
 import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
+import SessionExpiredModal from "./components/modals/SessionExpired";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -82,6 +83,7 @@ class App extends Component {
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
+				<SessionExpiredModal />
 			</Layout>
 		);
 	}
