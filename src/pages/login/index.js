@@ -122,7 +122,7 @@ class Login extends Component {
 		const { wallet, logOut } = this.props;
 		const { loading } = this.state;
 		return (
-			<UnderlayBg img={bgImg}>
+			<UnderlayBg img={bgImg} bgPosition={"20% 20%"}>
 				<LoginCard>
 					<Title
 						level={2}
