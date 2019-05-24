@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Card, Button, Input, Form } from "antd";
+import { Card, Button, Input, Form, Row, Col } from "antd";
 import { getUnclaimed } from "../../../redux/admin-panel/Investments";
 import { createSecret } from "../../../utils/secretHash";
 
@@ -26,30 +26,34 @@ class GetUnclaimed extends Component {
 							const { values, isSubmitting, handleChange, handleBlur, handleSubmit } = props;
 							return (
 								<form onSubmit={handleSubmit}>
-									<Form.Item>
-										<Input
-											id="user_name"
-											placeholder="enter name"
-											disabled={isSubmitting}
-											//style={style.select}
-											size="large"
-											value={values.user_name}
-											onChange={handleChange}
-											onBlur={handleBlur}
-										/>
-									</Form.Item>
-									<Form.Item>
-										<Input
-											id="user_password"
-											placeholder="enter password"
-											//style={style.select}
-											size="large"
-											disabled={isSubmitting}
-											value={values.user_password}
-											onChange={handleChange}
-											onBlur={handleBlur}
-										/>
-									</Form.Item>
+									<Row gutter={16}>
+										<Col lg={12} md={24}>
+											<Form.Item>
+												<Input
+													name="user_name"
+													placeholder="enter name"
+													disabled={isSubmitting}
+													size="large"
+													value={values.user_name}
+													onChange={handleChange}
+													onBlur={handleBlur}
+												/>
+											</Form.Item>
+										</Col>
+										<Col lg={12} md={24}>
+											<Form.Item>
+												<Input.Password
+													name="user_password"
+													placeholder="enter password"
+													size="large"
+													disabled={isSubmitting}
+													value={values.user_password}
+													onChange={handleChange}
+													onBlur={handleBlur}
+												/>
+											</Form.Item>
+										</Col>
+									</Row>
 									<Button
 										type="primary"
 										htmlType="submit"

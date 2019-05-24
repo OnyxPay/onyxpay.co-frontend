@@ -4,6 +4,7 @@ import {
 	gasPrice,
 	reverseAddressHex,
 } from "../../utils/blockchain";
+import { gasLimit } from "./../../api/constants";
 import { isEmpty } from "lodash";
 import { TransactionBuilder, Parameter, ParameterType, utils } from "ontology-ts-sdk";
 import { getBcClient } from "../../api/network";
@@ -13,26 +14,29 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 	return async (dispatch, getState) => {
 		let { contracts /*wallet*/ } = getState();
 		const client = getBcClient();
-		const gasLimit = 20000;
 		const { pk, accountAddress /*publicKey */ } = await unlockWalletAccount();
-		const activeAccAdress = cryptoAddress(accountAddress);
+		if ({ pk, accountAddress }) {
+			setSubmitting(false);
+		}
+		const activeAccAddress = cryptoAddress(accountAddress);
 		const activeAccPrivateKey = cryptoPrivateKey(pk.key);
 		const funcName = "SetAmount";
-		const contractAdress =
+		const contractAddress =
 			!isEmpty(contracts) &&
 			contracts["Investments"] &&
 			reverseAddressHex(contracts["Investments"]);
 
 		const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
 		const p2 = new Parameter("Amount", ParameterType.Integer, amount);
+
 		//make transaction
 		const tx = TransactionBuilder.makeInvokeTransaction(
 			funcName,
 			[p1, p2],
-			contractAdress,
+			contractAddress,
 			gasPrice,
 			gasLimit,
-			activeAccAdress
+			activeAccAddress
 		);
 		TransactionBuilder.signTransaction(tx, activeAccPrivateKey);
 		await client
@@ -52,14 +56,10 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 
 export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
-		let { contracts /*wallet */ } = getState();
+		let { contracts } = getState();
 		const client = getBcClient();
-		const gasLimit = 20000;
-		const { pk, accountAddress /* publicKey */ } = await unlockWalletAccount();
-		const activeAccAdress = cryptoAddress(accountAddress);
-		const activeAccPrivateKey = cryptoPrivateKey(pk.key);
 		const funcName = "GetUnclaimed";
-		const contractAdress =
+		const contractAddress =
 			!isEmpty(contracts) &&
 			contracts["Investments"] &&
 			reverseAddressHex(contracts["Investments"]);
@@ -70,12 +70,10 @@ export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 		const tx = TransactionBuilder.makeInvokeTransaction(
 			funcName,
 			[p1],
-			contractAdress,
+			contractAddress,
 			gasPrice,
-			gasLimit,
-			activeAccAdress
+			gasLimit
 		);
-		TransactionBuilder.signTransaction(tx, activeAccPrivateKey);
 		try {
 			let res = await client.sendRawTransaction(tx.serialize(), true);
 			const data = res.Result.Result;
@@ -99,12 +97,11 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
 		let { contracts /*wallet*/ } = getState();
 		const client = getBcClient();
-		const gasLimit = 20000;
 		const { pk, accountAddress /* publicKey*/ } = await unlockWalletAccount();
-		const activeAccAdress = cryptoAddress(accountAddress);
+		const activeAccAddress = accountAddress;
 		const activeAccPrivateKey = cryptoPrivateKey(pk.key);
 		const funcName = "Block";
-		const contractAdress =
+		const contractAddress =
 			!isEmpty(contracts) &&
 			contracts["Investments"] &&
 			reverseAddressHex(contracts["Investments"]);
@@ -114,10 +111,10 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 		const tx = TransactionBuilder.makeInvokeTransaction(
 			funcName,
 			[p1],
-			contractAdress,
+			contractAddress,
 			gasPrice,
 			gasLimit,
-			activeAccAdress
+			activeAccAddress
 		);
 		TransactionBuilder.signTransaction(tx, activeAccPrivateKey);
 		await client
@@ -139,12 +136,11 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
 		let { contracts /*wallet*/ } = getState();
 		const client = getBcClient();
-		const gasLimit = 20000;
 		const { pk, accountAddress /*publicKey*/ } = await unlockWalletAccount();
-		const activeAccAdress = cryptoAddress(accountAddress);
+		const activeAccAddress = cryptoAddress(accountAddress);
 		const activeAccPrivateKey = cryptoPrivateKey(pk.key);
 		const funcName = "Unblock";
-		const contractAdress =
+		const contractAddress =
 			!isEmpty(contracts) &&
 			contracts["Investments"] &&
 			reverseAddressHex(contracts["Investments"]);
@@ -154,10 +150,10 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 		const tx = TransactionBuilder.makeInvokeTransaction(
 			funcName,
 			[p1],
-			contractAdress,
+			contractAddress,
 			gasPrice,
 			gasLimit,
-			activeAccAdress
+			activeAccAddress
 		);
 		TransactionBuilder.signTransaction(tx, activeAccPrivateKey);
 		await client

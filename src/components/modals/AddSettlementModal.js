@@ -2,42 +2,35 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Modal, Form, Input, Button } from "antd";
-
-import { getStore } from "../../store";
 import Actions from "../../redux/actions";
-const store = getStore();
 
 const { TextArea } = Input;
 
-class AddSettlementtModal extends Component {
-	handleCloseModal = () => {
-		const { hideModal } = this.props;
-		hideModal();
-	};
+class AddSettlementModal extends Component {
+	handleFormSubmit = async (values, formActions) => {
+		const { add, hideModal } = this.props;
+		const res = await add(values);
 
-	handleFormSubmit = (values, { resetForm }) => {
-		let formData = new FormData();
-		Object.keys(values).forEach(function(item) {
-			formData.append(item, values[item]);
-		});
-
-		store.dispatch(Actions.settlements.addItem(formData));
-
-		const { hideModal } = this.props;
-		hideModal();
-		resetForm();
+		if (res && res.error && res.error.status === 422) {
+			formActions.setSubmitting(false);
+			formActions.setErrors(res.error.data);
+		} else {
+			formActions.resetForm();
+			hideModal();
+		}
 	};
 
 	render() {
-		const { isModalVisible } = this.props;
+		const { isModalVisible, hideModal } = this.props;
 
 		return (
 			<Modal
 				title="Add New Settlement Account"
 				visible={isModalVisible}
-				onCancel={this.handleCloseModal}
+				onCancel={hideModal}
 				footer={null}
 				destroyOnClose
+				className="add-settlement-modal"
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
@@ -64,17 +57,19 @@ class AddSettlementtModal extends Component {
 						return errors;
 					}}
 				>
-					{({ values, errors, isSubmitting, handleChange, handleBlur, handleSubmit }) => {
+					{({ values, errors, isSubmitting, handleChange, handleBlur, handleSubmit, touched }) => {
 						return (
 							<form onSubmit={handleSubmit}>
 								<Form.Item
 									label="Account number"
-									validateStatus={errors.account_number ? "error" : ""}
-									help={errors.account_number ? errors.account_number : ""}
+									validateStatus={errors.account_number && touched.account_number ? "error" : ""}
+									help={
+										errors.account_number && touched.account_number ? errors.account_number : ""
+									}
 									required
+									className="ant-form-item"
 								>
 									<Input
-										size="large"
 										name="account_number"
 										value={values.account_number}
 										onChange={handleChange}
@@ -85,12 +80,12 @@ class AddSettlementtModal extends Component {
 
 								<Form.Item
 									label="Account name"
-									validateStatus={errors.account_name ? "error" : ""}
-									help={errors.account_name ? errors.account_name : ""}
+									validateStatus={errors.account_name && touched.account_name ? "error" : ""}
+									help={errors.account_name && touched.account_name ? errors.account_name : ""}
 									required
+									className="ant-form-item"
 								>
 									<Input
-										size="large"
 										name="account_name"
 										value={values.account_name}
 										onChange={handleChange}
@@ -101,26 +96,29 @@ class AddSettlementtModal extends Component {
 
 								<Form.Item
 									label="Description"
-									validateStatus={errors.description ? "error" : ""}
-									help={errors.description ? errors.description : ""}
+									validateStatus={errors.description && touched.description ? "error" : ""}
+									help={errors.description && touched.description ? errors.description : ""}
 									required
+									className="ant-form-item"
 								>
 									<TextArea
 										rows={4}
+										style={{ resize: "none" }}
 										name="description"
 										value={values.description}
 										onChange={handleChange}
+										disabled={isSubmitting}
 									/>
 								</Form.Item>
 
 								<Form.Item
 									label="Brief notes"
-									validateStatus={errors.brief_notes ? "error" : ""}
-									help={errors.brief_notes ? errors.brief_notes : ""}
+									validateStatus={errors.brief_notes && touched.brief_notes ? "error" : ""}
+									help={errors.brief_notes && touched.brief_notes ? errors.brief_notes : ""}
 									required
+									className="ant-form-item"
 								>
 									<Input
-										size="large"
 										name="brief_notes"
 										value={values.brief_notes}
 										onChange={handleChange}
@@ -128,10 +126,16 @@ class AddSettlementtModal extends Component {
 										disabled={isSubmitting}
 									/>
 								</Form.Item>
-
-								<Button type="primary" htmlType="submit" disabled={isSubmitting}>
-									Submit
-								</Button>
+								<div className="ant-modal-custom-footer">
+									<Button
+										type="primary"
+										htmlType="submit"
+										disabled={isSubmitting}
+										loading={isSubmitting}
+									>
+										Add
+									</Button>
+								</div>
 							</form>
 						);
 					}}
@@ -141,4 +145,7 @@ class AddSettlementtModal extends Component {
 	}
 }
 
-export default connect()(AddSettlementtModal);
+export default connect(
+	null,
+	{ add: Actions.settlements.add }
+)(AddSettlementModal);

@@ -1,4 +1,5 @@
-import { getRestClient, makeFormDate, handleReqError, getAuthHeader } from "../api/network";
+import { getRestClient, makeFormData, handleReqError, getAuthHeader } from "../api/network";
+import { push } from "connected-react-router";
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
@@ -16,17 +17,19 @@ export const authReducer = (state = initialState, action) => {
 			return action.payload;
 		case LOG_IN:
 			sessionStorage.setItem("token", action.payload.token);
+			localStorage.setItem("logged_in", true);
 			return action.payload;
 		case LOG_OUT:
 			sessionStorage.removeItem("token");
-			return { toke: null };
+			localStorage.removeItem("logged_in");
+			return { token: null };
 		default:
 			return state;
 	}
 };
 
 export const signUp = data => async (dispatch, getState) => {
-	const formData = makeFormDate(data);
+	const formData = makeFormData(data);
 	// TODO: get actual country_id from server
 	formData.set("country_id", 1);
 
@@ -39,7 +42,7 @@ export const signUp = data => async (dispatch, getState) => {
 };
 
 export const login = data => async (dispatch, getState) => {
-	const formData = makeFormDate(data);
+	const formData = makeFormData(data);
 
 	try {
 		const { data } = await client.post("login", formData);
@@ -51,7 +54,7 @@ export const login = data => async (dispatch, getState) => {
 
 export const confirmEmail = email => async (dispatch, getState) => {
 	const authHeader = getAuthHeader();
-	const formData = makeFormDate(email);
+	const formData = makeFormData(email);
 	try {
 		await client.post("confirm-data", formData, {
 			headers: {
@@ -64,19 +67,20 @@ export const confirmEmail = email => async (dispatch, getState) => {
 };
 
 export const logOut = notReload => async (dispatch, getState) => {
-	const authHeader = getAuthHeader();
-
 	try {
+		const authHeader = getAuthHeader();
 		await client.post("logout", null, {
 			headers: {
 				...authHeader,
 			},
 		});
 	} catch (error) {
-		handleReqError(error);
+		// do nothing
 	} finally {
 		dispatch({ type: LOG_OUT });
+
 		if (!notReload) {
+			dispatch(push("/login"));
 			window.location.reload();
 		}
 	}

@@ -1,7 +1,6 @@
-import * as axios from "axios";
-import { BackendUrl, temporaryToken } from "../api/constants";
-import { getRestClient /* handleReqError */ } from "../api/network";
-import { startLoading } from "./loading";
+import { getRestClient, handleReqError, getAuthHeader, makeFormData } from "../api/network";
+import { startLoading, finishLoading } from "./loading";
+import { message } from "antd";
 const client = getRestClient();
 
 export const INIT_SETTLEMENTS_LIST = "INIT_SETTLEMENTS_LIST";
@@ -9,10 +8,6 @@ export const ADD_SETTLEMENT = "ADD_SETTLEMENT";
 export const DELETE_SETTLEMENT = "DELETE_SETTLEMENT";
 
 const initialState = [];
-
-const headers = {
-	authorization: `bearer ${temporaryToken}`,
-};
 
 export const settlementsReducer = (state = initialState, action) => {
 	switch (action.type) {
@@ -32,70 +27,58 @@ export const setSettlements = settlementsList => ({
 	payload: settlementsList,
 });
 
-export const addSettlement = settlement => ({
-	type: ADD_SETTLEMENT,
-	payload: settlement,
-});
-
 export const getSettlementsList = () => {
 	return async dispatch => {
+		const authHeader = getAuthHeader();
 		dispatch(startLoading());
-		const plug = [
-			{
-				id: 1,
-				accountNumber: "FA343",
-				description: "Private 24",
-				accountName: "some user",
-				briefNotes: "",
-			},
-			{
-				id: 2,
-				accountNumber: "F2323",
-				description: "Private 24",
-				accountName: "some user 2",
-				briefNotes: "tram tfdsf dsf",
-			},
-		];
+
 		try {
-			const { data } = await client.get("settlements");
-			console.log(data);
-			dispatch(setSettlements(plug));
+			const { data } = await client.get("settlements", {
+				headers: {
+					...authHeader,
+				},
+			});
+			dispatch(setSettlements(data.data));
+			dispatch(finishLoading());
 		} catch (error) {
-			// console.log(handleReqError(error));
-			dispatch(setSettlements(plug));
+			handleReqError(error);
 		}
 	};
 };
 
-export const addItem = formData => {
+export const add = values => {
 	return async dispatch => {
-		await axios
-			.post(`${BackendUrl}/api/v1/settlements`, formData, {
-				headers: headers,
-			})
-			.then(res => {
-				dispatch(addSettlement(res.data));
-			})
-			.catch(error => {
-				console.log("ADD error :", error);
+		const formData = makeFormData(values);
+		const authHeader = getAuthHeader();
+		try {
+			const { data } = await client.post("settlements", formData, {
+				headers: {
+					...authHeader,
+				},
 			});
+			dispatch({ type: ADD_SETTLEMENT, payload: data.data });
+		} catch (error) {
+			return handleReqError(error);
+		}
 	};
 };
 
-export const deleteSettlement = settlementId => {
+export const deleteAccount = id => {
 	return async dispatch => {
-		await axios
-			.delete(`${BackendUrl}/api/v1/settlements/${settlementId}`, {
-				headers: headers,
-			})
-			.then(res => {
-				dispatch({
-					type: DELETE_SETTLEMENT,
-					payload: settlementId,
-				});
-			})
-			.catch(error => {
-				console.log("DELETE error :", error);
+		const authHeader = getAuthHeader();
+		try {
+			await client.delete(`settlements/${id}`, {
+				headers: {
+					...authHeader,
+				},
 			});
+			dispatch({
+				type: DELETE_SETTLEMENT,
+				payload: id,
+			});
+			message.success("Settlements account was successfully deleted");
+		} catch (error) {
+			return handleReqError(error);
+		}
 	};
 };

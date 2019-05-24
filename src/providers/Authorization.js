@@ -20,6 +20,7 @@ function Authorization(allowedRoles) {
 				if (!user) {
 					return <Redirect to="/login" />;
 				} else if (allowedRoles.includes(user.role) && user.status === 2) {
+					// user is confirmed
 					return <WrappedComponent {...this.props} />;
 				} else if (allowedRoles.includes(user.role) && user.status !== 2 && location === "/") {
 					return <WrappedComponent {...this.props} />;

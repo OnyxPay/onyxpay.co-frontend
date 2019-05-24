@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { Icon, Tooltip } from "antd";
-import { ReactComponent as WalletSvg } from "../../assets/icons/wallet.svg";
-import { ReactComponent as DownloadSvg } from "../../assets/icons/download.svg";
 
 const Container = styled.div`
 	display: inline-block;
@@ -15,7 +13,7 @@ const Container = styled.div`
 		cursor: pointer;
 		transition: 0.3s all;
 		&:hover {
-			transform: scale(1.1);
+			color: #1890ff;
 		}
 	}
 `;
@@ -25,11 +23,11 @@ const AddWallet = ({ showImportWalletModal, wallet, clearWallet }) => {
 		<Container>
 			{wallet ? (
 				<Tooltip title="Close wallet" placement="bottom">
-					<Icon component={WalletSvg} onClick={clearWallet} className="wallet-icon" />
+					<Icon type="lock" className="wallet-icon" onClick={clearWallet} />
 				</Tooltip>
 			) : (
 				<Tooltip title="Import wallet" placement="bottom">
-					<Icon component={DownloadSvg} onClick={showImportWalletModal} className="download-icon" />
+					<Icon type="download" onClick={showImportWalletModal} className="download-icon" />
 				</Tooltip>
 			)}
 		</Container>

@@ -1,28 +1,32 @@
 import React from "react";
 import { FormWrapper } from "../../../components/styled/index";
+import antd from "antd";
 
 import BlockInvestor from "./Block";
 import UnblockInvestor from "./Unblock";
 import SetAmount from "./SetAmount";
 import GetUnclaimed from "./GetUnclaimed";
 
+const { Typography } = antd;
+const { Title } = Typography;
+
 const Investments = () => {
 	return (
 		<div>
 			<FormWrapper>
-				<h1>Set Amount</h1>
+				<Title level={4}>Set Amount</Title>
 				<SetAmount />
 			</FormWrapper>
 			<FormWrapper>
-				<h1>Block</h1>
+				<Title level={4}>Block</Title>
 				<BlockInvestor />
 			</FormWrapper>
 			<FormWrapper>
-				<h1>Unblock</h1>
+				<Title level={4}>Unblock</Title>
 				<UnblockInvestor />
 			</FormWrapper>
 			<FormWrapper>
-				<h1>Get Unclaimed</h1>
+				<Title level={4}>Get Unclaimed</Title>
 				<GetUnclaimed />
 			</FormWrapper>
 		</div>

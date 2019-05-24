@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Modal, Button, Form, Input, message } from "antd";
+import { Modal, Button, Form, Input } from "antd";
 import { isEmailValid } from "../../utils/validate";
 import Actions from "../../redux/actions";
 
@@ -17,8 +17,6 @@ class ConfirmEmailModal extends Component {
 		if (res && res.error) {
 			if (res.error.status === 422 && res.error.data) {
 				formActions.setErrors(res.error.data);
-			} else if (res.error.status === 403) {
-				message.error("Server error", 5);
 			}
 		} else {
 			this.changeView(1)();

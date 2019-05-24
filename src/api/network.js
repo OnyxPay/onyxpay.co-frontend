@@ -2,6 +2,8 @@ import axios from "axios";
 import { WebsocketClient, RestClient } from "ontology-ts-sdk";
 import { bcEndpoints, backEndRestEndpoint } from "./constants";
 import { message } from "antd";
+import { getStore } from "../store";
+import { showSessionExpiredModal } from "../redux/session";
 
 const bcWsClient = new WebsocketClient(bcEndpoints.ws, false, false);
 const bcRestClient = new RestClient(bcEndpoints.rest);
@@ -17,6 +19,29 @@ export function getRestClient({ type } = {}) {
 	if (type === "explorer") {
 		return axios;
 	}
+	return createCustomRestClient();
+}
+
+function createCustomRestClient() {
+	const customRestClient = axios.create({
+		baseURL: backEndRestEndpoint,
+	});
+
+	customRestClient.interceptors.response.use(
+		res => res,
+		error => {
+			if (error.response) {
+				const { data, status } = error.response;
+				// TODO: change status to 401, after API fix
+				if (data.error === "Unauthenticated." && status === 403) {
+					const store = getStore();
+					store.dispatch(showSessionExpiredModal());
+				}
+			}
+			return Promise.reject(error);
+		}
+	);
+
 	return customRestClient;
 }
 
@@ -33,10 +58,6 @@ export function getAuthHeader() {
 	}
 	throw new Error("no token");
 }
-
-export const customRestClient = axios.create({
-	baseURL: backEndRestEndpoint,
-});
 
 export function handleReqError(error) {
 	if (error.response) {
@@ -74,7 +95,7 @@ export function handleReqError(error) {
 	}
 }
 
-export function makeFormDate(data) {
+export function makeFormData(data) {
 	const formData = new FormData();
 
 	for (const field in data) {

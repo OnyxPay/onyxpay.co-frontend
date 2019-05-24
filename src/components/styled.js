@@ -19,8 +19,15 @@ export const UnderlayBg = styled.div`
 	height: 100%;
 	background-size: cover;
 	background-image: url(${p => p.img});
+	background-position: ${p => p.bgPosition || "unset"};
 `;
 
 export const ErrorText = styled.div`
 	color: #f5222d;
+`;
+
+export const Divider = styled.div`
+	height: 1px;
+	background-color: #d9d9d9;
+	margin: ${p => p.margin || "24px 0"};
 `;

@@ -7,6 +7,8 @@ export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
 
 export const addressOfHead = "9aa5af1bbb814daa6d8c48d7788ac75b3f389f41";
 
+export const gasLimit = 20000;
+
 // TODO: get address from Head
 export const OnyxCashAddress = "28591a819021a3a7f6d541a42b4e80a7aaa8d43e";
 export const OnyxCashDecimals = 8;

@@ -4,9 +4,9 @@ export const FINISH_LOADING = "FINISH_LOADING";
 export const loaderReducer = (state = false, action) => {
 	switch (action.type) {
 		case START_LOADING:
-			return false;
-		case FINISH_LOADING:
 			return true;
+		case FINISH_LOADING:
+			return false;
 		default:
 			return state;
 	}
