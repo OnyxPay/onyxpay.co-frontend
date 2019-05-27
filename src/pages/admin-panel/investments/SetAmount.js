@@ -22,14 +22,36 @@ class SetAmount extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{ user_password: "", user_name: "", amount: "" }}
+						validate={values => {
+							let errors = {};
+							if (!values.user_name) {
+								errors.user_name = "required";
+							} else if (!values.user_password) {
+								errors.user_password = "required";
+							} else if (!values.amount) {
+								errors.amount = "required";
+							}
+							return errors;
+						}}
 					>
 						{props => {
-							const { values, isSubmitting, handleChange, handleBlur, handleSubmit } = props;
+							const {
+								values,
+								isSubmitting,
+								handleChange,
+								handleBlur,
+								handleSubmit,
+								errors,
+							} = props;
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
 										<Col md={24} lg={10}>
-											<Form.Item>
+											<Form.Item
+												validateStatus={errors.user_name ? "error" : ""}
+												help={errors.user_name ? errors.user_name : ""}
+												required
+											>
 												<Input
 													name="user_name"
 													placeholder="enter name"
@@ -42,7 +64,11 @@ class SetAmount extends Component {
 											</Form.Item>
 										</Col>
 										<Col md={24} lg={10}>
-											<Form.Item>
+											<Form.Item
+												validateStatus={errors.user_password ? "error" : ""}
+												help={errors.user_name ? errors.user_password : ""}
+												required
+											>
 												<Input.Password
 													name="user_password"
 													placeholder="enter password"
@@ -55,7 +81,11 @@ class SetAmount extends Component {
 											</Form.Item>
 										</Col>
 										<Col md={24} lg={4}>
-											<Form.Item>
+											<Form.Item
+												validateStatus={errors.amount ? "error" : ""}
+												help={errors.user_name ? errors.amount : ""}
+												required
+											>
 												<Input
 													name="amount"
 													placeholder="enter amount"

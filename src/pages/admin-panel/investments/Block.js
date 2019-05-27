@@ -21,14 +21,34 @@ class BlockInvestor extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{ user_password: "", user_name: "" }}
+						validate={values => {
+							let errors = {};
+							if (!values.user_name) {
+								errors.user_name = "required";
+							} else if (!values.user_password) {
+								errors.user_password = "required";
+							}
+							return errors;
+						}}
 					>
 						{props => {
-							const { values, isSubmitting, handleChange, handleBlur, handleSubmit } = props;
+							const {
+								values,
+								isSubmitting,
+								handleChange,
+								handleBlur,
+								handleSubmit,
+								errors,
+							} = props;
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
 										<Col lg={12} md={24}>
-											<Form.Item>
+											<Form.Item
+												validateStatus={errors.user_name ? "error" : ""}
+												help={errors.user_name ? errors.user_name : ""}
+												required
+											>
 												<Input
 													name="user_name"
 													placeholder="enter name"
@@ -41,7 +61,11 @@ class BlockInvestor extends Component {
 											</Form.Item>
 										</Col>
 										<Col lg={12} md={24}>
-											<Form.Item>
+											<Form.Item
+												validateStatus={errors.user_password ? "error" : ""}
+												help={errors.user_name ? errors.user_password : ""}
+												required
+											>
 												<Input.Password
 													name="user_password"
 													placeholder="enter password"

@@ -9,15 +9,14 @@ import { isEmpty } from "lodash";
 import { TransactionBuilder, Parameter, ParameterType, utils } from "ontology-ts-sdk";
 import { getBcClient } from "../../api/network";
 import { unlockWalletAccount } from "../../api/wallet";
+import { message } from "antd";
 
 export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
 		let { contracts /*wallet*/ } = getState();
 		const client = getBcClient();
 		const { pk, accountAddress /*publicKey */ } = await unlockWalletAccount();
-		if ({ pk, accountAddress }) {
-			setSubmitting(false);
-		}
+
 		const activeAccAddress = cryptoAddress(accountAddress);
 		const activeAccPrivateKey = cryptoPrivateKey(pk.key);
 		const funcName = "SetAmount";
@@ -28,6 +27,10 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 
 		const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
 		const p2 = new Parameter("Amount", ParameterType.Integer, amount);
+
+		if ({ pk, accountAddress } === null) {
+			setSubmitting(false);
+		}
 
 		//make transaction
 		const tx = TransactionBuilder.makeInvokeTransaction(
@@ -43,13 +46,16 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 			.sendRawTransaction(tx.serialize(), false, true)
 			.then(res => {
 				console.log(res);
-				setSubmitting(false);
-				resetForm();
+				if (res.Error === 0) {
+					message.success("Set Amount");
+					setSubmitting(false);
+					resetForm();
+				}
 			})
 			.catch(er => {
 				console.log(er);
+				message.error("Operation is failed", 5);
 				setSubmitting(false);
-				resetForm();
 			});
 	};
 };
@@ -88,6 +94,8 @@ export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 			*/
 			return balance;
 		} catch (e) {
+			console.log(e);
+			setSubmitting(false);
 			return null;
 		}
 	};
@@ -98,7 +106,7 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 		let { contracts /*wallet*/ } = getState();
 		const client = getBcClient();
 		const { pk, accountAddress /* publicKey*/ } = await unlockWalletAccount();
-		const activeAccAddress = accountAddress;
+		const activeAccAddress = cryptoAddress(accountAddress);
 		const activeAccPrivateKey = cryptoPrivateKey(pk.key);
 		const funcName = "Block";
 		const contractAddress =
@@ -107,6 +115,11 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 			reverseAddressHex(contracts["Investments"]);
 
 		const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
+
+		if ({ pk, accountAddress } === null) {
+			setSubmitting(false);
+		}
+
 		//make transaction
 		const tx = TransactionBuilder.makeInvokeTransaction(
 			funcName,
@@ -121,13 +134,16 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 			.sendRawTransaction(tx.serialize(), false, true)
 			.then(res => {
 				console.log(res);
-				setSubmitting(false);
-				resetForm();
+				if (res.Error === 0) {
+					message.success("Block Investor");
+					setSubmitting(false);
+					resetForm();
+				}
 			})
 			.catch(er => {
 				console.log(er);
 				setSubmitting(false);
-				resetForm();
+				message.error("Operation is failed", 5);
 			});
 	};
 };
@@ -146,6 +162,11 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 			reverseAddressHex(contracts["Investments"]);
 
 		const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
+
+		if ({ pk, accountAddress } === null) {
+			setSubmitting(false);
+		}
+
 		//make transaction
 		const tx = TransactionBuilder.makeInvokeTransaction(
 			funcName,
@@ -160,13 +181,16 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 			.sendRawTransaction(tx.serialize(), false, true)
 			.then(res => {
 				console.log(res);
-				setSubmitting(false);
-				resetForm();
+				if (res.Error === 0) {
+					message.success("Unblock Investor");
+					setSubmitting(false);
+					resetForm();
+				}
 			})
 			.catch(er => {
 				console.log(er);
+				message.error("Operation is failed", 5);
 				setSubmitting(false);
-				resetForm();
 			});
 	};
 };
