@@ -89,7 +89,7 @@ class Login extends Component {
 		this.setState({ loading: true });
 		try {
 			const { /* pk, accountAddress, */ publicKey } = await unlockWalletAccount();
-			const res = await login({ public_key: publicKey });
+			const res = await login({ public_key: publicKey.key });
 			/* 
 				TODO:
 				if token is expired show error
@@ -114,8 +114,8 @@ class Login extends Component {
 	};
 
 	isAuthenticated() {
-		const { user, authenticated } = this.props;
-		return user && authenticated;
+		const { user } = this.props;
+		return user ? true : false;
 	}
 
 	render() {
@@ -200,7 +200,7 @@ class Login extends Component {
 
 export default connect(
 	state => {
-		return { wallet: state.wallet, user: state.user, authenticated: state.auth.token };
+		return { wallet: state.wallet, user: state.user };
 	},
 	{
 		saveUser: Actions.user.saveUser,

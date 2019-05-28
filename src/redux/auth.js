@@ -13,14 +13,17 @@ const initialState = (sessionStorage.getItem("token") && {
 export const authReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SIGN_UP:
-			sessionStorage.setItem("token", action.payload.token);
+			sessionStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
+			sessionStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
 			return action.payload;
 		case LOG_IN:
-			sessionStorage.setItem("token", action.payload.token);
+			sessionStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
+			sessionStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
 			localStorage.setItem("logged_in", true);
 			return action.payload;
 		case LOG_OUT:
-			sessionStorage.removeItem("token");
+			sessionStorage.removeItem("OnyxAuth");
+			sessionStorage.removeItem("OnyxAddr");
 			localStorage.removeItem("logged_in");
 			return { token: null };
 		default:
@@ -29,13 +32,18 @@ export const authReducer = (state = initialState, action) => {
 };
 
 export const signUp = data => async (dispatch, getState) => {
-	const formData = makeFormData(data);
 	// TODO: get actual country_id from server
+	// remove form data
+
+	const formData = makeFormData(data);
 	formData.set("country_id", 1);
 
 	try {
-		const { data } = await client.post("sign-up", formData);
-		dispatch({ type: SIGN_UP, payload: data });
+		// const { data } = await client.post("sign-up", formData);
+		// TODO: save signature and account address
+		// OnyxAuth
+		// OnyxAddr
+		dispatch({ type: SIGN_UP, payload: { OnyxAuth: data.signed_msg, OnyxAddr: data.wallet_addr } });
 	} catch (er) {
 		return handleReqError(er);
 	}
