@@ -38,16 +38,14 @@ class RegistrationModal extends Component {
 		// getUserData();
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
-			const algorithm = pk.algorithm;
-			const curve = pk.parameters.curve;
-			const { value: signedMsg } = signWithPk("MAGIC", pk);
+			const tokenLifeSpan = 1000 * 60 * 60 * 12; // 12 hours in mc
+			const tokenTimestamp = new Date().getTime() / tokenLifeSpan;
+			const signature = signWithPk(tokenTimestamp.toString(), pk);
 
-			values.public_key = publicKey;
-			values.wallet_addr = accountAddress;
-			values.signed_msg = signedMsg;
-
-			console.log({ algorithm, curve, publicKey, accountAddress });
-
+			values.public_key = publicKey.key;
+			values.wallet_addr = accountAddress.toBase58();
+			values.signed_msg = signature.serializeHex();
+			console.log(values);
 			const res = await signUp(values);
 
 			if (res && res.error) {

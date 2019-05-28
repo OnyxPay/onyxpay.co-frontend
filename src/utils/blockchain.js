@@ -68,6 +68,6 @@ export function hexToBytes(hex) {
 	return bytes;
 }
 
-export function signWithPk(msg = "MAGIC", pk, schema) {
+export function signWithPk(msg, pk, schema) {
 	return pk.sign(msg, schema);
 }
