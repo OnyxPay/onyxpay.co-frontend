@@ -11,52 +11,58 @@ import { getBcClient } from "../../api/network";
 import { unlockWalletAccount } from "../../api/wallet";
 import { message } from "antd";
 
+function getContractAddress(contracts, name) {
+	try {
+		return reverseAddressHex(contracts[name]);
+	} catch (error) {
+		throw new Error("contract address is not found");
+	}
+}
+
 export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
-		let { contracts /*wallet*/ } = getState();
+		let { contracts } = getState();
 		const client = getBcClient();
-		const { pk, accountAddress /*publicKey */ } = await unlockWalletAccount();
 
-		const activeAccAddress = cryptoAddress(accountAddress);
-		const activeAccPrivateKey = cryptoPrivateKey(pk.key);
-		const funcName = "SetAmount";
-		const contractAddress =
-			!isEmpty(contracts) &&
-			contracts["Investments"] &&
-			reverseAddressHex(contracts["Investments"]);
+		try {
+			const { pk, accountAddress } = await unlockWalletAccount();
+			const funcName = "SetAmount";
+			const contractAddress = getContractAddress(contracts, "Investments");
 
-		const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
-		const p2 = new Parameter("Amount", ParameterType.Integer, amount);
+			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
+			const p2 = new Parameter("Amount", ParameterType.Integer, amount);
 
-		if ({ pk, accountAddress } === null) {
-			setSubmitting(false);
-		}
+			//make transaction
+			const tx = TransactionBuilder.makeInvokeTransaction(
+				funcName,
+				[p1, p2],
+				contractAddress,
+				gasPrice,
+				gasLimit,
+				accountAddress
+			);
+			TransactionBuilder.signTransaction(tx, pk);
 
-		//make transaction
-		const tx = TransactionBuilder.makeInvokeTransaction(
-			funcName,
-			[p1, p2],
-			contractAddress,
-			gasPrice,
-			gasLimit,
-			activeAccAddress
-		);
-		TransactionBuilder.signTransaction(tx, activeAccPrivateKey);
-		await client
-			.sendRawTransaction(tx.serialize(), false, true)
-			.then(res => {
+			try {
+				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("Set Amount");
+					message.success("Amount was successfully set");
 					setSubmitting(false);
 					resetForm();
 				}
-			})
-			.catch(er => {
-				console.log(er);
+			} catch (error) {
+				console.log(error);
 				message.error("Operation is failed", 5);
 				setSubmitting(false);
-			});
+			}
+		} catch (error) {
+			if (error.message === "contract address is not found") {
+				message.error(error.message);
+			}
+			setSubmitting(false);
+			console.log(error);
+		}
 	};
 };
 

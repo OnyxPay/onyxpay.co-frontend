@@ -43,7 +43,7 @@ class RegistrationModal extends Component {
 			const { value: signedMsg } = signWithPk("MAGIC", pk);
 
 			values.public_key = publicKey;
-			values.wallet_addr = accountAddress;
+			values.wallet_addr = accountAddress.value;
 			values.signed_msg = signedMsg;
 
 			console.log({ algorithm, curve, publicKey, accountAddress });
