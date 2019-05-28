@@ -5,9 +5,7 @@ import { get } from "lodash";
 
 export const RESOLVE_CONTRACT_ADDRESS = "RESOLVE_CONTRACT_ADDRESS";
 
-const initialState = JSON.parse(localStorage.getItem("contracts")) || [];
-
-export const contractsReducer = (state = initialState, action) => {
+export const contractsReducer = (state = [], action) => {
 	switch (action.type) {
 		case RESOLVE_CONTRACT_ADDRESS:
 			const addresses = { ...state, ...action.payload };
