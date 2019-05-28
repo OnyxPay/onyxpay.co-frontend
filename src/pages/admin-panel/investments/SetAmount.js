@@ -21,36 +21,46 @@ class SetAmount extends Component {
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
-						initialValues={{ user_password: "", user_name: "", amount: "" }}
-						validate={values => {
+						initialValues={{
+							user_password: "",
+							user_confirm_password: "",
+							user_name: "",
+							amount: "",
+						}}
+						validate={({ user_name, user_password, user_confirm_password, amount }) => {
 							let errors = {};
-							if (!values.user_name) {
+							if (!user_name) {
 								errors.user_name = "required";
-							} else if (!values.user_password) {
+							}
+							if (!user_password) {
 								errors.user_password = "required";
-							} else if (!values.amount) {
+							}
+							if (!user_confirm_password) {
+								errors.user_confirm_password = "required";
+							}
+							if (!amount) {
 								errors.amount = "required";
 							}
 							return errors;
 						}}
 					>
-						{props => {
-							const {
-								values,
-								isSubmitting,
-								handleChange,
-								handleBlur,
-								handleSubmit,
-								errors,
-							} = props;
+						{({
+							values,
+							isSubmitting,
+							handleChange,
+							handleBlur,
+							handleSubmit,
+							errors,
+							touched,
+						}) => {
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
-										<Col md={24} lg={10}>
+										<Col md={24} lg={12}>
 											<Form.Item
-												validateStatus={errors.user_name ? "error" : ""}
-												help={errors.user_name ? errors.user_name : ""}
 												required
+												validateStatus={errors.user_name && touched.user_name ? "error" : ""}
+												help={errors.user_name && touched.user_name ? errors.user_name : ""}
 											>
 												<Input
 													name="user_name"
@@ -62,12 +72,32 @@ class SetAmount extends Component {
 													onBlur={handleBlur}
 												/>
 											</Form.Item>
-										</Col>
-										<Col md={24} lg={10}>
 											<Form.Item
-												validateStatus={errors.user_password ? "error" : ""}
-												help={errors.user_name ? errors.user_password : ""}
 												required
+												validateStatus={errors.amount && touched.amount ? "error" : ""}
+												help={errors.amount && touched.amount ? errors.amount : ""}
+											>
+												<Input
+													name="amount"
+													placeholder="enter amount"
+													type="number"
+													size="large"
+													disabled={isSubmitting}
+													value={values.amount}
+													onChange={handleChange}
+													onBlur={handleBlur}
+												/>
+											</Form.Item>
+										</Col>
+										<Col md={24} lg={12}>
+											<Form.Item
+												required
+												validateStatus={
+													errors.user_password && touched.user_password ? "error" : ""
+												}
+												help={
+													errors.user_password && touched.user_password ? errors.user_password : ""
+												}
 											>
 												<Input.Password
 													name="user_password"
@@ -79,20 +109,25 @@ class SetAmount extends Component {
 													onBlur={handleBlur}
 												/>
 											</Form.Item>
-										</Col>
-										<Col md={24} lg={4}>
 											<Form.Item
-												validateStatus={errors.amount ? "error" : ""}
-												help={errors.user_name ? errors.amount : ""}
 												required
+												validateStatus={
+													errors.user_confirm_password && touched.user_confirm_password
+														? "error"
+														: ""
+												}
+												help={
+													errors.user_confirm_password && touched.user_confirm_password
+														? errors.user_confirm_password
+														: ""
+												}
 											>
-												<Input
-													name="amount"
-													placeholder="enter amount"
-													type="number"
+												<Input.Password
+													name="user_confirm_password"
+													placeholder="enter confirm password"
 													size="large"
 													disabled={isSubmitting}
-													value={values.amount}
+													value={values.user_confirm_password}
 													onChange={handleChange}
 													onBlur={handleBlur}
 												/>

@@ -6,7 +6,7 @@ import connect from "react-redux/es/connect/connect";
 
 const SubMenu = Menu.SubMenu;
 
-class UserSidebar extends Component {
+class UserMenu extends Component {
 	render() {
 		const { location } = this.props;
 		return (
@@ -73,9 +73,9 @@ function mapStateToProps(state) {
 	};
 }
 
-UserSidebar = compose(
+UserMenu = compose(
 	withRouter,
 	connect(mapStateToProps)
-)(UserSidebar);
+)(UserMenu);
 
-export default UserSidebar;
+export default UserMenu;

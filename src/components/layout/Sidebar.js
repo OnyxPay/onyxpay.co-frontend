@@ -1,9 +1,9 @@
 import React from "react";
 import { Layout } from "antd";
 
-import UserSidebar from "./menu/UserSidebar";
-import AgentSidebar from "./menu/AgentSidebar";
-import SuperAdminSidebar from "./menu/SuperAdminSidebar";
+import UserMenu from "./menu/UserMenu";
+import AgentMenu from "./menu/AgentMenu";
+import SuperAdminMenu from "./menu/SuperAdminMenu";
 
 const { Sider } = Layout;
 
@@ -21,9 +21,9 @@ function Sidebar({ collapsed, location, user, xsDevise }) {
 			width="240"
 			collapsedWidth={xsDevise ? "0" : "80"}
 		>
-			{user && user.role === "user" && <UserSidebar />}
-			{user && user.role === "agent" && <AgentSidebar />}
-			{user && user.role === "super admin" && <SuperAdminSidebar />}
+			{user && user.role === "user" && <UserMenu />}
+			{user && user.role === "agent" && <AgentMenu />}
+			{user && user.role === "super admin" && <SuperAdminMenu />}
 		</Sider>
 	);
 }

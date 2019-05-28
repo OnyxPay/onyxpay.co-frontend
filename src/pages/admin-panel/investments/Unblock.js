@@ -25,7 +25,8 @@ class UnblockInvestor extends Component {
 							let errors = {};
 							if (!values.user_name) {
 								errors.user_name = "required";
-							} else if (!values.user_password) {
+							}
+							if (!values.user_password) {
 								errors.user_password = "required";
 							}
 							return errors;
@@ -39,15 +40,16 @@ class UnblockInvestor extends Component {
 								handleBlur,
 								handleSubmit,
 								errors,
+								touched,
 							} = props;
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
 										<Col lg={12} md={24}>
 											<Form.Item
-												validateStatus={errors.user_name ? "error" : ""}
-												help={errors.user_name ? errors.user_name : ""}
 												required
+												validateStatus={errors.user_name && touched.user_name ? "error" : ""}
+												help={errors.user_name && touched.user_name ? errors.user_name : ""}
 											>
 												<Input
 													name="user_name"
@@ -62,9 +64,13 @@ class UnblockInvestor extends Component {
 										</Col>
 										<Col lg={12} md={24}>
 											<Form.Item
-												validateStatus={errors.user_password ? "error" : ""}
-												help={errors.user_name ? errors.user_password : ""}
 												required
+												validateStatus={
+													errors.user_password && touched.user_password ? "error" : ""
+												}
+												help={
+													errors.user_password && touched.user_password ? errors.user_password : ""
+												}
 											>
 												<Input.Password
 													name="user_password"

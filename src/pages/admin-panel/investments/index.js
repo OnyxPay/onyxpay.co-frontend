@@ -1,5 +1,5 @@
 import React from "react";
-import { FormWrapper } from "../../../components/styled/index";
+import { FormWrapper } from "../../../components/styled";
 import antd from "antd";
 
 import BlockInvestor from "./Block";
@@ -18,16 +18,16 @@ const Investments = () => {
 				<SetAmount />
 			</FormWrapper>
 			<FormWrapper>
+				<Title level={4}>Get Unclaimed</Title>
+				<GetUnclaimed />
+			</FormWrapper>
+			<FormWrapper>
 				<Title level={4}>Block</Title>
 				<BlockInvestor />
 			</FormWrapper>
 			<FormWrapper>
 				<Title level={4}>Unblock</Title>
 				<UnblockInvestor />
-			</FormWrapper>
-			<FormWrapper>
-				<Title level={4}>Get Unclaimed</Title>
-				<GetUnclaimed />
 			</FormWrapper>
 		</div>
 	);

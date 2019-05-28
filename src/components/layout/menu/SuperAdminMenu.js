@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import connect from "react-redux/es/connect/connect";
 
-class SuperAdminSidebar extends Component {
+class SuperAdminMenu extends Component {
 	render() {
 		const { location } = this.props;
 		return (
@@ -17,7 +17,7 @@ class SuperAdminSidebar extends Component {
 				</Menu.Item>
 				<Menu.Item key="/admin/users">
 					<Link to="/admin/users" className="ant-menu-item-content">
-						<Icon type="pay-circle" />
+						<Icon type="user" />
 						<span>Users</span>
 					</Link>
 				</Menu.Item>
@@ -32,9 +32,9 @@ function mapStateToProps(state) {
 	};
 }
 
-SuperAdminSidebar = compose(
+SuperAdminMenu = compose(
 	withRouter,
 	connect(mapStateToProps)
-)(SuperAdminSidebar);
+)(SuperAdminMenu);
 
-export default SuperAdminSidebar;
+export default SuperAdminMenu;

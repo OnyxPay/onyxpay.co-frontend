@@ -31,3 +31,7 @@ export const Divider = styled.div`
 	background-color: #d9d9d9;
 	margin: ${p => p.margin || "24px 0"};
 `;
+
+export const FormWrapper = styled.div`
+	margin-bottom: 1rem;
+`;

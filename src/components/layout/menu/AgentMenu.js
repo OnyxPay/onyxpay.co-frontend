@@ -6,7 +6,7 @@ import connect from "react-redux/es/connect/connect";
 
 const SubMenu = Menu.SubMenu;
 
-class AgentSidebar extends Component {
+class AgentMenu extends Component {
 	render() {
 		const { location } = this.props;
 		return (
@@ -67,9 +67,9 @@ function mapStateToProps(state) {
 	};
 }
 
-AgentSidebar = compose(
+AgentMenu = compose(
 	withRouter,
 	connect(mapStateToProps)
-)(AgentSidebar);
+)(AgentMenu);
 
-export default AgentSidebar;
+export default AgentMenu;
