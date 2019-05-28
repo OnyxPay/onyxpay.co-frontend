@@ -32,15 +32,23 @@ class SetAmount extends Component {
 							if (!user_name) {
 								errors.user_name = "required";
 							}
+							if (!amount) {
+								errors.amount = "required";
+							}
 							if (!user_password) {
 								errors.user_password = "required";
 							}
 							if (!user_confirm_password) {
 								errors.user_confirm_password = "required";
 							}
-							if (!amount) {
-								errors.amount = "required";
+							if (
+								user_password &&
+								user_confirm_password &&
+								user_password !== user_confirm_password
+							) {
+								errors.user_confirm_password = "Password does not match";
 							}
+
 							return errors;
 						}}
 					>
@@ -72,6 +80,8 @@ class SetAmount extends Component {
 													onBlur={handleBlur}
 												/>
 											</Form.Item>
+										</Col>
+										<Col md={24} lg={12}>
 											<Form.Item
 												required
 												validateStatus={errors.amount && touched.amount ? "error" : ""}
@@ -89,6 +99,8 @@ class SetAmount extends Component {
 												/>
 											</Form.Item>
 										</Col>
+									</Row>
+									<Row gutter={16}>
 										<Col md={24} lg={12}>
 											<Form.Item
 												required
@@ -109,6 +121,8 @@ class SetAmount extends Component {
 													onBlur={handleBlur}
 												/>
 											</Form.Item>
+										</Col>
+										<Col md={24} lg={12}>
 											<Form.Item
 												required
 												validateStatus={

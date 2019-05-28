@@ -126,17 +126,14 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 
 			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
 
-			if ({ pk, accountAddress } === null) {
-				setSubmitting(false);
-			}
-
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
 				[p1],
 				contractAddress,
 				gasPrice,
-				CONST.DEFAULT_GAS_LIMIT
+				CONST.DEFAULT_GAS_LIMIT,
+				accountAddress
 			);
 			TransactionBuilder.signTransaction(tx, pk);
 			try {
@@ -173,10 +170,6 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 			const contractAddress = getContractAddress(contracts, "Investments");
 
 			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
-
-			if ({ pk, accountAddress } === null) {
-				setSubmitting(false);
-			}
 
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(

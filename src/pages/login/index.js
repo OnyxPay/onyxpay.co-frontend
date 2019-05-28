@@ -181,7 +181,7 @@ class Login extends Component {
 								Create account
 							</Button>
 							<Button block onClick={this.openAdminPanel} type="danger">
-								Enter asset admin
+								Enter as admin
 							</Button>
 						</div>
 					)}
