@@ -39,8 +39,8 @@ class RegistrationModal extends Component {
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
 			const tokenLifeSpan = 60 * 60 * 12; // 12 hours in sec
-			const tokenTimestamp = new Date().getTime() / tokenLifeSpan;
-			const signature = signWithPk(tokenTimestamp.toString(), pk);
+			const tokenTimestamp = Math.floor(new Date().getTime() / 1000 / tokenLifeSpan);
+			const signature = signWithPk(tokenTimestamp.toString(16), pk);
 
 			values.public_key = publicKey.key;
 			values.wallet_addr = accountAddress.toBase58();
