@@ -1,5 +1,5 @@
 export const bcEndpoints = {
-	ws: "ws://cepheus5.onyxpay.co:20335",
+	ws: "wss://cepheus5.onyxpay.co:20335",
 	rest: "http://cepheus5.onyxpay.co:20334",
 };
 
