@@ -1,4 +1,4 @@
-import { getRestClient, makeFormData, handleReqError, getAuthHeaders } from "../api/network";
+import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { push } from "connected-react-router";
 const client = getRestClient();
 
@@ -72,13 +72,14 @@ export const login = values => async (dispatch, getState) => {
 	}
 };
 
-export const confirmEmail = email => async (dispatch, getState) => {
-	const authHeader = getAuthHeaders();
-	const formData = makeFormData(email);
+export const confirmEmail = values => async (dispatch, getState) => {
+	const authHeaders = getAuthHeaders();
+	// const formData = makeFormData(values);
 	try {
-		await client.post("confirm-data", formData, {
+		await client.post("confirm", values, {
 			headers: {
-				...authHeader,
+				...authHeaders,
+				// "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
 			},
 		});
 	} catch (er) {
@@ -86,22 +87,11 @@ export const confirmEmail = email => async (dispatch, getState) => {
 	}
 };
 
-export const logOut = notReload => async (dispatch, getState) => {
-	try {
-		const authHeader = getAuthHeaders();
-		await client.post("logout", null, {
-			headers: {
-				...authHeader,
-			},
-		});
-	} catch (error) {
-		// do nothing
-	} finally {
-		dispatch({ type: LOG_OUT });
+export const logOut = notReload => (dispatch, getState) => {
+	dispatch({ type: LOG_OUT });
 
-		if (!notReload) {
-			dispatch(push("/login"));
-			window.location.reload();
-		}
+	if (!notReload) {
+		dispatch(push("/login"));
+		window.location.reload();
 	}
 };

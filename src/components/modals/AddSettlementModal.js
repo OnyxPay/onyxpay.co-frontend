@@ -10,8 +10,8 @@ class AddSettlementModal extends Component {
 	handleFormSubmit = async (values, formActions) => {
 		const { add, hideModal } = this.props;
 		const res = await add(values);
-
-		if (res && res.error && res.error.status === 422) {
+		console.log(res);
+		if (res && res.error && res.error.data) {
 			formActions.setSubmitting(false);
 			formActions.setErrors(res.error.data);
 		} else {
