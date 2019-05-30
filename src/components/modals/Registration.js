@@ -9,6 +9,7 @@ import { unlockWalletAccount } from "../../api/wallet";
 import { ErrorText } from "../styled";
 import text from "../../assets/text.json";
 import { signWithPk } from "../../utils/blockchain";
+import { generateTokenTimeStamp } from "../../utils";
 
 const { Option } = Select;
 
@@ -35,19 +36,14 @@ class RegistrationModal extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		const { signUp, push, getUserData } = this.props;
-		// getUserData();
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
-			const algorithm = pk.algorithm;
-			const curve = pk.parameters.curve;
-			const { value: signedMsg } = signWithPk("MAGIC", pk);
-
-			values.public_key = publicKey;
-			values.wallet_addr = accountAddress.value;
-			values.signed_msg = signedMsg;
-
-			console.log({ algorithm, curve, publicKey, accountAddress });
-
+			const tokenTimestamp = generateTokenTimeStamp();
+			const signature = signWithPk(tokenTimestamp, pk);
+			values.public_key = publicKey.key;
+			values.wallet_addr = accountAddress.toBase58();
+			values.signed_msg = signature.serializeHex();
+      
 			const res = await signUp(values);
 
 			if (res && res.error) {
@@ -100,9 +96,13 @@ class RegistrationModal extends Component {
 						let errors = {};
 						if (!values.first_name) {
 							errors.first_name = "required";
+						} else if (values.first_name.length < 2) {
+							errors.first_name = "min length 2";
 						}
 						if (!values.last_name) {
 							errors.last_name = "required";
+						} else if (values.last_name.length < 2) {
+							errors.last_name = "min length 2";
 						}
 						if (!values.country_id) {
 							errors.country_id = "required";
@@ -174,9 +174,9 @@ class RegistrationModal extends Component {
 										}
 										disabled={isSubmitting}
 									>
-										{country_list.map(country => {
+										{country_list.map((country, index) => {
 											return (
-												<Option key={country} value={country}>
+												<Option key={index} value={index}>
 													{country}
 												</Option>
 											);

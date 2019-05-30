@@ -1,4 +1,4 @@
-import { getRestClient, handleReqError, getAuthHeader, makeFormData } from "../api/network";
+import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { startLoading, finishLoading } from "./loading";
 import { message } from "antd";
 const client = getRestClient();
@@ -29,7 +29,7 @@ export const setSettlements = settlementsList => ({
 
 export const getSettlementsList = () => {
 	return async dispatch => {
-		const authHeader = getAuthHeader();
+		const authHeader = getAuthHeaders();
 		dispatch(startLoading());
 
 		try {
@@ -38,20 +38,20 @@ export const getSettlementsList = () => {
 					...authHeader,
 				},
 			});
-			dispatch(setSettlements(data.data));
+			dispatch(setSettlements(data.items));
 			dispatch(finishLoading());
 		} catch (error) {
 			handleReqError(error);
+			dispatch(finishLoading());
 		}
 	};
 };
 
 export const add = values => {
 	return async dispatch => {
-		const formData = makeFormData(values);
-		const authHeader = getAuthHeader();
+		const authHeader = getAuthHeaders();
 		try {
-			const { data } = await client.post("settlements", formData, {
+			const { data } = await client.post("settlements", values, {
 				headers: {
 					...authHeader,
 				},
@@ -65,7 +65,8 @@ export const add = values => {
 
 export const deleteAccount = id => {
 	return async dispatch => {
-		const authHeader = getAuthHeader();
+		const authHeader = getAuthHeaders();
+		console.log(id);
 		try {
 			await client.delete(`settlements/${id}`, {
 				headers: {

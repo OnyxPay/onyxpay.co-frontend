@@ -1,10 +1,10 @@
-import { getRestClient, handleReqError, getAuthHeader } from "../api/network";
+import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { LOG_OUT } from "./auth";
 
 const client = getRestClient();
 
-const initialState =
-	(sessionStorage.getItem("user") && JSON.parse(sessionStorage.getItem("user"))) || null;
+const userData = sessionStorage.getItem("user");
+const initialState = (userData && JSON.parse(userData)) || null;
 
 const SAVE_USER = "SAVE_USER";
 
@@ -30,11 +30,12 @@ export const saveUser = user => {
 };
 
 export const getUserData = () => async (dispatch, getState) => {
-	const authHeader = getAuthHeader();
+	const authHeaders = getAuthHeaders();
+	console.log(authHeaders);
 	try {
-		const { data } = await client.post("info", null, {
+		const { data } = await client.get("info", {
 			headers: {
-				...authHeader,
+				...authHeaders,
 			},
 		});
 		data.role = "user";

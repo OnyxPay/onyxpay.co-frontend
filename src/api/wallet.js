@@ -115,7 +115,7 @@ export function decryptWallet(wallet, password) {
 	return {
 		wallet: currentWallet.toJson(),
 		pk,
-		publicKey: pk.getPublicKey().key,
+		publicKey: pk.getPublicKey(),
 		accountAddress: account.address,
 	};
 }

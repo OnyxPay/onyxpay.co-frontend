@@ -12,6 +12,8 @@ import { unlockWalletAccount } from "../../api/wallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
 import RegistrationModal from "../../components/modals/Registration";
+import { generateTokenTimeStamp } from "../../utils";
+import { signWithPk } from "../../utils/blockchain";
 
 const { Title } = Typography;
 
@@ -93,16 +95,18 @@ class Login extends Component {
 		const { push, login, getUserData } = this.props;
 		this.setState({ loading: true });
 		try {
-			const { /* pk, accountAddress, */ publicKey } = await unlockWalletAccount();
-			const res = await login({ public_key: publicKey });
-			/*
-				TODO:
-				if token is expired show error
-			*/
+			const { pk, accountAddress, publicKey } = await unlockWalletAccount();
+			const tokenTimestamp = generateTokenTimeStamp();
+			const signature = signWithPk(tokenTimestamp, pk);
+
+			const res = await login({
+				public_key: publicKey.key,
+				signed_msg: signature.serializeHex(),
+				wallet_addr: accountAddress.value,
+			});
 
 			if (res && res.error) {
 				if (res.error.data) {
-					// not valid credentials
 					message.error("Invalid credentials, maybe, this wallet  is not registered", 5);
 				}
 			} else {
@@ -119,8 +123,8 @@ class Login extends Component {
 	};
 
 	isAuthenticated() {
-		const { user, authenticated } = this.props;
-		return user && authenticated;
+		const { user } = this.props;
+		return user ? true : false;
 	}
 
 	render() {
@@ -208,7 +212,7 @@ class Login extends Component {
 
 export default connect(
 	state => {
-		return { wallet: state.wallet, user: state.user, authenticated: state.auth.token };
+		return { wallet: state.wallet, user: state.user };
 	},
 	{
 		saveUser: Actions.user.saveUser,

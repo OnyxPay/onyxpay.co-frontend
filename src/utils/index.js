@@ -25,3 +25,8 @@ export const wait = (ms = 300, resolveWith = null) => {
 		setTimeout(() => resolve(resolveWith), ms);
 	});
 };
+
+export function generateTokenTimeStamp() {
+	const tokenLifeSpan = 1000 * 60 * 60 * 12; // 12 hours in ms
+	return Math.floor(new Date().getTime() / tokenLifeSpan).toString(16);
+}

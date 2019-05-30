@@ -41,14 +41,14 @@ class Settlement extends Component {
 
 		columns = [
 			{
-				title: "Number",
-				key: "accountNumber",
-				dataIndex: "accountNumber",
+				title: "Account Number",
+				key: "account_number",
+				dataIndex: "account_number",
 			},
 			{
 				title: "Name",
-				key: "accountName",
-				dataIndex: "accountName",
+				key: "account_name",
+				dataIndex: "account_name",
 			},
 			{
 				title: "Description",
@@ -57,8 +57,8 @@ class Settlement extends Component {
 			},
 			{
 				title: "Brief Notes",
-				key: "briefNotes",
-				dataIndex: "briefNotes",
+				key: "brief_notes",
+				dataIndex: "brief_notes",
 			},
 
 			{
