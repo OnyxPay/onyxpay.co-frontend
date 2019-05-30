@@ -18,7 +18,6 @@
 		"ontology-ts-crypto": "git+https://github.com/OnyxPay/ontology-ts-crypto.git",
 		"ontology-ts-sdk": "git+https://github.com/OnyxPay/ontology-ts-sdk.git",
 		"prop-types": "^15.7.2",
-		"qs": "^6.7.0",
 		"react": "^16.8.6",
 		"react-app-rewired": "^2.1.1",
 		"react-dom": "^16.8.6",

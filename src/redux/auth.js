@@ -1,5 +1,4 @@
 import { getRestClient, makeFormData, handleReqError, getAuthHeader } from "../api/network";
-// import { stringify } from "qs";
 import { push } from "connected-react-router";
 const client = getRestClient();
 
@@ -7,9 +6,10 @@ export const SIGN_UP = "SIGN_UP";
 export const LOG_IN = "LOG_IN";
 export const LOG_OUT = "LOG_OUT";
 
-const initialState = (sessionStorage.getItem("token") && {
-	token: sessionStorage.getItem("token"),
-}) || { token: null };
+const OnyxAuth = sessionStorage.getItem("OnyxAuth");
+const OnyxAddr = sessionStorage.getItem("OnyxAddr");
+
+const initialState = OnyxAuth && OnyxAddr ? { OnyxAuth, OnyxAddr } : null;
 
 export const authReducer = (state = initialState, action) => {
 	switch (action.type) {
@@ -26,39 +26,47 @@ export const authReducer = (state = initialState, action) => {
 			sessionStorage.removeItem("OnyxAuth");
 			sessionStorage.removeItem("OnyxAddr");
 			localStorage.removeItem("logged_in");
-			return { token: null };
+			return null;
 		default:
 			return state;
 	}
 };
 
 export const signUp = values => async (dispatch, getState) => {
-	// TODO: get actual country_id from server
-	// remove form data
+	// TODO: send actual country_id to server
 	values.country_id = 1;
 	try {
-		const { data } = await client.post("signup", values, {
+		const { status } = await client.post("signup", values, {
 			headers: {
 				OnyxAuth: values.signed_msg,
 				OnyxAddr: values.wallet_addr,
 			},
 		});
-		console.log(data);
-		// TODO: save signature and account address
-		// OnyxAuth
-		// OnyxAddr
-		// dispatch({ type: SIGN_UP, payload: { OnyxAuth: data.signed_msg, OnyxAddr: data.wallet_addr } });
+		if (status === 200) {
+			dispatch({
+				type: SIGN_UP,
+				payload: { OnyxAuth: values.signed_msg, OnyxAddr: values.wallet_addr },
+			});
+		}
 	} catch (er) {
 		return handleReqError(er);
 	}
 };
 
-export const login = data => async (dispatch, getState) => {
-	const formData = makeFormData(data);
-
+export const login = values => async (dispatch, getState) => {
 	try {
-		const { data } = await client.post("login", formData);
-		dispatch({ type: LOG_IN, payload: data });
+		const { status } = await client.post("login", undefined, {
+			headers: {
+				OnyxAuth: values.signed_msg,
+				OnyxAddr: values.wallet_addr,
+			},
+		});
+		if (status === 200) {
+			dispatch({
+				type: LOG_IN,
+				payload: { OnyxAuth: values.signed_msg, OnyxAddr: values.wallet_addr },
+			});
+		}
 	} catch (er) {
 		return handleReqError(er);
 	}

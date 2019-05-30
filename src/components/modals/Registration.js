@@ -9,6 +9,7 @@ import { unlockWalletAccount } from "../../api/wallet";
 import { ErrorText } from "../styled";
 import text from "../../assets/text.json";
 import { signWithPk } from "../../utils/blockchain";
+import { generateTokenTimeStamp } from "../../utils";
 
 const { Option } = Select;
 
@@ -38,9 +39,8 @@ class RegistrationModal extends Component {
 		// getUserData();
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
-			const tokenLifeSpan = 60 * 60 * 12; // 12 hours in sec
-			const tokenTimestamp = Math.floor(new Date().getTime() / 1000 / tokenLifeSpan);
-			const signature = signWithPk(tokenTimestamp.toString(16), pk);
+			const tokenTimestamp = generateTokenTimeStamp();
+			const signature = signWithPk(tokenTimestamp, pk);
 
 			values.public_key = publicKey.key;
 			values.wallet_addr = accountAddress.toBase58();
@@ -98,9 +98,13 @@ class RegistrationModal extends Component {
 						let errors = {};
 						if (!values.first_name) {
 							errors.first_name = "required";
+						} else if (values.first_name.length < 2) {
+							errors.first_name = "min length 2";
 						}
 						if (!values.last_name) {
 							errors.last_name = "required";
+						} else if (values.last_name.length < 2) {
+							errors.last_name = "min length 2";
 						}
 						if (!values.country_id) {
 							errors.country_id = "required";
@@ -172,9 +176,9 @@ class RegistrationModal extends Component {
 										}
 										disabled={isSubmitting}
 									>
-										{country_list.map(country => {
+										{country_list.map((country, index) => {
 											return (
-												<Option key={country} value={country}>
+												<Option key={index} value={country}>
 													{country}
 												</Option>
 											);

@@ -12,6 +12,8 @@ import { unlockWalletAccount } from "../../api/wallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
 import RegistrationModal from "../../components/modals/Registration";
+import { generateTokenTimeStamp } from "../../utils";
+import { signWithPk } from "../../utils/blockchain";
 
 const { Title } = Typography;
 
@@ -88,8 +90,15 @@ class Login extends Component {
 		const { push, login, getUserData } = this.props;
 		this.setState({ loading: true });
 		try {
-			const { /* pk, accountAddress, */ publicKey } = await unlockWalletAccount();
-			const res = await login({ public_key: publicKey.key });
+			const { pk, accountAddress, publicKey } = await unlockWalletAccount();
+			const tokenTimestamp = generateTokenTimeStamp();
+			const signature = signWithPk(tokenTimestamp, pk);
+
+			const res = await login({
+				public_key: publicKey.key,
+				signed_msg: signature.serializeHex(),
+				wallet_addr: accountAddress.value,
+			});
 			/* 
 				TODO:
 				if token is expired show error
