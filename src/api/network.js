@@ -46,14 +46,18 @@ function createCustomRestClient() {
 }
 
 export function getToken() {
-	return sessionStorage.getItem("token");
+	return {
+		OnyxAuth: sessionStorage.getItem("OnyxAuth"),
+		OnyxAddr: sessionStorage.getItem("OnyxAddr"),
+	};
 }
 
-export function getAuthHeader() {
-	const token = getToken();
-	if (token) {
+export function getAuthHeaders() {
+	const { OnyxAuth, OnyxAddr } = getToken();
+	if (OnyxAuth && OnyxAddr) {
 		return {
-			Authorization: `Bearer ${token}`,
+			OnyxAuth,
+			OnyxAddr,
 		};
 	}
 	throw new Error("no token");
@@ -65,19 +69,16 @@ export function handleReqError(error) {
 
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
-		if (
-			error.response.status === 422 ||
-			error.response.status === 403 ||
-			error.response.status === 401
-		) {
+		if (error.response.status >= 400 && error.response.status < 500) {
 			return {
 				error: {
-					data: error.response.data,
+					data: error.response.data.errors,
 					status: error.response.status,
 				},
 			};
 		}
 		// 403, 401 invalid credentials
+		// 400 validation error
 	} else if (error.request) {
 		// The request was made but no response was received
 		console.error(error.message, error.request);

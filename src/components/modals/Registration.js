@@ -48,6 +48,7 @@ class RegistrationModal extends Component {
 			console.log(values);
 			const res = await signUp(values);
 
+			console.log("!!", res);
 			if (res && res.error) {
 				if (res.error.data) {
 					formActions.setErrors(res.error.data);

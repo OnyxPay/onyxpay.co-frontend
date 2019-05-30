@@ -1,4 +1,4 @@
-import { getRestClient, makeFormData, handleReqError, getAuthHeader } from "../api/network";
+import { getRestClient, makeFormData, handleReqError, getAuthHeaders } from "../api/network";
 import { push } from "connected-react-router";
 const client = getRestClient();
 
@@ -73,7 +73,7 @@ export const login = values => async (dispatch, getState) => {
 };
 
 export const confirmEmail = email => async (dispatch, getState) => {
-	const authHeader = getAuthHeader();
+	const authHeader = getAuthHeaders();
 	const formData = makeFormData(email);
 	try {
 		await client.post("confirm-data", formData, {
@@ -88,7 +88,7 @@ export const confirmEmail = email => async (dispatch, getState) => {
 
 export const logOut = notReload => async (dispatch, getState) => {
 	try {
-		const authHeader = getAuthHeader();
+		const authHeader = getAuthHeaders();
 		await client.post("logout", null, {
 			headers: {
 				...authHeader,

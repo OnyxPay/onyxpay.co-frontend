@@ -99,14 +99,9 @@ class Login extends Component {
 				signed_msg: signature.serializeHex(),
 				wallet_addr: accountAddress.value,
 			});
-			/* 
-				TODO:
-				if token is expired show error
-			*/
 
 			if (res && res.error) {
 				if (res.error.data) {
-					// not valid credentials
 					message.error("Invalid credentials, maybe, this wallet  is not registered", 5);
 				}
 			} else {
