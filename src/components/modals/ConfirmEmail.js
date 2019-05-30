@@ -28,7 +28,7 @@ class ConfirmEmailModal extends Component {
 		const { getUserData, hideModal } = this.props;
 		const { user, error } = await getUserData();
 		console.log(user, error);
-		if (user) {
+		if (user.status === 1) {
 			hideModal();
 			// enable dashboard
 		}

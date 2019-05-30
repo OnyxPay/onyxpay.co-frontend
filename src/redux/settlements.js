@@ -42,6 +42,7 @@ export const getSettlementsList = () => {
 			dispatch(finishLoading());
 		} catch (error) {
 			handleReqError(error);
+			dispatch(finishLoading());
 		}
 	};
 };
