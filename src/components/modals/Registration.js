@@ -43,7 +43,7 @@ class RegistrationModal extends Component {
 			values.public_key = publicKey.key;
 			values.wallet_addr = accountAddress.toBase58();
 			values.signed_msg = signature.serializeHex();
-
+      
 			const res = await signUp(values);
 
 			if (res && res.error) {

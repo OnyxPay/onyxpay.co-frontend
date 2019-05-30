@@ -11,6 +11,7 @@ export function getContractsAddress(params) {
 		"InternalRevenueService",
 		"Assets",
 		"OnyxCash",
+		"Investments",
 	];
 	contractsName.forEach((contract, index) =>
 		store.dispatch(Actions.contracts.resolveContractAddress(contract))
