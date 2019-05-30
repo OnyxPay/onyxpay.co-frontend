@@ -33,8 +33,6 @@ export const authReducer = (state = initialState, action) => {
 };
 
 export const signUp = values => async (dispatch, getState) => {
-	// TODO: send actual country_id to server
-	values.country_id = 1;
 	try {
 		const { status } = await client.post("signup", values, {
 			headers: {

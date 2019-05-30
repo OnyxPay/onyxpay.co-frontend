@@ -36,19 +36,16 @@ class RegistrationModal extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		const { signUp, push, getUserData } = this.props;
-		// getUserData();
 		try {
 			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
-
 			values.public_key = publicKey.key;
 			values.wallet_addr = accountAddress.toBase58();
 			values.signed_msg = signature.serializeHex();
-			console.log(values);
+
 			const res = await signUp(values);
 
-			console.log("!!", res);
 			if (res && res.error) {
 				if (res.error.data) {
 					formActions.setErrors(res.error.data);
@@ -179,7 +176,7 @@ class RegistrationModal extends Component {
 									>
 										{country_list.map((country, index) => {
 											return (
-												<Option key={index} value={country}>
+												<Option key={index} value={index}>
 													{country}
 												</Option>
 											);
