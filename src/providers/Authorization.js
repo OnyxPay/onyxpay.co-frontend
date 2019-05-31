@@ -24,6 +24,8 @@ function Authorization(allowedRoles) {
 					return <WrappedComponent {...this.props} />;
 				} else if (allowedRoles.includes(user.role) && user.status !== 1 && location === "/") {
 					return <WrappedComponent {...this.props} />;
+				} else if (!allowedRoles.includes(user.role)) {
+					return <Redirect to="/admin/investments" />;
 				} else {
 					return <Redirect to="/" />;
 				}

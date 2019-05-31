@@ -70,7 +70,7 @@ class Login extends Component {
 	};
 
 	openAdminPanel = () => {
-		this.props.saveUser({ name: "jon", role: "super admin" });
+		this.props.saveUser({ name: "jon", role: "super_admin", status: 1 });
 		this.props.history.push("/admin/investments");
 	};
 
