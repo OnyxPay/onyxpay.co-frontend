@@ -35,3 +35,7 @@ export const Divider = styled.div`
 export const FormWrapper = styled.div`
 	margin-bottom: 1rem;
 `;
+
+export const TextAligner = styled.div`
+	text-align: ${p => p.align || "center"};
+`;
