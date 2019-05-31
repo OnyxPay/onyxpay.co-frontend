@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon, Tooltip } from "antd";
+import { Icon, Tooltip, Popconfirm } from "antd";
+import { ReactComponent as WalletSvg } from "../../assets/icons/wallet.svg";
 
 const Container = styled.div`
 	display: inline-block;
@@ -23,7 +24,13 @@ const AddWallet = ({ showImportWalletModal, wallet, clearWallet }) => {
 		<Container>
 			{wallet ? (
 				<Tooltip title="Close wallet" placement="bottom">
-					<Icon type="lock" className="wallet-icon" onClick={clearWallet} />
+					<Popconfirm
+						icon={<Icon type="question-circle-o" />}
+						title="Are you really want to close the wallet?"
+						onConfirm={clearWallet}
+					>
+						<Icon component={WalletSvg} className="wallet-icon" />
+					</Popconfirm>
 				</Tooltip>
 			) : (
 				<Tooltip title="Import wallet" placement="bottom">
