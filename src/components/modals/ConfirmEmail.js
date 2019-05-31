@@ -7,7 +7,7 @@ import Actions from "../../redux/actions";
 
 class ConfirmEmailModal extends Component {
 	state = {
-		viewIndex: 1,
+		viewIndex: 0,
 		loading: false,
 	};
 
