@@ -26,7 +26,7 @@ const AddWallet = ({ showImportWalletModal, wallet, clearWallet }) => {
 				<Tooltip title="Close wallet" placement="bottom">
 					<Popconfirm
 						icon={<Icon type="question-circle-o" />}
-						title="Are you really want to close the wallet?"
+						title="Are you sure to close the wallet?"
 						onConfirm={clearWallet}
 					>
 						<Icon component={WalletSvg} className="wallet-icon" />

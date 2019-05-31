@@ -7,7 +7,7 @@ import Actions from "../../redux/actions";
 
 class ConfirmEmailModal extends Component {
 	state = {
-		viewIndex: 0,
+		viewIndex: 1,
 		loading: false,
 	};
 
@@ -135,8 +135,8 @@ class ConfirmEmailModal extends Component {
 					<div>
 						<h1>You are almost there!</h1>
 						<p>
-							Now, please, check your email and follow the instructions, after that, click on the
-							"Confirm" button
+							Now, please, check your email and follow the instructions, then click on the "Confirm"
+							button
 						</p>
 						<div className="ant-modal-custom-footer">
 							<Button
@@ -149,7 +149,7 @@ class ConfirmEmailModal extends Component {
 								Logout
 							</Button>
 							<Button onClick={this.changeView(0)} disabled={loading} style={{ marginRight: 10 }}>
-								Go back
+								Back
 							</Button>
 							<Button
 								type="primary"
@@ -157,7 +157,7 @@ class ConfirmEmailModal extends Component {
 								loading={loading}
 								onClick={this.checkUserStatus}
 							>
-								Confirm Email
+								Confirm
 							</Button>
 						</div>
 					</div>
