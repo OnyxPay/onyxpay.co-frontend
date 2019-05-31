@@ -25,7 +25,8 @@ class ConfirmEmailModal extends Component {
 	};
 
 	checkUserStatus = async () => {
-		const { getUserData, hideModal } = this.props;
+		const { getUserData, hideModal, startLoading } = this.props;
+		startLoading();
 		const { user, error } = await getUserData();
 		console.log(user, error);
 		if (user.status === 1) {
@@ -134,15 +135,8 @@ class ConfirmEmailModal extends Component {
 					<div>
 						<h1>You are almost there!</h1>
 						<p>
-							Now, please, check your email and follow the instructions, after that, click on this
-							<Button
-								type="link"
-								style={{ padding: "0 2px", height: "auto" }}
-								onClick={this.checkUserStatus}
-							>
-								confirm
-							</Button>
-							link...
+							Now, please, check your email and follow the instructions, after that, click on the
+							"Confirm" button
 						</p>
 						<div className="ant-modal-custom-footer">
 							<Button
@@ -154,8 +148,16 @@ class ConfirmEmailModal extends Component {
 							>
 								Logout
 							</Button>
-							<Button onClick={this.changeView(0)} disabled={loading}>
+							<Button onClick={this.changeView(0)} disabled={loading} style={{ marginRight: 10 }}>
 								Go back
+							</Button>
+							<Button
+								type="primary"
+								disabled={loading}
+								loading={loading}
+								onClick={this.checkUserStatus}
+							>
+								Confirm Email
 							</Button>
 						</div>
 					</div>
@@ -171,5 +173,6 @@ export default connect(
 		confirmEmail: Actions.auth.confirmEmail,
 		getUserData: Actions.user.getUserData,
 		logOut: Actions.auth.logOut,
+		startLoading: Actions.loading.startLoading,
 	}
 )(ConfirmEmailModal);

@@ -1,4 +1,5 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
+import { finishLoading } from "./loading";
 import { LOG_OUT } from "./auth";
 
 const client = getRestClient();
@@ -40,6 +41,7 @@ export const getUserData = () => async (dispatch, getState) => {
 		});
 		data.role = "client";
 		dispatch(saveUser(data));
+		dispatch(finishLoading());
 		return { user: data };
 	} catch (er) {
 		return handleReqError(er);
