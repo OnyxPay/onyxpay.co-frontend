@@ -10,7 +10,7 @@ export function getContractsAddress(params) {
 		"InternalRevenueServiceStrategy",
 		"InternalRevenueService",
 		"Assets",
-		"OnyxCash",
+		// "OnyxCash",
 		"Investments",
 	];
 	contractsName.forEach((contract, index) =>

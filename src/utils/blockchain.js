@@ -53,12 +53,15 @@ export function parseAmounts(arr) {
 	for (let i = 0; i < arr.length; i++) {
 		const amount = parseInt(utils.reverseHex(arr[i][1]), 16);
 		const symbol = utils.hexstr2str(arr[i][0]);
-		res.push({
-			symbol,
-			amount: amount ? amount : 0,
-			key: symbol,
-		});
+		if (amount) {
+			res.push({
+				symbol,
+				amount,
+				key: symbol,
+			});
+		}
 	}
+
 	return res;
 }
 

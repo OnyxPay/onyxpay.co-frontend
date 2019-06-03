@@ -1,6 +1,5 @@
 import { getTokenBalance, getAssetsBalance, getExchangeRates } from "../api/balance";
-import { getWallet } from "../api/wallet";
-import { getAccount } from "../api/account";
+import { getWallet, getAccount } from "../api/wallet";
 import { isEmpty } from "lodash";
 import { cryptoAddress } from "../utils/blockchain";
 import { utils } from "ontology-ts-sdk";
@@ -9,46 +8,36 @@ import { getStore } from "../store";
 import Actions from "../redux/actions";
 const store = getStore();
 
+// TODO: rewrite to Promise.All
 export async function refreshBalance() {
 	const { contracts, wallet } = store.getState();
 
 	if (wallet && !isEmpty(contracts)) {
 		const walletDecoded = getWallet(wallet);
-		const accountDefault = getAccount(walletDecoded, true);
-		const accountReward = getAccount(walletDecoded);
-		const assetsContractAddress =
+		const account = getAccount(walletDecoded);
+
+		const AssetsAddress =
 			contracts["Assets"] && cryptoAddress(utils.reverseHex(contracts["Assets"]));
 
 		try {
 			const assetsBalance = await getAssetsBalance(
-				assetsContractAddress,
-				utils.reverseHex(accountDefault.address.toHexString())
+				AssetsAddress,
+				utils.reverseHex(account.address.toHexString())
 			);
 
-			const onyxCashBalanse = await getTokenBalance(OnyxCashAddress, accountDefault.address);
-			store.dispatch(Actions.balance.setAssetsBalance(assetsBalance, true));
-			store.dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalanse, true));
-		} catch (e) {}
-
-		try {
-			const assetsBalance = await getAssetsBalance(
-				assetsContractAddress,
-				utils.reverseHex(accountReward.address.toHexString())
-			);
-			// console.log(assetsBalance);
-
-			const onyxCashBalanse = await getTokenBalance(OnyxCashAddress, accountReward.address);
-
+			const onyxCashBalance = await getTokenBalance(OnyxCashAddress, account.address);
 			store.dispatch(Actions.balance.setAssetsBalance(assetsBalance));
-			store.dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalanse));
+			store.dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalance));
 		} catch (e) {}
 	}
 }
 
 export function initBalanceProvider() {
-	getExchangeRates(store);
-	refreshBalance();
-	window.setInterval(async () => {
+	window.setTimeout(() => {
+		getExchangeRates(store);
 		refreshBalance();
-	}, 30000);
+		window.setInterval(async () => {
+			refreshBalance();
+		}, 30000);
+	}, 1000);
 }

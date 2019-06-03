@@ -14,7 +14,7 @@ export async function getTokenBalance(contract, address) {
 	if (response.Result.Result) {
 		return Long.fromString(utils.reverseHex(response.Result.Result), true, 16).toString();
 	} else {
-		return "0";
+		return 0;
 	}
 }
 
@@ -34,7 +34,7 @@ export async function getAssetsBalance(contract, address) {
 	const result = get(response, "Result.Result", "");
 	let balance;
 	if (!result) {
-		balance = 0;
+		balance = [];
 	} else {
 		balance = parseAmounts(result);
 	}
@@ -45,17 +45,17 @@ export async function getExchangeRates(store) {
 	let { contracts } = store.getState();
 	const client = getBcClient();
 	const funcName = "GetExchangeRates";
-	const contractAdress =
+	const contractAddress =
 		!isEmpty(contracts) &&
 		contracts["Exchange"] &&
 		cryptoAddress(utils.reverseHex(contracts["Exchange"]));
-	if (!contractAdress) return false;
+	if (!contractAddress) return false;
 
 	//make transaction
 	const tx = TransactionBuilder.makeInvokeTransaction(
 		funcName,
 		[],
-		contractAdress,
+		contractAddress,
 		gasPrice,
 		CONST.DEFAULT_GAS_LIMIT
 	);

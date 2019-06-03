@@ -1,6 +1,6 @@
 export const bcEndpoints = {
 	ws: "wss://cepheus5.onyxpay.co:20335",
-	rest: "http://cepheus5.onyxpay.co:20334",
+	rest: "https://cepheus5.onyxpay.co:20334",
 };
 
 export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";

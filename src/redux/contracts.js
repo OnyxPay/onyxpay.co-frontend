@@ -38,7 +38,9 @@ export const resolveContractAddress = contractName => {
 				payload: { [contractName]: address },
 			});
 		} catch (e) {
-			console.log(contractName, e);
+			if (process.env.NODE_ENV === "development") {
+				console.log(contractName, e);
+			}
 			dispatch({
 				type: RESOLVE_CONTRACT_ADDRESS,
 				payload: { [contractName]: null },

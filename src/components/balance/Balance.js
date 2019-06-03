@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Row, Col } from "antd";
 import { BalanceCard } from "./Card";
 import { get } from "lodash";
-import { decodeAmount, convertAsset, addAmounts } from "../../utils/number";
+import { convertAmountToStr, convertAsset, addAmounts } from "../../utils/number";
 import { OnyxCashDecimals } from "../../api/constants";
 import { Button } from "antd";
 import BalanceModal from "../modals/BalanceModal";
@@ -12,13 +12,11 @@ import BalanceModal from "../modals/BalanceModal";
 class Balance extends Component {
 	state = {
 		isModalVisible: false,
-		balanceType: "",
 	};
 
 	showModal = balanceType => () => {
 		this.setState({
 			isModalVisible: true,
-			balanceType: balanceType === "main" ? "main" : "reward",
 		});
 	};
 
@@ -30,14 +28,13 @@ class Balance extends Component {
 
 	convertAssets(assets) {
 		const { exchRates } = this.props;
-		const assetsAmount = assets.filter(asset => asset.amount !== 0);
 
-		return assetsAmount.map(asset => {
+		return assets.map(asset => {
 			const rates = exchRates.find(rate => rate.symbol === asset.symbol);
 			const { amount, symbol, key } = asset;
 			if (rates === undefined) {
 				return {
-					amount: decodeAmount(amount, 8),
+					amount: convertAmountToStr(amount, 8),
 					symbol,
 					key,
 					buy: "n/a",
@@ -48,11 +45,11 @@ class Balance extends Component {
 			const { sell, buy } = rates;
 			const onyxCash = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
 			return {
-				amount: decodeAmount(amount, 8),
+				amount: convertAmountToStr(amount, 8),
 				symbol,
 				key,
-				buy: decodeAmount(buy, 8),
-				sell: decodeAmount(sell, 8),
+				buy: convertAmountToStr(buy, 8),
+				sell: convertAmountToStr(sell, 8),
 				onyxCash,
 			};
 		});
@@ -71,68 +68,39 @@ class Balance extends Component {
 	}
 
 	render() {
-		const { balance } = this.props;
-		const { isModalVisible, balanceType } = this.state;
-		const onyxCashMain = get(balance, "main.onyxCash");
-		const onyxCashReward = get(balance, "reward.onyxCash");
-		const assetsMain = get(balance, "main.assets");
-		const assetsReward = get(balance, "reward.assets");
+		const { assets, onyxCash } = this.props.balance;
+		const { isModalVisible } = this.state;
 
-		const assetsMainConverted = this.convertAssets(assetsMain);
-		const assetsRewardConverted = this.convertAssets(assetsReward);
-		let onyxCashMainTotal,
-			onyxCashRewardTotal = 0;
+		const assetsConverted = this.convertAssets(assets);
 
-		if (
-			assetsMainConverted.length &&
-			assetsRewardConverted.length &&
-			onyxCashMain &&
-			onyxCashReward
-		) {
-			onyxCashMainTotal = this.calcOnyxCashTotal(
-				assetsMainConverted,
-				decodeAmount(onyxCashMain, OnyxCashDecimals)
-			);
+		let onyxCashTotal = 0;
 
-			onyxCashRewardTotal = this.calcOnyxCashTotal(
-				assetsRewardConverted,
-				decodeAmount(onyxCashReward, OnyxCashDecimals)
+		if (assetsConverted.length && onyxCash) {
+			onyxCashTotal = this.calcOnyxCashTotal(
+				assetsConverted,
+				convertAmountToStr(onyxCash, OnyxCashDecimals)
 			);
 		}
+
 		return (
 			<div>
 				<Row gutter={16}>
 					<Col md={24} lg={8}>
 						<BalanceCard
 							label="available:"
-							title="OnyxCash main"
-							amount={onyxCashMainTotal}
+							title="OnyxCash"
+							amount={onyxCashTotal}
 							extra={<Button onClick={this.showModal("main")}>see detailed balance</Button>}
-						/>
-					</Col>
-					<Col md={24} lg={8}>
-						<BalanceCard
-							label="available:"
-							title="OnyxCash rewarded"
-							amount={onyxCashRewardTotal}
-							extra={<Button onClick={this.showModal("reward")}>see detailed balance</Button>}
 						/>
 					</Col>
 				</Row>
 				<BalanceModal
 					isModalVisible={isModalVisible}
 					hideModal={this.hideModal}
-					balance={
-						balanceType === "main"
-							? {
-									onyxCash: decodeAmount(onyxCashMain, OnyxCashDecimals),
-									assets: assetsMainConverted,
-							  }
-							: {
-									onyxCash: decodeAmount(onyxCashReward, OnyxCashDecimals),
-									assets: assetsRewardConverted,
-							  }
-					}
+					balance={{
+						onyxCash: convertAmountToStr(onyxCash, OnyxCashDecimals),
+						assets: assetsConverted,
+					}}
 				/>
 			</div>
 		);
