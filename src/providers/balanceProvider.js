@@ -3,7 +3,6 @@ import { getWallet, getAccount } from "../api/wallet";
 import { isEmpty } from "lodash";
 import { cryptoAddress } from "../utils/blockchain";
 import { utils } from "ontology-ts-sdk";
-import { OnyxCashAddress } from "../api/constants"; // move to settings
 import { getStore } from "../store";
 import Actions from "../redux/actions";
 const store = getStore();
@@ -16,8 +15,8 @@ export async function refreshBalance() {
 		const walletDecoded = getWallet(wallet);
 		const account = getAccount(walletDecoded);
 
-		const AssetsAddress =
-			contracts["Assets"] && cryptoAddress(utils.reverseHex(contracts["Assets"]));
+		const AssetsAddress = contracts["Assets"] && cryptoAddress(contracts["Assets"]);
+		const OnyxCashAddress = contracts["OnyxCash"] && cryptoAddress(contracts["OnyxCash"]);
 
 		try {
 			const assetsBalance = await getAssetsBalance(

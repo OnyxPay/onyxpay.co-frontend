@@ -4,15 +4,15 @@ import { addressOfHead } from "../api/constants";
 export const gasPrice = 500;
 
 export function getHeadContractAddress() {
-	return new Crypto.Address(utils.reverseHex(addressOfHead));
+	return new Crypto.Address(addressOfHead);
 }
 
 export function reverseAddressHex(str) {
 	return new Crypto.Address(utils.reverseHex(str));
 }
 
-export function cryptoAddress(adress) {
-	return new Crypto.Address(adress);
+export function cryptoAddress(address) {
+	return new Crypto.Address(address);
 }
 
 export function cryptoPrivateKey(key) {

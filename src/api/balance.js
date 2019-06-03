@@ -6,11 +6,11 @@ import { get, isEmpty } from "lodash";
 import Actions from "../redux/actions";
 
 export async function getTokenBalance(contract, address) {
-	const builder = new Oep4.Oep4TxBuilder(cryptoAddress(contract));
-
+	const builder = new Oep4.Oep4TxBuilder(contract);
 	const client = getBcClient();
 	const tx = builder.queryBalanceOf(address);
 	const response = await client.sendRawTransaction(tx.serialize(), true);
+	console.log("onyxCashBalance", response);
 	if (response.Result.Result) {
 		return Long.fromString(utils.reverseHex(response.Result.Result), true, 16).toString();
 	} else {
@@ -31,6 +31,7 @@ export async function getAssetsBalance(contract, address) {
 	);
 
 	const response = await client.sendRawTransaction(tx.serialize(), true);
+	console.log("assetsBalance", response);
 	const result = get(response, "Result.Result", "");
 	let balance;
 	if (!result) {
@@ -46,9 +47,7 @@ export async function getExchangeRates(store) {
 	const client = getBcClient();
 	const funcName = "GetExchangeRates";
 	const contractAddress =
-		!isEmpty(contracts) &&
-		contracts["Exchange"] &&
-		cryptoAddress(utils.reverseHex(contracts["Exchange"]));
+		!isEmpty(contracts) && contracts["Exchange"] && cryptoAddress(contracts["Exchange"]);
 	if (!contractAddress) return false;
 
 	//make transaction
