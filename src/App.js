@@ -5,7 +5,6 @@ import Authorization from "./providers/Authorization";
 import Loadable from "react-loadable";
 import { Loader } from "./components";
 
-import { getContractsAddress } from "./api/contracts";
 import { initBalanceProvider } from "./providers/balanceProvider";
 import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
@@ -71,7 +70,6 @@ Settlement = All(Settlement);
 
 class App extends Component {
 	componentDidMount() {
-		// getContractsAddress();
 		initBalanceProvider();
 		syncLoginState();
 	}

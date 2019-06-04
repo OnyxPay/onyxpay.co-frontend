@@ -3,7 +3,6 @@ import { connectRouter } from "connected-react-router";
 import { walletReducer } from "./wallet";
 import { contractsReducer } from "./contracts";
 import { balanceReducer } from "./balance";
-import { exchangeRatesReducer } from "./exchangeRates";
 import { userReducer } from "./user";
 import { walletUnlockReducer } from "./walletUnlock";
 import { authReducer } from "./auth";
@@ -20,7 +19,6 @@ export default history =>
 		walletUnlock: walletUnlockReducer,
 		contracts: contractsReducer,
 		balance: balanceReducer,
-		exchangeRates: exchangeRatesReducer,
 		auth: authReducer,
 		settlements: settlementsReducer,
 		loading: loaderReducer,

@@ -1,20 +1,26 @@
-import { TransactionBuilder, utils, CONST } from "ontology-ts-sdk";
+import { TransactionBuilder, CONST } from "ontology-ts-sdk";
 import { get } from "lodash";
 import { getBcClient } from "../api/network";
 import { cryptoAddress, gasPrice } from "../utils/blockchain";
 import { resolveContractAddress } from "./contracts";
-import { hexArrToArr } from "../utils/blockchain";
+import { hexArrToArr, parseExchangeRates } from "../utils/blockchain";
 
 export const GET_ASSETS_LIST_REQUEST = "GET_ASSETS_LIST_REQUEST";
 export const GET_ASSETS_LIST_SUCCESS = "GET_ASSETS_LIST_SUCCESS";
 export const GET_ASSETS_LIST_FAILURE = "GET_ASSETS_LIST_FAILURE";
 
-const initState = { list: [] };
+export const GET_ASSETS_EXCHANGE_RATES_REQUEST = "GET_ASSETS_EXCHANGE_RATES_REQUEST";
+export const GET_ASSETS_EXCHANGE_RATES_SUCCESS = "GET_ASSETS_EXCHANGE_RATES_SUCCESS";
+export const GET_ASSETS_EXCHANGE_RATES_FAILURE = "GET_ASSETS_EXCHANGE_RATES_FAILURE";
+
+const initState = { list: [], rates: [] };
 
 export const assetsReducer = (state = initState, action) => {
 	switch (action.type) {
 		case GET_ASSETS_LIST_SUCCESS:
 			return { ...state, list: action.payload };
+		case GET_ASSETS_EXCHANGE_RATES_SUCCESS:
+			return { ...state, rates: action.payload };
 		default:
 			return state;
 	}
@@ -31,13 +37,11 @@ export const getAssetsList = () => async dispatch => {
 		return;
 	}
 
-	const contractAddress = cryptoAddress(address);
-
 	//make transaction
 	const tx = TransactionBuilder.makeInvokeTransaction(
 		funcName,
 		[],
-		contractAddress,
+		cryptoAddress(address),
 		gasPrice,
 		CONST.DEFAULT_GAS_LIMIT
 	);
@@ -50,5 +54,39 @@ export const getAssetsList = () => async dispatch => {
 	} catch (e) {
 		console.log(e);
 		dispatch({ type: GET_ASSETS_LIST_FAILURE }); // add reason
+	}
+};
+
+export const getExchangeRates = () => async dispatch => {
+	const client = getBcClient();
+	const funcName = "GetExchangeRates";
+	const address = await dispatch(resolveContractAddress("Exchange"));
+
+	if (!address) {
+		dispatch({ type: GET_ASSETS_EXCHANGE_RATES_FAILURE });
+		return;
+	}
+
+	//make transaction
+	const tx = TransactionBuilder.makeInvokeTransaction(
+		funcName,
+		[],
+		cryptoAddress(address),
+		gasPrice,
+		CONST.DEFAULT_GAS_LIMIT
+	);
+
+	try {
+		const response = await client.sendRawTransaction(tx.serialize(), true);
+		const result = get(response, "Result.Result");
+		let rates;
+		if (!result) {
+			rates = 0;
+		} else {
+			rates = parseExchangeRates(result);
+		}
+		dispatch({ type: GET_ASSETS_EXCHANGE_RATES_SUCCESS, payload: rates });
+	} catch (e) {
+		console.log(e);
 	}
 };

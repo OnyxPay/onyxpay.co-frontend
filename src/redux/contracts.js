@@ -3,6 +3,14 @@ import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts
 import { getBcClient } from "../api/network";
 import { get } from "lodash";
 
+// "OnyxPay",
+// "Exchange",
+// "InternalRevenueServiceStrategy",
+// "InternalRevenueService",
+// "Assets",
+// "OnyxCash",
+// "Investments"
+
 export const RESOLVE_CONTRACT_ADDRESS = "RESOLVE_CONTRACT_ADDRESS";
 
 export const contractsReducer = (state = [], action) => {
