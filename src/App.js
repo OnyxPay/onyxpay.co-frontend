@@ -46,6 +46,16 @@ let Settlement = Loadable({
 	loading: Loader,
 });
 
+const ActiveRequests = Loadable({
+	loader: () => import(/* webpackChunkName: "ActiveRequests" */ "./pages/requests/ActiveRequests"),
+	loading: Loader,
+});
+
+const ClosedRequests = Loadable({
+	loader: () => import(/* webpackChunkName: "ClosedRequests" */ "./pages/requests/ClosedRequests"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
@@ -77,6 +87,8 @@ class App extends Component {
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
+					<Route path="/active-requests" exact component={ActiveRequests} />
+					<Route path="/closed-requests" exact component={ClosedRequests} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
