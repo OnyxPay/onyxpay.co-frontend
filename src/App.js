@@ -71,7 +71,7 @@ Settlement = All(Settlement);
 
 class App extends Component {
 	componentDidMount() {
-		getContractsAddress();
+		// getContractsAddress();
 		initBalanceProvider();
 		syncLoginState();
 	}

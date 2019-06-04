@@ -21,7 +21,7 @@ class UserMenu extends Component {
 					key="operations"
 					title={
 						<span className="ant-menu-item-content">
-							<Icon type="interation" />
+							<Icon type="interaction" />
 							<span>Assets</span>
 						</span>
 					}

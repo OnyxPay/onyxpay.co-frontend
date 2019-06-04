@@ -18,6 +18,12 @@ export const contractsReducer = (state = [], action) => {
 
 export const resolveContractAddress = contractName => {
 	return async (dispatch, getState) => {
+		const { contracts } = getState();
+
+		if (contracts.hasOwnProperty(contractName)) {
+			return contracts[contractName];
+		}
+
 		const client = getBcClient();
 		const funcName = "GetContractAddress";
 		const p1 = new Parameter("contractName", ParameterType.String, contractName);
@@ -30,6 +36,7 @@ export const resolveContractAddress = contractName => {
 			gasPrice,
 			CONST.DEFAULT_GAS_LIMIT
 		);
+
 		try {
 			const response = await client.sendRawTransaction(tx.serialize(), true);
 			const address = get(response, "Result.Result");
@@ -37,14 +44,13 @@ export const resolveContractAddress = contractName => {
 				type: RESOLVE_CONTRACT_ADDRESS,
 				payload: { [contractName]: address },
 			});
+			return address;
 		} catch (e) {
-			if (process.env.NODE_ENV === "development") {
-				console.log(contractName, e);
-			}
 			dispatch({
 				type: RESOLVE_CONTRACT_ADDRESS,
 				payload: { [contractName]: null },
 			});
+			return null;
 		}
 	};
 };

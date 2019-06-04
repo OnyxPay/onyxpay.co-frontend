@@ -10,7 +10,6 @@ export async function getTokenBalance(contract, address) {
 	const client = getBcClient();
 	const tx = builder.queryBalanceOf(address);
 	const response = await client.sendRawTransaction(tx.serialize(), true);
-	console.log("onyxCashBalance", response);
 	if (response.Result.Result) {
 		return Long.fromString(utils.reverseHex(response.Result.Result), true, 16).toString();
 	} else {
@@ -31,7 +30,6 @@ export async function getAssetsBalance(contract, address) {
 	);
 
 	const response = await client.sendRawTransaction(tx.serialize(), true);
-	console.log("assetsBalance", response);
 	const result = get(response, "Result.Result", "");
 	let balance;
 	if (!result) {

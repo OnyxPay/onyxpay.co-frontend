@@ -1,12 +1,25 @@
 import React, { Component } from "react";
-import { Card, Button, Input, Row, Col, Form } from "antd";
-import { PageTitle } from "../../components";
+import { connect } from "react-redux";
 import { Formik } from "formik";
+import { Card, Button, Input, Row, Col, Form, Select } from "antd";
+import { PageTitle } from "../../components";
+import { country_list } from "../../assets/country_list";
+import Actions from "../../redux/actions";
 
+const { Option } = Select;
 class Deposit extends Component {
+	componentDidMount() {
+		const { getAssetsList } = this.props;
+		getAssetsList();
+	}
+
 	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
 		console.log("sending", values);
 		resetForm();
+	};
+
+	handleSelectChange = setFieldValue => (value, option) => {
+		setFieldValue("country_id", value);
 	};
 
 	render() {
@@ -16,14 +29,14 @@ class Deposit extends Component {
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
-						initialValues={{ agentId: "", amount: "" }}
-						validate={values => {
-							let errors = {};
-							if (!values.agentId) {
-								errors.agentId = "required";
-							}
-							return errors;
-						}}
+						initialValues={{ asset: "", amount: "", country: "" }}
+						// validate={values => {
+						// 	let errors = {};
+						// 	if (!values.agentId) {
+						// 		errors.agentId = "required";
+						// 	}
+						// 	return errors;
+						// }}
 					>
 						{({
 							values,
@@ -33,29 +46,43 @@ class Deposit extends Component {
 							handleBlur,
 							handleSubmit,
 							setFieldValue,
+							touched,
 						}) => {
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
 										<Col md={24} lg={12}>
 											<Form.Item
-												validateStatus={errors.agentId ? "error" : ""}
-												help={errors.agentId ? errors.agentId : ""}
+												label="Country"
 												required
+												validateStatus={errors.country_id && touched.country_id ? "error" : ""}
+												help={errors.country_id && touched.country_id ? errors.country_id : ""}
 											>
-												<Input
+												<Select
 													size="large"
-													name="agentId"
-													placeholder="enter agent account number"
-													value={values.agentId}
-													onChange={handleChange}
-													onBlur={handleBlur}
+													showSearch
+													name="country_id"
+													placeholder="Select a country"
+													optionFilterProp="children"
+													value={values.country_id}
+													onChange={this.handleSelectChange(setFieldValue)}
+													filterOption={(input, option) =>
+														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+													}
 													disabled={isSubmitting}
-												/>
+												>
+													{country_list.map((country, index) => {
+														return (
+															<Option key={index} value={index}>
+																{country}
+															</Option>
+														);
+													})}
+												</Select>
 											</Form.Item>
 										</Col>
 										<Col md={24} lg={12}>
-											<Form.Item>
+											<Form.Item label="Amount" required>
 												<Input
 													size="large"
 													name="amount"
@@ -83,4 +110,11 @@ class Deposit extends Component {
 	}
 }
 
-export default Deposit;
+export default connect(
+	state => {
+		return {
+			user: state.user,
+		};
+	},
+	{ getAssetsList: Actions.assets.getAssetsList }
+)(Deposit);
