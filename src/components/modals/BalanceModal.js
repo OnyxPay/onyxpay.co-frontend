@@ -1,19 +1,20 @@
 import React from "react";
 import { Modal, Table, Typography } from "antd";
+import { roles } from "../../api/constants";
 const { Title, Text } = Typography;
 
-const columns = [
-	{ title: "Name", dataIndex: "symbol" },
-	{ title: "Amount", dataIndex: "amount" },
-	{ title: "Buy", dataIndex: "buy" },
-	{ title: "Sell", dataIndex: "sell" },
-	{ title: "OnyxCash", dataIndex: "onyxCash" },
-];
+function BalanceModal({ isModalVisible, hideModal, balance, role }) {
+	const columns = [
+		{ title: "Name", dataIndex: "symbol" },
+		{ title: "Amount", dataIndex: "amount" },
+		{ title: "Buy", dataIndex: "buy" },
+		{ title: "Sell", dataIndex: "sell" },
+		{ title: [role === roles.a ? "ONYXCASH" : "USD"], dataIndex: "asset_converted" },
+	];
 
-function BalanceModal({ isModalVisible, hideModal, balance }) {
 	return (
 		<Modal title="Detailed balance" visible={isModalVisible} onCancel={hideModal} footer={null}>
-			<Title level={4}>OnyxCash: {<Text>{balance.onyxCash}</Text>}</Title>
+			{role === roles.a && <Title level={4}>ONYXCASH: {<Text>{balance.onyxCash}</Text>}</Title>}
 
 			<Title level={4}>Assets:</Title>
 			<Table

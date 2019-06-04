@@ -1,5 +1,5 @@
 import { gasPrice, getHeadContractAddress } from "../utils/blockchain";
-import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
 import { getBcClient } from "../api/network";
 import { get } from "lodash";
 
@@ -32,13 +32,15 @@ export const resolveContractAddress = contractName => {
 		);
 		try {
 			const response = await client.sendRawTransaction(tx.serialize(), true);
-			const address = utils.hexstr2str(get(response, "Result.Result"));
+			const address = get(response, "Result.Result");
 			dispatch({
 				type: RESOLVE_CONTRACT_ADDRESS,
 				payload: { [contractName]: address },
 			});
 		} catch (e) {
-			console.log(contractName, e);
+			if (process.env.NODE_ENV === "development") {
+				console.log(contractName, e);
+			}
 			dispatch({
 				type: RESOLVE_CONTRACT_ADDRESS,
 				payload: { [contractName]: null },

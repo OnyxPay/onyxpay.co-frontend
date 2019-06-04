@@ -6,10 +6,11 @@ import Loadable from "react-loadable";
 import { Loader } from "./components";
 
 import { getContractsAddress } from "./api/contracts";
-// import { initBalanceProvider } from "./providers/balanceProvider";
+import { initBalanceProvider } from "./providers/balanceProvider";
 import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
+import { roles } from "./api/constants";
 
 import Users from "./pages/admin-panel/users/index";
 
@@ -46,9 +47,9 @@ let Settlement = Loadable({
 });
 
 // permissions
-const User = Authorization(["client"]);
-const Agent = Authorization(["agent", "super_agent"]);
-const All = Authorization(["client", "agent", "super_agent"]);
+const User = Authorization([roles.c]);
+const Agent = Authorization([roles.a, roles.sa]);
+const All = Authorization([roles.c, roles.a, roles.sa]);
 // const Admin = Authorization(["admin", "super_admin"]);
 
 // routes with permissions
@@ -61,7 +62,7 @@ Settlement = All(Settlement);
 class App extends Component {
 	componentDidMount() {
 		getContractsAddress();
-		// initBalanceProvider();
+		initBalanceProvider();
 		syncLoginState();
 	}
 

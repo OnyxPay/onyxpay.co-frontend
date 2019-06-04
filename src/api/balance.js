@@ -6,15 +6,15 @@ import { get, isEmpty } from "lodash";
 import Actions from "../redux/actions";
 
 export async function getTokenBalance(contract, address) {
-	const builder = new Oep4.Oep4TxBuilder(cryptoAddress(contract));
-
+	const builder = new Oep4.Oep4TxBuilder(contract);
 	const client = getBcClient();
 	const tx = builder.queryBalanceOf(address);
 	const response = await client.sendRawTransaction(tx.serialize(), true);
+	console.log("onyxCashBalance", response);
 	if (response.Result.Result) {
 		return Long.fromString(utils.reverseHex(response.Result.Result), true, 16).toString();
 	} else {
-		return "0";
+		return 0;
 	}
 }
 
@@ -31,10 +31,11 @@ export async function getAssetsBalance(contract, address) {
 	);
 
 	const response = await client.sendRawTransaction(tx.serialize(), true);
+	console.log("assetsBalance", response);
 	const result = get(response, "Result.Result", "");
 	let balance;
 	if (!result) {
-		balance = 0;
+		balance = [];
 	} else {
 		balance = parseAmounts(result);
 	}
@@ -45,17 +46,15 @@ export async function getExchangeRates(store) {
 	let { contracts } = store.getState();
 	const client = getBcClient();
 	const funcName = "GetExchangeRates";
-	const contractAdress =
-		!isEmpty(contracts) &&
-		contracts["Exchange"] &&
-		cryptoAddress(utils.reverseHex(contracts["Exchange"]));
-	if (!contractAdress) return false;
+	const contractAddress =
+		!isEmpty(contracts) && contracts["Exchange"] && cryptoAddress(contracts["Exchange"]);
+	if (!contractAddress) return false;
 
 	//make transaction
 	const tx = TransactionBuilder.makeInvokeTransaction(
 		funcName,
 		[],
-		contractAdress,
+		contractAddress,
 		gasPrice,
 		CONST.DEFAULT_GAS_LIMIT
 	);
