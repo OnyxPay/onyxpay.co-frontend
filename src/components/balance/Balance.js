@@ -5,11 +5,16 @@ import { BalanceCard } from "./Card";
 import { convertAmountToStr, convertAsset, addAmounts } from "../../utils/number";
 import { OnyxCashDecimals, roles } from "../../api/constants";
 import BalanceModal from "../modals/BalanceModal";
+import Actions from "../../redux/actions";
 
 class Balance extends Component {
 	state = {
 		isModalVisible: false,
 	};
+
+	componentDidMount() {
+		this.props.getExchangeRates();
+	}
 
 	showModal = balanceType => () => {
 		this.setState({
@@ -24,10 +29,10 @@ class Balance extends Component {
 	};
 
 	convertAssets(assets) {
-		const { exchRates } = this.props;
+		const { exchangeRates } = this.props;
 
 		return assets.map(asset => {
-			const rates = exchRates.find(rate => rate.symbol === asset.symbol);
+			const rates = exchangeRates.find(rate => rate.symbol === asset.symbol);
 			const { amount, symbol, key } = asset;
 			if (rates === undefined) {
 				return {
@@ -129,9 +134,12 @@ class Balance extends Component {
 function mapStateToProps(state) {
 	return {
 		balance: state.balance,
-		exchRates: state.exchangeRates,
+		exchangeRates: state.assets.rates,
 		user: state.user,
 	};
 }
 
-export default connect(mapStateToProps)(Balance);
+export default connect(
+	mapStateToProps,
+	{ getExchangeRates: Actions.assets.getExchangeRates }
+)(Balance);
