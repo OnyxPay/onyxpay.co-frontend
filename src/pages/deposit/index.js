@@ -1,16 +1,30 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { getData as getCountriesData } from "country-list";
+import { Card, Button, Input, Form, Select, message, Typography } from "antd";
 import { Formik } from "formik";
-import { Card, Button, Input, Form, Select, message } from "antd";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
-import { getData as getCountriesData } from "country-list";
+import { TextAligner } from "../../components/styled";
 
 const { Option } = Select;
+const { Text } = Typography;
+
 class Deposit extends Component {
 	componentDidMount() {
-		const { getAssetsList } = this.props;
+		const { getAssetsList, getExchangeRates } = this.props;
 		getAssetsList();
+		getExchangeRates();
+	}
+
+	isEnoughAmount(amount, assetSymbol) {
+		const { exchangeRates } = this.props;
+		const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
+		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
+		if (rateUSD.sell > rate.sell * amount) {
+			return false;
+		}
+		return true;
 	}
 
 	handleFormSubmit = async (values, formActions) => {
@@ -25,6 +39,9 @@ class Deposit extends Component {
 			message.error(error.message);
 		}
 
+		if (!this.isEnoughAmount(values.amount, values.asset)) {
+			formActions.setFieldError("amount", "minimum amount 1 oUSD");
+		}
 		formActions.setSubmitting(false);
 	};
 
@@ -68,7 +85,7 @@ class Deposit extends Component {
 							setFieldError,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit}>
+								<form onSubmit={handleSubmit} className="ant-form-w50">
 									<Form.Item
 										label="Asset"
 										required
@@ -97,6 +114,9 @@ class Deposit extends Component {
 											})}
 										</Select>
 									</Form.Item>
+									<Text type="secondary" style={{ display: "block", marginTop: "-12px" }}>
+										You will be able to send to the agent only chosen fiat currency
+									</Text>
 
 									<Form.Item
 										label="Country"
@@ -127,7 +147,12 @@ class Deposit extends Component {
 										</Select>
 									</Form.Item>
 
-									<Form.Item label="Amount" required>
+									<Form.Item
+										label="Amount"
+										required
+										validateStatus={errors.amount && touched.amount ? "error" : ""}
+										help={errors.amount && touched.amount ? errors.amount : ""}
+									>
 										<Input
 											size="large"
 											name="amount"
@@ -139,10 +164,11 @@ class Deposit extends Component {
 											disabled={isSubmitting}
 										/>
 									</Form.Item>
-
-									<Button type="primary" htmlType="submit" disabled={isSubmitting}>
-										Submit
-									</Button>
+									<TextAligner align="right">
+										<Button type="primary" htmlType="submit" disabled={isSubmitting}>
+											Create deposit request
+										</Button>
+									</TextAligner>
 								</form>
 							);
 						}}
@@ -158,7 +184,12 @@ export default connect(
 		return {
 			user: state.user,
 			assets: state.assets.list,
+			exchangeRates: state.assets.rates,
 		};
 	},
-	{ getAssetsList: Actions.assets.getAssetsList, isAssetBlocked: Actions.assets.isAssetBlocked }
+	{
+		getAssetsList: Actions.assets.getAssetsList,
+		isAssetBlocked: Actions.assets.isAssetBlocked,
+		getExchangeRates: Actions.assets.getExchangeRates,
+	}
 )(Deposit);

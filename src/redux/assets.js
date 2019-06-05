@@ -109,7 +109,6 @@ export const isAssetBlocked = tokenId => async dispatch => {
 
 	try {
 		const response = await client.sendRawTransaction(tx.serialize(), true);
-		console.log("@@", response);
 		return !!parseInt(get(response, "Result.Result", "0"), 16);
 	} catch (e) {
 		console.log(e);
