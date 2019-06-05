@@ -35,6 +35,9 @@ class UserMenu extends Component {
 					<Menu.Item key="/withdraw">
 						<Link to="/withdraw">Withdraw</Link>
 					</Menu.Item>
+					<Menu.Item key="/exchange">
+						<Link to="/exchange">Exchange</Link>
+					</Menu.Item>
 				</SubMenu>
 				<SubMenu
 					key="active-requests"
