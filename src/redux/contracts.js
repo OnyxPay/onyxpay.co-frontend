@@ -1,7 +1,7 @@
-import { gasPrice, getHeadContractAddress } from "../utils/blockchain";
-import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
-import { getBcClient } from "../api/network";
 import { get } from "lodash";
+import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
+import { gasPrice, getHeadContractAddress } from "../utils/blockchain";
+import { getBcClient } from "../api/network";
 
 // "OnyxPay",
 // "Exchange",
@@ -54,10 +54,6 @@ export const resolveContractAddress = contractName => {
 			});
 			return address;
 		} catch (e) {
-			dispatch({
-				type: RESOLVE_CONTRACT_ADDRESS,
-				payload: { [contractName]: null },
-			});
 			return null;
 		}
 	};

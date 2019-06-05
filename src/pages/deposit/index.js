@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Card, Button, Input, Form, Select } from "antd";
+import { Card, Button, Input, Form, Select, message } from "antd";
 import { PageTitle } from "../../components";
-// import { country_list } from "../../assets/country_list";
 import Actions from "../../redux/actions";
 import { getData as getCountriesData } from "country-list";
 
@@ -14,12 +13,22 @@ class Deposit extends Component {
 		getAssetsList();
 	}
 
-	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
-		console.log("sending", values);
-		resetForm();
+	handleFormSubmit = async (values, formActions) => {
+		const { isAssetBlocked } = this.props;
+		console.log(values);
+		try {
+			const isBlocked = await isAssetBlocked(values.asset);
+			if (isBlocked) {
+				formActions.setFieldError("asset", "asset is blocked");
+			}
+		} catch (error) {
+			message.error(error.message);
+		}
+
+		formActions.setSubmitting(false);
 	};
 
-	handleAssetChange = setFieldValue => (value, option) => {
+	handleAssetChange = setFieldValue => async (value, option) => {
 		console.log("handleAssetChange", value);
 		setFieldValue("asset", value);
 	};
@@ -30,21 +39,22 @@ class Deposit extends Component {
 	};
 
 	render() {
-		const { assets } = this.props;
+		const { assets, user } = this.props;
+
 		return (
 			<>
 				<PageTitle>Deposit</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
-						initialValues={{ asset: "oUSD", amount: "", country: "" }}
-						// validate={values => {
-						// 	let errors = {};
-						// 	if (!values.agentId) {
-						// 		errors.agentId = "required";
-						// 	}
-						// 	return errors;
-						// }}
+						initialValues={{ asset: "oUSD", amount: "", country: user.countryId }}
+						validate={values => {
+							let errors = {};
+							if (!values.asset) {
+								errors.asset = "required";
+							}
+							return errors;
+						}}
 					>
 						{({
 							values,
@@ -55,6 +65,7 @@ class Deposit extends Component {
 							handleSubmit,
 							setFieldValue,
 							touched,
+							setFieldError,
 						}) => {
 							return (
 								<form onSubmit={handleSubmit}>
@@ -149,5 +160,5 @@ export default connect(
 			assets: state.assets.list,
 		};
 	},
-	{ getAssetsList: Actions.assets.getAssetsList }
+	{ getAssetsList: Actions.assets.getAssetsList, isAssetBlocked: Actions.assets.isAssetBlocked }
 )(Deposit);
