@@ -45,7 +45,7 @@ class AgentMenu extends Component {
 
 				<Menu.Item key="/exchange">
 					<Link to="/exchange" className="ant-menu-item-content">
-						<Icon type="pay-circle" />
+						<Icon type="wallet" />
 						<span>Assets Exchange</span>
 					</Link>
 				</Menu.Item>
