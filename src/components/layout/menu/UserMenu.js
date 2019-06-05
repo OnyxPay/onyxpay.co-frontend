@@ -35,9 +35,6 @@ class UserMenu extends Component {
 					<Menu.Item key="/withdraw">
 						<Link to="/withdraw">Withdraw</Link>
 					</Menu.Item>
-					<Menu.Item key="/exchange">
-						<Link to="/exchange">Exchange</Link>
-					</Menu.Item>
 				</SubMenu>
 				<SubMenu
 					key="active-requests"
@@ -55,6 +52,13 @@ class UserMenu extends Component {
 						<Link to="/closed-requests">Closed requests</Link>
 					</Menu.Item>
 				</SubMenu>
+
+				<Menu.Item key="/exchange">
+					<Link to="/exchange" className="ant-menu-item-content">
+						<Icon type="pay-circle" />
+						<span>Assets Exchange</span>
+					</Link>
+				</Menu.Item>
 
 				<Menu.Item key="/settlement-accounts">
 					<Link to="/settlement-accounts" className="ant-menu-item-content">
