@@ -3,6 +3,7 @@ import { resolveContractAddress } from "./contracts";
 import { setAssetsBalance, setOnyxCashBalance } from "./balance";
 import { setExchangeRates } from "./exchangeRates";
 import { saveUser, getUserData } from "./user";
+import { getUsersData, getUserSetElementData } from "./admin-panel/users";
 import {
 	showWalletUnlockModal,
 	hideWalletUnlockModal,
@@ -20,6 +21,8 @@ export default {
 	balance: { setAssetsBalance, setOnyxCashBalance },
 	exchangeRates: { setExchangeRates },
 	user: { saveUser, getUserData },
+	adminUsers: { getUsersData },
+	userSettlementAccountData: { getUserSetElementData },
 	walletUnlock: {
 		showWalletUnlockModal,
 		hideWalletUnlockModal,
