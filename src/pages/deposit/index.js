@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { getData as getCountriesData } from "country-list";
-import { Card, Button, Input, Form, Select, message, Typography } from "antd";
+import { Card, Button, Input, Form, Select, message, Typography, notification } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
-
+import { push } from "connected-react-router";
 import { createDepositRequest } from "../../api/deposit";
 
 const { Option } = Select;
@@ -28,30 +28,31 @@ class Deposit extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { isAssetBlocked } = this.props;
-		console.log(values);
-
+		const { isAssetBlocked, push } = this.props;
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
 			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
 
 			if (isBlocked) {
-				formActions.setFieldError("asset_symbol", "asset_symbol is blocked");
+				formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
 			}
 			if (!isEnoughAmount) {
-				formActions.setFieldError("amount", "minimum amount 1 oUSD");
+				formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
 			if (!isBlocked && isEnoughAmount) {
 				const res = await createDepositRequest(values);
 				if (!res.error) {
 					console.log("DONE", res);
-					// do something
+					notification.success({
+						message: "Done",
+						description: "Deposit request is successfully created",
+					});
+					push("/active-requests");
 				} else if (res.error.data) {
 					formActions.setErrors(res.error.data);
 				}
 			}
 		} catch (error) {
-			console.log(error);
 			message.error(error.message);
 		}
 
@@ -59,12 +60,10 @@ class Deposit extends Component {
 	};
 
 	handleAssetChange = setFieldValue => async (value, option) => {
-		console.log("handleAssetChange", value);
 		setFieldValue("asset_symbol", value);
 	};
 
 	handleCountryChange = setFieldValue => (value, option) => {
-		console.log("handleCountryChange", value);
 		setFieldValue("country_symbol", value);
 	};
 
@@ -203,5 +202,6 @@ export default connect(
 		getAssetsList: Actions.assets.getAssetsList,
 		isAssetBlocked: Actions.assets.isAssetBlocked,
 		getExchangeRates: Actions.assets.getExchangeRates,
+		push,
 	}
 )(Deposit);

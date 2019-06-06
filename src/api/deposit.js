@@ -1,4 +1,3 @@
-// import { get } from "lodash";
 import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 import { unlockWalletAccount } from "./wallet";
@@ -46,7 +45,28 @@ export async function createDepositRequest(formValues) {
 			},
 		});
 		console.log(res);
+		// TODO: send trx into bc
 		return res.data;
+	} catch (error) {
+		return handleReqError(error);
+	}
+}
+
+export async function getActiveRequests(params) {
+	const client = getRestClient({ type: "explorer" });
+
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("https://randomuser.me/api", {
+			headers: {
+				...authHeaders,
+			},
+			params: {
+				results: 10,
+				...params,
+			},
+		});
+		return data;
 	} catch (error) {
 		return handleReqError(error);
 	}

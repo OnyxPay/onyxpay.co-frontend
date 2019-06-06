@@ -76,6 +76,10 @@
 	}
 }
 
+.tbody-white tbody.ant-table-tbody {
+	background-color: #fff;
+}
+
 .ant-form-w50 {
 	@media (min-width: 1200px) {
 		width: 60%;
