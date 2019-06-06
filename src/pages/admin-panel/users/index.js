@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon } from "antd";
+import { Table, Input, Button, Icon, Modal } from "antd";
 import Highlighter from "react-highlight-words";
 import { connect } from "react-redux";
 import Actions from "../../../redux/actions";
+import UserSettlement from "./userSettlement";
 
 class Users extends Component {
 	constructor(props) {
@@ -11,6 +12,7 @@ class Users extends Component {
 			searchText: "",
 			data: [],
 		};
+		console.log(props);
 	}
 
 	getColumnSearchProps = dataIndex => ({
@@ -73,15 +75,20 @@ class Users extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	async componentDidMount() {
-		const { getUsersData } = this.props;
-		const { adminUsers } = await getUsersData();
+	componentWillMount = () => {
+		this.props.getUsersData();
+		const { adminUsers } = this.props;
 		this.setState({
 			data: adminUsers,
 		});
-	}
+	};
 
-	async render() {
+	render() {
+		const showSettlement = dataIndex => {
+			alert(dataIndex);
+			return <UserSettlement />;
+		};
+
 		const columns = [
 			{
 				title: "firstName",
@@ -127,18 +134,30 @@ class Users extends Component {
 			},
 			{
 				title: "settlementsAccounts",
-				dataIndex: "referal_link",
-				key: "referal_link",
+				dataIndex: "is_settlements_exists",
+				key: "is_settlements_exists",
 				width: "10%",
-				...this.getColumnSearchProps("referal_link"),
+				render: dataIndex =>
+					dataIndex ? (
+						<Button type="primary" onClick={() => showSettlement(dataIndex)}>
+							showSettlement
+						</Button>
+					) : (
+						"n/a"
+					),
 			},
 		];
+
 		return <Table columns={columns} dataSource={this.state.data} />;
 	}
 }
 
+const mapStateToProps = state => ({
+	adminUsers: state.adminUsers,
+});
+
 export default connect(
-	null,
+	mapStateToProps,
 	{
 		getUsersData: Actions.adminUsers.getUsersData,
 		getUserSetElementData: Actions.userSettlementAccountData.getUserSetElementData,

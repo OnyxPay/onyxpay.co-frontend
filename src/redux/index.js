@@ -10,7 +10,7 @@ import { authReducer } from "./auth";
 import { settlementsReducer } from "./settlements";
 import { loaderReducer } from "./loading";
 import { sessionReducer } from "./session";
-import { adminUsersReducer } from "./admin-panel/users";
+import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users/index";
 
 export default history =>
 	combineReducers({
@@ -26,4 +26,5 @@ export default history =>
 		loading: loaderReducer,
 		session: sessionReducer,
 		adminUsers: adminUsersReducer,
+		userSettlement: setUserSettlementDataReducer,
 	});

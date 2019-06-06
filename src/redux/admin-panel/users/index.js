@@ -1,10 +1,11 @@
-import { getRestClient, handleReqError, getAuthHeaders } from "../../api/network";
+import { getRestClient, handleReqError, getAuthHeaders } from "../../../api/network";
 
 const client = getRestClient();
 
 const usersData = sessionStorage.getItem("adminUsers");
+const userSettlement = sessionStorage.getItem("userSettlementData");
 const initialState = (usersData && JSON.parse(usersData)) || null;
-
+const initialState2 = (userSettlement && JSON.parse(userSettlement)) || null;
 const ADMIN_USERS = "ADMIN_USERS";
 const USER_SETTLEMENT_DATA = "USER_SETTLEMENT_DATA";
 
@@ -13,8 +14,15 @@ export const adminUsersReducer = (state = initialState, action) => {
 		case ADMIN_USERS:
 			sessionStorage.setItem("adminUsers", JSON.stringify(action.payload));
 			return action.payload;
+		default:
+			return state;
+	}
+};
+
+export const setUserSettlementDataReducer = (state = initialState2, action) => {
+	switch (action.type) {
 		case USER_SETTLEMENT_DATA:
-			sessionStorage.setItem("userSettlementData", JSON.stringify(action.payload));
+			sessionStorage.setItem("userSettlement", JSON.stringify(action.payload));
 			return action.payload;
 		default:
 			return state;
@@ -26,10 +34,9 @@ export const saveUsers = users => {
 };
 
 export const getUsersData = () => async (dispatch, getState) => {
-	console.log(0);
 	const authHeaders = getAuthHeaders();
 	try {
-		const { data } = await client.get("/users/search", {
+		const { data } = await client.get("/admin/users", {
 			headers: {
 				...authHeaders,
 			},
@@ -42,22 +49,22 @@ export const getUsersData = () => async (dispatch, getState) => {
 	}
 };
 
-export const saveUserSettlementData = userSettlements => ({
-	type: USER_SETTLEMENT_DATA,
-	payload: userSettlements,
-});
+export const saveUserSettlementData = userSettlements => {
+	return { type: USER_SETTLEMENT_DATA, payload: userSettlements };
+};
 
-export const getUserSetElementData = user_id => async (dispatch, getState) => {
+export const getUserSettlementData = user_id => async (dispatch, getState) => {
+	console.log(0);
 	const authHeaders = getAuthHeaders();
 	try {
-		const { data } = await client.get("/users/search", {
+		const { data } = await client.get("admin/user/2/settlements", {
 			headers: {
 				...authHeaders,
 			},
 		});
 		console.log(data.items);
-		dispatch(saveUserSettlementData(data.items));
-		return { adminUsers: data.items };
+		//dispatch(saveUserSettlementData(data.items));
+		return { userSettlementData: data.items };
 	} catch (er) {
 		return handleReqError(er);
 	}
