@@ -21,7 +21,7 @@ class AgentMenu extends Component {
 					key="OnyxCash (agent)"
 					title={
 						<span className="ant-menu-item-content">
-							<Icon type="interation" />
+							<Icon type="interaction" />
 							<span>OnyxCash</span>
 						</span>
 					}

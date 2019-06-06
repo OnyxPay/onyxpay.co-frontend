@@ -1,24 +1,24 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col } from "antd";
+import { Row, Col, Button } from "antd";
 import { BalanceCard } from "./Card";
-import { get } from "lodash";
-import { decodeAmount, convertAsset, addAmounts } from "../../utils/number";
-import { OnyxCashDecimals } from "../../api/constants";
-import { Button } from "antd";
+import { convertAmountToStr, convertAsset, addAmounts } from "../../utils/number";
+import { OnyxCashDecimals, roles } from "../../api/constants";
 import BalanceModal from "../modals/BalanceModal";
+import Actions from "../../redux/actions";
 
-// TODO: extract container and view, optimize
 class Balance extends Component {
 	state = {
 		isModalVisible: false,
-		balanceType: "",
 	};
+
+	componentDidMount() {
+		this.props.getExchangeRates();
+	}
 
 	showModal = balanceType => () => {
 		this.setState({
 			isModalVisible: true,
-			balanceType: balanceType === "main" ? "main" : "reward",
 		});
 	};
 
@@ -29,39 +29,38 @@ class Balance extends Component {
 	};
 
 	convertAssets(assets) {
-		const { exchRates } = this.props;
-		const assetsAmount = assets.filter(asset => asset.amount !== 0);
+		const { exchangeRates } = this.props;
 
-		return assetsAmount.map(asset => {
-			const rates = exchRates.find(rate => rate.symbol === asset.symbol);
+		return assets.map(asset => {
+			const rates = exchangeRates.find(rate => rate.symbol === asset.symbol);
 			const { amount, symbol, key } = asset;
 			if (rates === undefined) {
 				return {
-					amount: decodeAmount(amount, 8),
+					amount: convertAmountToStr(amount, 8),
 					symbol,
 					key,
 					buy: "n/a",
 					sell: "n/a",
-					onyxCash: 0,
+					asset_converted: 0,
 				};
 			}
 			const { sell, buy } = rates;
-			const onyxCash = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
+			const asset_converted = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
 			return {
-				amount: decodeAmount(amount, 8),
+				amount: convertAmountToStr(amount, 8),
 				symbol,
 				key,
-				buy: decodeAmount(buy, 8),
-				sell: decodeAmount(sell, 8),
-				onyxCash,
+				buy: convertAmountToStr(buy, 8),
+				sell: convertAmountToStr(sell, 8),
+				asset_converted,
 			};
 		});
 	}
 
-	calcOnyxCashTotal(arr, amount) {
+	calcTotalAmount(arr, amount) {
 		if (arr.length) {
 			const result = arr.reduce((total, asset) => {
-				return addAmounts(total, asset.onyxCash);
+				return addAmounts(total, asset.asset_converted);
 			}, 0);
 
 			return addAmounts(result, amount);
@@ -71,69 +70,62 @@ class Balance extends Component {
 	}
 
 	render() {
-		const { balance } = this.props;
-		const { isModalVisible, balanceType } = this.state;
-		const onyxCashMain = get(balance, "main.onyxCash");
-		const onyxCashReward = get(balance, "reward.onyxCash");
-		const assetsMain = get(balance, "main.assets");
-		const assetsReward = get(balance, "reward.assets");
+		const { user } = this.props;
+		const { assets, onyxCash } = this.props.balance;
+		const { isModalVisible } = this.state;
 
-		const assetsMainConverted = this.convertAssets(assetsMain);
-		const assetsRewardConverted = this.convertAssets(assetsReward);
-		let onyxCashMainTotal,
-			onyxCashRewardTotal = 0;
+		const assetsConverted = this.convertAssets(assets);
+		let assetsTotal = 0;
+		let onyxCashTotal = 0;
+		let onyxCashStr = 0;
 
-		if (
-			assetsMainConverted.length &&
-			assetsRewardConverted.length &&
-			onyxCashMain &&
-			onyxCashReward
-		) {
-			onyxCashMainTotal = this.calcOnyxCashTotal(
-				assetsMainConverted,
-				decodeAmount(onyxCashMain, OnyxCashDecimals)
-			);
-
-			onyxCashRewardTotal = this.calcOnyxCashTotal(
-				assetsRewardConverted,
-				decodeAmount(onyxCashReward, OnyxCashDecimals)
-			);
+		if (onyxCash) {
+			onyxCashStr = convertAmountToStr(onyxCash, OnyxCashDecimals);
 		}
+
+		if (user.role === roles.c) {
+			if (assetsConverted.length) {
+				assetsTotal = this.calcTotalAmount(assetsConverted, 0);
+			}
+		} else if (user.role === roles.a) {
+			if (assetsConverted.length && onyxCash) {
+				onyxCashTotal = this.calcTotalAmount(assetsConverted, onyxCashStr);
+			}
+		}
+
 		return (
 			<div>
 				<Row gutter={16}>
 					<Col md={24} lg={8}>
 						<BalanceCard
-							label="available:"
-							title="OnyxCash main"
-							amount={onyxCashMainTotal}
-							extra={<Button onClick={this.showModal("main")}>see detailed balance</Button>}
-						/>
-					</Col>
-					<Col md={24} lg={8}>
-						<BalanceCard
-							label="available:"
-							title="OnyxCash rewarded"
-							amount={onyxCashRewardTotal}
-							extra={<Button onClick={this.showModal("reward")}>see detailed balance</Button>}
+							title="Balance"
+							assetLabel={user.role === roles.a || user.role === roles.sa ? "OnyxCash" : "USD"}
+							amount={
+								user.role === roles.c
+									? assetsTotal
+									: user.role === roles.a
+									? onyxCashTotal
+									: onyxCashStr
+							}
+							extra={
+								user.role === roles.c && user.role === roles.c ? (
+									<Button onClick={this.showModal("main")}>see detailed balance</Button>
+								) : null
+							}
 						/>
 					</Col>
 				</Row>
-				<BalanceModal
-					isModalVisible={isModalVisible}
-					hideModal={this.hideModal}
-					balance={
-						balanceType === "main"
-							? {
-									onyxCash: decodeAmount(onyxCashMain, OnyxCashDecimals),
-									assets: assetsMainConverted,
-							  }
-							: {
-									onyxCash: decodeAmount(onyxCashReward, OnyxCashDecimals),
-									assets: assetsRewardConverted,
-							  }
-					}
-				/>
+				{user.role === roles.c && user.role === roles.c ? (
+					<BalanceModal
+						isModalVisible={isModalVisible}
+						hideModal={this.hideModal}
+						balance={{
+							onyxCash: onyxCashStr,
+							assets: assetsConverted,
+						}}
+						role={user.role}
+					/>
+				) : null}
 			</div>
 		);
 	}
@@ -142,8 +134,12 @@ class Balance extends Component {
 function mapStateToProps(state) {
 	return {
 		balance: state.balance,
-		exchRates: state.exchangeRates,
+		exchangeRates: state.assets.rates,
+		user: state.user,
 	};
 }
 
-export default connect(mapStateToProps)(Balance);
+export default connect(
+	mapStateToProps,
+	{ getExchangeRates: Actions.assets.getExchangeRates }
+)(Balance);
