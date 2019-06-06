@@ -65,29 +65,29 @@ export function getAuthHeaders() {
 
 export function handleReqError(error) {
 	if (error.response) {
-		console.error(error.message, error.response);
-
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
-		if (error.response.status >= 400 && error.response.status < 500) {
+		if (error.response.status === 404) {
+			message.error("Something went wrong at the server side", 5);
+		} else if (error.response.status >= 400 && error.response.status < 500) {
 			return {
 				error: {
 					data: error.response.data.errors,
 					status: error.response.status,
 				},
 			};
+			// 403, 401 invalid credentials
+			// 400 validation error
+			// 422 Unprocessable Entity
+		} else if (error.response.status >= 500) {
+			message.error("Something went wrong at the server side", 5);
 		}
-		// 403, 401 invalid credentials
-		// 400 validation error
-		// 422 Unprocessable Entity
 	} else if (error.request) {
 		// The request was made but no response was received
-		console.error(error.message, error.request);
 		message.error("Something went wrong at the server side", 5);
 		return { error: { message: "Something went wrong at the server side" } };
 	} else {
 		// Something happened in setting up the request that triggered an Error
-		console.error(error.message, error);
 		message.error("Something went wrong", 5);
 		return {
 			error: {

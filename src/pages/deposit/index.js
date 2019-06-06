@@ -7,6 +7,8 @@ import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 
+import { createDepositRequest } from "../../api/deposit";
+
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -21,38 +23,49 @@ class Deposit extends Component {
 		const { exchangeRates } = this.props;
 		const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
 		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
-		if (rateUSD.sell > rate.sell * amount) {
-			return false;
-		}
-		return true;
+		const isEnough = rateUSD.sell <= rate.sell * amount;
+		return isEnough;
 	}
 
 	handleFormSubmit = async (values, formActions) => {
 		const { isAssetBlocked } = this.props;
 		console.log(values);
+
 		try {
-			const isBlocked = await isAssetBlocked(values.asset);
+			const isBlocked = await isAssetBlocked(values.asset_symbol);
+			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
+
 			if (isBlocked) {
-				formActions.setFieldError("asset", "asset is blocked");
+				formActions.setFieldError("asset_symbol", "asset_symbol is blocked");
+			}
+			if (!isEnoughAmount) {
+				formActions.setFieldError("amount", "minimum amount 1 oUSD");
+			}
+			if (!isBlocked && isEnoughAmount) {
+				const res = await createDepositRequest(values);
+				if (!res.error) {
+					console.log("DONE", res);
+					// do something
+				} else if (res.error.data) {
+					formActions.setErrors(res.error.data);
+				}
 			}
 		} catch (error) {
+			console.log(error);
 			message.error(error.message);
 		}
 
-		if (!this.isEnoughAmount(values.amount, values.asset)) {
-			formActions.setFieldError("amount", "minimum amount 1 oUSD");
-		}
 		formActions.setSubmitting(false);
 	};
 
 	handleAssetChange = setFieldValue => async (value, option) => {
 		console.log("handleAssetChange", value);
-		setFieldValue("asset", value);
+		setFieldValue("asset_symbol", value);
 	};
 
 	handleCountryChange = setFieldValue => (value, option) => {
 		console.log("handleCountryChange", value);
-		setFieldValue("country", value);
+		setFieldValue("country_symbol", value);
 	};
 
 	render() {
@@ -64,11 +77,11 @@ class Deposit extends Component {
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
-						initialValues={{ asset: "oUSD", amount: "", country: user.countryId }}
+						initialValues={{ asset_symbol: "oUSD", amount: "", country_symbol: user.countryId }}
 						validate={values => {
 							let errors = {};
-							if (!values.asset) {
-								errors.asset = "required";
+							if (!values.asset_symbol) {
+								errors.asset_symbol = "required";
 							}
 							return errors;
 						}}
@@ -89,16 +102,16 @@ class Deposit extends Component {
 									<Form.Item
 										label="Asset"
 										required
-										validateStatus={errors.asset && touched.asset ? "error" : ""}
-										help={errors.asset && touched.asset ? errors.asset : ""}
+										validateStatus={errors.asset_symbol && touched.asset_symbol ? "error" : ""}
+										help={errors.asset_symbol && touched.asset_symbol ? errors.asset_symbol : ""}
 									>
 										<Select
 											size="large"
 											showSearch
-											name="asset"
+											name="asset_symbol"
 											placeholder="Select an asset"
 											optionFilterProp="children"
-											value={values.asset}
+											value={values.asset_symbol}
 											onChange={this.handleAssetChange(setFieldValue)}
 											filterOption={(input, option) =>
 												option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -121,16 +134,18 @@ class Deposit extends Component {
 									<Form.Item
 										label="Country"
 										required
-										validateStatus={errors.country && touched.country ? "error" : ""}
-										help={errors.country && touched.country ? errors.country : ""}
+										validateStatus={errors.country_symbol && touched.country_symbol ? "error" : ""}
+										help={
+											errors.country_symbol && touched.country_symbol ? errors.country_symbol : ""
+										}
 									>
 										<Select
 											size="large"
 											showSearch
-											name="country"
+											name="country_symbol"
 											placeholder="Select a country"
 											optionFilterProp="children"
-											value={values.country}
+											value={values.country_symbol}
 											onChange={this.handleCountryChange(setFieldValue)}
 											filterOption={(input, option) =>
 												option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0

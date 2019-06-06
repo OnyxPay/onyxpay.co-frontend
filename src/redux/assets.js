@@ -63,7 +63,7 @@ export const getExchangeRates = () => async dispatch => {
 
 	if (!address) {
 		dispatch({ type: GET_ASSETS_EXCHANGE_RATES_FAILURE });
-		return;
+		throw new Error("Unable to get address of Exchange smart-contract");
 	}
 
 	//make transaction
@@ -78,15 +78,15 @@ export const getExchangeRates = () => async dispatch => {
 	try {
 		const response = await client.sendRawTransaction(tx.serialize(), true);
 		const result = get(response, "Result.Result");
-		let rates;
-		if (!result) {
-			rates = 0;
-		} else {
+		let rates = [];
+		if (result) {
 			rates = parseExchangeRates(result);
 		}
 		dispatch({ type: GET_ASSETS_EXCHANGE_RATES_SUCCESS, payload: rates });
+		return rates;
 	} catch (e) {
 		console.log(e);
+		dispatch({ type: GET_ASSETS_EXCHANGE_RATES_FAILURE });
 	}
 };
 

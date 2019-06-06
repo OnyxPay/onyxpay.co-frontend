@@ -17,7 +17,6 @@ export const contractsReducer = (state = [], action) => {
 	switch (action.type) {
 		case RESOLVE_CONTRACT_ADDRESS:
 			const addresses = { ...state, ...action.payload };
-			localStorage.setItem("contracts", JSON.stringify(addresses));
 			return addresses;
 		default:
 			return state;
