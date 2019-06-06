@@ -53,6 +53,13 @@ class UserMenu extends Component {
 					</Menu.Item>
 				</SubMenu>
 
+				<Menu.Item key="/exchange">
+					<Link to="/exchange" className="ant-menu-item-content">
+						<Icon type="wallet" />
+						<span>Assets Exchange</span>
+					</Link>
+				</Menu.Item>
+
 				<Menu.Item key="/settlement-accounts">
 					<Link to="/settlement-accounts" className="ant-menu-item-content">
 						<Icon type="pay-circle" />
