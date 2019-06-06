@@ -31,9 +31,8 @@ function createCustomRestClient() {
 		res => res,
 		error => {
 			if (error.response) {
-				const { data, status } = error.response;
-				// TODO: change status to 401, after API fix
-				if (data.error === "Unauthenticated." && status === 403) {
+				const { status } = error.response;
+				if (status === 401) {
 					const store = getStore();
 					store.dispatch(showSessionExpiredModal());
 				}

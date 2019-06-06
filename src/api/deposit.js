@@ -1,5 +1,5 @@
-import { get } from "lodash";
-import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
+// import { get } from "lodash";
+import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 import { unlockWalletAccount } from "./wallet";
 import { getStore } from "../store";

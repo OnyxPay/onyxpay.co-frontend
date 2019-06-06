@@ -106,7 +106,6 @@ class Deposit extends Component {
 										help={errors.asset_symbol && touched.asset_symbol ? errors.asset_symbol : ""}
 									>
 										<Select
-											size="large"
 											showSearch
 											name="asset_symbol"
 											placeholder="Select an asset"
@@ -140,7 +139,6 @@ class Deposit extends Component {
 										}
 									>
 										<Select
-											size="large"
 											showSearch
 											name="country_symbol"
 											placeholder="Select a country"
@@ -169,7 +167,6 @@ class Deposit extends Component {
 										help={errors.amount && touched.amount ? errors.amount : ""}
 									>
 										<Input
-											size="large"
 											name="amount"
 											type="number"
 											placeholder="Enter an amount"
