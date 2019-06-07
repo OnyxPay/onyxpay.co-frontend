@@ -85,9 +85,10 @@
 		width: 60%;
 		min-width: 800px;
 	}
-	.ant-form-item {
-		margin-bottom: 12px;
-	}
+}
+
+.ant-form-item {
+	margin-bottom: 12px !important;
 }
 
 @media (max-width: 991px) {

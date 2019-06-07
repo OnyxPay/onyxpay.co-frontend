@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Table } from "antd";
-import reqwest from "reqwest";
 import { getActiveRequests } from "../../api/deposit";
 
 const columns = [

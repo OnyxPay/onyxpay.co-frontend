@@ -1,7 +1,18 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { getData as getCountriesData } from "country-list";
-import { Card, Button, Input, Form, Select, message, Typography, notification } from "antd";
+import {
+	Card,
+	Button,
+	Input,
+	Form,
+	Select,
+	message,
+	Typography,
+	notification,
+	Row,
+	Col,
+} from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -97,85 +108,98 @@ class Deposit extends Component {
 							setFieldError,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit} className="ant-form-w50">
-									<Form.Item
-										label="Asset"
-										required
-										validateStatus={errors.asset_symbol && touched.asset_symbol ? "error" : ""}
-										help={errors.asset_symbol && touched.asset_symbol ? errors.asset_symbol : ""}
-									>
-										<Select
-											showSearch
-											name="asset_symbol"
-											placeholder="Select an asset"
-											optionFilterProp="children"
-											value={values.asset_symbol}
-											onChange={this.handleAssetChange(setFieldValue)}
-											filterOption={(input, option) =>
-												option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-											}
-											disabled={isSubmitting}
-										>
-											{assets.map((asset, index) => {
-												return (
-													<Option key={index} value={asset}>
-														{asset}
-													</Option>
-												);
-											})}
-										</Select>
-									</Form.Item>
-									<Text type="secondary" style={{ display: "block", marginTop: "-12px" }}>
-										You will be able to send to the agent only chosen fiat currency
-									</Text>
+								<form onSubmit={handleSubmit}>
+									<Row gutter={16}>
+										<Col xl={8} lg={9} md={24}>
+											<Form.Item
+												label="Asset"
+												required
+												validateStatus={errors.asset_symbol && touched.asset_symbol ? "error" : ""}
+												help={
+													errors.asset_symbol && touched.asset_symbol ? errors.asset_symbol : ""
+												}
+											>
+												<Select
+													showSearch
+													name="asset_symbol"
+													placeholder="Select an asset"
+													optionFilterProp="children"
+													value={values.asset_symbol}
+													onChange={this.handleAssetChange(setFieldValue)}
+													filterOption={(input, option) =>
+														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+													}
+													disabled={isSubmitting}
+												>
+													{assets.map((asset, index) => {
+														return (
+															<Option key={index} value={asset}>
+																{asset}
+															</Option>
+														);
+													})}
+												</Select>
+											</Form.Item>
+											<Text type="secondary" style={{ display: "block", margin: "-12px 0 12px 0" }}>
+												You will be able to send to the agent only chosen fiat currency
+											</Text>
+										</Col>
+										<Col xl={8} lg={9} md={24}>
+											<Form.Item
+												label="Country"
+												required
+												validateStatus={
+													errors.country_symbol && touched.country_symbol ? "error" : ""
+												}
+												help={
+													errors.country_symbol && touched.country_symbol
+														? errors.country_symbol
+														: ""
+												}
+											>
+												<Select
+													showSearch
+													name="country_symbol"
+													placeholder="Select a country"
+													optionFilterProp="children"
+													value={values.country_symbol}
+													onChange={this.handleCountryChange(setFieldValue)}
+													filterOption={(input, option) =>
+														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+													}
+													disabled={isSubmitting}
+												>
+													{getCountriesData().map((country, index) => {
+														return (
+															<Option key={country.code} value={country.code}>
+																{country.name}
+															</Option>
+														);
+													})}
+												</Select>
+											</Form.Item>
+										</Col>
 
-									<Form.Item
-										label="Country"
-										required
-										validateStatus={errors.country_symbol && touched.country_symbol ? "error" : ""}
-										help={
-											errors.country_symbol && touched.country_symbol ? errors.country_symbol : ""
-										}
-									>
-										<Select
-											showSearch
-											name="country_symbol"
-											placeholder="Select a country"
-											optionFilterProp="children"
-											value={values.country_symbol}
-											onChange={this.handleCountryChange(setFieldValue)}
-											filterOption={(input, option) =>
-												option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-											}
-											disabled={isSubmitting}
-										>
-											{getCountriesData().map((country, index) => {
-												return (
-													<Option key={country.code} value={country.code}>
-														{country.name}
-													</Option>
-												);
-											})}
-										</Select>
-									</Form.Item>
-
-									<Form.Item
-										label="Amount"
-										required
-										validateStatus={errors.amount && touched.amount ? "error" : ""}
-										help={errors.amount && touched.amount ? errors.amount : ""}
-									>
-										<Input
-											name="amount"
-											type="number"
-											placeholder="Enter an amount"
-											value={values.amount}
-											onChange={handleChange}
-											onBlur={handleBlur}
-											disabled={isSubmitting}
-										/>
-									</Form.Item>
-									<TextAligner align="right">
+										<Col xl={8} lg={6} md={24}>
+											<Form.Item
+												label="Amount"
+												required
+												validateStatus={errors.amount && touched.amount ? "error" : ""}
+												help={errors.amount && touched.amount ? errors.amount : ""}
+											>
+												<Input
+													name="amount"
+													type="number"
+													placeholder="Enter an amount"
+													value={values.amount}
+													onChange={handleChange}
+													onBlur={handleBlur}
+													disabled={isSubmitting}
+												/>
+											</Form.Item>
+										</Col>
+									</Row>
+									<TextAligner align="right" mobile="left">
 										<Button type="primary" htmlType="submit" disabled={isSubmitting}>
 											Create deposit request
 										</Button>
