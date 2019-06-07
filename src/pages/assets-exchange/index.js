@@ -65,10 +65,12 @@ class AssetsExchange extends Component {
 			sellAmount: 0,
 		});
 
-		this.onRow = this.onRow.bind(this);
+		this.onActiveAssedChanged = this.onActiveAssedChanged.bind(this);
+		this.handleBuyAmountChange = this.handleBuyAmountChange.bind(this);
+		this.handleSellAmountChange = this.handleSellAmountChange.bind(this);
 	}
 
-	onRow(record) {
+	onActiveAssedChanged(record) {
 		this.setState({
 			selectedAsset: {
 				name: record.key,
@@ -78,14 +80,12 @@ class AssetsExchange extends Component {
 		});
 	}
 
-	handleBuyAmountChange(value) {
-		// this.setState({ buyPrice: value });
-		console.log(value);
+	async handleBuyAmountChange(value) {
+		await this.setState({ buyAmount: value });
 	}
 
-	handleSellAmountChange(value) {
-		// this.setState({ sellPrice: value });
-		console.log(value);
+	async handleSellAmountChange(value) {
+		await this.setState({ sellAmount: value });
 	}
 
 	render() {
@@ -100,7 +100,7 @@ class AssetsExchange extends Component {
 
 				<Row gutter={16}>
 					<Col md={24} lg={12}>
-						<Table onRowClick={this.onRow} columns={columns} dataSource={data} />
+						<Table onRowClick={this.onActiveAssedChanged} columns={columns} dataSource={data} />
 					</Col>
 					<Col md={24} lg={12}>
 						<Card>
@@ -113,7 +113,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 
 										<Form.Item label="Amount: ">
-											<InputNumber min={0} defaultValue={1} onChange={this.handleBuyAmountChange} />
+											<InputNumber min={0} defaultValue={0} onChange={this.handleBuyAmountChange} />
 										</Form.Item>
 
 										<Form.Item label="Total: ">
@@ -140,7 +140,7 @@ class AssetsExchange extends Component {
 										<Form.Item label="Amount: ">
 											<InputNumber
 												min={0}
-												defaultValue={1}
+												defaultValue={0}
 												onChange={this.handleSellAmountChange}
 											/>
 										</Form.Item>
