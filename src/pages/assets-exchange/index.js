@@ -11,9 +11,14 @@ const columns = [
 		key: "name",
 	},
 	{
-		title: "Price",
-		dataIndex: "price",
-		key: "price",
+		title: "Buy price",
+		dataIndex: "buyPrice",
+		key: "buyPrice",
+	},
+	{
+		title: "Sell price",
+		dataIndex: "sellPrice",
+		key: "sellPrice",
 	},
 ];
 
@@ -21,17 +26,20 @@ const data = [
 	{
 		key: "oKES",
 		name: "oKES",
-		price: 0.08,
+		buyPrice: 0.08,
+		sellPrice: 0.07,
 	},
 	{
 		key: "oEUR",
 		name: "oEUR",
-		price: 42,
+		buyPrice: 0.9,
+		sellPrice: 0.85,
 	},
 	{
 		key: "oUAH",
 		name: "oUAH",
-		price: 32,
+		buyPrice: 0.3,
+		sellPrice: 0.28,
 	},
 ];
 
@@ -50,10 +58,11 @@ class AssetsExchange extends Component {
 		this.setState({
 			selectedAsset: {
 				name: data[0].key,
-				price: data[0].price,
+				buyPrice: data[0].buyPrice,
+				sellPrice: data[0].sellPrice,
 			},
-			buyPrice: 0,
-			sellPrice: 0,
+			buyAmount: 0,
+			sellAmount: 0,
 		});
 
 		this.onRow = this.onRow.bind(this);
@@ -63,17 +72,18 @@ class AssetsExchange extends Component {
 		this.setState({
 			selectedAsset: {
 				name: record.key,
-				price: record.price,
+				buyPrice: record.buyPrice,
+				sellPrice: record.sellPrice,
 			},
 		});
 	}
 
-	handleBuyPriceChange(value) {
+	handleBuyAmountChange(value) {
 		// this.setState({ buyPrice: value });
 		console.log(value);
 	}
 
-	handleSellPriceChange(value) {
+	handleSellAmountChange(value) {
 		// this.setState({ sellPrice: value });
 		console.log(value);
 	}
@@ -99,16 +109,16 @@ class AssetsExchange extends Component {
 									<Divider> {"Buy " + this.state.selectedAsset.name} </Divider>
 									<Form {...formItemLayout} onSubmit={this.handleSubmit}>
 										<Form.Item label="Price: ">
-											<span className="ant-form-text"> {this.state.selectedAsset.price} </span>
+											<span className="ant-form-text"> {this.state.selectedAsset.buyPrice} </span>
 										</Form.Item>
 
 										<Form.Item label="Amount: ">
-											<InputNumber min={0} defaultValue={1} onChange={this.handleBuyPriceChange} />
+											<InputNumber min={0} defaultValue={1} onChange={this.handleBuyAmountChange} />
 										</Form.Item>
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{this.state.selectedAsset.price * this.state.buyPrice}
+												{this.state.selectedAsset.buyPrice * this.state.buyAmount}
 											</span>
 											<span className="ant-form-text">oUSD</span>
 										</Form.Item>
@@ -124,17 +134,20 @@ class AssetsExchange extends Component {
 									<Divider> {"Sell " + this.state.selectedAsset.name} </Divider>
 									<Form {...formItemLayout} onSubmit={this.handleSubmit}>
 										<Form.Item label="Price: ">
-											<span className="ant-form-text"> {this.state.selectedAsset.price} </span>
+											<span className="ant-form-text"> {this.state.selectedAsset.sellPrice} </span>
 										</Form.Item>
 
 										<Form.Item label="Amount: ">
-											<InputNumber min={0} defaultValue={1} onChange={this.handleSellPriceChange} />
+											<InputNumber
+												min={0}
+												defaultValue={1}
+												onChange={this.handleSellAmountChange}
+											/>
 										</Form.Item>
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{" "}
-												{this.state.selectedAsset.price * this.state.sellPrice}{" "}
+												{this.state.selectedAsset.sellPrice * this.state.sellAmount}
 											</span>
 											<span className="ant-form-text">oUSD</span>
 										</Form.Item>
