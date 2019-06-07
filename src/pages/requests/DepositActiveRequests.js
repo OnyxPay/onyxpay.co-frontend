@@ -48,7 +48,7 @@ class DepositActiveRequests extends Component {
 		});
 	};
 
-	fetch = async (params = {}) => {
+	fetch = async (params = { type: "deposit" }) => {
 		console.log("params:", params);
 		this.setState({ loading: true });
 		try {

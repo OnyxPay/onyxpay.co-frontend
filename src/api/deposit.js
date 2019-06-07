@@ -1,9 +1,10 @@
-import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
-import { getRestClient, handleReqError, getAuthHeaders } from "./network";
+import { TransactionBuilder, Parameter, ParameterType, CONST, utils } from "ontology-ts-sdk";
+import { getRestClient, handleReqError, getAuthHeaders, getBcClient } from "./network";
 import { unlockWalletAccount } from "./wallet";
 import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { gasPrice, cryptoAddress } from "../utils/blockchain";
+import { convertAmountFromStr } from "../utils/number";
 
 export async function createDepositRequest(formValues) {
 	const store = getStore();
@@ -15,12 +16,24 @@ export async function createDepositRequest(formValues) {
 	const { pk, accountAddress } = await unlockWalletAccount();
 
 	const client = getRestClient();
+	const clientBC = getBcClient();
+	const authHeaders = getAuthHeaders();
+
+	// TODO: send params to gas-compensator, deserialize, add signature
 	const funcName = "Request";
 
 	const p1 = new Parameter("operationRequested", ParameterType.String, "deposit");
-	const p2 = new Parameter("initiator", ParameterType.ByteArray, accountAddress.toBase58());
+	const p2 = new Parameter(
+		"initiator",
+		ParameterType.ByteArray,
+		utils.reverseHex(accountAddress.toHexString())
+	);
 	const p3 = new Parameter("assetId", ParameterType.String, formValues.asset_symbol);
-	const p4 = new Parameter("amount", ParameterType.Int, formValues.asset_symbol);
+	const p4 = new Parameter(
+		"amount",
+		ParameterType.Integer,
+		convertAmountFromStr(formValues.amount)
+	);
 
 	const tx = TransactionBuilder.makeInvokeTransaction(
 		funcName,
@@ -38,31 +51,40 @@ export async function createDepositRequest(formValues) {
 	formValues.trx_timestamp = trx_timestamp;
 
 	try {
-		const authHeaders = getAuthHeaders();
-		const res = await client.post("requests/deposit", formValues, {
+		const createRes = await client.post("requests/deposit", formValues, {
 			headers: {
 				...authHeaders,
 			},
 		});
-		console.log(res);
-		// TODO: send trx into bc
-		return res.data;
-	} catch (error) {
-		return handleReqError(error);
+
+		try {
+			const bcRes = await clientBC.sendRawTransaction(tx.serialize(), false, true);
+			console.log(bcRes);
+		} catch (e) {
+			console.log("O-ho", JSON.parse(e.message));
+			const removeRes = await client.put(`requests/${createRes.data.reqId}/cancel`, {
+				headers: {
+					...authHeaders,
+				},
+			});
+		}
+	} catch (e) {
+		console.log("O-ho", e);
+		return handleReqError(e);
 	}
 }
 
 export async function getActiveRequests(params) {
-	const client = getRestClient({ type: "explorer" });
+	const client = getRestClient();
 
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("https://randomuser.me/api", {
+		const { data } = await client.get("requests", {
 			headers: {
 				...authHeaders,
 			},
 			params: {
-				results: 10,
+				// results: 10,
 				...params,
 			},
 		});
