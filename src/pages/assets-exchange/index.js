@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col, Table, Card, Form, Divider, InputNumber, Button } from "antd";
 import { PageTitle } from "../../components";
+// import Actions from "../../redux/actions";
 
 const columns = [
 	{
@@ -54,6 +55,27 @@ class AssetsExchange extends Component {
 			buyPrice: 0,
 			sellPrice: 0,
 		});
+
+		this.onRow = this.onRow.bind(this);
+	}
+
+	onRow(record) {
+		this.setState({
+			selectedAsset: {
+				name: record.key,
+				price: record.price,
+			},
+		});
+	}
+
+	handleBuyPriceChange(value) {
+		// this.setState({ buyPrice: value });
+		console.log(value);
+	}
+
+	handleSellPriceChange(value) {
+		// this.setState({ sellPrice: value });
+		console.log(value);
 	}
 
 	render() {
@@ -68,7 +90,7 @@ class AssetsExchange extends Component {
 
 				<Row gutter={16}>
 					<Col md={24} lg={12}>
-						<Table columns={columns} dataSource={data} />
+						<Table onRowClick={this.onRow} columns={columns} dataSource={data} />
 					</Col>
 					<Col md={24} lg={12}>
 						<Card>
@@ -81,7 +103,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 
 										<Form.Item label="Amount: ">
-											<InputNumber min={0} defaultValue={1} />
+											<InputNumber min={0} defaultValue={1} onChange={this.handleBuyPriceChange} />
 										</Form.Item>
 
 										<Form.Item label="Total: ">
@@ -106,7 +128,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 
 										<Form.Item label="Amount: ">
-											<InputNumber min={0} defaultValue={1} />
+											<InputNumber min={0} defaultValue={1} onChange={this.handleSellPriceChange} />
 										</Form.Item>
 
 										<Form.Item label="Total: ">
