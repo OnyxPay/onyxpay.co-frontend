@@ -2,14 +2,12 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col, Table, Card, Form, Divider, InputNumber, Button } from "antd";
 import { PageTitle } from "../../components";
-import Actions from "../../redux/actions";
 
 const columns = [
 	{
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		// render: key => <a name={key} onClick={onAssetChosen}>{key}</a>,
 	},
 	{
 		title: "Price",
@@ -48,8 +46,6 @@ class AssetsExchange extends Component {
 	}
 
 	async componentDidMount() {
-		// const { getAssetsList } = this.props;
-		// await getAssetsList();
 		this.setState({
 			selectedAsset: {
 				name: data[0].key,
@@ -61,34 +57,9 @@ class AssetsExchange extends Component {
 	}
 
 	render() {
-		// const { assets } = this.props;
-		// const { getFieldDecorator } = this.props.form;
 		const formItemLayout = {
 			labelCol: { span: 8 },
 			wrapperCol: { span: 14 },
-		};
-
-		const onRow = (record, rowIndex) => {
-			return {
-				onChange: () => {
-					this.setState({
-						selectedAsset: {
-							name: record.key,
-							price: record.price,
-						},
-					});
-				},
-			};
-		};
-
-		const handleBuyPriceChange = function(value) {
-			// this.setState({ buyPrice: value });
-			console.log(value);
-		};
-
-		const handleSellPriceChange = function(value) {
-			// this.setState({ sellPrice: value });
-			console.log(value);
 		};
 
 		return (
@@ -97,7 +68,7 @@ class AssetsExchange extends Component {
 
 				<Row gutter={16}>
 					<Col md={24} lg={12}>
-						<Table onRow={onRow} columns={columns} dataSource={data} />
+						<Table columns={columns} dataSource={data} />
 					</Col>
 					<Col md={24} lg={12}>
 						<Card>
@@ -110,7 +81,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 
 										<Form.Item label="Amount: ">
-											<InputNumber min={0} defaultValue={1} onChange={handleBuyPriceChange} />
+											<InputNumber min={0} defaultValue={1} />
 										</Form.Item>
 
 										<Form.Item label="Total: ">
@@ -135,7 +106,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 
 										<Form.Item label="Amount: ">
-											<InputNumber min={0} defaultValue={1} onChange={handleSellPriceChange} />
+											<InputNumber min={0} defaultValue={1} />
 										</Form.Item>
 
 										<Form.Item label="Total: ">
