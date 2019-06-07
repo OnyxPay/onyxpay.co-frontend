@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col, Table, Card, Form, Divider, InputNumber, Button } from "antd";
 import { PageTitle } from "../../components";
-// import Actions from "../../redux/actions";
+import Actions from "../../redux/actions";
+import { convertAmountToStr } from "../../utils/number";
 
 const columns = [
 	{
@@ -22,27 +23,6 @@ const columns = [
 	},
 ];
 
-const data = [
-	{
-		key: "oKES",
-		name: "oKES",
-		buyPrice: 0.08,
-		sellPrice: 0.07,
-	},
-	{
-		key: "oEUR",
-		name: "oEUR",
-		buyPrice: 0.9,
-		sellPrice: 0.85,
-	},
-	{
-		key: "oUAH",
-		name: "oUAH",
-		buyPrice: 0.3,
-		sellPrice: 0.28,
-	},
-];
-
 class AssetsExchange extends Component {
 	constructor(props) {
 		super(props);
@@ -55,6 +35,26 @@ class AssetsExchange extends Component {
 	}
 
 	async componentDidMount() {
+		this.onActiveAssedChanged = this.onActiveAssedChanged.bind(this);
+		this.handleBuyAmountChange = this.handleBuyAmountChange.bind(this);
+		this.handleSellAmountChange = this.handleSellAmountChange.bind(this);
+
+		const { getExchangeRates } = this.props;
+		await getExchangeRates();
+		const { exchangeRates } = this.props;
+		let data = [];
+		for (let record of exchangeRates) {
+			if (record.symbol !== "oUSD") {
+				data.push({
+					key: record.symbol,
+					name: record.symbol,
+					buyPrice: convertAmountToStr(record.buy, 8),
+					sellPrice: convertAmountToStr(record.sell, 8),
+				});
+			}
+		}
+		this.setState({ assetData: data });
+
 		this.setState({
 			selectedAsset: {
 				name: data[0].key,
@@ -64,10 +64,6 @@ class AssetsExchange extends Component {
 			buyAmount: 0,
 			sellAmount: 0,
 		});
-
-		this.onActiveAssedChanged = this.onActiveAssedChanged.bind(this);
-		this.handleBuyAmountChange = this.handleBuyAmountChange.bind(this);
-		this.handleSellAmountChange = this.handleSellAmountChange.bind(this);
 	}
 
 	onActiveAssedChanged(record) {
@@ -97,10 +93,13 @@ class AssetsExchange extends Component {
 		return (
 			<>
 				<PageTitle>Assets Exchange</PageTitle>
-
 				<Row gutter={16}>
 					<Col md={24} lg={12}>
-						<Table onRowClick={this.onActiveAssedChanged} columns={columns} dataSource={data} />
+						<Table
+							onRowClick={this.onActiveAssedChanged}
+							columns={columns}
+							dataSource={this.state.assetData}
+						/>
 					</Col>
 					<Col md={24} lg={12}>
 						<Card>
@@ -118,7 +117,7 @@ class AssetsExchange extends Component {
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{this.state.selectedAsset.buyPrice * this.state.buyAmount}
+												{/* {this.state.selectedAsset.buyPrice * this.state.buyAmount} */}0
 											</span>
 											<span className="ant-form-text">oUSD</span>
 										</Form.Item>
@@ -147,7 +146,7 @@ class AssetsExchange extends Component {
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{this.state.selectedAsset.sellPrice * this.state.sellAmount}
+												{/* {this.state.selectedAsset.sellPrice * this.state.sellAmount} */}0
 											</span>
 											<span className="ant-form-text">oUSD</span>
 										</Form.Item>
@@ -172,8 +171,10 @@ export default connect(
 	state => {
 		return {
 			// user: state.user,
-			assets: state.assets.list,
+			exchangeRates: state.assets.rates,
 		};
+	},
+	{
+		getExchangeRates: Actions.assets.getExchangeRates,
 	}
-	// { getAssetsList: Actions.assets.getAssetsList }
 )(AssetsExchange);
