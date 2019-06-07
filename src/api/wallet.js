@@ -126,3 +126,10 @@ export async function unlockWalletAccount() {
 	const { password } = await store.dispatch(Actions.walletUnlock.getWalletPassword());
 	return await decryptWallet(wallet, password);
 }
+
+export function getAccount(wallet) {
+	if (typeof wallet === "string") {
+		wallet = getWallet(wallet);
+	}
+	return wallet.accounts[0];
+}

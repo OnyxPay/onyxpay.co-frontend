@@ -22,7 +22,8 @@ function Sidebar({ collapsed, location, user, xsDevise }) {
 			collapsedWidth={xsDevise ? "0" : "80"}
 		>
 			{user && user.role === "client" && <UserMenu />}
-			{user && user.role === "agent" && <AgentMenu />}
+			{/* {(user && user.role === "agent") || (user && user.role === "super_agent" && <AgentMenu />)} */}
+			{((user && user.role === "agent") || (user && user.role === "super_agent")) && <AgentMenu />}
 			{user && user.role === "super_admin" && <SuperAdminMenu />}
 		</Sider>
 	);

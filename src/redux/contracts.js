@@ -1,7 +1,15 @@
 import { gasPrice, getHeadContractAddress } from "../utils/blockchain";
-import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
 import { getBcClient } from "../api/network";
 import { get } from "lodash";
+
+// "OnyxPay",
+// "Exchange",
+// "InternalRevenueServiceStrategy",
+// "InternalRevenueService",
+// "Assets",
+// "OnyxCash",
+// "Investments"
 
 export const RESOLVE_CONTRACT_ADDRESS = "RESOLVE_CONTRACT_ADDRESS";
 
@@ -18,6 +26,12 @@ export const contractsReducer = (state = [], action) => {
 
 export const resolveContractAddress = contractName => {
 	return async (dispatch, getState) => {
+		const { contracts } = getState();
+
+		if (contracts.hasOwnProperty(contractName)) {
+			return contracts[contractName];
+		}
+
 		const client = getBcClient();
 		const funcName = "GetContractAddress";
 		const p1 = new Parameter("contractName", ParameterType.String, contractName);
@@ -30,19 +44,21 @@ export const resolveContractAddress = contractName => {
 			gasPrice,
 			CONST.DEFAULT_GAS_LIMIT
 		);
+
 		try {
 			const response = await client.sendRawTransaction(tx.serialize(), true);
-			const address = utils.hexstr2str(get(response, "Result.Result"));
+			const address = get(response, "Result.Result");
 			dispatch({
 				type: RESOLVE_CONTRACT_ADDRESS,
 				payload: { [contractName]: address },
 			});
+			return address;
 		} catch (e) {
-			console.log(contractName, e);
 			dispatch({
 				type: RESOLVE_CONTRACT_ADDRESS,
 				payload: { [contractName]: null },
 			});
+			return null;
 		}
 	};
 };
