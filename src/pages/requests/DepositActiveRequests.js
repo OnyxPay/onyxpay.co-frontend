@@ -4,21 +4,20 @@ import { getActiveRequests } from "../../api/deposit";
 
 const columns = [
 	{
-		title: "Name",
-		dataIndex: "name",
-		sorter: true,
-		render: name => `${name.first} ${name.last}`,
-		width: "20%",
+		title: "Asset",
+		dataIndex: "asset",
 	},
 	{
-		title: "Gender",
-		dataIndex: "gender",
-		filters: [{ text: "Male", value: "male" }, { text: "Female", value: "female" }],
-		width: "20%",
+		title: "Amount",
+		dataIndex: "amount",
 	},
 	{
-		title: "Email",
-		dataIndex: "email",
+		title: "Status",
+		dataIndex: "status",
+	},
+	{
+		title: "Created",
+		dataIndex: "trx_timestamp",
 	},
 ];
 
@@ -42,8 +41,6 @@ class DepositActiveRequests extends Component {
 		this.fetch({
 			results: pagination.pageSize,
 			page: pagination.current,
-			sortField: sorter.field,
-			sortOrder: sorter.order,
 			...filters,
 		});
 	};
@@ -58,7 +55,7 @@ class DepositActiveRequests extends Component {
 			pagination.total = 200;
 			this.setState({
 				loading: false,
-				data: data.results,
+				data: data.items,
 				pagination,
 			});
 			console.log(data);
@@ -69,7 +66,7 @@ class DepositActiveRequests extends Component {
 		return (
 			<Table
 				columns={columns}
-				rowKey={record => record.login.uuid}
+				rowKey={record => record.id}
 				dataSource={this.state.data}
 				pagination={this.state.pagination}
 				loading={this.state.loading}
