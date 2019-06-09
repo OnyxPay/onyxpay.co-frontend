@@ -1,35 +1,16 @@
 import React, { Component } from "react";
-import styled from "styled-components";
-// import { connect } from "react-redux";
-import { Card, Typography, Steps, Input, Button, Form } from "antd";
+import { connect } from "react-redux";
+import { Card, Typography, Steps, Input, Button, Form, Icon } from "antd";
 import { PageTitle } from "../../components";
-// import Actions from "../../redux/actions";
-import { getSettlementForm } from "../../components/modals/SettlementForm";
+import Actions from "../../redux/actions";
+import AddSettlementModal from "../../components/modals/AddSettlementModal";
 const { Step } = Steps;
 const { Title } = Typography;
-
-const NavigationPanel = styled.div`
-	font-size: 16px;
-	font-weight: bold;
-	margin-top: 20px;
-	clear: left;
-	bottom: 10;
-	width: 100%;
-	text-align: right;
-`;
-const ButtonsBlock = styled.div`
-	margin-right: 0;
-	margin-left: auto;
-	display: block;
-`;
 
 class PaymentsModal extends Component {
 	render() {
 		return (
 			<div>
-				<Title level={4} style={{ textAlign: "center" }}>
-					Payment systems
-				</Title>
 				<Form action="https://www.coinpayments.net/index.php" method="post">
 					<Input type="hidden" name="cmd" value="_pay" />
 					<Input type="hidden" name="reset" value="1" />
@@ -62,14 +43,44 @@ const steps = {
 };
 
 const items = steps;
-
-function getStepComponent(step) {
+const StepTitleCss = { textAlign: "left", borderBottom: "1px solid rgba(167, 180, 201, 0.3)" };
+function getStepComponent(step, showSettlements, role) {
 	if (step === steps.settlements) {
-		return getSettlementForm(undefined, undefined, undefined);
+		return (
+			<div style={{ marginBottom: 30 }}>
+				<Title level={4} style={StepTitleCss}>
+					Fill settlement account.
+				</Title>
+				<p>
+					To upgrade to the position of agent or super agent you should input your settlement
+					account. This information will be used for automatically sending to the user that is going
+					to make the deposit.
+				</p>
+				<Button type="primary" onClick={showSettlements()}>
+					<Icon type="plus" /> Add new settlement account
+				</Button>
+			</div>
+		);
 	} else if (step === steps.buyCache) {
-		return <PaymentsModal />;
+		return (
+			<div>
+				<Title level={4} style={StepTitleCss}>
+					Buy OnyxCache.
+				</Title>
+				<p>
+					Please, buy OnyxCash amounting to <b>{role === "Agent" ? "500 $" : "100 000 $"}.</b>
+				</p>
+				<PaymentsModal />
+			</div>
+		);
 	} else if (step === steps.waitForApprovement) {
-		return <div>Waiting for Approvement</div>;
+		return (
+			<div>
+				<Title level={4} style={StepTitleCss}>
+					Waiting for Approvement
+				</Title>
+			</div>
+		);
 	}
 }
 
@@ -83,29 +94,33 @@ function getStepTitle(item, step) {
 	}
 }
 
-function getDisplyButtonStyle(buttonName, step) {
-	if (
-		(buttonName === "next" && step === steps.waitForApprovement) ||
-		(buttonName === "back" && step === steps.settlements)
-	) {
-		return "none";
-	}
-	return "";
-}
-
 class UpgradeUser extends Component {
 	state = {
 		currentStep: steps.settlements,
+		showSettlements: false,
 	};
-	next = type => () => {
-		if (this.state.currentStep < steps.waitForApprovement) {
-			this.setState({ currentStep: ++this.state.currentStep });
-		}
+	checkSettlements() {
+		const { getSettlementsList } = this.props;
+		getSettlementsList().then(
+			() => {
+				if (this.props.settlements.length > 0) {
+					this.setState({ currentStep: steps.buyCache });
+				}
+			},
+			error => {
+				throw new Error(error);
+			}
+		);
+	}
+	componentDidMount() {
+		this.checkSettlements();
+	}
+	hideModal = type => () => {
+		this.setState({ showSettlements: false });
+		this.checkSettlements();
 	};
-	back = type => () => {
-		if (this.state.currentStep > steps.settlements) {
-			this.setState({ currentStep: --this.state.currentStep });
-		}
+	showModal = type => () => {
+		this.setState({ showSettlements: true });
 	};
 	render() {
 		let role;
@@ -116,6 +131,7 @@ class UpgradeUser extends Component {
 		} else {
 			throw new Error("Unexpected role");
 		}
+
 		return (
 			<>
 				<PageTitle>Upgrade to the {role}</PageTitle>
@@ -138,33 +154,27 @@ class UpgradeUser extends Component {
 							</Steps>
 						</nav>
 						<aside className="upgrade_step" style={{ float: "right", width: "70%" }}>
-							{getStepComponent(this.state.currentStep)};
+							{getStepComponent(this.state.currentStep, this.showModal, role)}
 						</aside>
 					</section>
-					<NavigationPanel>
-						<ButtonsBlock>
-							<Button
-								key="back"
-								onClick={this.back()}
-								style={{ display: getDisplyButtonStyle("back", this.state.currentStep) }}
-							>
-								Back
-							</Button>
-							<Button
-								key="next"
-								onClick={this.next()}
-								style={{
-									marginLeft: 10,
-									display: getDisplyButtonStyle("next", this.state.currentStep),
-								}}
-							>
-								Next
-							</Button>
-						</ButtonsBlock>
-					</NavigationPanel>
 				</Card>
+				<AddSettlementModal
+					isModalVisible={this.state.showSettlements}
+					hideModal={this.hideModal()}
+				/>
 			</>
 		);
 	}
 }
-export default UpgradeUser;
+
+export default connect(
+	state => {
+		return {
+			settlements: state.settlements,
+			loading: state.loading,
+		};
+	},
+	{
+		getSettlementsList: Actions.settlements.getSettlementsList,
+	}
+)(UpgradeUser);
