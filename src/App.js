@@ -45,6 +45,10 @@ let Settlement = Loadable({
 	loading: Loader,
 });
 
+let UpgradeUser = Loadable({
+	loader: () => import(/* webpackChunkName: "UpgradeUser" */ "./pages/upgrade-user"),
+	loading: Loader,
+});
 // permissions
 const User = Authorization(["client"]);
 const Agent = Authorization(["agent", "super_agent"]);
@@ -57,6 +61,7 @@ const UserDeposit = User(Deposit);
 const AgentDeposit = Agent(Deposit2);
 Page404 = All(Page404);
 Settlement = All(Settlement);
+UpgradeUser = All(UpgradeUser);
 
 class App extends Component {
 	componentDidMount() {
@@ -76,6 +81,8 @@ class App extends Component {
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
+					<Route path="/upgrade-user:agent" exact component={UpgradeUser} />
+					<Route path="/upgrade-user:super_agent" exact component={UpgradeUser} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />

@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { Avatar, Menu, Dropdown } from "antd";
+import { Link, withRouter } from "react-router-dom";
 import Actions from "../../redux/actions";
 
 const UpgradeLink = styled.span`
@@ -12,10 +13,14 @@ const DropdownMenu = ({ logOut }) => {
 	const menu = (
 		<Menu>
 			<Menu.Item>
-				<UpgradeLink>Upgrade to Agent</UpgradeLink>
+				<Link to="/upgrade-user:agent">
+					<UpgradeLink>Upgrade to Agent</UpgradeLink>
+				</Link>
 			</Menu.Item>
 			<Menu.Item>
-				<UpgradeLink>Upgrade to Super Agent</UpgradeLink>
+				<Link to="/upgrade-user:super_agent">
+					<UpgradeLink>Upgrade to Super Agent</UpgradeLink>
+				</Link>
 			</Menu.Item>
 			<Menu.Divider />
 			<Menu.Item onClick={() => logOut()}>
