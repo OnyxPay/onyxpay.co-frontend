@@ -16,68 +16,6 @@ const steps = {
 };
 
 const StepTitleCss = { textAlign: "left", borderBottom: "1px solid rgba(167, 180, 201, 0.3)" };
-function getStepComponent(
-	step,
-	showSettlements,
-	role,
-	handleSubmit,
-	backHandler,
-	checkPaymentHandler
-) {
-	if (step === steps.settlements) {
-		return (
-			<div style={{ marginBottom: 30 }}>
-				<Title level={4} style={StepTitleCss}>
-					Fill settlement account.
-				</Title>
-				<p>
-					To upgrade to the position of agent or super agent you should input your settlement
-					account. This information will be used for automatically sending to the user that is going
-					to make the deposit.
-				</p>
-				<Button type="primary" onClick={showSettlements()}>
-					<Icon type="plus" /> Add new settlement account
-				</Button>
-			</div>
-		);
-	} else if (step === steps.buyCache) {
-		return (
-			<div>
-				<Title level={4} style={StepTitleCss}>
-					Buy OnyxCache.
-				</Title>
-				<p>
-					Please, buy OnyxCash amounting to <b>{role === "Agent" ? "500$" : "100 000$"}.</b>
-				</p>
-				<CoinPaymentsForm
-					user={JSON.parse(sessionStorage.getItem("user"))}
-					amount={role === "Agent" ? 500 : 100000}
-					handleSubmit={handleSubmit}
-				/>
-			</div>
-		);
-	} else if (step === steps.waitForApprovement) {
-		return (
-			<div>
-				<Title level={4} style={StepTitleCss}>
-					Waiting for Approvement
-				</Title>
-				<p>
-					You role will be upgraded automatically after receiving the paymant. Receiving the payment
-					can take a wile up to 24 hours. If you role wasn't updated during 24 hours or you didn't
-					receive OnyxCache please &nbsp;
-					<a href="mailto:support@onyxpay.co">contact the support</a>.
-				</p>
-				<Button type="primary" onClick={backHandler} style={{ marginRight: 10 }}>
-					Back to payment page
-				</Button>
-				<Button onClick={checkPaymentHandler} style={{ marginTop: 10 }}>
-					Check payment status
-				</Button>
-			</div>
-		);
-	}
-}
 
 function getStepTitle(item, step) {
 	if (item > step) {
@@ -138,7 +76,66 @@ class UpgradeUser extends Component {
 		this.setState({ currentStep: --currentStep });
 	};
 
+	checkPaymentHandler() {}
+
 	titles = ["Fill settlements account.", "Buy OnyxCache.", "Upgrading approvement."];
+
+	getStepComponent(role) {
+		if (this.state.currentStep === steps.settlements) {
+			return (
+				<div style={{ marginBottom: 30 }}>
+					<Title level={4} style={StepTitleCss}>
+						Fill settlement account.
+					</Title>
+					<p>
+						To upgrade to the position of agent or super agent you should input your settlement
+						account. This information will be used for automatically sending to the user that is
+						going to make the deposit.
+					</p>
+					<Button type="primary" onClick={this.showModal()}>
+						<Icon type="plus" /> Add new settlement account
+					</Button>
+				</div>
+			);
+		} else if (this.state.currentStep === steps.buyCache) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Buy OnyxCache.
+					</Title>
+					<p>
+						Please, buy OnyxCash amounting to <b>{role === "Agent" ? "500$" : "100 000$"}.</b>
+					</p>
+					<CoinPaymentsForm
+						user={JSON.parse(sessionStorage.getItem("user"))}
+						amount={role === "Agent" ? 500 : 100000}
+						handleSubmit={this.moveNextStep()}
+					/>
+				</div>
+			);
+		} else if (this.state.currentStep === steps.waitForApprovement) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Waiting for Approvement
+					</Title>
+					<p>
+						You role will be upgraded automatically after receiving the paymant. Receiving the
+						payment can take a wile up to 24 hours. If you role wasn't updated during 24 hours or
+						you didn't receive OnyxCache please &nbsp;
+						<a href="mailto:support@onyxpay.co">contact the support</a>.
+					</p>
+					<Button type="primary" onClick={this.movePrevStep()} style={{ marginRight: 10 }}>
+						Back to payment page
+					</Button>
+					<Button onClick={this.checkPaymentHandler()} style={{ marginTop: 10 }}>
+						Check payment status
+					</Button>
+				</div>
+			);
+		}
+	}
+
 	render() {
 		let role;
 		if (this.props.match.params.agent === ":agent") {
@@ -172,13 +169,7 @@ class UpgradeUser extends Component {
 							</Steps>
 						</nav>
 						<aside className="upgrade_step" style={{ float: "right", width: "75%" }}>
-							{getStepComponent(
-								this.state.currentStep,
-								this.showModal,
-								role,
-								this.moveNextStep(),
-								this.movePrevStep()
-							)}
+							{this.getStepComponent(role)}
 						</aside>
 					</section>
 				</Card>
