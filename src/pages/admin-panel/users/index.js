@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon, Modal } from "antd";
+import { Table, Input, Button, Icon } from "antd";
 import Highlighter from "react-highlight-words";
 import { connect } from "react-redux";
 import Actions from "../../../redux/actions";
 import UserSettlement from "./userSettlement";
+import { getStore } from "../../../store";
 
 class Users extends Component {
 	constructor(props) {
@@ -11,8 +12,11 @@ class Users extends Component {
 		this.state = {
 			searchText: "",
 			data: [],
+			visible: false,
+			settlement: [],
+			loading: false,
+			user_id: null,
 		};
-		console.log(props);
 	}
 
 	getColumnSearchProps = dataIndex => ({
@@ -75,30 +79,39 @@ class Users extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	componentWillMount = () => {
-		this.props.getUsersData();
-		const { adminUsers } = this.props;
+	async showSettlement(dataIndex) {
 		this.setState({
-			data: adminUsers,
+			loading: true,
+			user_id: dataIndex,
+		});
+		const store = getStore();
+		const { getUserSetElementData } = this.props;
+		await store.dispatch(getUserSetElementData(dataIndex));
+		this.setState({
+			visible: true,
+			loading: false,
+		});
+	}
+
+	hideModal = visible => {
+		this.setState({
+			visible: visible,
 		});
 	};
 
 	render() {
-		const showSettlement = dataIndex => {
-			alert(dataIndex);
-			return <UserSettlement />;
-		};
-
+		const { loading } = this.state;
+		const { adminUsers, userSettlement } = this.props;
 		const columns = [
 			{
-				title: "firstName",
+				title: "First name",
 				dataIndex: "first_name",
 				key: "first_name",
 				width: "10%",
 				...this.getColumnSearchProps("first_name"),
 			},
 			{
-				title: "lastName",
+				title: "Last name",
 				dataIndex: "last_name",
 				key: "last_name",
 				width: "10%",
@@ -119,27 +132,39 @@ class Users extends Component {
 				...this.getColumnSearchProps("email"),
 			},
 			{
-				title: "phoneNumber",
+				title: "Phone number",
 				dataIndex: "phone_number",
 				key: "phone_number",
 				width: "10%",
 				...this.getColumnSearchProps("phone_number"),
 			},
 			{
-				title: "telegramChatId",
+				title: "Telegram Chat",
 				dataIndex: "chat_id",
 				key: "chat_id",
 				width: "10%",
 				...this.getColumnSearchProps("chat_id"),
 			},
 			{
-				title: "settlementsAccounts",
-				dataIndex: "is_settlements_exists",
+				title: "Settlements accounts",
+				dataIndex: "user_id",
+				key: "user_id",
+				width: "10%",
+				...this.getColumnSearchProps("user_id"),
+			} && {
+				title: "Settlements accounts",
+				dataIndex2: "is_settlements_exists",
 				key: "is_settlements_exists",
 				width: "10%",
 				render: dataIndex =>
-					dataIndex ? (
-						<Button type="primary" onClick={() => showSettlement(dataIndex)}>
+					dataIndex.is_settlements_exists ? (
+						<Button
+							type="primary"
+							block
+							icon="check"
+							loading={loading && this.state.user_id === dataIndex.user_id}
+							onClick={() => this.showSettlement(dataIndex.user_id)}
+						>
 							showSettlement
 						</Button>
 					) : (
@@ -148,18 +173,32 @@ class Users extends Component {
 			},
 		];
 
-		return <Table columns={columns} dataSource={this.state.data} />;
+		return (
+			<>
+				<Table columns={columns} dataSource={adminUsers} />
+				{this.state.visible && (
+					<UserSettlement
+						hideModal={this.hideModal}
+						settlementData={userSettlement}
+						visible={this.state.visible}
+					/>
+				)}
+			</>
+		);
 	}
 }
 
 const mapStateToProps = state => ({
 	adminUsers: state.adminUsers,
+	userSettlement: state.userSettlement,
+});
+
+const maoDispatchToProps = dispatch => ({
+	getUsersData: dispatch(Actions.adminUsers.getUsersData()),
+	getUserSetElementData: Actions.userSettlementAccountData.getUserSettlementData,
 });
 
 export default connect(
 	mapStateToProps,
-	{
-		getUsersData: Actions.adminUsers.getUsersData,
-		getUserSetElementData: Actions.userSettlementAccountData.getUserSetElementData,
-	}
+	maoDispatchToProps
 )(Users);

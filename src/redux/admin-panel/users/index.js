@@ -41,7 +41,6 @@ export const getUsersData = () => async (dispatch, getState) => {
 				...authHeaders,
 			},
 		});
-		console.log(data.items);
 		dispatch(saveUsers(data.items));
 		return { adminUsers: data.items };
 	} catch (er) {
@@ -54,16 +53,14 @@ export const saveUserSettlementData = userSettlements => {
 };
 
 export const getUserSettlementData = user_id => async (dispatch, getState) => {
-	console.log(0);
 	const authHeaders = getAuthHeaders();
 	try {
-		const { data } = await client.get("admin/user/2/settlements", {
+		const { data } = await client.get(`admin/user/${user_id}/settlements`, {
 			headers: {
 				...authHeaders,
 			},
 		});
-		console.log(data.items);
-		//dispatch(saveUserSettlementData(data.items));
+		dispatch(saveUserSettlementData(data.items));
 		return { userSettlementData: data.items };
 	} catch (er) {
 		return handleReqError(er);

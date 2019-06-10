@@ -11,6 +11,12 @@ class UserMenu extends Component {
 		const { location } = this.props;
 		return (
 			<Menu theme="dark" selectedKeys={[location.pathname]} mode="inline">
+				<Menu.Item key="/admin/users">
+					<Link to="/admin/users" className="ant-menu-item-content">
+						<Icon type="user" />
+						<span>Users</span>
+					</Link>
+				</Menu.Item>
 				<Menu.Item key="/">
 					<Link to="/" className="ant-menu-item-content">
 						<Icon type="dashboard" />
