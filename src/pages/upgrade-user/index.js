@@ -1,50 +1,29 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Typography, Steps, Input, Button, Form, Icon } from "antd";
+import { Card, Typography, Steps, Button, Icon } from "antd";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
+import { CoinPaymentsForm } from "./CoinPaymentsForm";
+
 const { Step } = Steps;
 const { Title } = Typography;
 
-class PaymentsModal extends Component {
-	render() {
-		return (
-			<div>
-				<Form action="https://www.coinpayments.net/index.php" method="post">
-					<Input type="hidden" name="cmd" value="_pay" />
-					<Input type="hidden" name="reset" value="1" />
-					<Input type="hidden" name="merchant" value="46ed83339e6e0252cb80d762294470da" />
-					<Input type="hidden" name="item_name" value="USD" />
-					<Input type="hidden" name="currency" value="USD" />
-					<Input type="hidden" name="amountf" value="10.00000000" />
-					<Input type="hidden" name="quantity" value="1" />
-					<Input type="hidden" name="allow_quantity" value="0" />
-					<Input type="hidden" name="want_shipping" value="1" />
-					<Input type="hidden" name="success_url" value="http://localhost:3000/deposit" />
-					<Input type="hidden" name="cancel_url" value="http://localhost:3000/deposit" />
-					<Input type="hidden" name="ipn_url" value="https://preprod.onyxpay.co/api/v1/deposit" />
-					<Input type="hidden" name="allow_extra" value="0" />
-					<Input
-						type="image"
-						src="https://www.coinpayments.net/images/pub/CP-main-medium.png"
-						alt="Buy Now with CoinPayments.net"
-						style={{ textAlign: "left", width: 186, height: 79, borderStyle: "none" }}
-					/>
-				</Form>
-			</div>
-		);
-	}
-}
 const steps = {
 	settlements: 0,
 	buyCache: 1,
 	waitForApprovement: 2,
 };
 
-const items = steps;
 const StepTitleCss = { textAlign: "left", borderBottom: "1px solid rgba(167, 180, 201, 0.3)" };
-function getStepComponent(step, showSettlements, role) {
+function getStepComponent(
+	step,
+	showSettlements,
+	role,
+	handleSubmit,
+	backHandler,
+	checkPaymentHandler
+) {
 	if (step === steps.settlements) {
 		return (
 			<div style={{ marginBottom: 30 }}>
@@ -68,9 +47,13 @@ function getStepComponent(step, showSettlements, role) {
 					Buy OnyxCache.
 				</Title>
 				<p>
-					Please, buy OnyxCash amounting to <b>{role === "Agent" ? "500 $" : "100 000 $"}.</b>
+					Please, buy OnyxCash amounting to <b>{role === "Agent" ? "500$" : "100 000$"}.</b>
 				</p>
-				<PaymentsModal />
+				<CoinPaymentsForm
+					user={JSON.parse(sessionStorage.getItem("user"))}
+					amount={role === "Agent" ? 500 : 100000}
+					handleSubmit={handleSubmit}
+				/>
 			</div>
 		);
 	} else if (step === steps.waitForApprovement) {
@@ -79,6 +62,18 @@ function getStepComponent(step, showSettlements, role) {
 				<Title level={4} style={StepTitleCss}>
 					Waiting for Approvement
 				</Title>
+				<p>
+					You role will be upgraded automatically after receiving the paymant. Receiving the payment
+					can take a wile up to 24 hours. If you role wasn't updated during 24 hours or you didn't
+					receive OnyxCache please &nbsp;
+					<a href="mailto:support@onyxpay.co">contact the support</a>.
+				</p>
+				<Button type="primary" onClick={backHandler} style={{ marginRight: 10 }}>
+					Back to payment page
+				</Button>
+				<Button onClick={checkPaymentHandler} style={{ marginTop: 10 }}>
+					Check payment status
+				</Button>
 			</div>
 		);
 	}
@@ -97,8 +92,10 @@ function getStepTitle(item, step) {
 class UpgradeUser extends Component {
 	state = {
 		currentStep: steps.settlements,
+		showTitle: true,
 		showSettlements: false,
 	};
+
 	checkSettlements() {
 		const { getSettlementsList } = this.props;
 		getSettlementsList().then(
@@ -112,16 +109,36 @@ class UpgradeUser extends Component {
 			}
 		);
 	}
+
 	componentDidMount() {
 		this.checkSettlements();
+		if (window.innerWidth <= 480) {
+			this.setState({ showTitle: false });
+		}
 	}
+
 	hideModal = type => () => {
 		this.setState({ showSettlements: false });
 		this.checkSettlements();
 	};
+
 	showModal = type => () => {
 		this.setState({ showSettlements: true });
 	};
+
+	moveNextStep = type => event => {
+		event.preventDefault();
+		event.target.parentElement.submit();
+		let currentStep = this.state.currentStep;
+		this.setState({ currentStep: ++currentStep });
+	};
+
+	movePrevStep = type => () => {
+		let currentStep = this.state.currentStep;
+		this.setState({ currentStep: --currentStep });
+	};
+
+	titles = ["Fill settlements account.", "Buy OnyxCache.", "Upgrading approvement."];
 	render() {
 		let role;
 		if (this.props.match.params.agent === ":agent") {
@@ -137,24 +154,31 @@ class UpgradeUser extends Component {
 				<PageTitle>Upgrade to the {role}</PageTitle>
 				<Card>
 					<section>
-						<nav className="upgrade_navigation" style={{ float: "left", width: "30%" }}>
+						<nav className="upgrade_navigation" style={{ float: "left", width: "25%" }}>
 							<Steps direction="vertical" current={this.state.currentStep}>
-								<Step
-									title={getStepTitle(items.settlements, this.state.currentStep)}
-									description="Fill settlements account."
-								/>
-								<Step
-									title={getStepTitle(items.buyCache, this.state.currentStep)}
-									description="Buy OnyxCache."
-								/>
-								<Step
-									title={getStepTitle(items.waitForApprovement, this.state.currentStep)}
-									description="Upgrading approvement."
-								/>
+								{this.titles.map((title, index) => {
+									if (this.state.showTitle) {
+										return (
+											<Step
+												key={index}
+												title={getStepTitle(index, this.state.currentStep)}
+												description={title}
+											/>
+										);
+									} else {
+										return <Step />;
+									}
+								})}
 							</Steps>
 						</nav>
-						<aside className="upgrade_step" style={{ float: "right", width: "70%" }}>
-							{getStepComponent(this.state.currentStep, this.showModal, role)}
+						<aside className="upgrade_step" style={{ float: "right", width: "75%" }}>
+							{getStepComponent(
+								this.state.currentStep,
+								this.showModal,
+								role,
+								this.moveNextStep(),
+								this.movePrevStep()
+							)}
 						</aside>
 					</section>
 				</Card>
