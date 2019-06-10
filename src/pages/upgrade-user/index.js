@@ -128,7 +128,7 @@ class UpgradeUser extends Component {
 
 	moveNextStep = type => event => {
 		event.preventDefault();
-		event.target.parentElement.submit();
+		event.target.submit();
 		let currentStep = this.state.currentStep;
 		this.setState({ currentStep: ++currentStep });
 	};
