@@ -12,6 +12,7 @@ import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
 
 import Users from "./pages/admin-panel/users/index";
+import AdminRequests from "./pages/admin-panel/requests/index";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -88,6 +89,7 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
+					<Route path="/admin/requests" exact component={AdminRequests} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
