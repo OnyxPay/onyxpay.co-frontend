@@ -1,42 +1,39 @@
 import React, { Component } from "react";
 import { Table, Button } from "antd";
+import { connect } from "react-redux";
+import Actions from "../../../redux/actions";
+import { setRequestsReject } from "../../../redux/admin-panel/requests";
 
 const data = [
 	{
-		key: "1",
-		name: "John Brown",
-		data_Registration: "06.03",
-		currentRole: "user",
-		receivedRole: "agent",
-		email: "sddfasfsdf",
-		phone: "0680538893",
+		id: 1,
+		statusCode: 4,
+		status: "closed",
+		reason: null,
+		expected_position: "superagent",
+		user: {
+			first_name: "Nazarii",
+			last_name: "Kindrat",
+			registered_at: "2019-05-31T12:26:16.000Z",
+			role: "user",
+			email: "naza14pz@gmail.com",
+			phone: "0680528857",
+		},
 	},
 	{
-		key: "2",
-		name: "John Brown",
-		data_Registration: "06.03",
-		currentRole: "user",
-		receivedRole: "agent",
-		email: "sddfasfsdf",
-		phone: "0680538893",
-	},
-	{
-		key: "3",
-		name: "John Brown",
-		data_Registration: "06.03",
-		currentRole: "user",
-		receivedRole: "agent",
-		email: "sddfasfsdf",
-		phone: "0680538893",
-	},
-	{
-		key: "4",
-		name: "John Brown",
-		data_Registration: "06.03",
-		currentRole: "user",
-		receivedRole: "agent",
-		email: "sddfasfsdf",
-		phone: "0680538893",
+		id: 2,
+		statusCode: 4,
+		status: "closed",
+		reason: null,
+		expected_position: "superagent",
+		user: {
+			first_name: "Nazarii",
+			last_name: "Kindrat",
+			registered_at: "2019-05-31T12:26:16.000Z",
+			role: "user",
+			email: "naza14pz@gmail.com",
+			phone: "0680528857",
+		},
 	},
 ];
 
@@ -51,51 +48,59 @@ class AdminRequests extends Component {
 	ConfirmRole = () => {
 		alert("confirm role");
 	};
-	RejectRole = () => {
+	RejectRole = user_id => {
 		prompt("", "");
+		const reasone = "fdgdfg";
+		setRequestsReject(user_id, reasone);
 	};
 
 	render() {
 		const columns = [
 			{
 				title: "User name",
-				dataIndex: "name",
+				dataIndex: "user",
 				with: "20%",
+				render: res => (
+					<>
+						<span>{res.first_name + " " + res.last_name}</span>
+					</>
+				),
 			},
 			{
 				title: "Date registration",
-				dataIndex: "data_Registration",
+				dataIndex: "user.registered_at",
 				with: "15%",
 			},
 			{
 				title: "Current role",
-				dataIndex: "currentRole",
+				dataIndex: "user.role",
 				with: "10%",
 			},
 			{
 				title: "Received role",
-				dataIndex: "receivedRole",
+				dataIndex: "expected_position",
 				with: "10%",
 			},
 			{
 				title: "Email",
-				dataIndex: "email",
+				dataIndex: "user.email",
 				with: "20%",
 			},
 			{
 				title: "Phone",
-				dataIndex: "phone",
-				with: "25%",
+				dataIndex: "user.phone",
+				with: "20%",
 			},
-
 			{
 				title: "",
-				render: () => (
+				dataIndex: "id",
+				render: res => (
 					<>
+						{console.log(res)}
 						<Button type="primary" onClick={() => this.ConfirmRole()}>
 							Confirm
 						</Button>{" "}
-						<Button onClick={() => this.RejectRole()} type="primary">
+						<Button onClick={() => this.RejectRole(res)} type="primary">
 							Reject
 						</Button>
 					</>
@@ -107,4 +112,13 @@ class AdminRequests extends Component {
 	}
 }
 
-export default AdminRequests;
+const mapStateToProps = state => ({
+	reguests: state.request,
+});
+
+export default connect(
+	mapStateToProps,
+	{
+		requestData: Actions.adminRequests.getRequestsData,
+	}
+)(AdminRequests);

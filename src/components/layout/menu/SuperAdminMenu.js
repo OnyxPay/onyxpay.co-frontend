@@ -18,7 +18,7 @@ class SuperAdminMenu extends Component {
 					</Link>
 				</Menu.Item>
 				<SubMenu
-					key="active-requests"
+					key="users"
 					title={
 						<span className="ant-menu-item-content">
 							<Icon type="user" />
@@ -36,12 +36,19 @@ class SuperAdminMenu extends Component {
 						<Link to="/admin/users/blocked">Blocked users</Link>
 					</Menu.Item>
 				</SubMenu>
-				<Menu.Item key="/admin/requests">
-					<Link to="/admin/requests" className="ant-menu-item-content">
-						<Icon type="pull-request" />
-						<span>Request</span>
-					</Link>
-				</Menu.Item>
+				<SubMenu
+					key="requests"
+					title={
+						<span className="ant-menu-item-content">
+							<Icon type="pull-request" />
+							<span>Request</span>
+						</span>
+					}
+				>
+					<Menu.Item key="/admin/requests">
+						<Link to="/admin/requests">Account upgrade requests</Link>
+					</Menu.Item>
+				</SubMenu>
 			</Menu>
 		);
 	}
