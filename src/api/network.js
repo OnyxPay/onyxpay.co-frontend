@@ -1,6 +1,6 @@
 import axios from "axios";
 import { WebsocketClient, RestClient } from "ontology-ts-sdk";
-import { bcEndpoints, backEndRestEndpoint } from "./constants";
+import { bcEndpoints, backEndRestEndpoint, gasCompensatorEndpoint } from "./constants";
 import { message } from "antd";
 import { getStore } from "../store";
 import { showSessionExpiredModal } from "../redux/session";
@@ -18,6 +18,8 @@ export function getBcClient(rest) {
 export function getRestClient({ type } = {}) {
 	if (type === "explorer") {
 		return axios;
+	} else if (type === "gas") {
+		return axios.create({ baseURL: gasCompensatorEndpoint });
 	}
 	return createCustomRestClient();
 }

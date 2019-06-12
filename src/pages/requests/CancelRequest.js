@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Popover, Button, Icon, Spin } from "antd";
+import { Popover, Button, Icon, Spin, message } from "antd";
 import { TextAligner } from "../../components/styled";
 import { cancelRequest } from "../../api/requests";
+import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
 
 class CancelRequest extends Component {
 	state = {
@@ -21,7 +22,13 @@ class CancelRequest extends Component {
 	handleConfirm = async () => {
 		const { requestId } = this.props;
 		console.log("confirm");
-		const res = await cancelRequest(requestId, "deposit");
+		try {
+			const res = await cancelRequest(requestId, "deposit");
+		} catch (e) {
+			console.log(e instanceof ContractAddressError);
+			console.log(e instanceof SendRawTrxError);
+			message.error(e.message);
+		}
 	};
 
 	render() {

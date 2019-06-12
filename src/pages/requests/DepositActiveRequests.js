@@ -29,7 +29,6 @@ const columns = [
 	{
 		title: "Action",
 		render: (text, record, index) => {
-			console.log(text, record, index);
 			return (
 				<>
 					<Button style={style.btn}>Send to agents</Button>
