@@ -29,11 +29,8 @@ class SuperAdminMenu extends Component {
 					<Menu.Item key="/admin/users">
 						<Link to="/admin/users">Users</Link>
 					</Menu.Item>
-					<Menu.Item key="/admin/users/active">
-						<Link to="/admin/users/active">Active users</Link>
-					</Menu.Item>
-					<Menu.Item key="/admin/users/blocked">
-						<Link to="/admin/users/blocked">Blocked users</Link>
+					<Menu.Item>
+						<Link to="/admin/users/active">Active/Blocked users</Link>
 					</Menu.Item>
 				</SubMenu>
 				<SubMenu

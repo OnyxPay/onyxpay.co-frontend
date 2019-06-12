@@ -11,7 +11,8 @@ import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
 
-import Users from "./pages/admin-panel/users/index";
+import Users from "./pages/admin-panel/users/users";
+import UsersBlockedActive from "./pages/admin-panel/users/activeBlockedUsers";
 import AdminRequests from "./pages/admin-panel/requests/index";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
@@ -89,6 +90,7 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
+					<Route path="/admin/users/active" exact component={UsersBlockedActive} />
 					<Route path="/admin/requests" exact component={AdminRequests} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
