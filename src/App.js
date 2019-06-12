@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Router } from "react-router-dom";
 import Layout from "./components/layout";
 import Authorization from "./providers/Authorization";
 import Loadable from "react-loadable";
@@ -12,6 +12,7 @@ import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
 
 import Users from "./pages/admin-panel/users/index";
+import Balance from "./components/balance/Balance";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -63,7 +64,7 @@ let AssetsExchange = Loadable({
 // permissions
 const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
-const UserOrAgent = Authorization([roles.c, roles.a]);
+// const UserOrAgent = Authorization([roles.c, roles.a]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 // const Admin = Authorization(["admin", "super_admin"]);
 
@@ -71,7 +72,7 @@ const All = Authorization([roles.c, roles.a, roles.sa]);
 Dashboard = All(Dashboard);
 const UserDeposit = User(Deposit);
 const AgentDeposit = Agent(Deposit2);
-AssetsExchange = UserOrAgent(AssetsExchange);
+// AssetsExchange = UserOrAgent(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
 
@@ -83,23 +84,26 @@ class App extends Component {
 
 	render() {
 		return (
-			<Layout simplified={["/login"]}>
-				<Switch>
-					<Route path="/" exact component={Dashboard} />
-					<Route path="/admin/investments" exact component={Investments} />
-					<Route path="/admin/users" exact component={Users} />
-					<Route path="/login" exact component={Login} />
-					<Route path="/deposit" component={UserDeposit} />
-					<Route path="/deposit:agent" exact component={AgentDeposit} />
-					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/active-requests" exact component={ActiveRequests} />
-					<Route path="/closed-requests" exact component={ClosedRequests} />
-					<Route path="/exchange" exact component={AssetsExchange} />
-					<Route component={Page404} />
-				</Switch>
-				<UnlockWalletModal />
-				<SessionExpiredModal />
-			</Layout>
+			// <Layout simplified={["/login"]}>
+			// 	<Switch>
+			// 		<Route path="/" exact component={Dashboard} />
+			// 		<Route path="/admin/investments" exact component={Investments} />
+			// 		<Route path="/admin/users" exact component={Users} />
+			// 		<Route path="/login" exact component={Login} />
+			// 		<Route path="/deposit" component={UserDeposit} />
+			// 		<Route path="/deposit:agent" exact component={AgentDeposit} />
+			// 		<Route path="/settlement-accounts" exact component={Settlement} />
+			// 		<Route path="/active-requests" exact component={ActiveRequests} />
+			// 		<Route path="/closed-requests" exact component={ClosedRequests} />
+			// 		<Route path="/exchange" exact component={AssetsExchange} />
+			// 		<Route component={Page404} />
+			// 	</Switch>
+			// 	<UnlockWalletModal />
+			// 	<SessionExpiredModal />
+			// </Layout>
+
+			<Route path="/exchange" exact component={AssetsExchange} />
+			// <Route path='/balance' exact component={Balance} />
 		);
 	}
 }

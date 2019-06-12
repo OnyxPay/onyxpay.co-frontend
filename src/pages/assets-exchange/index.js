@@ -176,5 +176,6 @@ export default connect(
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
+		exchangeAssets: Actions.exchangeAssets.exchangeAssets,
 	}
 )(AssetsExchange);
