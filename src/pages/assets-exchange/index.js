@@ -117,7 +117,7 @@ class AssetsExchange extends Component {
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{/* {this.state.selectedAsset.buyPrice * this.state.buyAmount} */}0
+												{this.state.selectedAsset.buyPrice * this.state.buyAmount}
 											</span>
 											<span className="ant-form-text">oUSD</span>
 										</Form.Item>
@@ -146,7 +146,7 @@ class AssetsExchange extends Component {
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{/* {this.state.selectedAsset.sellPrice * this.state.sellAmount} */}0
+												{this.state.selectedAsset.sellPrice * this.state.sellAmount}
 											</span>
 											<span className="ant-form-text">oUSD</span>
 										</Form.Item>
