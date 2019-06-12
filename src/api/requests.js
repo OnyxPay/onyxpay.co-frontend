@@ -6,7 +6,7 @@ import { resolveContractAddress } from "../redux/contracts";
 import { gasPrice, cryptoAddress } from "../utils/blockchain";
 import { convertAmountFromStr } from "../utils/number";
 
-export async function createDepositRequest(formValues) {
+export async function createRequest(formValues, type) {
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {
@@ -91,6 +91,39 @@ export async function getActiveRequests(params) {
 		});
 		return data;
 	} catch (error) {
+		console.log(error);
 		return handleReqError(error);
+	}
+}
+
+export async function cancelRequest(requestId, type) {
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
+	if (!address) {
+		throw new Error("Unable to get address of RequestHolder smart-contract");
+	}
+	const { pk, accountAddress } = await unlockWalletAccount();
+	// const client = getRestClient();
+	const clientBC = getBcClient();
+	// const authHeaders = getAuthHeaders();
+	// TODO: send params to gas-compensator, deserialize, add signature
+	const funcName = "RejectRequest";
+	const p1 = new Parameter("requestId ", ParameterType.String, requestId);
+	const tx = TransactionBuilder.makeInvokeTransaction(
+		funcName,
+		[p1],
+		cryptoAddress(address),
+		gasPrice,
+		CONST.DEFAULT_GAS_LIMIT,
+		accountAddress
+	);
+	TransactionBuilder.signTransaction(tx, pk);
+
+	try {
+		const bcRes = clientBC.sendRawTransaction(tx.serialize(), false, true);
+		console.log(bcRes);
+		// call REST API
+	} catch (e) {
+		console.log("O-ho", JSON.parse(e.message));
 	}
 }

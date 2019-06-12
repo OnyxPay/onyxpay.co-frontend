@@ -18,11 +18,15 @@ import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
-import { createDepositRequest } from "../../api/deposit";
+import { createRequest } from "../../api/requests";
 
 const { Option } = Select;
 const { Text } = Typography;
 
+/* 
+	TODO:
+	remove country
+*/
 class Deposit extends Component {
 	componentDidMount() {
 		const { getAssetsList, getExchangeRates } = this.props;
@@ -51,7 +55,7 @@ class Deposit extends Component {
 				formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
 			if (!isBlocked && isEnoughAmount) {
-				const res = await createDepositRequest(values);
+				const res = await createRequest(values);
 				if (!res.error) {
 					console.log("DONE", res);
 					notification.success({
@@ -87,7 +91,11 @@ class Deposit extends Component {
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
-						initialValues={{ asset_symbol: "oUSD", amount: "", country_symbol: user.countryId }}
+						initialValues={{
+							asset_symbol: "oUSD",
+							amount: "",
+							country_symbol: (user && user.countryId) || "",
+						}}
 						validate={values => {
 							let errors = {};
 							if (!values.asset_symbol) {

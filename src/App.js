@@ -36,7 +36,7 @@ let Page404 = Loadable({
 });
 
 const Deposit = Loadable({
-	loader: () => import(/* webpackChunkName: "Page404" */ "./pages/deposit"),
+	loader: () => import(/* webpackChunkName: "Deposit" */ "./pages/deposit"),
 	loading: Loader,
 });
 
@@ -82,7 +82,7 @@ class App extends Component {
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/deposit" component={UserDeposit} />
+					<Route path="/deposit" component={Deposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/active-requests" exact component={ActiveRequests} />

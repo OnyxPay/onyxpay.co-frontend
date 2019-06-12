@@ -1,6 +1,13 @@
 import React, { Component } from "react";
-import { Table } from "antd";
-import { getActiveRequests } from "../../api/deposit";
+import { Table, Button, Icon } from "antd";
+import { getActiveRequests } from "../../api/requests";
+import CancelRequest from "./CancelRequest";
+
+const style = {
+	btn: {
+		marginRight: 8,
+	},
+};
 
 const columns = [
 	{
@@ -18,6 +25,18 @@ const columns = [
 	{
 		title: "Created",
 		dataIndex: "trx_timestamp",
+	},
+	{
+		title: "Action",
+		render: (text, record, index) => {
+			console.log(text, record, index);
+			return (
+				<>
+					<Button style={style.btn}>Send to agents</Button>
+					<CancelRequest btnStyle={style.btn} requestId="123" />
+				</>
+			);
+		},
 	},
 ];
 
@@ -46,7 +65,14 @@ class DepositActiveRequests extends Component {
 	};
 
 	fetch = async (params = { type: "deposit" }) => {
-		console.log("params:", params);
+		const plug = [
+			{
+				asset: "oUSD",
+				amount: 1000,
+				status: "active",
+				id: 1,
+			},
+		];
 		this.setState({ loading: true });
 		try {
 			const data = await getActiveRequests(params);
@@ -55,10 +81,9 @@ class DepositActiveRequests extends Component {
 			pagination.total = 200;
 			this.setState({
 				loading: false,
-				data: data.items,
+				data: data.items || plug,
 				pagination,
 			});
-			console.log(data);
 		} catch (error) {}
 	};
 
