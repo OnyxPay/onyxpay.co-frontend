@@ -1,32 +1,17 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { getData as getCountriesData } from "country-list";
-import {
-	Card,
-	Button,
-	Input,
-	Form,
-	Select,
-	message,
-	Typography,
-	notification,
-	Row,
-	Col,
-} from "antd";
+import { Card, Button, Input, Form, Select, Typography, notification, Row, Col } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
 import { createRequest } from "../../api/requests";
+import { TimeoutError } from "promise-timeout";
 
 const { Option } = Select;
 const { Text } = Typography;
 
-/* 
-	TODO:
-	remove country
-*/
 class Deposit extends Component {
 	componentDidMount() {
 		const { getAssetsList, getExchangeRates } = this.props;
@@ -66,8 +51,16 @@ class Deposit extends Component {
 					formActions.setErrors(res.error.data);
 				}
 			}
-		} catch (error) {
-			message.error(error.message);
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				notification.error({ message: "Error", description: e.message });
+			}
 		}
 
 		formActions.setSubmitting(false);
@@ -77,12 +70,8 @@ class Deposit extends Component {
 		setFieldValue("asset_symbol", value);
 	};
 
-	handleCountryChange = setFieldValue => (value, option) => {
-		setFieldValue("country_symbol", value);
-	};
-
 	render() {
-		const { assets, user } = this.props;
+		const { assets } = this.props;
 
 		return (
 			<>
@@ -93,12 +82,14 @@ class Deposit extends Component {
 						initialValues={{
 							asset_symbol: "oUSD",
 							amount: "",
-							country_symbol: (user && user.countryId) || "",
 						}}
 						validate={values => {
 							let errors = {};
 							if (!values.asset_symbol) {
 								errors.asset_symbol = "required";
+							}
+							if (!values.amount) {
+								errors.amount = "required";
 							}
 							return errors;
 						}}
@@ -117,7 +108,7 @@ class Deposit extends Component {
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
-										<Col xl={8} lg={9} md={24}>
+										<Col lg={14} md={24}>
 											<Form.Item
 												label="Asset"
 												required
@@ -151,43 +142,8 @@ class Deposit extends Component {
 												You will be able to send to the agent only chosen fiat currency
 											</Text>
 										</Col>
-										<Col xl={8} lg={9} md={24}>
-											<Form.Item
-												label="Country"
-												required
-												validateStatus={
-													errors.country_symbol && touched.country_symbol ? "error" : ""
-												}
-												help={
-													errors.country_symbol && touched.country_symbol
-														? errors.country_symbol
-														: ""
-												}
-											>
-												<Select
-													showSearch
-													name="country_symbol"
-													placeholder="Select a country"
-													optionFilterProp="children"
-													value={values.country_symbol}
-													onChange={this.handleCountryChange(setFieldValue)}
-													filterOption={(input, option) =>
-														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-													}
-													disabled={isSubmitting}
-												>
-													{getCountriesData().map((country, index) => {
-														return (
-															<Option key={country.code} value={country.code}>
-																{country.name}
-															</Option>
-														);
-													})}
-												</Select>
-											</Form.Item>
-										</Col>
 
-										<Col xl={8} lg={6} md={24}>
+										<Col lg={10} md={24}>
 											<Form.Item
 												label="Amount"
 												required

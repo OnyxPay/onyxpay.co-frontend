@@ -6,6 +6,8 @@ import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
 import { ContractAddressError, SendRawTrxError } from "../utils/custom-error";
 import { createTrx, signTrx, sendTrx } from "./bc";
+import { timeout, TimeoutError } from "promise-timeout";
+import { notifyTimeout } from "./constants";
 
 export async function createRequest(formValues, type) {
 	const store = getStore();
@@ -55,7 +57,7 @@ export async function createRequest(formValues, type) {
 				...authHeaders,
 			},
 		});
-		return await sendTrx(trx, false, true);
+		return await timeout(sendTrx(trx, false, true), notifyTimeout);
 	} catch (e) {
 		if (e.isAxiosError) {
 			return handleReqError(e);
@@ -65,6 +67,8 @@ export async function createRequest(formValues, type) {
 					...authHeaders,
 				},
 			});
+		} else if (e instanceof TimeoutError) {
+			throw new TimeoutError(); // pass error to component
 		}
 	}
 }

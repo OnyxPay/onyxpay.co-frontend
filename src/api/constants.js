@@ -24,3 +24,5 @@ export const roles = {
 	adm: "admin",
 	sadm: "super_admin",
 };
+
+export const notifyTimeout = 30000;
