@@ -4,7 +4,6 @@ import { Row, Col, Table, Card, Form, Divider, InputNumber, Button } from "antd"
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
-import { getWallet, getAccount } from "../../api/wallet";
 
 const columns = [
 	{
@@ -90,9 +89,6 @@ class AssetsExchange extends Component {
 		e.preventDefault();
 		e.stopPropagation();
 
-		const walletDecoded = getWallet(this.props.wallet);
-		const account = getAccount(walletDecoded);
-
 		try {
 			let result = await this.props.exchangeAssets({
 				operationType: operationType,
@@ -101,9 +97,7 @@ class AssetsExchange extends Component {
 					operationType === "buy"
 						? this.state.buyAmount
 						: this.state.sellAmount * this.state.selectedAsset.sellPrice,
-				acct: account.address.toHexString(),
-				base58Address: account.address,
-				privkey: account.encryptedKey,
+				wallet: this.props.wallet,
 			});
 
 			console.log(result);

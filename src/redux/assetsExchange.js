@@ -1,9 +1,11 @@
 import { TransactionBuilder, Parameter, ParameterType, CONST, Crypto } from "ontology-ts-sdk";
 import { get } from "lodash";
 import { getBcClient } from "../api/network";
+import { unlockWalletAccount } from "../api/wallet";
 import { cryptoAddress, gasPrice } from "../utils/blockchain";
 import { utils } from "ontology-ts-sdk";
 import { resolveContractAddress } from "./contracts";
+import { getWallet, getAccount } from "../api/wallet";
 
 export const ASSETS_EXCHANGE_REQUEST = "ASSETS_EXCHANGE_REQUEST";
 export const ASSETS_EXCHANGE_SUCCESS = "ASSETS_EXCHANGE_SUCCESS";
@@ -30,6 +32,10 @@ export const exchangeAssets = values => async dispatch => {
 		return;
 	}
 
+	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletDecoded = getWallet(values.wallet);
+	const account = getAccount(walletDecoded);
+
 	//make transaction
 	let params = [
 		new Parameter(
@@ -43,7 +49,7 @@ export const exchangeAssets = values => async dispatch => {
 			values.operationType === "sell" ? values.assetName : "oUSD"
 		),
 		new Parameter("amountToBuy", ParameterType.Integer, values.amountToBuy * 10 ** 8),
-		new Parameter("acct", ParameterType.ByteArray, utils.reverseHex(values.acct)),
+		new Parameter("acct", ParameterType.ByteArray, utils.reverseHex(account.address.toHexString())),
 	];
 
 	const tx = TransactionBuilder.makeInvokeTransaction(
@@ -52,15 +58,11 @@ export const exchangeAssets = values => async dispatch => {
 		cryptoAddress(address),
 		gasPrice,
 		CONST.DEFAULT_GAS_LIMIT,
-		new Crypto.Address(values.base58Address.value)
+		new Crypto.Address(accountAddress.value)
 	);
-	TransactionBuilder.signTransaction(
-		tx,
-		new Crypto.PrivateKey(values.privkey.key),
-		values.privkey.algorithm.defaultSchema
-	);
-
 	console.log(params);
+	console.log(tx);
+	TransactionBuilder.signTransaction(tx, new Crypto.PrivateKey(pk.key));
 	console.log(tx);
 
 	try {
