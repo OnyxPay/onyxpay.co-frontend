@@ -1,11 +1,11 @@
 import { ParameterType, utils } from "ontology-ts-sdk";
-import { getRestClient, handleReqError, getAuthHeaders, getBcClient } from "./network";
+import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 import { unlockWalletAccount } from "./wallet";
 import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
 import { ContractAddressError, SendRawTrxError } from "../utils/custom-error";
-import { createAndSendTrx, createTrx, signTrx, sendTrx } from "./bc";
+import { createTrx, signTrx, sendTrx } from "./bc";
 
 export async function createRequest(formValues, type) {
 	const store = getStore();
@@ -99,25 +99,15 @@ export async function cancelRequest(requestId, type) {
 	}
 	const { pk, accountAddress } = await unlockWalletAccount();
 
-	const bcRes = await createAndSendTrx({
-		waitNotify: true,
-		pk,
-		accountAddress,
-		contractAddress: address,
-		funcName: "RejectRequest",
+	const trx = createTrx({
+		funcName: "Request",
 		params: [{ label: "requestId", value: requestId, type: ParameterType.String }],
+		contractAddress: address,
+		accountAddress,
 	});
 
-	const client = getRestClient();
-	const authHeaders = getAuthHeaders();
+	signTrx(trx, pk);
 
-	try {
-		const removeRes = await client.put(`request/${requestId}/cancel`, {
-			headers: {
-				...authHeaders,
-			},
-		});
-	} catch (e) {
-		return handleReqError(e);
-	}
+	const res = await sendTrx(trx, false, true);
+	console.log(res);
 }

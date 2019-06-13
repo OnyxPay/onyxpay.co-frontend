@@ -80,7 +80,7 @@ class DepositActiveRequests extends Component {
 			pagination.total = 200;
 			this.setState({
 				loading: false,
-				data: data.items || plug,
+				data: plug,
 				pagination,
 			});
 		} catch (error) {}

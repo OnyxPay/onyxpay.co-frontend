@@ -4,6 +4,7 @@ import { TextAligner } from "../../components/styled";
 import { cancelRequest } from "../../api/requests";
 import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
 
+// TODO: get counter of cancellations
 class CancelRequest extends Component {
 	state = {
 		visible: false,
@@ -23,7 +24,7 @@ class CancelRequest extends Component {
 		const { requestId } = this.props;
 		console.log("confirm");
 		try {
-			const res = await cancelRequest(requestId, "deposit");
+			await cancelRequest(requestId, "deposit");
 		} catch (e) {
 			console.log(e instanceof ContractAddressError);
 			console.log(e instanceof SendRawTrxError);
