@@ -90,7 +90,7 @@ class AssetsExchange extends Component {
 		e.stopPropagation();
 
 		try {
-			let result = await this.props.exchangeAssets({
+			await this.props.exchangeAssets({
 				operationType: operationType,
 				assetName: this.state.selectedAsset.name,
 				amountToBuy:
@@ -99,8 +99,6 @@ class AssetsExchange extends Component {
 						: this.state.sellAmount * this.state.selectedAsset.sellPrice,
 				wallet: this.props.wallet,
 			});
-
-			console.log(result);
 		} catch (e) {
 			console.log("error: ", e);
 		}
@@ -205,6 +203,7 @@ export default connect(
 			// user: state.user,
 			exchangeRates: state.assets.rates,
 			wallet: state.wallet,
+			exchange_successful: state.exchange_successful,
 		};
 	},
 	{

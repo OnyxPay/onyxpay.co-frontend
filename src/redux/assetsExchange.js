@@ -1,4 +1,4 @@
-import { TransactionBuilder, Parameter, ParameterType, CONST, Crypto } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, ParameterType, Crypto } from "ontology-ts-sdk";
 import { get } from "lodash";
 import { getBcClient } from "../api/network";
 import { unlockWalletAccount } from "../api/wallet";
@@ -26,6 +26,7 @@ export const exchangeAssets = values => async dispatch => {
 	const client = getBcClient();
 	const funcName = "ExchangeAssets";
 	const address = await dispatch(resolveContractAddress("Exchange"));
+	const executionGasLimit = 40000;
 
 	if (!address) {
 		dispatch({ type: ASSETS_EXCHANGE_FAILURE });
@@ -57,7 +58,7 @@ export const exchangeAssets = values => async dispatch => {
 		params,
 		cryptoAddress(address),
 		gasPrice,
-		CONST.DEFAULT_GAS_LIMIT,
+		executionGasLimit,
 		new Crypto.Address(accountAddress.value)
 	);
 	console.log(params);
@@ -66,9 +67,10 @@ export const exchangeAssets = values => async dispatch => {
 	console.log(tx);
 
 	try {
-		const response = await client.sendRawTransaction(tx.serialize(), true);
+		const response = await client.sendRawTransaction(tx.serialize(), false);
 		const result = get(response, "Result.Result");
 		let exchange_successful;
+
 		if (!result) {
 			exchange_successful = 0;
 		} else {
