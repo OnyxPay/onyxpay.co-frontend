@@ -76,11 +76,10 @@ class DepositActiveRequests extends Component {
 		try {
 			const data = await getActiveRequests(params);
 			const pagination = { ...this.state.pagination };
-			pagination.total = data.totalCount;
-			pagination.total = 200;
+			pagination.total = data.total;
 			this.setState({
 				loading: false,
-				data: plug,
+				data: data.items,
 				pagination,
 			});
 		} catch (error) {}

@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { Popover, Button, Icon, Spin, message } from "antd";
+import { Popover, Button, Icon, Spin, message, notification } from "antd";
 import { TextAligner } from "../../components/styled";
 import { cancelRequest } from "../../api/requests";
-import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
+// import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
+import { TimeoutError } from "promise-timeout";
 
 // TODO: get counter of cancellations
 class CancelRequest extends Component {
@@ -26,9 +27,15 @@ class CancelRequest extends Component {
 		try {
 			await cancelRequest(requestId, "deposit");
 		} catch (e) {
-			console.log(e instanceof ContractAddressError);
-			console.log(e instanceof SendRawTrxError);
-			message.error(e.message);
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				message.error(e.message);
+			}
 		}
 	};
 

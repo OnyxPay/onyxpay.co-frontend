@@ -1,6 +1,17 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, Typography, notification, Row, Col } from "antd";
+import {
+	Card,
+	Button,
+	Input,
+	Form,
+	Select,
+	Typography,
+	notification,
+	Row,
+	Col,
+	message,
+} from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -59,7 +70,7 @@ class Deposit extends Component {
 						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
 				});
 			} else {
-				notification.error({ message: "Error", description: e.message });
+				message.error(e.message);
 			}
 		}
 
@@ -163,7 +174,12 @@ class Deposit extends Component {
 										</Col>
 									</Row>
 									<TextAligner align="right" mobile="left">
-										<Button type="primary" htmlType="submit" disabled={isSubmitting}>
+										<Button
+											type="primary"
+											htmlType="submit"
+											disabled={isSubmitting}
+											loading={isSubmitting}
+										>
 											Create deposit request
 										</Button>
 									</TextAligner>
