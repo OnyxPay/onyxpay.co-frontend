@@ -1,7 +1,8 @@
-import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, ParameterType, CONST, Crypto } from "ontology-ts-sdk";
 import { get } from "lodash";
 import { getBcClient } from "../api/network";
 import { cryptoAddress, gasPrice } from "../utils/blockchain";
+import { utils } from "ontology-ts-sdk";
 import { resolveContractAddress } from "./contracts";
 
 export const ASSETS_EXCHANGE_REQUEST = "ASSETS_EXCHANGE_REQUEST";
@@ -30,26 +31,37 @@ export const exchangeAssets = values => async dispatch => {
 	}
 
 	//make transaction
+	let params = [
+		new Parameter(
+			"assetToBuy",
+			ParameterType.String,
+			values.operationType === "sell" ? "oUSD" : values.assetName
+		),
+		new Parameter(
+			"assetToSell",
+			ParameterType.String,
+			values.operationType === "sell" ? values.assetName : "oUSD"
+		),
+		new Parameter("amountToBuy", ParameterType.Integer, values.amountToBuy * 10 ** 8),
+		new Parameter("acct", ParameterType.ByteArray, utils.reverseHex(values.acct)),
+	];
+
 	const tx = TransactionBuilder.makeInvokeTransaction(
 		funcName,
-		[
-			new Parameter(
-				"assetToSell",
-				ParameterType.ByteArray,
-				values.operationType === "sell" ? values.assetName : "oUSD"
-			),
-			new Parameter(
-				"assetToBuy",
-				ParameterType.ByteArray,
-				values.operationType === "sell" ? "oUSD" : values.assetName
-			),
-			new Parameter("amountToBuy", ParameterType.Integer, values.amountToBuy),
-			new Parameter("acct", ParameterType.ByteArray, values.acct),
-		],
+		params,
 		cryptoAddress(address),
 		gasPrice,
-		CONST.DEFAULT_GAS_LIMIT
+		CONST.DEFAULT_GAS_LIMIT,
+		new Crypto.Address(values.base58Address.value)
 	);
+	TransactionBuilder.signTransaction(
+		tx,
+		new Crypto.PrivateKey(values.privkey.key),
+		values.privkey.algorithm.defaultSchema
+	);
+
+	console.log(params);
+	console.log(tx);
 
 	try {
 		const response = await client.sendRawTransaction(tx.serialize(), true);
