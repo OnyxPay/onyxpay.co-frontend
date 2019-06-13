@@ -80,6 +80,7 @@ export function handleReqError(error) {
 			// 403, 401 invalid credentials
 			// 400 validation error
 			// 422 Unprocessable Entity
+			// 403 Forbidden - blocked user?????
 		} else if (error.response.status >= 500) {
 			message.error("Something went wrong at the server side", 5);
 		}
