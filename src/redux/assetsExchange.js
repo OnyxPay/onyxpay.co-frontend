@@ -62,7 +62,7 @@ export const exchangeAssets = values => async dispatch => {
 	);
 	console.log(params);
 	console.log(tx);
-	TransactionBuilder.signTransaction(tx, new Crypto.PrivateKey(pk.key));
+	TransactionBuilder.signTransaction(tx, pk);
 	console.log(tx);
 
 	try {
