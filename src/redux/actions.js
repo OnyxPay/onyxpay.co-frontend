@@ -12,7 +12,6 @@ import { signUp, login, confirmEmail, logOut } from "./auth";
 import { startLoading, finishLoading } from "./loading";
 import { getSettlementsList, add, deleteAccount } from "./settlements";
 import { showSessionExpiredModal } from "./session";
-import { getAssetsList, getExchangeRates } from "./assets";
 import { getRequestsData } from "./admin-panel/requests";
 import { getAssetsList, getExchangeRates, isAssetBlocked } from "./assets";
 
