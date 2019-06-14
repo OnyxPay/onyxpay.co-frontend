@@ -55,9 +55,15 @@ const ClosedRequests = Loadable({
 	loading: Loader,
 });
 
+let AssetsExchange = Loadable({
+	loader: () => import(/* webpackChunkName: "ClosedRequests" */ "./pages/assets-exchange"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
+const UserOrAgent = Authorization([roles.c, roles.a]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 // const Admin = Authorization(["admin", "super_admin"]);
 
@@ -65,6 +71,7 @@ const All = Authorization([roles.c, roles.a, roles.sa]);
 Dashboard = All(Dashboard);
 const UserDeposit = User(Deposit);
 const AgentDeposit = Agent(Deposit2);
+AssetsExchange = UserOrAgent(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
 
@@ -87,6 +94,7 @@ class App extends Component {
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/active-requests" exact component={ActiveRequests} />
 					<Route path="/closed-requests" exact component={ClosedRequests} />
+					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />

@@ -40,5 +40,5 @@ export function initBalanceProvider() {
 	refreshBalance();
 	window.setInterval(async () => {
 		refreshBalance();
-	}, 60000);
+	}, 30000);
 }

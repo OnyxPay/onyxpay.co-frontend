@@ -14,6 +14,7 @@ import { getSettlementsList, add, deleteAccount } from "./settlements";
 import { showSessionExpiredModal } from "./session";
 import { getAssetsList, getExchangeRates, isAssetBlocked } from "./assets";
 
+
 export default {
 	wallet: { clearWallet, setWallet },
 	contracts: { resolveContractAddress },
