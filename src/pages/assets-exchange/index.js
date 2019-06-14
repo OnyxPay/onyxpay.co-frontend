@@ -115,6 +115,7 @@ class AssetsExchange extends Component {
 							})}
 							columns={columns}
 							dataSource={this.state.assetPricesData}
+							pagination={false}
 						/>
 					</Col>
 					<Col md={24} lg={12}>
