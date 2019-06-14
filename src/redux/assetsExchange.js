@@ -6,6 +6,7 @@ import { cryptoAddress, gasPrice } from "../utils/blockchain";
 import { utils } from "ontology-ts-sdk";
 import { resolveContractAddress } from "./contracts";
 import { getWallet, getAccount } from "../api/wallet";
+import { defaultAsset } from "../api/constants";
 
 export const ASSETS_EXCHANGE_REQUEST = "ASSETS_EXCHANGE_REQUEST";
 export const ASSETS_EXCHANGE_SUCCESS = "ASSETS_EXCHANGE_SUCCESS";
@@ -42,12 +43,12 @@ export const exchangeAssets = values => async dispatch => {
 		new Parameter(
 			"assetToBuy",
 			ParameterType.String,
-			values.operationType === "sell" ? "oUSD" : values.assetName
+			values.operationType === "sell" ? defaultAsset.symbol : values.assetName
 		),
 		new Parameter(
 			"assetToSell",
 			ParameterType.String,
-			values.operationType === "sell" ? values.assetName : "oUSD"
+			values.operationType === "sell" ? values.assetName : defaultAsset.symbol
 		),
 		new Parameter("amountToBuy", ParameterType.Integer, values.amountToBuy * 10 ** 8),
 		new Parameter("acct", ParameterType.ByteArray, utils.reverseHex(account.address.toHexString())),
