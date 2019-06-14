@@ -5,6 +5,7 @@ import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { roles, defaultAsset } from "../../api/constants";
+import { exchangeAssets } from "../../api/exchange";
 
 const columns = [
 	{
@@ -86,7 +87,7 @@ class AssetsExchange extends Component {
 
 		const { selectedAsset, buyAmount, sellAmount } = this.state;
 		try {
-			await this.props.exchangeAssets({
+			await exchangeAssets({
 				operationType: operationType,
 				assetName: selectedAsset.name,
 				amountToBuy: operationType === "buy" ? buyAmount : sellAmount * selectedAsset.sellPrice,
@@ -203,6 +204,5 @@ export default connect(
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
-		exchangeAssets: Actions.exchangeAssets.exchangeAssets,
 	}
 )(AssetsExchange);
