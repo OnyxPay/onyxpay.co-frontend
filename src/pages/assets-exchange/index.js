@@ -41,16 +41,11 @@ class AssetsExchange extends Component {
 	};
 
 	async componentDidMount() {
-		this.onActiveAssedChanged = this.onActiveAssedChanged.bind(this);
-		this.handleBuyAmountChange = this.handleBuyAmountChange.bind(this);
-		this.handleSellAmountChange = this.handleSellAmountChange.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-
 		const { getExchangeRates } = this.props;
-		await getExchangeRates();
 		const { exchangeRates } = this.props;
-		let data = [];
 
+		await getExchangeRates();
+		let data = [];
 		for (let record of exchangeRates) {
 			if (this.props.user.role === roles.c && record.symbol !== defaultAsset.symbol) {
 				data.push({
@@ -70,38 +65,36 @@ class AssetsExchange extends Component {
 		});
 	}
 
-	async onActiveAssedChanged(record) {
+	onActiveAssedChanged = async record => {
 		await this.setState({
 			selectedAsset: recordToAssetData(record),
 		});
-	}
+	};
 
-	async handleBuyAmountChange(value) {
+	handleBuyAmountChange = async value => {
 		await this.setState({ buyAmount: value });
-	}
+	};
 
-	async handleSellAmountChange(value) {
+	handleSellAmountChange = async value => {
 		await this.setState({ sellAmount: value });
-	}
+	};
 
-	async handleSubmit(e, operationType) {
+	handleSubmit = async (e, operationType) => {
 		e.preventDefault();
 		e.stopPropagation();
 
+		const { selectedAsset, buyAmount, sellAmount } = this.state;
 		try {
 			await this.props.exchangeAssets({
 				operationType: operationType,
-				assetName: this.state.selectedAsset.name,
-				amountToBuy:
-					operationType === "buy"
-						? this.state.buyAmount
-						: this.state.sellAmount * this.state.selectedAsset.sellPrice,
+				assetName: selectedAsset.name,
+				amountToBuy: operationType === "buy" ? buyAmount : sellAmount * selectedAsset.sellPrice,
 				wallet: this.props.wallet,
 			});
 		} catch (e) {
 			console.log("error: ", e);
 		}
-	}
+	};
 
 	render() {
 		const formItemLayout = {
