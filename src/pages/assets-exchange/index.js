@@ -34,6 +34,7 @@ function recordToAssetData(record) {
 
 class AssetsExchange extends Component {
 	state = {
+		assetPricesData: [],
 		selectedAsset: { name: "", buyPrice: 0, sellPrice: 0 },
 		defaultAsset: { name: defaultAsset.symbol, buyPrice: 0, sellPrice: 0 },
 		buyAmount: 0,
@@ -42,9 +43,9 @@ class AssetsExchange extends Component {
 
 	async componentDidMount() {
 		const { getExchangeRates } = this.props;
+		await getExchangeRates();
 		const { exchangeRates } = this.props;
 
-		await getExchangeRates();
 		let data = [];
 		for (let record of exchangeRates) {
 			if (this.props.user.role === roles.c && record.symbol !== defaultAsset.symbol) {
@@ -65,7 +66,7 @@ class AssetsExchange extends Component {
 		});
 	}
 
-	onActiveAssedChanged = async record => {
+	onActiveAssetChanged = async record => {
 		await this.setState({
 			selectedAsset: recordToAssetData(record),
 		});
@@ -108,7 +109,9 @@ class AssetsExchange extends Component {
 				<Row gutter={16}>
 					<Col md={24} lg={12}>
 						<Table
-							onRowClick={this.onActiveAssedChanged}
+							onRow={record => ({
+								onClick: e => this.onActiveAssetChanged(record),
+							})}
 							columns={columns}
 							dataSource={this.state.assetPricesData}
 						/>
