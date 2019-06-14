@@ -9,11 +9,21 @@ import { searchUsers } from "../../../api/users";
 const { Option } = Select;
 
 class SendToAgent extends Component {
-	state = { loading: false, users: null };
+	state = this.getInitialState();
 
-	componentDidMount() {
-		const { user } = this.props;
-		this.fetchUsers(user.countryId);
+	getInitialState() {
+		return {
+			loading: false,
+			users: null,
+		};
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		const { user, isModalVisible } = this.props;
+		if (isModalVisible && prevProps.isModalVisible !== isModalVisible) {
+			console.log("fetching");
+			this.fetchUsers(user.countryId);
+		}
 	}
 
 	handleCountryChange = (setFieldValue, setSubmitting) => async countryId => {
@@ -35,8 +45,13 @@ class SendToAgent extends Component {
 		// formActions.resetForm();
 	};
 
+	handleClose = () => {
+		this.props.hideModal();
+		this.setState(this.getInitialState());
+	};
+
 	render() {
-		const { isModalVisible, hideModal, user } = this.props;
+		const { isModalVisible, user } = this.props;
 		const { loading, users } = this.state;
 
 		console.log("rendered");
@@ -44,9 +59,10 @@ class SendToAgent extends Component {
 			<Modal
 				title=""
 				visible={isModalVisible}
-				onCancel={hideModal}
+				onCancel={this.handleClose}
 				footer={null}
 				destroyOnClose={true}
+				className="send-to-agents-modal"
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
