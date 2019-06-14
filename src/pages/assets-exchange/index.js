@@ -100,8 +100,8 @@ class AssetsExchange extends Component {
 
 	render() {
 		const formItemLayout = {
-			labelCol: { span: 8 },
-			wrapperCol: { span: 14 },
+			labelCol: { offset: 1, span: 7 },
+			wrapperCol: { span: 16 },
 		};
 
 		return (
@@ -122,6 +122,7 @@ class AssetsExchange extends Component {
 							<Row gutter={16}>
 								<Col md={24} lg={12}>
 									<Form
+										layout="vertical"
 										{...formItemLayout}
 										onSubmit={e => {
 											this.handleSubmit(e, "buy");
@@ -153,6 +154,7 @@ class AssetsExchange extends Component {
 								<Col md={24} lg={12}>
 									<Divider> {"Sell " + this.state.selectedAsset.name} </Divider>
 									<Form
+										layout="vertical"
 										{...formItemLayout}
 										onSubmit={e => {
 											this.handleSubmit(e, "sell");
