@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Modal, Select, Form } from "antd";
+import { Modal, Select, Form, Button } from "antd";
 import { getData as getCountriesData } from "country-list";
 import { Formik } from "formik";
 import AgentsTable from "./AgentsTable";
 import { searchUsers } from "../../../api/users";
+import { sendMessage } from "../../../api/operation-messages";
 
 const { Option } = Select;
 
@@ -15,20 +16,31 @@ class SendToAgent extends Component {
 		return {
 			loading: false,
 			users: null,
+			selectedRows: [],
+			selectedRowKeys: [],
 		};
 	}
 
 	componentDidUpdate(prevProps, prevState) {
 		const { user, isModalVisible } = this.props;
 		if (isModalVisible && prevProps.isModalVisible !== isModalVisible) {
-			console.log("fetching");
 			this.fetchUsers(user.countryId);
 		}
 	}
 
+	handleFormSubmit = async (values, formActions) => {
+		const { requestId } = this.props;
+		const { selectedRows } = this.state;
+		const ids = [];
+		selectedRows.forEach(row => {
+			ids.push(row.user_id);
+		});
+		await sendMessage(requestId, ids);
+		formActions.resetForm();
+	};
+
 	handleCountryChange = (setFieldValue, setSubmitting) => async countryId => {
 		console.log("handleCountryChange", countryId);
-		// setSubmitting(true);
 		await this.fetchUsers(countryId);
 		setFieldValue("country", countryId);
 	};
@@ -40,24 +52,22 @@ class SendToAgent extends Component {
 		console.log(res);
 	}
 
-	handleFormSubmit = (values, formActions) => {
-		console.log("sending", values);
-		// formActions.resetForm();
-	};
-
 	handleClose = () => {
 		this.props.hideModal();
 		this.setState(this.getInitialState());
 	};
 
+	onSelectedRow = (selectedRowKeys, selectedRows) => {
+		this.setState({ selectedRowKeys, selectedRows });
+	};
+
 	render() {
 		const { isModalVisible, user } = this.props;
-		const { loading, users } = this.state;
+		const { loading, users, selectedRowKeys } = this.state;
 
-		console.log("rendered");
 		return (
 			<Modal
-				title=""
+				title="Send deposit request to agent/agents"
 				visible={isModalVisible}
 				onCancel={this.handleClose}
 				footer={null}
@@ -109,8 +119,27 @@ class SendToAgent extends Component {
 											})}
 										</Select>
 									</Form.Item>
+
+									<AgentsTable
+										loading={loading}
+										data={users}
+										onSelectedRowKeysChange={this.onSelectedRow}
+										selectedRowKeys={selectedRowKeys}
+									/>
+									<div className="ant-modal-custom-footer">
+										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>
+											Cancel
+										</Button>
+										<Button
+											type="primary"
+											htmlType="submit"
+											disabled={!selectedRowKeys.length || isSubmitting}
+											loading={isSubmitting}
+										>
+											Send request
+										</Button>
+									</div>
 								</form>
-								<AgentsTable loading={loading} data={users} />
 							</div>
 						);
 					}}

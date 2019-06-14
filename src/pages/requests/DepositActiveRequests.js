@@ -20,6 +20,7 @@ class DepositActiveRequests extends Component {
 		pagination: {},
 		loading: false,
 		SEND_REQ_TO_AGENT: false,
+		requestId: null,
 	};
 
 	componentDidMount() {
@@ -30,8 +31,8 @@ class DepositActiveRequests extends Component {
 		this.setState({ [type]: false });
 	};
 
-	showModal = type => () => {
-		this.setState({ [type]: true });
+	showModal = (type, requestId) => () => {
+		this.setState({ [type]: true, requestId });
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
@@ -92,10 +93,13 @@ class DepositActiveRequests extends Component {
 				render: (text, record, index) => {
 					return (
 						<>
-							<Button style={style.btn} onClick={this.showModal(modals.SEND_REQ_TO_AGENT)}>
+							<Button
+								style={style.btn}
+								onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id)}
+							>
 								Send to agents
 							</Button>
-							<CancelRequest btnStyle={style.btn} requestId="123" />
+							<CancelRequest btnStyle={style.btn} requestId={record.id} />
 						</>
 					);
 				},
@@ -116,6 +120,7 @@ class DepositActiveRequests extends Component {
 				<SendToAgentModal
 					isModalVisible={this.state.SEND_REQ_TO_AGENT}
 					hideModal={this.hideModal(modals.SEND_REQ_TO_AGENT)}
+					requestId={this.state.requestId}
 				/>
 			</>
 		);
