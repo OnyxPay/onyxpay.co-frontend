@@ -4,20 +4,22 @@ import { gasPrice, cryptoAddress } from "../../utils/blockchain";
 import { getBcClient } from "../../api/network";
 import { unlockWalletAccount } from "../../api/wallet";
 import { resolveContractAddress } from "../contracts";
+import { getRestClient, handleReqError, getAuthHeaders } from "../../api/network";
+const client = getRestClient();
 
-export const BlockedUser = (secret_hash, { setSubmitting, resetForm }) => {
+export const BlockedUser = (accountAddress, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
 		const client = getBcClient();
 
 		try {
-			const { pk, accountAddress } = await unlockWalletAccount();
+			const { pk } = await unlockWalletAccount();
 			const funcName = "BlockUsers";
-			const address = await dispatch(resolveContractAddress("Investments"));
+			const address = await dispatch(resolveContractAddress("OnyxPay"));
 			if (!address) {
 				throw new Error("contract address is not found");
 			}
 
-			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
+			const p1 = new Parameter("secret hash", ParameterType.ByteArray, accountAddress);
 
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(
@@ -97,4 +99,19 @@ export const ActiveUsers = (secret_hash, { setSubmitting, resetForm }) => {
 			console.log(error);
 		}
 	};
+};
+
+export const searchUser = accountAddress => async (dispatch, getState) => {
+	const authHeaders = getAuthHeaders();
+	try {
+		const { data } = await client.get(`/admin/users?addr=${accountAddress}`, {
+			headers: {
+				...authHeaders,
+			},
+		});
+		console.log(data.items);
+		return { userData: data.items };
+	} catch (er) {
+		return handleReqError(er);
+	}
 };

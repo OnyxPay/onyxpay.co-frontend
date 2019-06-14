@@ -5,9 +5,7 @@ import BlockedUsers from "./blocked";
 const { TabPane } = Tabs;
 
 class UsersBlockedActive extends Component {
-	callback = key => {
-		console.log(key);
-	};
+	callback = key => {};
 
 	render() {
 		return (
@@ -15,7 +13,7 @@ class UsersBlockedActive extends Component {
 				<TabPane tab="Active users" key="1">
 					<ActiveUsers />
 				</TabPane>
-				<TabPane tab="Blocked user" key="2">
+				<TabPane tab="Blocked users" key="2">
 					<BlockedUsers />
 				</TabPane>
 			</Tabs>

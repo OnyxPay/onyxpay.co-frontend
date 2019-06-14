@@ -73,6 +73,22 @@ class UserMenu extends Component {
 						<span>Messages</span>
 					</Link>
 				</Menu.Item>
+				<SubMenu
+					key="users"
+					title={
+						<span className="ant-menu-item-content">
+							<Icon type="user" />
+							<span>Users</span>
+						</span>
+					}
+				>
+					<Menu.Item key="/admin/users">
+						<Link to="/admin/users">Users</Link>
+					</Menu.Item>
+					<Menu.Item>
+						<Link to="/admin/users/active">Active/Blocked users</Link>
+					</Menu.Item>
+				</SubMenu>
 			</Menu>
 		);
 	}
