@@ -10,7 +10,7 @@ class SessionExpiredModal extends Component {
 		return (
 			<Modal
 				title=""
-				visible={isModalVisible && user}
+				visible={isModalVisible && user ? true : false}
 				closable={false}
 				destroyOnClose={true}
 				zIndex={1001}

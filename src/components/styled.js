@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 export const PageTitle = styled.h1`
 	margin-bottom: 30px;
@@ -38,4 +38,15 @@ export const FormWrapper = styled.div`
 
 export const TextAligner = styled.div`
 	text-align: ${p => p.align || "center"};
+
+	${p => {
+		return (
+			p.mobile &&
+			css`
+				@media (max-width: 700px) {
+					text-align: ${p => p.mobile};
+				}
+			`
+		);
+	}}
 `;
