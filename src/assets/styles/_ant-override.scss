@@ -44,75 +44,17 @@
 	}
 }
 
-// TODO: extract styles
-.registration-modal,
-.wallet-unlock-modal,
-.confirm-email-modal,
-.add-settlement-modal {
-	.ant-modal-custom-footer {
-		margin: 0 -24px -24px -24px;
-		padding: 10px 24px;
-		text-align: right;
-		background: transparent;
-		border-top: 1px solid #e8e8e8;
-		margin-top: 50px;
-	}
-	.ant-form-item {
-		margin-bottom: 12px;
-	}
+.tbody-white tbody.ant-table-tbody {
+	background-color: #fff;
 }
 
-.import-wallet-modal {
-	width: 850px !important;
-	.ant-modal-body {
-		padding: 40px 60px;
-	}
-}
-
-.create-wallet-modal {
-	width: 600px !important;
-	.ant-modal-body {
-		padding: 40px 60px;
-	}
-}
-
-.admin-form {
+.ant-form-w50 {
 	@media (min-width: 1200px) {
 		width: 60%;
 		min-width: 800px;
 	}
-	.ant-form-item {
-		margin-bottom: 12px;
-	}
 }
 
-@media (max-width: 991px) {
-	.ant-modal {
-		top: 30px !important;
-	}
-
-	.import-wallet-modal {
-		width: calc(100vw - 16px) !important;
-		.ant-modal-body {
-			padding: 40px 30px;
-		}
-	}
-}
-
-@media (max-width: 767px) {
-	.create-wallet-modal {
-		width: calc(100vw - 16px) !important;
-		.ant-modal-body {
-			padding: 40px 30px;
-		}
-	}
-}
-
-@media (max-width: 575px) {
-	.import-wallet-modal,
-	.create-wallet-modal {
-		.ant-modal-body {
-			padding: 30px 15px;
-		}
-	}
+.ant-form-item {
+	margin-bottom: 12px !important;
 }

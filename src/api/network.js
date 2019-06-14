@@ -1,6 +1,6 @@
 import axios from "axios";
 import { WebsocketClient, RestClient } from "ontology-ts-sdk";
-import { bcEndpoints, backEndRestEndpoint } from "./constants";
+import { bcEndpoints, backEndRestEndpoint, gasCompensatorEndpoint } from "./constants";
 import { message } from "antd";
 import { getStore } from "../store";
 import { showSessionExpiredModal } from "../redux/session";
@@ -18,6 +18,8 @@ export function getBcClient(rest) {
 export function getRestClient({ type } = {}) {
 	if (type === "explorer") {
 		return axios;
+	} else if (type === "gas") {
+		return axios.create({ baseURL: gasCompensatorEndpoint });
 	}
 	return createCustomRestClient();
 }
@@ -31,9 +33,8 @@ function createCustomRestClient() {
 		res => res,
 		error => {
 			if (error.response) {
-				const { data, status } = error.response;
-				// TODO: change status to 401, after API fix
-				if (data.error === "Unauthenticated." && status === 403) {
+				const { status } = error.response;
+				if (status === 401) {
 					const store = getStore();
 					store.dispatch(showSessionExpiredModal());
 				}
@@ -65,29 +66,30 @@ export function getAuthHeaders() {
 
 export function handleReqError(error) {
 	if (error.response) {
-		console.error(error.message, error.response);
-
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
-		if (error.response.status >= 400 && error.response.status < 500) {
+		if (error.response.status === 404) {
+			message.error("Something went wrong at the server side", 5);
+		} else if (error.response.status >= 400 && error.response.status < 500) {
 			return {
 				error: {
 					data: error.response.data.errors,
 					status: error.response.status,
 				},
 			};
+			// 403, 401 invalid credentials
+			// 400 validation error
+			// 422 Unprocessable Entity
+			// 403 Forbidden - blocked user?????
+		} else if (error.response.status >= 500) {
+			message.error("Something went wrong at the server side", 5);
 		}
-		// 403, 401 invalid credentials
-		// 400 validation error
-		// 422 Unprocessable Entity
 	} else if (error.request) {
 		// The request was made but no response was received
-		console.error(error.message, error.request);
 		message.error("Something went wrong at the server side", 5);
 		return { error: { message: "Something went wrong at the server side" } };
 	} else {
 		// Something happened in setting up the request that triggered an Error
-		console.error(error.message, error);
 		message.error("Something went wrong", 5);
 		return {
 			error: {

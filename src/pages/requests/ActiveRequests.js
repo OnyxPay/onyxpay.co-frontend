@@ -1,5 +1,6 @@
 import React from "react";
 import { Tabs } from "antd";
+import DepositActiveRequests from "./DepositActiveRequests";
 
 const { TabPane } = Tabs;
 
@@ -8,7 +9,7 @@ const ActiveRequests = () => {
 		<div>
 			<Tabs defaultActiveKey="1">
 				<TabPane tab="Deposit requests" key="1">
-					Content of Tab Pane 1
+					<DepositActiveRequests />
 				</TabPane>
 				<TabPane tab="Withdraw requests" key="2">
 					Content of Tab Pane 2
