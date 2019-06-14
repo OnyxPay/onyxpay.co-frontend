@@ -72,12 +72,10 @@ export const login = values => async (dispatch, getState) => {
 
 export const confirmEmail = values => async (dispatch, getState) => {
 	const authHeaders = getAuthHeaders();
-	// const formData = makeFormData(values);
 	try {
 		await client.post("confirm", values, {
 			headers: {
 				...authHeaders,
-				// "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
 			},
 		});
 	} catch (er) {
