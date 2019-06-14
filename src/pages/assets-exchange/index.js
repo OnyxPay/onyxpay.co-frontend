@@ -4,6 +4,7 @@ import { Row, Col, Table, Card, Form, Divider, InputNumber, Button } from "antd"
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
+import { roles, defaultAsset } from "../../api/constants";
 
 const columns = [
 	{
@@ -23,16 +24,21 @@ const columns = [
 	},
 ];
 
+function recordToAssetData(record) {
+	return {
+		name: record.key || "",
+		buyPrice: record.buyPrice || 0,
+		sellPrice: record.sellPrice || 0,
+	};
+}
+
 class AssetsExchange extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			selectedAsset: {
-				name: "",
-				price: 0,
-			},
-		};
-	}
+	state = {
+		selectedAsset: { name: "", buyPrice: 0, sellPrice: 0 },
+		defaultAsset: { name: defaultAsset.symbol, buyPrice: 0, sellPrice: 0 },
+		buyAmount: 0,
+		sellAmount: 0,
+	};
 
 	async componentDidMount() {
 		this.onActiveAssedChanged = this.onActiveAssedChanged.bind(this);
@@ -44,8 +50,9 @@ class AssetsExchange extends Component {
 		await getExchangeRates();
 		const { exchangeRates } = this.props;
 		let data = [];
+
 		for (let record of exchangeRates) {
-			if (record.symbol !== "oUSD") {
+			if (this.props.user.role === roles.c && record.symbol !== defaultAsset.symbol) {
 				data.push({
 					key: record.symbol,
 					name: record.symbol,
@@ -54,26 +61,18 @@ class AssetsExchange extends Component {
 				});
 			}
 		}
-		this.setState({ assetData: data });
-
 		this.setState({
-			selectedAsset: {
-				name: data[0].key,
-				buyPrice: data[0].buyPrice,
-				sellPrice: data[0].sellPrice,
-			},
-			buyAmount: 0,
-			sellAmount: 0,
+			assetPricesData: data,
+			primaryAsset: recordToAssetData(
+				exchangeRates.find(record => record.symbol === defaultAsset.symbol)
+			),
+			selectedAsset: recordToAssetData(data[0]),
 		});
 	}
 
-	onActiveAssedChanged(record) {
-		this.setState({
-			selectedAsset: {
-				name: record.key,
-				buyPrice: record.buyPrice,
-				sellPrice: record.sellPrice,
-			},
+	async onActiveAssedChanged(record) {
+		await this.setState({
+			selectedAsset: recordToAssetData(record),
 		});
 	}
 
@@ -118,7 +117,7 @@ class AssetsExchange extends Component {
 						<Table
 							onRowClick={this.onActiveAssedChanged}
 							columns={columns}
-							dataSource={this.state.assetData}
+							dataSource={this.state.assetPricesData}
 						/>
 					</Col>
 					<Col md={24} lg={12}>
@@ -200,7 +199,7 @@ class AssetsExchange extends Component {
 export default connect(
 	state => {
 		return {
-			// user: state.user,
+			user: state.user,
 			exchangeRates: state.assets.rates,
 			wallet: state.wallet,
 			exchange_successful: state.exchange_successful,

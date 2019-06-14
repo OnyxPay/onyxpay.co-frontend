@@ -23,3 +23,7 @@ export const roles = {
 	adm: "admin",
 	sadm: "super_admin",
 };
+
+export const defaultAsset = {
+	symbol: "oUSD",
+};
