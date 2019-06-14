@@ -13,7 +13,6 @@ import { startLoading, finishLoading } from "./loading";
 import { getSettlementsList, add, deleteAccount } from "./settlements";
 import { showSessionExpiredModal } from "./session";
 import { getAssetsList, getExchangeRates } from "./assets";
-import { getRequestsData } from "./admin-panel/requests";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -43,5 +42,4 @@ export default {
 		getAssetsList,
 		getExchangeRates,
 	},
-	adminRequests: { getRequestsData },
 };
