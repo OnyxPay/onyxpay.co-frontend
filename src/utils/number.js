@@ -7,6 +7,13 @@ export function convertAmountToStr(amount, decimals) {
 	return amountBN.toString();
 }
 
+export function convertAmountFromStr(amount, asset) {
+	let amountBN = new BigNumber(amount);
+	amountBN = amountBN.times(new BigNumber(Math.pow(10, 8)));
+
+	return amountBN.toNumber();
+}
+
 export function convertAsset(asset, rate) {
 	let amountBN = new BigNumber(asset.amount);
 	amountBN = amountBN.div(Math.pow(10, asset.decimals));

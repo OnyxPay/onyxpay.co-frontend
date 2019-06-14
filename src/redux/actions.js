@@ -12,8 +12,7 @@ import { signUp, login, confirmEmail, logOut } from "./auth";
 import { startLoading, finishLoading } from "./loading";
 import { getSettlementsList, add, deleteAccount } from "./settlements";
 import { showSessionExpiredModal } from "./session";
-import { getAssetsList, getExchangeRates } from "./assets";
-import { exchangeAssets } from "./assetsExchange";
+import { getAssetsList, getExchangeRates, isAssetBlocked } from "./assets";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -42,8 +41,6 @@ export default {
 	assets: {
 		getAssetsList,
 		getExchangeRates,
-	},
-	exchangeAssets: {
-		exchangeAssets,
+		isAssetBlocked,
 	},
 };
