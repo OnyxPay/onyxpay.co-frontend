@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Popover, Button, Icon, Spin, message, notification } from "antd";
+import { Popover, Button, Icon, message, notification } from "antd";
 import { TextAligner } from "../../components/styled";
 import { cancelRequest } from "../../api/requests";
 // import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
@@ -40,7 +40,7 @@ class CancelRequest extends Component {
 	};
 
 	render() {
-		const { requestId, btnStyle } = this.props;
+		const { btnStyle } = this.props;
 		return (
 			<Popover
 				content={

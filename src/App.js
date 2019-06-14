@@ -82,7 +82,7 @@ class App extends Component {
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/deposit" component={Deposit} />
+					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/active-requests" exact component={ActiveRequests} />

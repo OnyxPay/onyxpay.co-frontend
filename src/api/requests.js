@@ -112,6 +112,6 @@ export async function cancelRequest(requestId, type) {
 
 	signTrx(trx, pk);
 
-	const res = await sendTrx(trx, false, true);
+	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
 	console.log(res);
 }
