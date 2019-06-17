@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import { Table } from "antd";
+import { connect } from "react-redux";
+import { Table, Button } from "antd";
+import { UnblockUser, BlockedUsersData } from "./../../../../redux/admin-panel/BlockedActiveUsers";
 
 const data = [
 	{
@@ -22,25 +24,57 @@ const data = [
 	},
 ];
 
-const columns = [
-	{
-		title: "Name",
-		dataIndex: "name",
-	},
-	{
-		title: "Age",
-		dataIndex: "age",
-	},
-	{
-		title: "Address",
-		dataIndex: "address",
-	},
-];
-
 class BlockedUsers extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
+
+	unblockUser = wallet_addr => {
+		const { UnblockUser } = this.props;
+		UnblockUser(wallet_addr);
+	};
+
+	componentDidMount() {
+		//const { BlockedUsersData } = this.props;
+		//BlockedUsersData();
+	}
+
 	render() {
+		const columns = [
+			{
+				title: "Name",
+				dataIndex: "name",
+			},
+			{
+				title: "Age",
+				dataIndex: "age",
+			},
+			{
+				title: "Address",
+				dataIndex: "address",
+			},
+			{
+				title: "",
+				dataIndex: "",
+				width: "10%",
+				render: res => (
+					<>
+						<Button type="primary" block onClick={() => this.unblockUser(res.wallet_addr)}>
+							Unblock
+						</Button>
+					</>
+				),
+			},
+		];
 		return <Table columns={columns} dataSource={data} size="middle" />;
 	}
 }
 
-export default BlockedUsers;
+export default connect(
+	null,
+	{
+		UnblockUser,
+		BlockedUsersData,
+	}
+)(BlockedUsers);

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Input, Table, Button } from "antd";
 import { connect } from "react-redux";
-import { searchUser, BlockedUser } from "./../../../../redux/admin-panel/BlockedActiveUsers";
+import { Input, Table, Button } from "antd";
+import { searchUser, BlockUser } from "./../../../../redux/admin-panel/BlockedActiveUsers";
+
 const Search = Input.Search;
 
 class ActiveUsers extends Component {
@@ -13,6 +14,7 @@ class ActiveUsers extends Component {
 		};
 		console.log(props);
 	}
+
 	handleChange = value => {
 		const { searchUser } = this.props;
 		const userData = searchUser(value).then(res =>
@@ -24,9 +26,9 @@ class ActiveUsers extends Component {
 		console.log(userData);
 	};
 
-	blockedUser = () => {
-		const { BlockedUser } = this.props;
-		BlockedUser();
+	blockedUser = wallet_addr => {
+		const { BlockUser } = this.props;
+		BlockUser(wallet_addr);
 	};
 
 	render() {
@@ -77,7 +79,7 @@ class ActiveUsers extends Component {
 				width: "10%",
 				render: res => (
 					<>
-						<Button type="primary" block onClick={() => this.blockedUser()}>
+						<Button type="primary" block onClick={() => this.blockedUser(res.wallet_addr)}>
 							Blocked
 						</Button>
 					</>
@@ -106,6 +108,6 @@ export default connect(
 	null,
 	{
 		searchUser,
-		BlockedUser,
+		BlockUser,
 	}
 )(ActiveUsers);
