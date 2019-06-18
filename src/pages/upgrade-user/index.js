@@ -6,6 +6,21 @@ import Actions from "../../redux/actions";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
+import { getRestClient, getAuthHeaders } from "../../api/network";
+const restClient = getRestClient();
+
+async function sendUpgradeRequest(role) {
+	const authHeaders = getAuthHeaders();
+	const form = await restClient.post("upgrade-request", {
+		headers: {
+			...authHeaders,
+		},
+		data: {
+			role: role,
+		},
+	});
+	return form;
+}
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -32,9 +47,20 @@ class UpgradeUser extends Component {
 	state = {
 		currentStep: steps.settlements,
 		showSettlements: false,
-		stepsStyle: { float: "left", minWidth: 130, borderRight: "1px solid rgba(167, 180, 201, 0.3)" },
+		stepsStyle: {
+			float: "left",
+			minWidth: 130,
+			width: 130,
+			borderRight: "1px solid rgba(167, 180, 201, 0.3)",
+		},
 		direction: "vertical",
-		upgradeAsideStyle: { float: "left", minWidth: "40%", paddingLeft: 10 },
+		upgradeAsideStyle: {
+			float: "left",
+			paddingLeft: 10,
+			width: "50%",
+			minWidth: 200,
+			display: "block",
+		},
 	};
 
 	checkSettlements() {
@@ -59,9 +85,16 @@ class UpgradeUser extends Component {
 			let upgradeAsideStyle = { width: "100%" };
 			this.setState({
 				stepsStyle: stepsStyle,
-				direction: "horisontal",
+				direction: "horizontal",
 				upgradeAsideStyle: upgradeAsideStyle,
 			});
+		}
+		if (this.props.match.params.agent === ":agent") {
+			this.setState({ role: "Agent" });
+		} else if (this.props.match.params.agent === ":super_agent") {
+			this.setState({ role: "Super agent" });
+		} else {
+			throw new Error("Unexpected role");
 		}
 	}
 
@@ -77,6 +110,9 @@ class UpgradeUser extends Component {
 	moveNextStep = type => event => {
 		let currentStep = this.state.currentStep;
 		this.setState({ currentStep: ++currentStep });
+		if (currentStep === steps.waitForApprovement) {
+			sendUpgradeRequest(this.state.role);
+		}
 	};
 
 	movePrevStep = type => () => {
@@ -144,34 +180,30 @@ class UpgradeUser extends Component {
 	}
 
 	render() {
-		let role;
-		if (this.props.match.params.agent === ":agent") {
-			role = "Agent";
-		} else if (this.props.match.params.agent === ":super_agent") {
-			role = "Super agent";
-		} else {
-			throw new Error("Unexpected role");
-		}
-
+		console.log(this.state.direction);
 		return (
 			<>
-				<PageTitle>Upgrade to the {role}</PageTitle>
+				<PageTitle>Upgrade to the {this.state.role}</PageTitle>
 				<Card>
-					<section>
+					<section style={{ width: "100%" }}>
 						<nav className="upgrade_navigation" style={this.state.stepsStyle}>
-							<Steps
-								direction={this.state.direction}
-								labelPlacement="horizontal"
-								size="small"
-								current={this.state.currentStep}
-							>
-								<Step title="Fill settlements account." />
-								<Step title="Buy OnyxCache." />
-								<Step title="Upgrading approvement." />
+							<Steps direction={this.state.direction} size="small" current={this.state.currentStep}>
+								<Step
+									title={getStepTitle(0, this.state.currentStep)}
+									description="Fill settlements account."
+								/>
+								<Step
+									title={getStepTitle(0, this.state.currentStep)}
+									description="Buy OnyxCache."
+								/>
+								<Step
+									title={getStepTitle(0, this.state.currentStep)}
+									description="Upgrading approvement."
+								/>
 							</Steps>
 						</nav>
 						<aside className="upgrade_step" style={this.state.upgradeAsideStyle}>
-							{this.getStepComponent(role)}
+							{this.getStepComponent(this.state.role)}
 						</aside>
 					</section>
 				</Card>
