@@ -39,8 +39,12 @@ class AgentMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="323">User active requests</Menu.Item>
-					<Menu.Item key="3dasd">Agent active requests</Menu.Item>
+					<Menu.Item key="/active-requests">
+						<Link to="/active-requests">Active requests</Link>
+					</Menu.Item>
+					<Menu.Item key="/closed-requests">
+						<Link to="/closed-requests">Closed requests</Link>
+					</Menu.Item>
 				</SubMenu>
 
 				<Menu.Item key="/exchange">

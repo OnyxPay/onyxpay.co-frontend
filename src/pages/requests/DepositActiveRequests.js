@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { Table, Button } from "antd";
+import { connect } from "react-redux";
+import { Table, Button, Popconfirm } from "antd";
 import { getActiveRequests } from "../../api/requests";
+import { getMessages } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/deposit/SendToAgent";
 
@@ -54,15 +56,22 @@ class DepositActiveRequests extends Component {
 
 	fetch = async (opts = {}) => {
 		const { pagination } = this.state;
+		const { user } = this.props;
 		const params = {
 			pageSize: pagination.pageSize,
 			pageNum: pagination.current,
-			type: "deposit",
 			...opts,
 		};
+
 		try {
 			this.setState({ loading: true });
-			const data = await getActiveRequests(params);
+			let data;
+			if (user.role === "client") {
+				params.type = "deposit";
+				data = await getActiveRequests(params);
+			} else if (user.role === "agent") {
+				data = await getMessages(params);
+			}
 			const pagination = { ...this.state.pagination };
 			pagination.total = data.total;
 			this.setState({
@@ -73,11 +82,17 @@ class DepositActiveRequests extends Component {
 		} catch (error) {}
 	};
 
+	acceptRequest = requestId => {
+		alert("req is accepted " + requestId);
+	};
+
 	render() {
-		const columns = [
+		const { user } = this.props;
+
+		const columnsForClient = [
 			{
 				title: "Asset",
-				dataIndex: "asset",
+				dataIndex: "request",
 			},
 			{
 				title: "Amount",
@@ -108,11 +123,44 @@ class DepositActiveRequests extends Component {
 				},
 			},
 		];
+		const columnsForAgent = [
+			{
+				title: "Asset",
+				dataIndex: "request.asset",
+			},
+			{
+				title: "Amount",
+				dataIndex: "request.amount",
+			},
+			{
+				title: "Status",
+				dataIndex: "request.status",
+			},
+			{
+				title: "Created",
+				dataIndex: "request.trx_timestamp",
+			},
+			{
+				title: "Action",
+				render: (text, record, index) => {
+					return (
+						<>
+							<Popconfirm
+								title="Sure to accept?"
+								onConfirm={() => this.acceptRequest(record.request.id)}
+							>
+								<Button type="primary">Accept</Button>
+							</Popconfirm>
+						</>
+					);
+				},
+			},
+		];
 
 		return (
 			<>
 				<Table
-					columns={columns}
+					columns={user.role === "client" ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}
 					dataSource={this.state.data}
 					pagination={this.state.pagination}
@@ -130,4 +178,8 @@ class DepositActiveRequests extends Component {
 	}
 }
 
-export default DepositActiveRequests;
+export default connect(state => {
+	return {
+		user: state.user,
+	};
+})(DepositActiveRequests);
