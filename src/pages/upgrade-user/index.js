@@ -5,6 +5,7 @@ import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
+import { IPayForm } from "./IPayForm";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -30,8 +31,10 @@ function getStepTitle(item, step) {
 class UpgradeUser extends Component {
 	state = {
 		currentStep: steps.settlements,
-		showTitle: true,
 		showSettlements: false,
+		stepsStyle: { float: "left", minWidth: 130, borderRight: "1px solid rgba(167, 180, 201, 0.3)" },
+		direction: "vertical",
+		upgradeAsideStyle: { float: "left", minWidth: "40%", border: "1px solid", paddingLeft: 10 },
 	};
 
 	checkSettlements() {
@@ -48,10 +51,17 @@ class UpgradeUser extends Component {
 		);
 	}
 
-	componentDidMount() {
+	componentWillMount() {
 		this.checkSettlements();
+		console.log(window.innerWidth);
 		if (window.innerWidth <= 480) {
-			this.setState({ showTitle: false });
+			let stepsStyle = { height: "100%", border: "none", width: "100%" };
+			let upgradeAsideStyle = { width: "100%" };
+			this.setState({
+				stepsStyle: stepsStyle,
+				direction: "horisontal",
+				upgradeAsideStyle: upgradeAsideStyle,
+			});
 		}
 	}
 
@@ -65,8 +75,6 @@ class UpgradeUser extends Component {
 	};
 
 	moveNextStep = type => event => {
-		event.preventDefault();
-		event.target.submit();
 		let currentStep = this.state.currentStep;
 		this.setState({ currentStep: ++currentStep });
 	};
@@ -77,8 +85,6 @@ class UpgradeUser extends Component {
 	};
 
 	checkPaymentHandler() {}
-
-	titles = ["Fill settlements account.", "Buy OnyxCache.", "Upgrading approvement."];
 
 	getStepComponent(role) {
 		if (this.state.currentStep === steps.settlements) {
@@ -111,6 +117,7 @@ class UpgradeUser extends Component {
 						amount={role === "Agent" ? 500 : 100000}
 						handleSubmit={this.moveNextStep()}
 					/>
+					<IPayForm amount={role === "Agent" ? 500 : 100000} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
 		} else if (this.state.currentStep === steps.waitForApprovement) {
@@ -151,24 +158,19 @@ class UpgradeUser extends Component {
 				<PageTitle>Upgrade to the {role}</PageTitle>
 				<Card>
 					<section>
-						<nav className="upgrade_navigation" style={{ float: "left", width: "25%" }}>
-							<Steps direction="vertical" current={this.state.currentStep}>
-								{this.titles.map((title, index) => {
-									if (this.state.showTitle) {
-										return (
-											<Step
-												key={index}
-												title={getStepTitle(index, this.state.currentStep)}
-												description={title}
-											/>
-										);
-									} else {
-										return <Step />;
-									}
-								})}
+						<nav className="upgrade_navigation" style={this.state.stepsStyle}>
+							<Steps
+								direction={this.state.direction}
+								labelPlacement="horizontal"
+								size="small"
+								current={this.state.currentStep}
+							>
+								<Step title="Fill settlements account." />
+								<Step title="Buy OnyxCache." />
+								<Step title="Upgrading approvement." />
 							</Steps>
 						</nav>
-						<aside className="upgrade_step" style={{ float: "right", width: "75%" }}>
+						<aside className="upgrade_step" style={this.state.upgradeAsideStyle}>
 							{this.getStepComponent(role)}
 						</aside>
 					</section>
