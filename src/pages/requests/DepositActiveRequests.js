@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Table, Button, Popconfirm } from "antd";
-import { getActiveRequests } from "../../api/requests";
+import { Table, Button, Popconfirm, message } from "antd";
+import { getActiveRequests, acceptRequest } from "../../api/requests";
 import { getMessages } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/deposit/SendToAgent";
@@ -82,8 +82,12 @@ class DepositActiveRequests extends Component {
 		} catch (error) {}
 	};
 
-	acceptRequest = requestId => {
-		alert("req is accepted " + requestId);
+	acceptRequest = async requestId => {
+		try {
+			await acceptRequest(requestId);
+		} catch (e) {
+			message.error(e.message);
+		}
 	};
 
 	render() {

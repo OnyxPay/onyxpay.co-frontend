@@ -104,13 +104,42 @@ export async function cancelRequest(requestId, type) {
 	const { pk, accountAddress } = await unlockWalletAccount();
 
 	const trx = createTrx({
-		funcName: "Request",
-		params: [{ label: "requestId", value: requestId, type: ParameterType.String }],
+		funcName: "RejectRequest",
+		params: [{ label: "requestId", type: ParameterType.String, value: requestId }],
 		contractAddress: address,
 		accountAddress,
 	});
 
 	signTrx(trx, pk);
+
+	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
+	console.log(res);
+}
+
+export async function acceptRequest(requestId) {
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
+	}
+	const { pk, accountAddress } = await unlockWalletAccount();
+
+	const trx = createTrx({
+		funcName: "Accept",
+		params: [
+			{ label: "requestId", type: ParameterType.String, value: requestId },
+			{
+				label: "agent",
+				type: ParameterType.ByteArray,
+				value: utils.reverseHex(accountAddress.toHexString()),
+			},
+		],
+		contractAddress: address,
+		accountAddress,
+	});
+
+	signTrx(trx, pk);
+	console.log("trx", trx);
 
 	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
 	console.log(res);
