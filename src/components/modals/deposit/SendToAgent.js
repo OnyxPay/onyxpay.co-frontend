@@ -18,13 +18,15 @@ class SendToAgent extends Component {
 			users: null,
 			selectedRows: [],
 			selectedRowKeys: [],
+			pagination: { current: 1, pageSize: 2 },
 		};
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		const { user, isModalVisible } = this.props;
+		const { isModalVisible } = this.props;
+
 		if (isModalVisible && prevProps.isModalVisible !== isModalVisible) {
-			this.fetchUsers(user.countryId);
+			this.fetchUsers();
 		}
 	}
 
@@ -39,17 +41,47 @@ class SendToAgent extends Component {
 		formActions.resetForm();
 	};
 
+	handleTableChange = (pagination, filters, sorter) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetchUsers({
+					...filters,
+				});
+			}
+		);
+	};
+
 	handleCountryChange = (setFieldValue, setSubmitting) => async countryId => {
-		console.log("handleCountryChange", countryId);
-		await this.fetchUsers(countryId);
+		await this.fetchUsers({
+			country: countryId,
+		});
 		setFieldValue("country", countryId);
 	};
 
-	async fetchUsers(countryId) {
-		this.setState({ loading: true });
-		const res = await searchUsers({ role: "agent", country: countryId });
-		this.setState({ loading: false, users: res });
-		console.log(res);
+	async fetchUsers(opts = {}) {
+		try {
+			const { pagination } = this.state;
+			const { user } = this.props;
+			const params = {
+				pageSize: pagination.pageSize,
+				pageNum: pagination.current,
+				role: "agent",
+				country: user.countryId,
+				...opts,
+			};
+
+			this.setState({ loading: true });
+			const res = await searchUsers(params);
+			pagination.total = res.total;
+			this.setState({ loading: false, users: res, pagination });
+		} catch (e) {}
 	}
 
 	handleClose = () => {
@@ -125,6 +157,8 @@ class SendToAgent extends Component {
 										data={users}
 										onSelectedRowKeysChange={this.onSelectedRow}
 										selectedRowKeys={selectedRowKeys}
+										pagination={this.state.pagination}
+										onChange={this.handleTableChange}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>

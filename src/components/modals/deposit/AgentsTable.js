@@ -1,7 +1,14 @@
 import React from "react";
 import { Table } from "antd";
 
-function AgentsTable({ data, loading, selectedRowKeys, onSelectedRowKeysChange }) {
+function AgentsTable({
+	data,
+	loading,
+	selectedRowKeys,
+	onSelectedRowKeysChange,
+	pagination,
+	onChange,
+}) {
 	const columns = [
 		{ title: "First name", dataIndex: "first_name" },
 		{ title: "Last name", dataIndex: "last_name" },
@@ -20,10 +27,11 @@ function AgentsTable({ data, loading, selectedRowKeys, onSelectedRowKeysChange }
 			dataSource={data && data.items}
 			rowKey={record => record.user_id}
 			bordered
-			pagination={false}
+			pagination={{ ...pagination, size: "small" }}
 			className="ovf-auto"
 			loading={loading}
 			rowSelection={rowSelection}
+			onChange={onChange}
 		/>
 	);
 }

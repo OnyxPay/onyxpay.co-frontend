@@ -17,7 +17,7 @@ const style = {
 class DepositActiveRequests extends Component {
 	state = {
 		data: [],
-		pagination: {},
+		pagination: { current: 1, pageSize: 10 },
 		loading: false,
 		SEND_REQ_TO_AGENT: false,
 		requestId: null,
@@ -36,29 +36,32 @@ class DepositActiveRequests extends Component {
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
-		const pager = { ...this.state.pagination };
-		pager.current = pagination.current;
-		this.setState({
-			pagination: pager,
-		});
-		this.fetch({
-			results: pagination.pageSize,
-			page: pagination.current,
-			...filters,
-		});
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetch({
+					...filters,
+				});
+			}
+		);
 	};
 
-	fetch = async (params = { type: "deposit" }) => {
-		// const plug = [
-		// 	{
-		// 		asset: "oUSD",
-		// 		amount: 1000,
-		// 		status: "active",
-		// 		id: 1,
-		// 	},
-		// ];
-		this.setState({ loading: true });
+	fetch = async (opts = {}) => {
+		const { pagination } = this.state;
+		const params = {
+			pageSize: pagination.pageSize,
+			pageNum: pagination.current,
+			type: "deposit",
+			...opts,
+		};
 		try {
+			this.setState({ loading: true });
 			const data = await getActiveRequests(params);
 			const pagination = { ...this.state.pagination };
 			pagination.total = data.total;
