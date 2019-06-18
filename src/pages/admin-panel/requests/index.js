@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import { Table, Button } from "antd";
 import { connect } from "react-redux";
-import { setRequestReject } from "../../../redux/admin-panel/requests";
-import { sentRequest } from "../../../redux/admin-panel/requests";
-import { upgradeUser } from "../../../redux/admin-panel/requests";
+import {
+	setRequestReject,
+	sentRequest,
+	upgradeUser,
+	getRequests,
+} from "../../../redux/admin-panel/requests";
 import ReasonReject from "./reasonReject";
-import { getRequests } from "./../../../redux/admin-panel/requests";
 
 class AdminRequests extends Component {
 	constructor(props) {
@@ -15,25 +17,24 @@ class AdminRequests extends Component {
 			reason: "",
 			request_id: null,
 		};
-		console.log(props);
 	}
 
-	ConfirmRole = (accountAddress, role) => {
+	ConfirmRole = (wallet_addr, role, id) => {
 		const { upgradeUser } = this.props;
-		if (accountAddress && role) {
-			upgradeUser(accountAddress, role);
+		if (wallet_addr && role) {
+			upgradeUser(wallet_addr, role, id);
 		}
 	};
 
-	handleChange = event => {
-		this.setState({ reason: event.target.value });
-	};
-
-	RejectRole = async request_id => {
+	RejectRequest = async request_id => {
 		this.setState({
 			visible: true,
 			request_id: request_id,
 		});
+	};
+
+	handleChange = event => {
+		this.setState({ reason: event.target.value });
 	};
 
 	handleOk = visible => {
@@ -106,7 +107,7 @@ class AdminRequests extends Component {
 						<Button
 							type="primary"
 							block
-							onClick={() => this.ConfirmRole(res.user.wallet_addr, res.expected_position)}
+							onClick={() => this.ConfirmRole(res.user.wallet_addr, res.expected_position, res.id)}
 						>
 							Confirm
 						</Button>
@@ -118,7 +119,7 @@ class AdminRequests extends Component {
 				dataIndex: "id",
 				render: res => (
 					<>
-						<Button onClick={() => this.RejectRole(res)} block type="primary">
+						<Button onClick={() => this.RejectRequest(res)} block type="primary">
 							Reject
 						</Button>
 					</>
@@ -128,7 +129,12 @@ class AdminRequests extends Component {
 
 		return (
 			<>
-				<Table columns={columns} dataSource={requests} size="large" />
+				<Table
+					columns={columns}
+					rowKey={requests => requests.id}
+					dataSource={requests}
+					size="large"
+				/>
 				{visible && (
 					<ReasonReject
 						handleOk={this.handleOk}

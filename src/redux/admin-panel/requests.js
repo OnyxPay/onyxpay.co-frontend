@@ -1,22 +1,19 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../../api/network";
 import { message } from "antd";
-import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, ParameterType, CONST, utils } from "ontology-ts-sdk";
 import { gasPrice, cryptoAddress } from "../../utils/blockchain";
 import { getBcClient } from "../../api/network";
 import { unlockWalletAccount } from "../../api/wallet";
 import { resolveContractAddress } from "../contracts";
 
 const client = getRestClient();
-
-const requestsData = sessionStorage.getItem("requestsData");
-const initialState = (requestsData && JSON.parse(requestsData)) || null;
 const REQUESTS_DATA = "REQUESTS_DATA";
 const REQUESTS_STATUS = "REQUESTS_STATUS";
+const DELETE_REQUEST = "DELETE_REQUEST";
 
-export const adminRequestsReducer = (state = initialState, action) => {
+export const adminRequestsReducer = (state, action) => {
 	switch (action.type) {
 		case REQUESTS_DATA:
-			sessionStorage.setItem("requestsData", JSON.stringify(action.payload));
 			return action.payload;
 		case REQUESTS_STATUS:
 			return state.map(request => {
@@ -26,8 +23,10 @@ export const adminRequestsReducer = (state = initialState, action) => {
 					return request;
 				}
 			});
+		case DELETE_REQUEST:
+			return state.filter(item => item.id !== action.payload);
 		default:
-			return state;
+			return state || null;
 	}
 };
 
@@ -87,25 +86,24 @@ export const sentRequest = () => async (dispatch, getState) => {
 	}
 };
 
-export const upgradeUser = (accountAddress, role) => {
+export const upgradeUser = (userAccountAddress, role, id) => {
 	return async (dispatch, getState) => {
 		const client = getBcClient();
 		try {
-			const { pk } = await unlockWalletAccount();
+			const { pk, accountAddress } = await unlockWalletAccount();
 			let funcName = "";
 			const address = await dispatch(resolveContractAddress("OnyxPay"));
+			const userAddress = utils.reverseHex(cryptoAddress(userAccountAddress).toHexString());
 			if (!address) {
 				throw new Error("contract address is not found");
 			}
 			if (role === "agent") {
 				funcName = "RegisterAgent";
-				console.log(role);
 			} else if (role === "superagent") {
 				funcName = "RegisterSuperAgent";
 			}
-			console.log(funcName);
-			const p1 = new Parameter("account address", ParameterType.ByteArray, accountAddress);
-			debugger;
+			const p1 = new Parameter("accountName", ParameterType.ByteArray, userAddress);
+
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
@@ -120,7 +118,8 @@ export const upgradeUser = (accountAddress, role) => {
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("Investor was successfully blocked");
+					message.success("User was successfully upgrade");
+					this.deleteRequest(id);
 				}
 			} catch (error) {
 				console.log(error);
@@ -132,5 +131,26 @@ export const upgradeUser = (accountAddress, role) => {
 			}
 			console.log(error);
 		}
+	};
+};
+
+export const deleteRequest = id => {
+	return async dispatch => {
+		//const authHeader = getAuthHeaders();
+		console.log(id);
+		//try {
+		//await client.delete(`settlements/${id}`, {
+		//headers: {
+		//	...authHeader,
+		//},
+		//	});
+		dispatch({
+			type: DELETE_REQUEST,
+			payload: id,
+		});
+		//	message.success("Settlements account was successfully deleted");
+		//	} //catch (error) {
+		//return handleReqError(error);
+		//}
 	};
 };
