@@ -34,7 +34,7 @@ class UpgradeUser extends Component {
 		showSettlements: false,
 		stepsStyle: { float: "left", minWidth: 130, borderRight: "1px solid rgba(167, 180, 201, 0.3)" },
 		direction: "vertical",
-		upgradeAsideStyle: { float: "left", minWidth: "40%", border: "1px solid", paddingLeft: 10 },
+		upgradeAsideStyle: { float: "left", minWidth: "40%", paddingLeft: 10 },
 	};
 
 	checkSettlements() {
