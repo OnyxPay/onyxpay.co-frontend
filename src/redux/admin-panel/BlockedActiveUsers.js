@@ -1,5 +1,5 @@
 import { message } from "antd";
-import { TransactionBuilder, Parameter, ParameterType, CONST } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, ParameterType, CONST, utils } from "ontology-ts-sdk";
 import { gasPrice, cryptoAddress } from "../../utils/blockchain";
 import { resolveContractAddress } from "../contracts";
 
@@ -10,24 +10,28 @@ import { getRestClient, handleReqError, getAuthHeaders } from "../../api/network
 
 const client = getRestClient();
 
-export const BlockUser = (accountAddress, { setSubmitting, resetForm }) => {
+export const BlockUser = (userAccountAddress, reason, duration) => {
 	return async (dispatch, getState) => {
 		const client = getBcClient();
 
 		try {
-			const { pk } = await unlockWalletAccount();
+			const { pk, accountAddress } = await unlockWalletAccount();
 			const funcName = "BlockUser";
 			const address = await dispatch(resolveContractAddress("OnyxPay"));
+			const userAddress = utils.reverseHex(cryptoAddress(userAccountAddress).toHexString());
 			if (!address) {
 				throw new Error("contract address is not found");
 			}
 
-			const p1 = new Parameter("secret hash", ParameterType.ByteArray, accountAddress);
+			const p1 = new Parameter("userAddress", ParameterType.ByteArray, userAddress);
+			const p2 = new Parameter("reason", ParameterType.ByteArray, reason);
+			const p3 = new Parameter("duration", ParameterType.Integer, duration);
 
+			debugger;
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
-				[p1],
+				[p1, p2, p3],
 				cryptoAddress(address),
 				gasPrice,
 				CONST.DEFAULT_GAS_LIMIT,
@@ -38,38 +42,35 @@ export const BlockUser = (accountAddress, { setSubmitting, resetForm }) => {
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("Investor was successfully blocked");
-					setSubmitting(false);
-					resetForm();
+					message.success("User was successfully blocked");
 				}
 			} catch (error) {
 				console.log(error);
 				message.error("Operation is failed", 5);
-				setSubmitting(false);
 			}
 		} catch (error) {
 			if (error.message === "contract address is not found") {
 				message.error(error.message);
 			}
-			setSubmitting(false);
 			console.log(error);
 		}
 	};
 };
 
-export const UnblockUser = accountAddress => {
+export const UnblockUser = userAccountAddress => {
 	return async (dispatch, getState) => {
 		const client = getBcClient();
 
 		try {
-			const { pk } = await unlockWalletAccount();
+			const { pk, accountAddress } = await unlockWalletAccount();
 			const funcName = "UnblockUser";
 			const address = await dispatch(resolveContractAddress("Investments"));
+			const userAddress = utils.reverseHex(cryptoAddress(userAccountAddress).toHexString());
 			if (!address) {
 				throw new Error("contract address is not found");
 			}
 
-			const p1 = new Parameter("secret hash", ParameterType.ByteArray, accountAddress);
+			const p1 = new Parameter("userAddress", ParameterType.ByteArray, userAddress);
 
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(
@@ -85,7 +86,7 @@ export const UnblockUser = accountAddress => {
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("Investor was successfully unblocked");
+					message.success("User was successfully unblocked");
 				}
 			} catch (error) {
 				console.log(error);
@@ -117,7 +118,7 @@ export const searchUser = accountAddress => async (dispatch, getState) => {
 export const BlockedUsersData = () => async (dispatch, getState) => {
 	const authHeaders = getAuthHeaders();
 	try {
-		const { data } = await client.get(`/admin/users`, {
+		const { data } = await client.get(`/admin/users?status="blocked"`, {
 			headers: {
 				...authHeaders,
 			},

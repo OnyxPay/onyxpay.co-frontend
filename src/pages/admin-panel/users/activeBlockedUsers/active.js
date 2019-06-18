@@ -11,8 +11,8 @@ class ActiveUsers extends Component {
 		this.state = {
 			data: [],
 			showTable: false,
+			loading: false,
 		};
-		console.log(props);
 	}
 
 	handleChange = value => {
@@ -26,16 +26,21 @@ class ActiveUsers extends Component {
 		console.log(userData);
 	};
 
-	blockedUser = wallet_addr => {
+	blockedUser = async wallet_addr => {
+		this.setState({
+			loading: true,
+		});
 		const { BlockUser } = this.props;
-		BlockUser(wallet_addr);
+		await BlockUser(wallet_addr);
+		this.setState({
+			loading: false,
+		});
 	};
 
 	render() {
 		if (!this.state.data) {
 			return false;
 		}
-		console.log(this.props);
 		const columns = [
 			{
 				title: "First name",
@@ -79,8 +84,12 @@ class ActiveUsers extends Component {
 				width: "10%",
 				render: res => (
 					<>
-						<Button type="primary" block onClick={() => this.blockedUser(res.wallet_addr)}>
-							Blocked
+						<Button
+							type="primary"
+							loading={this.state.loading}
+							onClick={() => this.blockedUser("ANWEfjPsti8JbbkZLfchmgfrHS6rz9WQku", 1, 10)}
+						>
+							Block
 						</Button>
 					</>
 				),
