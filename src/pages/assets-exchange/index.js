@@ -6,6 +6,8 @@ import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { roles, defaultAsset } from "../../api/constants";
 import { exchangeAssets } from "../../api/exchange";
+import { TimeoutError } from "promise-timeout";
+import { SendRawTrxError } from "../../utils/custom-error";
 
 const columns = [
 	{
@@ -107,7 +109,16 @@ class AssetsExchange extends Component {
 			this.openNotification(result.Error === 0 ? "success" : "error");
 			console.log(result);
 		} catch (e) {
-			this.openNotification("error", "Contract execution error");
+			if (e instanceof TimeoutError) {
+				this.openNotification(
+					"error",
+					"Transaction timed out. Try checking your balance some time later."
+				);
+			} else if (e instanceof SendRawTrxError) {
+				this.openNotification("error", "Contract execution error");
+			} else {
+				this.openNotification("error", "Unknown error");
+			}
 			console.log("error: ", e);
 		}
 	};
