@@ -95,3 +95,7 @@ export function gte(than) {
 export function isEmailValid(value) {
 	return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value);
 }
+
+export function isLatinChars(value) {
+	return /^[A-Za-z0-9]+$/i.test(value);
+}

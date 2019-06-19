@@ -10,6 +10,7 @@ import text from "../../assets/text.json";
 import { signWithPk } from "../../utils/blockchain";
 import { generateTokenTimeStamp } from "../../utils";
 import { getData as getCountriesData } from "country-list";
+import { isLatinChars } from "../../utils/validate";
 
 const { Option } = Select;
 
@@ -106,6 +107,12 @@ class RegistrationModal extends Component {
 						}
 						if (!values.country_id) {
 							errors.country_id = "required";
+						}
+						if (!isLatinChars(values.first_name)) {
+							errors.first_name = "First name must contain only Latin letters";
+						}
+						if (!isLatinChars(values.last_name)) {
+							errors.last_name = "Last name must contain only Latin letters";
 						}
 
 						return errors;
