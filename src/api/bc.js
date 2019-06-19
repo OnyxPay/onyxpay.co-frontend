@@ -1,7 +1,7 @@
-import { TransactionBuilder, Parameter, CONST, Transaction } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, Transaction } from "ontology-ts-sdk";
 import { getRestClient, getBcClient } from "./network";
 import { SendRawTrxError } from "../utils/custom-error";
-import { gasPrice, cryptoAddress } from "../utils/blockchain";
+import { gasPrice, gasLimit, cryptoAddress } from "../utils/blockchain";
 
 export async function createAndSignTrxViaGasCompensator(contractName, funcName, params) {
 	const client = getRestClient({ type: "gas" });
@@ -24,7 +24,7 @@ export function createTrx({ funcName, params, contractAddress, accountAddress })
 		paramsTyped,
 		cryptoAddress(contractAddress),
 		gasPrice,
-		CONST.DEFAULT_GAS_LIMIT,
+		gasLimit,
 		accountAddress // address of payer
 	);
 }

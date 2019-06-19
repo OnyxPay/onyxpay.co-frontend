@@ -56,7 +56,12 @@ const ClosedRequests = Loadable({
 });
 
 let AssetsExchange = Loadable({
-	loader: () => import(/* webpackChunkName: "ClosedRequests" */ "./pages/assets-exchange"),
+	loader: () => import(/* webpackChunkName: "AssetsExchange" */ "./pages/assets-exchange"),
+	loading: Loader,
+});
+
+let SendAsset = Loadable({
+	loader: () => import(/* webpackChunkName: "SendAsset" */ "./pages/send-asset"),
 	loading: Loader,
 });
 
@@ -74,6 +79,7 @@ const AgentDeposit = Agent(Deposit2);
 AssetsExchange = UserOrAgent(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
+SendAsset = User(SendAsset);
 
 class App extends Component {
 	componentDidMount() {
@@ -95,6 +101,7 @@ class App extends Component {
 					<Route path="/active-requests" exact component={ActiveRequests} />
 					<Route path="/closed-requests" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
+					<Route path="/send-asset" exact component={SendAsset} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />

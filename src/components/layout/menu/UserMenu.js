@@ -29,8 +29,8 @@ class UserMenu extends Component {
 					<Menu.Item key="/deposit">
 						<Link to="/deposit">Deposit</Link>
 					</Menu.Item>
-					<Menu.Item key="/send">
-						<Link to="/send">Send</Link>
+					<Menu.Item key="/send-asset">
+						<Link to="/send-asset">Send</Link>
 					</Menu.Item>
 					<Menu.Item key="/withdraw">
 						<Link to="/withdraw">Withdraw</Link>

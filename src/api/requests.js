@@ -108,7 +108,7 @@ export async function cancelRequest(requestId, type) {
 
 	const trx = createTrx({
 		funcName: "RejectRequest",
-		params: [{ label: "requestId", type: ParameterType.String, value: depositReqId }],
+		params: [{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId }],
 		contractAddress: address,
 		accountAddress,
 	});
