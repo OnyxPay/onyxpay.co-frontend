@@ -2,7 +2,7 @@ import { setWallet, clearWallet } from "./wallet";
 import { resolveContractAddress } from "./contracts";
 import { setAssetsBalance, setOnyxCashBalance } from "./balance";
 import { saveUser, getUserData } from "./user";
-import { getUsersData, getUserSettlementData } from "./admin-panel/users/index";
+import { getUsersData, getUserSettlementData } from "./admin-panel/users";
 import {
 	showWalletUnlockModal,
 	hideWalletUnlockModal,

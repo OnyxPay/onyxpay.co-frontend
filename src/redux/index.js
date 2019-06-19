@@ -9,7 +9,7 @@ import { authReducer } from "./auth";
 import { settlementsReducer } from "./settlements";
 import { loaderReducer } from "./loading";
 import { sessionReducer } from "./session";
-import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users/index";
+import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users";
 import { assetsReducer } from "./assets";
 
 export default history =>

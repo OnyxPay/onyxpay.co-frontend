@@ -32,6 +32,10 @@
 	overflow-x: auto;
 }
 
+.ant-modal.large-modal {
+	width: 900px !important;
+}
+
 .ant-form-item--lh32 {
 	.ant-form-item-control {
 		line-height: 32px;
@@ -81,8 +85,15 @@
 		width: 60%;
 		min-width: 800px;
 	}
+
 	.ant-form-item {
 		margin-bottom: 12px;
+	}
+}
+
+@media (max-width: 1200px) {
+	.ant-modal.large-modal {
+		width: 520px !important;
 	}
 }
 
@@ -114,5 +125,8 @@
 		.ant-modal-body {
 			padding: 30px 15px;
 		}
+	}
+	.ant-modal.large-modal {
+		width: 300px !important;
 	}
 }

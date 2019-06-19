@@ -1,23 +1,19 @@
 import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
-import Highlighter from "react-highlight-words";
 import { connect } from "react-redux";
 import Actions from "../../../redux/actions";
 import UserSettlement from "./userSettlement";
-import { getStore } from "../../../store";
 
 class Users extends Component {
-	constructor(props) {
-		super();
-		this.state = {
-			searchText: "",
-			data: [],
-			visible: false,
-			settlement: [],
-			loading: false,
-			user_id: null,
-		};
-	}
+	state = {
+		searchText: "",
+		data: [],
+		visible: false,
+		settlement: [],
+		loading: false,
+		user_id: null,
+		pagination: { current: 1, pageSize: 5 },
+	};
 
 	getColumnSearchProps = dataIndex => ({
 		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -50,23 +46,17 @@ class Users extends Component {
 			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
 		),
 		onFilter: (value, record) =>
-			record[dataIndex]
-				.toString()
-				.toLowerCase()
-				.includes(value.toLowerCase()),
+			record[dataIndex] === null
+				? false
+				: record[dataIndex]
+						.toString()
+						.toLowerCase()
+						.includes(value.toLowerCase()),
 		onFilterDropdownVisibleChange: visible => {
 			if (visible) {
 				setTimeout(() => this.searchInput.select());
 			}
 		},
-		render: text => (
-			<Highlighter
-				highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-				searchWords={[this.state.searchText]}
-				autoEscape
-				textToHighlight={text ? text.toString() : "n/a"}
-			/>
-		),
 	});
 
 	handleSearch = (selectedKeys, confirm) => {
@@ -79,17 +69,10 @@ class Users extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	async showSettlement(dataIndex) {
+	showSettlement(dataIndex) {
 		this.setState({
-			loading: true,
 			user_id: dataIndex,
-		});
-		const store = getStore();
-		const { getUserSetElementData } = this.props;
-		await store.dispatch(getUserSetElementData(dataIndex));
-		this.setState({
 			visible: true,
-			loading: false,
 		});
 	}
 
@@ -99,9 +82,49 @@ class Users extends Component {
 		});
 	};
 
+	componentDidMount = async () => {
+		this.setState({ loading: true });
+		await this.fetchUsers();
+	};
+
+	handleTableChange = (pagination, filters) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetchUsers({
+					...filters,
+				});
+			}
+		);
+	};
+
+	async fetchUsers(opts = {}) {
+		try {
+			const { getUsersData } = this.props;
+			const { pagination } = this.state;
+
+			const params = {
+				pageSize: pagination.pageSize,
+				pageNum: pagination.current,
+				...opts,
+			};
+
+			const res = await getUsersData(params);
+			pagination.total = res.adminUsers.total;
+			this.setState({ pagination, loading: false });
+		} catch (e) {}
+	}
+
 	render() {
-		const { loading } = this.state;
-		const { adminUsers, userSettlement } = this.props;
+		const { adminUsers } = this.props;
+		const { pagination } = this.state;
+		if (!this.props.adminUsers) return null;
 		const columns = [
 			{
 				title: "First name",
@@ -130,6 +153,7 @@ class Users extends Component {
 				key: "email",
 				width: "10%",
 				...this.getColumnSearchProps("email"),
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Phone number",
@@ -137,35 +161,29 @@ class Users extends Component {
 				key: "phone_number",
 				width: "10%",
 				...this.getColumnSearchProps("phone_number"),
+				render: res => (!res ? "n/a" : res),
 			},
 			{
-				title: "Telegram Chat",
+				title: "Chat id",
 				dataIndex: "chat_id",
 				key: "chat_id",
 				width: "10%",
 				...this.getColumnSearchProps("chat_id"),
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Settlements accounts",
-				dataIndex: "user_id",
-				key: "user_id",
-				width: "10%",
-				...this.getColumnSearchProps("user_id"),
-			} && {
-				title: "Settlements accounts",
-				dataIndex2: "is_settlements_exists",
+				dataIndex: "",
 				key: "is_settlements_exists",
 				width: "10%",
 				render: dataIndex =>
 					dataIndex.is_settlements_exists ? (
 						<Button
 							type="primary"
-							block
 							icon="check"
-							loading={loading && this.state.user_id === dataIndex.user_id}
 							onClick={() => this.showSettlement(dataIndex.user_id)}
 						>
-							showSettlement
+							show
 						</Button>
 					) : (
 						"n/a"
@@ -175,12 +193,20 @@ class Users extends Component {
 
 		return (
 			<>
-				<Table columns={columns} dataSource={adminUsers} />
+				<Table
+					columns={columns}
+					rowKey={adminUsers => adminUsers.user_id}
+					dataSource={adminUsers}
+					className="ovf-auto"
+					onChange={this.handleTableChange}
+					pagination={{ ...pagination, size: "small" }}
+					loading={this.state.loading}
+				/>
 				{this.state.visible && (
 					<UserSettlement
 						hideModal={this.hideModal}
-						settlementData={userSettlement}
 						visible={this.state.visible}
+						userId={this.state.user_id}
 					/>
 				)}
 			</>
@@ -190,15 +216,11 @@ class Users extends Component {
 
 const mapStateToProps = state => ({
 	adminUsers: state.adminUsers,
-	userSettlement: state.userSettlement,
-});
-
-const maoDispatchToProps = dispatch => ({
-	getUsersData: dispatch(Actions.adminUsers.getUsersData()),
-	getUserSetElementData: Actions.userSettlementAccountData.getUserSettlementData,
 });
 
 export default connect(
 	mapStateToProps,
-	maoDispatchToProps
+	{
+		getUsersData: Actions.adminUsers.getUsersData,
+	}
 )(Users);

@@ -1,31 +1,24 @@
-import { getRestClient, handleReqError, getAuthHeaders } from "../../../api/network";
+import { getRestClient, handleReqError, getAuthHeaders } from "../../api/network";
 
 const client = getRestClient();
-
-const usersData = sessionStorage.getItem("adminUsers");
-const userSettlement = sessionStorage.getItem("userSettlementData");
-const initialState = (usersData && JSON.parse(usersData)) || null;
-const initialState2 = (userSettlement && JSON.parse(userSettlement)) || null;
 const ADMIN_USERS = "ADMIN_USERS";
 const USER_SETTLEMENT_DATA = "USER_SETTLEMENT_DATA";
 
-export const adminUsersReducer = (state = initialState, action) => {
+export const adminUsersReducer = (state, action) => {
 	switch (action.type) {
 		case ADMIN_USERS:
-			sessionStorage.setItem("adminUsers", JSON.stringify(action.payload));
 			return action.payload;
 		default:
-			return state;
+			return state || null;
 	}
 };
 
-export const setUserSettlementDataReducer = (state = initialState2, action) => {
+export const setUserSettlementDataReducer = (state, action) => {
 	switch (action.type) {
 		case USER_SETTLEMENT_DATA:
-			sessionStorage.setItem("userSettlement", JSON.stringify(action.payload));
 			return action.payload;
 		default:
-			return state;
+			return state || null;
 	}
 };
 
@@ -33,16 +26,19 @@ export const saveUsers = users => {
 	return { type: ADMIN_USERS, payload: users };
 };
 
-export const getUsersData = () => async (dispatch, getState) => {
+export const getUsersData = params => async dispatch => {
 	const authHeaders = getAuthHeaders();
 	try {
 		const { data } = await client.get("/admin/users", {
 			headers: {
 				...authHeaders,
 			},
+			params: {
+				...params,
+			},
 		});
 		dispatch(saveUsers(data.items));
-		return { adminUsers: data.items };
+		return { adminUsers: data };
 	} catch (er) {
 		return handleReqError(er);
 	}
@@ -52,7 +48,7 @@ export const saveUserSettlementData = userSettlements => {
 	return { type: USER_SETTLEMENT_DATA, payload: userSettlements };
 };
 
-export const getUserSettlementData = user_id => async (dispatch, getState) => {
+export const getUserSettlementData = user_id => async dispatch => {
 	const authHeaders = getAuthHeaders();
 	try {
 		const { data } = await client.get(`admin/user/${user_id}/settlements`, {
