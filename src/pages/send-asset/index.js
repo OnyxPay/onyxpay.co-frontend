@@ -8,6 +8,7 @@ import { TextAligner } from "../../components/styled";
 import { sendAsset } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address } from "../../utils/validate";
+import { convertAmountToStr } from "../../utils/number";
 
 const { Option } = Select;
 
@@ -25,15 +26,36 @@ class SendAsset extends Component {
 		return isEnough;
 	}
 
+	calcMaxAmount(assetSymbol) {
+		const { assets } = this.props;
+		const asset = assets.find(asset => asset.symbol === assetSymbol);
+		return convertAmountToStr(asset.amount, 8);
+	}
+
+	isAmountNotOverMax = (amount, assetSymbol) => {
+		const maxAmount = this.calcMaxAmount(assetSymbol);
+		return amount <= maxAmount;
+	};
+
+	handleMaxAmount = (assetSymbol, setFieldValue) => e => {
+		const maxAmount = this.calcMaxAmount(assetSymbol);
+		setFieldValue("amount", maxAmount);
+	};
+
 	handleFormSubmit = async (values, formActions) => {
-		const { push } = this.props;
 		try {
 			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
+			const isAmountNotOverMax = this.isAmountNotOverMax(values.amount, values.asset_symbol);
 			if (!isEnoughAmount) {
 				formActions.setFieldError("amount", "min amount is 1 oUSD");
-				// TODO: check max amount
 			}
-			if (isEnoughAmount) {
+
+			if (!isAmountNotOverMax) {
+				const maxAmount = this.calcMaxAmount(values.asset_symbol);
+				formActions.setFieldError("amount", `max ${maxAmount}`);
+			}
+
+			if (isEnoughAmount && isAmountNotOverMax) {
 				await sendAsset(values);
 				formActions.resetForm();
 				notification.success({
@@ -65,8 +87,6 @@ class SendAsset extends Component {
 
 	render() {
 		const { assets } = this.props;
-		console.log(assets);
-
 		return (
 			<>
 				<PageTitle>Send assets</PageTitle>
@@ -91,6 +111,7 @@ class SendAsset extends Component {
 							if (!values.amount) {
 								errors.amount = "required";
 							}
+
 							return errors;
 						}}
 					>
@@ -110,6 +131,7 @@ class SendAsset extends Component {
 									<Row gutter={16}>
 										<Col lg={8} md={24}>
 											<Form.Item
+												className="ant-form-item--lh32"
 												label="Receiver address"
 												required
 												validateStatus={
@@ -134,6 +156,7 @@ class SendAsset extends Component {
 
 										<Col lg={8} md={24}>
 											<Form.Item
+												className="ant-form-item--lh32"
 												label="Asset"
 												required
 												validateStatus={errors.asset_symbol && touched.asset_symbol ? "error" : ""}
@@ -166,20 +189,28 @@ class SendAsset extends Component {
 
 										<Col lg={8} md={24}>
 											<Form.Item
+												className="ant-form-item--lh32"
 												label="Amount"
 												required
 												validateStatus={errors.amount && touched.amount ? "error" : ""}
 												help={errors.amount && touched.amount ? errors.amount : ""}
 											>
-												<Input
-													name="amount"
-													type="number"
-													placeholder="Enter an amount"
-													value={values.amount}
-													onChange={handleChange}
-													onBlur={handleBlur}
-													disabled={isSubmitting}
-												/>
+												<Input.Group compact style={{ display: "flex" }}>
+													<Input
+														name="amount"
+														type="number"
+														placeholder="Enter an amount"
+														value={values.amount}
+														onChange={handleChange}
+														onBlur={handleBlur}
+														disabled={isSubmitting}
+													/>
+													<Button
+														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+													>
+														max
+													</Button>
+												</Input.Group>
 											</Form.Item>
 										</Col>
 									</Row>
