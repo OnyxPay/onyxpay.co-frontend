@@ -58,11 +58,14 @@ class AssetsExchange extends Component {
 				});
 			}
 		}
-		this.setState({
+		let defaultAssetData = exchangeRates.find(record => record.symbol === defaultAsset.symbol);
+		await this.setState({
 			assetPricesData: data,
-			primaryAsset: recordToAssetData(
-				exchangeRates.find(record => record.symbol === defaultAsset.symbol)
-			),
+			defaultAsset: {
+				name: defaultAssetData.symbol,
+				buyPrice: defaultAssetData.buy / 10 ** 8,
+				sellPrice: defaultAssetData.sell / 10 ** 8,
+			},
 			selectedAsset: recordToAssetData(data[0]),
 		});
 	}
@@ -136,13 +139,15 @@ class AssetsExchange extends Component {
 
 										<Form.Item label="Amount: ">
 											<InputNumber min={0} defaultValue={0} onChange={this.handleBuyAmountChange} />
+											<span className="ant-form-text"> {this.state.selectedAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{this.state.selectedAsset.buyPrice * this.state.buyAmount || 0}
+												{(this.state.selectedAsset.buyPrice * this.state.buyAmount) /
+													this.state.defaultAsset.sellPrice || 0}
 											</span>
-											<span className="ant-form-text">oUSD</span>
+											<span className="ant-form-text"> {this.state.defaultAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item wrapperCol={{ span: 12, offset: 10 }}>
@@ -171,13 +176,14 @@ class AssetsExchange extends Component {
 												defaultValue={0}
 												onChange={this.handleSellAmountChange}
 											/>
+											<span className="ant-form-text"> {this.state.selectedAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
 												{this.state.selectedAsset.sellPrice * this.state.sellAmount || 0}
 											</span>
-											<span className="ant-form-text">oUSD</span>
+											<span className="ant-form-text"> {this.state.defaultAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item wrapperCol={{ span: 12, offset: 10 }}>
