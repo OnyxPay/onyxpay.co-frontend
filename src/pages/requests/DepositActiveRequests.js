@@ -96,7 +96,7 @@ class DepositActiveRequests extends Component {
 		const columnsForClient = [
 			{
 				title: "Asset",
-				dataIndex: "request",
+				dataIndex: "asset",
 			},
 			{
 				title: "Amount",
@@ -108,7 +108,9 @@ class DepositActiveRequests extends Component {
 			},
 			{
 				title: "Created",
-				dataIndex: "trx_timestamp",
+				render: (text, record, index) => {
+					return new Date(record.trx_timestamp).toLocaleString();
+				},
 			},
 			{
 				title: "Action",
@@ -142,7 +144,9 @@ class DepositActiveRequests extends Component {
 			},
 			{
 				title: "Created",
-				dataIndex: "request.trx_timestamp",
+				render: (text, record, index) => {
+					return new Date(record.request.trx_timestamp).toLocaleString();
+				},
 			},
 			{
 				title: "Action",

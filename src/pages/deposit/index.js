@@ -53,6 +53,7 @@ class Deposit extends Component {
 			if (!isBlocked && isEnoughAmount) {
 				const res = await createRequest(values);
 				if (!res.error) {
+					console.log(res);
 					notification.success({
 						message: "Done",
 						description: "Deposit request is successfully created",
