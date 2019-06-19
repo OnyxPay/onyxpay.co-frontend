@@ -32,7 +32,6 @@ export const saveUser = user => {
 
 export const getUserData = () => async (dispatch, getState) => {
 	const authHeaders = getAuthHeaders();
-	console.log(authHeaders);
 	try {
 		const { data } = await client.get("info", {
 			headers: {

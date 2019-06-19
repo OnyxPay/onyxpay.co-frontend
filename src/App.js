@@ -36,7 +36,7 @@ let Page404 = Loadable({
 });
 
 const Deposit = Loadable({
-	loader: () => import(/* webpackChunkName: "Page404" */ "./pages/deposit"),
+	loader: () => import(/* webpackChunkName: "Deposit" */ "./pages/deposit"),
 	loading: Loader,
 });
 
