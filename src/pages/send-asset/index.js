@@ -7,6 +7,7 @@ import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { sendAsset } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
+import { isBase58Address } from "../../utils/validate";
 
 const { Option } = Select;
 
@@ -81,6 +82,8 @@ class SendAsset extends Component {
 							let errors = {};
 							if (!values.receiver_address) {
 								errors.receiver_address = "required";
+							} else if (!isBase58Address(values.receiver_address)) {
+								errors.receiver_address = "Recipient's address should be in base58 format";
 							}
 							if (!values.asset_symbol) {
 								errors.asset_symbol = "required";
