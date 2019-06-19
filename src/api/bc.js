@@ -24,7 +24,8 @@ export function createTrx({ funcName, params, contractAddress, accountAddress })
 		paramsTyped,
 		cryptoAddress(contractAddress),
 		gasPrice,
-		CONST.DEFAULT_GAS_LIMIT,
+		// CONST.DEFAULT_GAS_LIMIT,
+		40000,
 		accountAddress // address of payer
 	);
 }

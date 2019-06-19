@@ -50,5 +50,5 @@ export async function exchangeAssets(values) {
 	signTrx(trx, pk);
 
 	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
+	return res;
 }

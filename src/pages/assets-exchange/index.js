@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Table, Card, Form, Divider, InputNumber, Button } from "antd";
+import { Row, Col, Table, Card, Form, Divider, InputNumber, Button, notification } from "antd";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { roles, defaultAsset } from "../../api/constants";
 import { exchangeAssets } from "../../api/exchange";
+import { TimeoutError } from "promise-timeout";
+import { SendRawTrxError } from "../../utils/custom-error";
 
 const columns = [
 	{
@@ -58,11 +60,14 @@ class AssetsExchange extends Component {
 				});
 			}
 		}
-		this.setState({
+		let defaultAssetData = exchangeRates.find(record => record.symbol === defaultAsset.symbol);
+		await this.setState({
 			assetPricesData: data,
-			primaryAsset: recordToAssetData(
-				exchangeRates.find(record => record.symbol === defaultAsset.symbol)
-			),
+			defaultAsset: {
+				name: defaultAssetData.symbol,
+				buyPrice: defaultAssetData.buy / 10 ** 8,
+				sellPrice: defaultAssetData.sell / 10 ** 8,
+			},
 			selectedAsset: recordToAssetData(data[0]),
 		});
 	}
@@ -81,27 +86,47 @@ class AssetsExchange extends Component {
 		await this.setState({ sellAmount: value });
 	};
 
+	openNotification = (type, description) => {
+		notification[type]({
+			message: type === "success" ? "Exchange operation successful" : "Exchange operation failed",
+			description: description,
+			duration: 0,
+		});
+	};
+
 	handleSubmit = async (e, operationType) => {
 		e.preventDefault();
 		e.stopPropagation();
 
 		const { selectedAsset, buyAmount, sellAmount } = this.state;
 		try {
-			await exchangeAssets({
+			let result = await exchangeAssets({
 				operationType: operationType,
 				assetName: selectedAsset.name,
 				amountToBuy: operationType === "buy" ? buyAmount : sellAmount * selectedAsset.sellPrice,
 				wallet: this.props.wallet,
 			});
+			this.openNotification(result.Error === 0 ? "success" : "error");
+			console.log(result);
 		} catch (e) {
+			if (e instanceof TimeoutError) {
+				this.openNotification(
+					"error",
+					"Transaction timed out. Try checking your balance some time later."
+				);
+			} else if (e instanceof SendRawTrxError) {
+				this.openNotification("error", "Contract execution error");
+			} else {
+				this.openNotification("error", "Unknown error");
+			}
 			console.log("error: ", e);
 		}
 	};
 
 	render() {
 		const formItemLayout = {
-			labelCol: { span: 8 },
-			wrapperCol: { span: 14 },
+			labelCol: { offset: 1, span: 7 },
+			wrapperCol: { span: 16 },
 		};
 
 		return (
@@ -115,6 +140,7 @@ class AssetsExchange extends Component {
 							})}
 							columns={columns}
 							dataSource={this.state.assetPricesData}
+							pagination={false}
 						/>
 					</Col>
 					<Col md={24} lg={12}>
@@ -122,6 +148,7 @@ class AssetsExchange extends Component {
 							<Row gutter={16}>
 								<Col md={24} lg={12}>
 									<Form
+										layout="vertical"
 										{...formItemLayout}
 										onSubmit={e => {
 											this.handleSubmit(e, "buy");
@@ -134,13 +161,15 @@ class AssetsExchange extends Component {
 
 										<Form.Item label="Amount: ">
 											<InputNumber min={0} defaultValue={0} onChange={this.handleBuyAmountChange} />
+											<span className="ant-form-text"> {this.state.selectedAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
-												{this.state.selectedAsset.buyPrice * this.state.buyAmount || 0}
+												{(this.state.selectedAsset.buyPrice * this.state.buyAmount) /
+													this.state.defaultAsset.sellPrice || 0}
 											</span>
-											<span className="ant-form-text">oUSD</span>
+											<span className="ant-form-text"> {this.state.defaultAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item wrapperCol={{ span: 12, offset: 10 }}>
@@ -153,6 +182,7 @@ class AssetsExchange extends Component {
 								<Col md={24} lg={12}>
 									<Divider> {"Sell " + this.state.selectedAsset.name} </Divider>
 									<Form
+										layout="vertical"
 										{...formItemLayout}
 										onSubmit={e => {
 											this.handleSubmit(e, "sell");
@@ -168,13 +198,14 @@ class AssetsExchange extends Component {
 												defaultValue={0}
 												onChange={this.handleSellAmountChange}
 											/>
+											<span className="ant-form-text"> {this.state.selectedAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item label="Total: ">
 											<span className="ant-form-text">
 												{this.state.selectedAsset.sellPrice * this.state.sellAmount || 0}
 											</span>
-											<span className="ant-form-text">oUSD</span>
+											<span className="ant-form-text"> {this.state.defaultAsset.name} </span>
 										</Form.Item>
 
 										<Form.Item wrapperCol={{ span: 12, offset: 10 }}>
