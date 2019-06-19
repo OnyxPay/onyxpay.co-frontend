@@ -5,7 +5,6 @@ import Actions from "../../../redux/actions";
 
 class UserSettlement extends Component {
 	state = {
-		data: [],
 		loading: false,
 	};
 
@@ -23,37 +22,38 @@ class UserSettlement extends Component {
 	};
 
 	render() {
-		const { data } = this.state;
+		const { userSettlement } = this.props;
 		const columns = [
 			{
-				title: "account_name",
+				title: "Account name",
 				dataIndex: "account_name",
 				key: "account_name",
 				width: "10%",
 			},
 			{
-				title: "account_number",
+				title: "Account number",
 				dataIndex: "account_number",
 				key: "account_number",
 				width: "10%",
 			},
 			{
-				title: "brief_notes",
+				title: "Brief notes",
 				dataIndex: "brief_notes",
 				key: "brief_notes",
 				width: "10%",
 			},
 			{
-				title: "description",
+				title: "Description",
 				dataIndex: "description",
 				key: "description",
 				width: "10%",
 			},
 			{
-				title: "updated_at",
+				title: "Updated",
 				dataIndex: "updated_at",
 				key: "updated_at",
 				width: "10%",
+				render: res => new Date(res).toLocaleString(),
 			},
 		];
 		return (
@@ -68,7 +68,7 @@ class UserSettlement extends Component {
 					<Table
 						columns={columns}
 						rowKey={data => data.id}
-						dataSource={data}
+						dataSource={userSettlement}
 						className="ovf-auto"
 						pagination={false}
 						loading={this.state.loading}

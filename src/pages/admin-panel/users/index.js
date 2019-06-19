@@ -12,7 +12,7 @@ class Users extends Component {
 		settlement: [],
 		loading: false,
 		user_id: null,
-		pagination: { current: 1, pageSize: 5 },
+		pagination: { current: 1, pageSize: 20 },
 	};
 
 	getColumnSearchProps = dataIndex => ({
@@ -200,9 +200,9 @@ class Users extends Component {
 					columns={columns}
 					rowKey={adminUsers => adminUsers.user_id}
 					dataSource={adminUsers}
-					className="ovf-auto"
+					className="usersTable ovf-auto"
 					onChange={this.handleTableChange}
-					pagination={{ ...pagination, size: "small" }}
+					pagination={{ ...pagination }}
 					loading={this.state.loading}
 				/>
 				{this.state.visible && (
