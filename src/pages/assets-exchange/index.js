@@ -3,11 +3,22 @@ import { connect } from "react-redux";
 import { Row, Col, Table, Card, Form, Divider, InputNumber, Button, notification } from "antd";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
+import styled from "styled-components";
 import { convertAmountToStr } from "../../utils/number";
 import { roles, defaultAsset } from "../../api/constants";
 import { exchangeAssets } from "../../api/exchange";
 import { TimeoutError } from "promise-timeout";
 import { SendRawTrxError } from "../../utils/custom-error";
+
+const Container = styled.div`
+	.selectedRow {
+		background-color: #40a9ff;
+		color: white;
+		&:hover {
+			color: #595959;
+		}
+	}
+`;
 
 const columns = [
 	{
@@ -78,6 +89,10 @@ class AssetsExchange extends Component {
 		});
 	};
 
+	setRowClassName = record => {
+		return record.key === this.state.selectedAsset.name ? "selectedRow" : "";
+	};
+
 	handleBuyAmountChange = async value => {
 		this.setState({ buyAmount: value });
 	};
@@ -134,15 +149,18 @@ class AssetsExchange extends Component {
 				<PageTitle>Assets Exchange</PageTitle>
 				<Row gutter={16}>
 					<Col md={24} lg={12}>
-						<Table
-							onRow={record => ({
-								onClick: e => this.onActiveAssetChanged(record),
-							})}
-							columns={columns}
-							dataSource={this.state.assetPricesData}
-							pagination={false}
-							expandRowByClick={true}
-						/>
+						<Container>
+							<Table
+								onRow={record => ({
+									onClick: e => this.onActiveAssetChanged(record),
+								})}
+								rowClassName={this.setRowClassName}
+								columns={columns}
+								dataSource={this.state.assetPricesData}
+								pagination={false}
+								expandRowByClick={true}
+							/>
+						</Container>
 					</Col>
 					<Col md={24} lg={12}>
 						<Card>
