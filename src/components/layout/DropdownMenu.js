@@ -9,19 +9,27 @@ const UpgradeLink = styled.span`
 	color: #1890ff;
 `;
 
+function getMenuItem(role, title, userRole) {
+	if (userRole === "superagent") {
+		return;
+	} else if (userRole === "agent" && role === "agent") {
+		return;
+	} else {
+		return (
+			<Menu.Item>
+				<Link to={"/upgrade-user:" + role}>
+					<UpgradeLink>{title}</UpgradeLink>
+				</Link>
+			</Menu.Item>
+		);
+	}
+}
 const DropdownMenu = ({ logOut }) => {
+	let user = JSON.parse(sessionStorage.getItem("user"));
 	const menu = (
 		<Menu>
-			<Menu.Item>
-				<Link to="/upgrade-user:agent">
-					<UpgradeLink>Upgrade to Agent</UpgradeLink>
-				</Link>
-			</Menu.Item>
-			<Menu.Item>
-				<Link to="/upgrade-user:super_agent">
-					<UpgradeLink>Upgrade to Super Agent</UpgradeLink>
-				</Link>
-			</Menu.Item>
+			{getMenuItem("agent", "Upgrade to Agent")}
+			{getMenuItem("super_agent", "Upgrade to Super Agent")}
 			<Menu.Divider />
 			<Menu.Item onClick={() => logOut()}>
 				<span>Logout</span>

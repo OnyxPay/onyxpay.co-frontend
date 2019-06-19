@@ -80,7 +80,6 @@ class UpgradeUser extends Component {
 
 	componentWillMount() {
 		this.checkSettlements();
-		console.log(window.innerWidth);
 		if (window.innerWidth <= 480) {
 			let stepsStyle = { height: "100%", border: "none", width: "100%" };
 			let upgradeAsideStyle = { width: "100%" };
@@ -181,7 +180,6 @@ class UpgradeUser extends Component {
 	}
 
 	render() {
-		console.log(this.state.direction);
 		return (
 			<>
 				<PageTitle>Upgrade to the {this.state.role}</PageTitle>
