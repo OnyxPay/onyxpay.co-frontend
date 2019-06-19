@@ -34,22 +34,25 @@ export const saveRequests = requestsData => {
 	return { type: REQUESTS_DATA, payload: requestsData };
 };
 
-export const getRequests = () => async (dispatch, getState) => {
+export const getRequests = params => async dispatch => {
 	const authHeaders = getAuthHeaders();
 	try {
-		const { data } = await client.get("/admin/upgrade-requests?pageSize=100", {
+		const { data } = await client.get("/admin/upgrade-requests", {
 			headers: {
 				...authHeaders,
 			},
+			params: {
+				...params,
+			},
 		});
 		dispatch(saveRequests(data.items));
-		return { requestsData: data.items };
+		return { requestsData: data };
 	} catch (er) {
 		return handleReqError(er);
 	}
 };
 
-export const setRequestReject = (request_id, reason) => async (dispatch, getState) => {
+export const setRequestReject = (request_id, reason) => async dispatch => {
 	const authHeaders = getAuthHeaders();
 	try {
 		const status = await client.put(
@@ -69,7 +72,7 @@ export const setRequestReject = (request_id, reason) => async (dispatch, getStat
 	}
 };
 
-export const sentRequest = () => async (dispatch, getState) => {
+export const sentRequest = () => async () => {
 	const authHeaders = getAuthHeaders();
 	try {
 		await client.post(
@@ -87,7 +90,7 @@ export const sentRequest = () => async (dispatch, getState) => {
 };
 
 export const upgradeUser = (userAccountAddress, role, id) => {
-	return async (dispatch, getState) => {
+	return async dispatch => {
 		const client = getBcClient();
 		try {
 			const { pk, accountAddress } = await unlockWalletAccount();
@@ -103,7 +106,7 @@ export const upgradeUser = (userAccountAddress, role, id) => {
 				funcName = "RegisterSuperAgent";
 			}
 			const p1 = new Parameter("accountName", ParameterType.ByteArray, userAddress);
-
+			debugger;
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
@@ -119,7 +122,7 @@ export const upgradeUser = (userAccountAddress, role, id) => {
 				console.log(res);
 				if (res.Error === 0) {
 					message.success("User was successfully upgrade");
-					this.deleteRequest(id);
+					deleteRequest(id);
 				}
 			} catch (error) {
 				console.log(error);
@@ -136,21 +139,24 @@ export const upgradeUser = (userAccountAddress, role, id) => {
 
 export const deleteRequest = id => {
 	return async dispatch => {
-		//const authHeader = getAuthHeaders();
-		console.log(id);
-		//try {
-		//await client.delete(`settlements/${id}`, {
-		//headers: {
-		//	...authHeader,
-		//},
-		//	});
-		dispatch({
-			type: DELETE_REQUEST,
-			payload: id,
-		});
-		//	message.success("Settlements account was successfully deleted");
-		//	} //catch (error) {
-		//return handleReqError(error);
-		//}
+		const authHeader = getAuthHeaders();
+		try {
+			await client.delete(
+				`admin/upgrade-request/${id}`,
+				{},
+				{
+					headers: {
+						...authHeader,
+					},
+				}
+			);
+			dispatch({
+				type: DELETE_REQUEST,
+				payload: id,
+			});
+			message.success("Request was successfully deleted");
+		} catch (error) {
+			return handleReqError(error);
+		}
 	};
 };

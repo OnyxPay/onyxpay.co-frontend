@@ -10,20 +10,27 @@ import {
 import ReasonReject from "./reasonReject";
 
 class AdminRequests extends Component {
-	constructor(props) {
-		super();
-		this.state = {
-			visible: false,
-			reason: "",
-			request_id: null,
-		};
-	}
+	state = {
+		visible: false,
+		reason: "",
+		request_id: null,
+		pagination: { current: 1, pageSize: 20 },
+		loadingTable: false,
+		loading: false,
+	};
 
-	ConfirmRole = (wallet_addr, role, id) => {
+	ConfirmRole = async (wallet_addr, role, id) => {
+		this.setState({
+			loading: true,
+			request_id: id,
+		});
 		const { upgradeUser } = this.props;
 		if (wallet_addr && role) {
-			upgradeUser(wallet_addr, role, id);
+			await upgradeUser(wallet_addr, role, id);
 		}
+		this.setState({
+			loading: false,
+		});
 	};
 
 	RejectRequest = async request_id => {
@@ -53,17 +60,51 @@ class AdminRequests extends Component {
 	};
 
 	componentDidMount = async () => {
-		const { getRequests } = this.props;
-		await getRequests();
+		await this.fetchRequest();
 		//const { sentRequest } = this.props;
 		//await sentRequest();
 	};
 
+	handleTableChange = (pagination, filters) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetchRequest({
+					...filters,
+				});
+			}
+		);
+	};
+
+	async fetchRequest(opts = {}) {
+		try {
+			const { getRequests } = this.props;
+			const { pagination } = this.state;
+
+			const params = {
+				pageSize: pagination.pageSize,
+				pageNum: pagination.current,
+				status: "opened",
+				...opts,
+			};
+
+			const res = await getRequests(params);
+			pagination.total = res.requestsData.total;
+			this.setState({ pagination, loading: false });
+		} catch (e) {}
+	}
+
 	render() {
-		const { visible } = this.state;
+		const { visible, pagination } = this.state;
 		let { requests } = this.props;
 		if (!requests) {
-			return false;
+			return null;
 		}
 		requests = requests.filter(rq => rq.status !== "refused");
 		const columns = [
@@ -77,26 +118,31 @@ class AdminRequests extends Component {
 				title: "Date registration",
 				dataIndex: "user.registered_at",
 				with: "15%",
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Current role",
 				dataIndex: "user.role",
 				with: "10%",
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Expected role",
 				dataIndex: "expected_position",
 				with: "10%",
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Email",
 				dataIndex: "user.email",
 				with: "20%",
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Phone",
 				dataIndex: "user.phone_number",
 				with: "20%",
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "",
@@ -107,6 +153,7 @@ class AdminRequests extends Component {
 						<Button
 							type="primary"
 							block
+							loading={this.state.loading && this.state.request_id === res.id}
 							onClick={() => this.ConfirmRole(res.user.wallet_addr, res.expected_position, res.id)}
 						>
 							Confirm
@@ -133,7 +180,10 @@ class AdminRequests extends Component {
 					columns={columns}
 					rowKey={requests => requests.id}
 					dataSource={requests}
-					size="large"
+					pagination={{ ...pagination, size: "small" }}
+					className="ovf-auto"
+					onChange={this.handleTableChange}
+					loading={this.state.loadingTable}
 				/>
 				{visible && (
 					<ReasonReject
