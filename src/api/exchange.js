@@ -35,7 +35,7 @@ export async function exchangeAssets(values) {
 			{
 				label: "amountToBuy",
 				type: ParameterType.Integer,
-				value: values.amountToBuy * 10 ** 8,
+				value: Math.round(values.amountToBuy * 10 ** 8),
 			},
 			{
 				label: "acct",
