@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Table, Card, Form, Divider, InputNumber, Button } from "antd";
+import { Row, Col, Table, Card, Form, Divider, InputNumber, Button, notification } from "antd";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
@@ -84,19 +84,30 @@ class AssetsExchange extends Component {
 		await this.setState({ sellAmount: value });
 	};
 
+	openNotification = (type, description) => {
+		notification[type]({
+			message: type === "success" ? "Exchange operation successful" : "Exchange operation failed",
+			description: description,
+			duration: 0,
+		});
+	};
+
 	handleSubmit = async (e, operationType) => {
 		e.preventDefault();
 		e.stopPropagation();
 
 		const { selectedAsset, buyAmount, sellAmount } = this.state;
 		try {
-			await exchangeAssets({
+			let result = await exchangeAssets({
 				operationType: operationType,
 				assetName: selectedAsset.name,
 				amountToBuy: operationType === "buy" ? buyAmount : sellAmount * selectedAsset.sellPrice,
 				wallet: this.props.wallet,
 			});
+			this.openNotification(result.Error === 0 ? "success" : "error");
+			console.log(result);
 		} catch (e) {
+			this.openNotification("error", "Contract execution error");
 			console.log("error: ", e);
 		}
 	};
