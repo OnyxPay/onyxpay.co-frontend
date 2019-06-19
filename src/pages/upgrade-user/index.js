@@ -194,11 +194,11 @@ class UpgradeUser extends Component {
 									description="Fill settlements account."
 								/>
 								<Step
-									title={getStepTitle(0, this.state.currentStep)}
+									title={getStepTitle(1, this.state.currentStep)}
 									description="Buy OnyxCache."
 								/>
 								<Step
-									title={getStepTitle(0, this.state.currentStep)}
+									title={getStepTitle(2, this.state.currentStep)}
 									description="Upgrading approvement."
 								/>
 							</Steps>
