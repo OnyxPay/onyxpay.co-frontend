@@ -61,7 +61,7 @@ class AssetsExchange extends Component {
 			}
 		}
 		let defaultAssetData = exchangeRates.find(record => record.symbol === defaultAsset.symbol);
-		await this.setState({
+		this.setState({
 			assetPricesData: data,
 			defaultAsset: {
 				name: defaultAssetData.symbol,
@@ -73,17 +73,17 @@ class AssetsExchange extends Component {
 	}
 
 	onActiveAssetChanged = async record => {
-		await this.setState({
+		this.setState({
 			selectedAsset: recordToAssetData(record),
 		});
 	};
 
 	handleBuyAmountChange = async value => {
-		await this.setState({ buyAmount: value });
+		this.setState({ buyAmount: value });
 	};
 
 	handleSellAmountChange = async value => {
-		await this.setState({ sellAmount: value });
+		this.setState({ sellAmount: value });
 	};
 
 	openNotification = (type, description) => {
@@ -141,6 +141,7 @@ class AssetsExchange extends Component {
 							columns={columns}
 							dataSource={this.state.assetPricesData}
 							pagination={false}
+							expandRowByClick={true}
 						/>
 					</Col>
 					<Col md={24} lg={12}>
@@ -230,7 +231,6 @@ export default connect(
 			user: state.user,
 			exchangeRates: state.assets.rates,
 			wallet: state.wallet,
-			exchange_successful: state.exchange_successful,
 		};
 	},
 	{
