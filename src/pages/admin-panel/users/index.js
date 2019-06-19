@@ -132,6 +132,7 @@ class Users extends Component {
 				key: "first_name",
 				width: "10%",
 				...this.getColumnSearchProps("first_name"),
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Last name",
@@ -139,6 +140,7 @@ class Users extends Component {
 				key: "last_name",
 				width: "10%",
 				...this.getColumnSearchProps("last_name"),
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Сountry",
@@ -146,6 +148,7 @@ class Users extends Component {
 				key: "country",
 				width: "10%",
 				...this.getColumnSearchProps("country"),
+				render: res => (!res ? "n/a" : res),
 			},
 			{
 				title: "Email",
