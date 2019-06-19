@@ -11,14 +11,15 @@ const restClient = getRestClient();
 
 async function sendUpgradeRequest(role) {
 	const authHeaders = getAuthHeaders();
-	const form = await restClient.post("upgrade-request", {
-		headers: {
-			...authHeaders,
-		},
-		data: {
-			role: role,
-		},
-	});
+	const form = await restClient.post(
+		"upgrade-request",
+		{ role: role.toLowerCase() },
+		{
+			headers: {
+				...authHeaders,
+			},
+		}
+	);
 	return form;
 }
 
@@ -50,8 +51,7 @@ class UpgradeUser extends Component {
 		stepsStyle: {
 			float: "left",
 			minWidth: 130,
-			width: 130,
-			borderRight: "1px solid rgba(167, 180, 201, 0.3)",
+			width: "20%",
 		},
 		direction: "vertical",
 		upgradeAsideStyle: {
@@ -60,6 +60,7 @@ class UpgradeUser extends Component {
 			width: "50%",
 			minWidth: 200,
 			display: "block",
+			borderLeft: "1px solid rgba(167, 180, 201, 0.3)",
 		},
 	};
 
@@ -185,7 +186,7 @@ class UpgradeUser extends Component {
 			<>
 				<PageTitle>Upgrade to the {this.state.role}</PageTitle>
 				<Card>
-					<section style={{ width: "100%" }}>
+					<section>
 						<nav className="upgrade_navigation" style={this.state.stepsStyle}>
 							<Steps direction={this.state.direction} size="small" current={this.state.currentStep}>
 								<Step
