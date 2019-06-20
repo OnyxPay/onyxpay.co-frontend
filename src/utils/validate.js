@@ -104,3 +104,7 @@ export function isBase58Address(address) {
 		return false;
 	}
 }
+
+export function isLatinChars(value) {
+	return /^[A-Za-z0-9]+$/i.test(value);
+}
