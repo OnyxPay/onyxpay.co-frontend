@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Redirect } from "react-router-dom";
+import { roles } from "../api/constants";
 
 /**
  * HOC that Handles whether or not the user is allowed to see the page.
@@ -24,7 +25,7 @@ function Authorization(allowedRoles) {
 					return <WrappedComponent {...this.props} />;
 				} else if (allowedRoles.includes(user.role) && user.status !== 1 && location === "/") {
 					return <WrappedComponent {...this.props} />;
-				} else if (!allowedRoles.includes(user.role)) {
+				} else if (user.role === roles.adm || user.role === roles.sadm) {
 					return <Redirect to="/admin/investments" />;
 				} else {
 					return <Redirect to="/" />;

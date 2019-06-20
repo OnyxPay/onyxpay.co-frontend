@@ -66,13 +66,6 @@ class UserMenu extends Component {
 						<span>Settlement accounts</span>
 					</Link>
 				</Menu.Item>
-
-				<Menu.Item key="/admin/users">
-					<Link to="/admin/users" className="ant-menu-item-content">
-						<Icon type="user" />
-						<span>Users [admin]</span>
-					</Link>
-				</Menu.Item>
 			</Menu>
 		);
 	}
