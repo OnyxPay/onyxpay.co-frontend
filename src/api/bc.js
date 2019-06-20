@@ -3,6 +3,7 @@ import { getRestClient, getBcClient } from "./network";
 import { SendRawTrxError } from "../utils/custom-error";
 import { gasPrice, gasLimit, cryptoAddress } from "../utils/blockchain";
 
+
 export async function createAndSignTrxViaGasCompensator(contractName, funcName, params) {
 	const client = getRestClient({ type: "gas" });
 	const res = await client.post("compensate-gas", {
