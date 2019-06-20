@@ -180,7 +180,7 @@ class AdminRequests extends Component {
 					columns={columns}
 					rowKey={requests => requests.id}
 					dataSource={requests}
-					pagination={{ ...pagination, size: "small" }}
+					pagination={{ ...pagination }}
 					className="ovf-auto"
 					onChange={this.handleTableChange}
 					loading={this.state.loadingTable}

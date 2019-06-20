@@ -106,7 +106,6 @@ export const upgradeUser = (userAccountAddress, role, id) => {
 				funcName = "RegisterSuperAgent";
 			}
 			const p1 = new Parameter("accountName", ParameterType.ByteArray, userAddress);
-			debugger;
 			//make transaction
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
