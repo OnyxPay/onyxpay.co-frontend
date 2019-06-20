@@ -5,6 +5,7 @@ import { getActiveRequests, acceptRequest } from "../../api/requests";
 import { getMessages } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/deposit/SendToAgent";
+import { roles } from "../../api/constants";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -66,7 +67,7 @@ class DepositActiveRequests extends Component {
 		try {
 			this.setState({ loading: true });
 			let data;
-			if (user.role === "client") {
+			if (user.role === roles.c) {
 				params.type = "deposit";
 				data = await getActiveRequests(params);
 			} else if (user.role === "agent") {
@@ -168,7 +169,7 @@ class DepositActiveRequests extends Component {
 		return (
 			<>
 				<Table
-					columns={user.role === "client" ? columnsForClient : columnsForAgent}
+					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}
 					dataSource={this.state.data}
 					pagination={this.state.pagination}
