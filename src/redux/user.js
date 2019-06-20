@@ -38,7 +38,9 @@ export const getUserData = () => async (dispatch, getState) => {
 				...authHeaders,
 			},
 		});
-		data.role = "client";
+		if (data.roleCode === 0) {
+			data.role = "client";
+		}
 		dispatch(saveUser(data));
 		dispatch(finishLoading());
 		return { user: data };
