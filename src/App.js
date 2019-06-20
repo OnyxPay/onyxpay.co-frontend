@@ -65,6 +65,11 @@ let SendAsset = Loadable({
 	loading: Loader,
 });
 
+let Withdraw = Loadable({
+	loader: () => import(/* webpackChunkName: "Withdraw" */ "./pages/withdraw"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
@@ -80,6 +85,7 @@ AssetsExchange = UserOrAgent(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
 SendAsset = User(SendAsset);
+Withdraw = User(Withdraw);
 
 class App extends Component {
 	componentDidMount() {
@@ -102,6 +108,7 @@ class App extends Component {
 					<Route path="/closed-requests" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
+					<Route path="/withdraw" exact component={Withdraw} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
