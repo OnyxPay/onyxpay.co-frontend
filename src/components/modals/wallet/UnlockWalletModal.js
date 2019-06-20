@@ -78,7 +78,7 @@ class UnlockWalletModal extends Component {
 							return (
 								<form onSubmit={handleSubmit}>
 									<Form.Item
-										label="Password"
+										label="Wallet password"
 										className="ant-form-item--lh32"
 										validateStatus={errors.password && touched.password ? "error" : ""}
 										help={errors.password && touched.password ? errors.password : ""}
