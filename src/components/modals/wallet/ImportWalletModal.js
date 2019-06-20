@@ -171,7 +171,7 @@ class ImportWalletModal extends Component {
 					<SelectContainer>
 						<Select defaultValue="0" style={{ width: "100%" }} onChange={this.handleTabChange}>
 							<Option value="0">Import wallet</Option>
-							<Option value="1">Mnemonics phrase</Option>
+							<Option value="1">Mnemonic phrase</Option>
 							<Option value="2">Private key</Option>
 						</Select>
 					</SelectContainer>
@@ -183,7 +183,7 @@ class ImportWalletModal extends Component {
 									<TabLabel>Import wallet file</TabLabel>
 								</Tab>
 								<Tab>
-									<TabLabel>Mnemonics phrase</TabLabel>
+									<TabLabel>Mnemonic phrase</TabLabel>
 								</Tab>
 								<Tab>
 									<TabLabel>Private key</TabLabel>
@@ -323,7 +323,7 @@ class ImportWalletModal extends Component {
 											if (!mnemonics) {
 												errors.mnemonics = "required";
 											} else if (!isMnemonicsValid(mnemonics)) {
-												errors.mnemonics = "mnemonics phrase is not valid";
+												errors.mnemonics = "mnemonic phrase is not valid";
 											}
 											if (!password) {
 												errors.password = "required";
