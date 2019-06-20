@@ -1,4 +1,4 @@
-import { TransactionBuilder, Parameter, CONST, Transaction } from "ontology-ts-sdk";
+import { TransactionBuilder, Parameter, /* CONST, */ Transaction } from "ontology-ts-sdk";
 import { getRestClient, getBcClient } from "./network";
 import { SendRawTrxError } from "../utils/custom-error";
 import { gasPrice, cryptoAddress } from "../utils/blockchain";
