@@ -20,3 +20,22 @@ export async function sendMessage(requestId, receivers = []) {
 		return handleReqError(error);
 	}
 }
+
+export async function getMessages(params) {
+	const client = getRestClient();
+
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("operation-messages", {
+			headers: {
+				...authHeaders,
+			},
+			params,
+		});
+		return data;
+	} catch (error) {
+		console.log(error);
+		return handleReqError(error);
+	}
+}
+
