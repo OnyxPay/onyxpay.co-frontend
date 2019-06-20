@@ -1,32 +1,20 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import {
-	Card,
-	Button,
-	Input,
-	Form,
-	Select,
-	Typography,
-	notification,
-	Row,
-	Col,
-	message,
-} from "antd";
+import { Card, Button, Input, Form, Select, notification, Row, Col, message } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
-import { push } from "connected-react-router";
-import { createRequest } from "../../api/requests";
+import { sendAsset } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
+import { isBase58Address } from "../../utils/validate";
+import { convertAmountToStr } from "../../utils/number";
 
 const { Option } = Select;
-const { Text } = Typography;
 
-class Deposit extends Component {
+class SendAsset extends Component {
 	componentDidMount() {
-		const { getAssetsList, getExchangeRates } = this.props;
-		getAssetsList();
+		const { getExchangeRates } = this.props;
 		getExchangeRates();
 	}
 
@@ -38,36 +26,52 @@ class Deposit extends Component {
 		return isEnough;
 	}
 
-	handleFormSubmit = async (values, formActions) => {
-		const { isAssetBlocked, push } = this.props;
-		try {
-			const isBlocked = await isAssetBlocked(values.asset_symbol);
-			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
+	calcMaxAmount(assetSymbol) {
+		const { assets } = this.props;
+		const asset = assets.find(asset => asset.symbol === assetSymbol);
+		return convertAmountToStr(asset.amount, 8);
+	}
 
-			if (isBlocked) {
-				formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
-			}
+	isAmountNotOverMax = (amount, assetSymbol) => {
+		const maxAmount = this.calcMaxAmount(assetSymbol);
+		return amount <= maxAmount;
+	};
+
+	handleMaxAmount = (assetSymbol, setFieldValue) => e => {
+		const maxAmount = this.calcMaxAmount(assetSymbol);
+		setFieldValue("amount", maxAmount);
+	};
+
+	handleFormSubmit = async (values, formActions) => {
+		try {
+			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
+			const isAmountNotOverMax = this.isAmountNotOverMax(values.amount, values.asset_symbol);
 			if (!isEnoughAmount) {
 				formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
-			if (!isBlocked && isEnoughAmount) {
-				const res = await createRequest(values);
-				if (!res.error) {
-					notification.success({
-						message: "Done",
-						description: "Deposit request is successfully created",
-					});
-					push("/active-requests");
-				} else if (res.error.data) {
-					formActions.setErrors(res.error.data);
-				}
+
+			if (!isAmountNotOverMax) {
+				const maxAmount = this.calcMaxAmount(values.asset_symbol);
+				formActions.setFieldError("amount", `max ${maxAmount}`);
+			}
+
+			if (isEnoughAmount && isAmountNotOverMax) {
+				await sendAsset(values);
+				formActions.resetForm();
+				notification.success({
+					message: "Done",
+					description: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
+						values.receiver_address
+					} address`,
+				});
 			}
 		} catch (e) {
 			if (e instanceof TimeoutError) {
+				formActions.resetForm();
 				notification.info({
 					message: e.message,
 					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check results later",
 				});
 			} else {
 				message.error(e.message);
@@ -83,25 +87,31 @@ class Deposit extends Component {
 
 	render() {
 		const { assets } = this.props;
-
 		return (
 			<>
-				<PageTitle>Deposit</PageTitle>
+				<PageTitle>Send assets</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
+							receiver_address: "",
 							asset_symbol: "oUSD",
 							amount: "",
 						}}
 						validate={values => {
 							let errors = {};
+							if (!values.receiver_address) {
+								errors.receiver_address = "required";
+							} else if (!isBase58Address(values.receiver_address)) {
+								errors.receiver_address = "Recipient's address should be in base58 format";
+							}
 							if (!values.asset_symbol) {
 								errors.asset_symbol = "required";
 							}
 							if (!values.amount) {
 								errors.amount = "required";
 							}
+
 							return errors;
 						}}
 					>
@@ -119,8 +129,34 @@ class Deposit extends Component {
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
-										<Col lg={12} md={24}>
+										<Col lg={8} md={24}>
 											<Form.Item
+												className="ant-form-item--lh32"
+												label="Receiver address"
+												required
+												validateStatus={
+													errors.receiver_address && touched.receiver_address ? "error" : ""
+												}
+												help={
+													errors.receiver_address && touched.receiver_address
+														? errors.receiver_address
+														: ""
+												}
+											>
+												<Input
+													name="receiver_address"
+													placeholder="Enter address"
+													value={values.receiver_address}
+													onChange={handleChange}
+													onBlur={handleBlur}
+													disabled={isSubmitting}
+												/>
+											</Form.Item>
+										</Col>
+
+										<Col lg={8} md={24}>
+											<Form.Item
+												className="ant-form-item--lh32"
 												label="Asset"
 												required
 												validateStatus={errors.asset_symbol && touched.asset_symbol ? "error" : ""}
@@ -142,34 +178,39 @@ class Deposit extends Component {
 												>
 													{assets.map((asset, index) => {
 														return (
-															<Option key={index} value={asset}>
-																{asset}
+															<Option key={index} value={asset.symbol}>
+																{asset.symbol}
 															</Option>
 														);
 													})}
 												</Select>
 											</Form.Item>
-											<Text type="secondary" style={{ display: "block", margin: "-12px 0 12px 0" }}>
-												You will be able to send to the agent only chosen fiat currency
-											</Text>
 										</Col>
 
-										<Col lg={12} md={24}>
+										<Col lg={8} md={24}>
 											<Form.Item
+												className="ant-form-item--lh32"
 												label="Amount"
 												required
 												validateStatus={errors.amount && touched.amount ? "error" : ""}
 												help={errors.amount && touched.amount ? errors.amount : ""}
 											>
-												<Input
-													name="amount"
-													type="number"
-													placeholder="Enter an amount"
-													value={values.amount}
-													onChange={handleChange}
-													onBlur={handleBlur}
-													disabled={isSubmitting}
-												/>
+												<Input.Group compact style={{ display: "flex" }}>
+													<Input
+														name="amount"
+														type="number"
+														placeholder="Enter an amount"
+														value={values.amount}
+														onChange={handleChange}
+														onBlur={handleBlur}
+														disabled={isSubmitting}
+													/>
+													<Button
+														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+													>
+														max
+													</Button>
+												</Input.Group>
 											</Form.Item>
 										</Col>
 									</Row>
@@ -180,7 +221,7 @@ class Deposit extends Component {
 											disabled={isSubmitting}
 											loading={isSubmitting}
 										>
-											Create deposit request
+											Send
 										</Button>
 									</TextAligner>
 								</form>
@@ -197,14 +238,11 @@ export default connect(
 	state => {
 		return {
 			user: state.user,
-			assets: state.assets.list,
+			assets: state.balance.assets,
 			exchangeRates: state.assets.rates,
 		};
 	},
 	{
-		getAssetsList: Actions.assets.getAssetsList,
-		isAssetBlocked: Actions.assets.isAssetBlocked,
 		getExchangeRates: Actions.assets.getExchangeRates,
-		push,
 	}
-)(Deposit);
+)(SendAsset);

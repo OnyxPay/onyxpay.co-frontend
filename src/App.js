@@ -11,10 +11,6 @@ import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
 
-import Users from "./pages/admin-panel/users/users";
-import UsersBlockedActive from "./pages/admin-panel/users/activeBlockedUsers";
-import AdminRequests from "./pages/admin-panel/requests/index";
-
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
 let Dashboard = Loadable({
@@ -58,7 +54,22 @@ const ClosedRequests = Loadable({
 });
 
 let AssetsExchange = Loadable({
-	loader: () => import(/* webpackChunkName: "ClosedRequests" */ "./pages/assets-exchange"),
+	loader: () => import(/* webpackChunkName: "AssetsExchange" */ "./pages/assets-exchange"),
+	loading: Loader,
+});
+
+let SendAsset = Loadable({
+	loader: () => import(/* webpackChunkName: "SendAsset" */ "./pages/send-asset"),
+	loading: Loader,
+});
+
+let Withdraw = Loadable({
+	loader: () => import(/* webpackChunkName: "Withdraw" */ "./pages/withdraw"),
+	loading: Loader,
+});
+
+let Users = Loadable({
+	loader: () => import(/* webpackChunkName: "Users" */ "./pages/admin-panel/users/index"),
 	loading: Loader,
 });
 
@@ -67,7 +78,7 @@ const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
 const UserOrAgent = Authorization([roles.c, roles.a]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
-// const Admin = Authorization(["admin", "super_admin"]);
+const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
@@ -76,6 +87,9 @@ const AgentDeposit = Agent(Deposit2);
 AssetsExchange = UserOrAgent(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
+SendAsset = User(SendAsset);
+Withdraw = User(Withdraw);
+Users = AdminAndSuperAdmin(Users);
 
 class App extends Component {
 	componentDidMount() {
@@ -90,8 +104,6 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
-					<Route path="/admin/users/active" exact component={UsersBlockedActive} />
-					<Route path="/admin/requests" exact component={AdminRequests} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
@@ -99,6 +111,8 @@ class App extends Component {
 					<Route path="/active-requests" exact component={ActiveRequests} />
 					<Route path="/closed-requests" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
+					<Route path="/send-asset" exact component={SendAsset} />
+					<Route path="/withdraw" exact component={Withdraw} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />

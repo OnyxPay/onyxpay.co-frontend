@@ -17,22 +17,12 @@ class SuperAdminMenu extends Component {
 						<span>Investments</span>
 					</Link>
 				</Menu.Item>
-				<SubMenu
-					key="users"
-					title={
-						<span className="ant-menu-item-content">
-							<Icon type="user" />
-							<span>Users</span>
-						</span>
-					}
-				>
-					<Menu.Item key="/admin/users">
-						<Link to="/admin/users">Users</Link>
-					</Menu.Item>
-					<Menu.Item>
-						<Link to="/admin/users/active">Active/Blocked users</Link>
-					</Menu.Item>
-				</SubMenu>
+				<Menu.Item key="/admin/users">
+					<Link to="/admin/users" className="ant-menu-item-content">
+						<Icon type="users" />
+						<span>Users</span>
+					</Link>
+				</Menu.Item>
 				<SubMenu
 					key="requests"
 					title={

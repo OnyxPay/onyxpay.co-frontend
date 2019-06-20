@@ -31,6 +31,13 @@
 .ant-table-wrapper.ovf-auto {
 	overflow-x: auto;
 }
+.ant-table-wrapper.usersTable tbody {
+	background: #ffffff;
+}
+
+.ant-modal.large-modal {
+	width: 900px !important;
+}
 
 .ant-form-item--lh32 {
 	.ant-form-item-control {
@@ -52,6 +59,46 @@
 	@media (min-width: 1200px) {
 		width: 60%;
 		min-width: 800px;
+	}
+}
+
+@media (max-width: 1200px) {
+	.ant-modal.large-modal {
+		width: 520px !important;
+	}
+}
+
+@media (max-width: 991px) {
+	.ant-modal {
+		top: 30px !important;
+	}
+
+	.import-wallet-modal {
+		width: calc(100vw - 16px) !important;
+		.ant-modal-body {
+			padding: 40px 30px;
+		}
+	}
+}
+
+@media (max-width: 767px) {
+	.create-wallet-modal {
+		width: calc(100vw - 16px) !important;
+		.ant-modal-body {
+			padding: 40px 30px;
+		}
+	}
+}
+
+@media (max-width: 575px) {
+	.import-wallet-modal,
+	.create-wallet-modal {
+		.ant-modal-body {
+			padding: 30px 15px;
+		}
+	}
+	.ant-modal.large-modal {
+		width: 300px !important;
 	}
 }
 
