@@ -1,6 +1,6 @@
 import { ParameterType, utils } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
-import { unlockWalletAccount } from "./wallet";
+import { unlockWalletAccount, getAccount, getWallet } from "./wallet";
 import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
@@ -8,6 +8,9 @@ import { ContractAddressError, SendRawTrxError } from "../utils/custom-error";
 import { createTrx, signTrx, sendTrx } from "./bc";
 import { timeout, TimeoutError } from "promise-timeout";
 import { notifyTimeout } from "./constants";
+import { get } from "lodash";
+
+const depositReqId = "e5b4f2711bc3e4a7f279a25b3d6c664a988deeeefdf0fdeb8842cd2e9dadc4ab";
 
 export async function createRequest(formValues, type) {
 	const store = getStore();
@@ -104,13 +107,72 @@ export async function cancelRequest(requestId, type) {
 	const { pk, accountAddress } = await unlockWalletAccount();
 
 	const trx = createTrx({
-		funcName: "Request",
-		params: [{ label: "requestId", value: requestId, type: ParameterType.String }],
+		funcName: "RejectRequest",
+		params: [{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId }],
 		contractAddress: address,
 		accountAddress,
 	});
 
 	signTrx(trx, pk);
+
+	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
+	console.log(res);
+}
+
+export async function getRejectionCounter(userId) {
+	const store = getStore();
+	const { wallet } = store.getState();
+	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
+	}
+	const decodedWallet = getWallet(wallet);
+	const account = getAccount(decodedWallet);
+
+	const trx = createTrx({
+		funcName: "RejectationCounter",
+		params: [
+			{
+				label: "userId",
+				type: ParameterType.ByteArray,
+				value: utils.reverseHex(account.address.toHexString()),
+			},
+		],
+		contractAddress: address,
+	});
+
+	const res = await sendTrx(trx, true);
+	let counter = get(res, "Result.Result", 0);
+	if (counter === "") {
+		counter = 0;
+	}
+	return counter;
+}
+
+export async function acceptRequest(requestId) {
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
+	}
+	const { pk, accountAddress } = await unlockWalletAccount();
+
+	const trx = createTrx({
+		funcName: "Accept",
+		params: [
+			{ label: "requestId", type: ParameterType.String, value: requestId },
+			{
+				label: "agent",
+				type: ParameterType.ByteArray,
+				value: utils.reverseHex(accountAddress.toHexString()),
+			},
+		],
+		contractAddress: address,
+		accountAddress,
+	});
+
+	signTrx(trx, pk);
+	console.log("trx", trx);
 
 	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
 	console.log(res);

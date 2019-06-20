@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { Table, Button } from "antd";
-import { getActiveRequests } from "../../api/requests";
+import { connect } from "react-redux";
+import { Table, Button, Popconfirm, message } from "antd";
+import { getActiveRequests, acceptRequest } from "../../api/requests";
+import { getMessages } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/deposit/SendToAgent";
 
@@ -17,7 +19,7 @@ const style = {
 class DepositActiveRequests extends Component {
 	state = {
 		data: [],
-		pagination: {},
+		pagination: { current: 1, pageSize: 10 },
 		loading: false,
 		SEND_REQ_TO_AGENT: false,
 		requestId: null,
@@ -36,30 +38,40 @@ class DepositActiveRequests extends Component {
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
-		const pager = { ...this.state.pagination };
-		pager.current = pagination.current;
-		this.setState({
-			pagination: pager,
-		});
-		this.fetch({
-			results: pagination.pageSize,
-			page: pagination.current,
-			...filters,
-		});
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetch({
+					...filters,
+				});
+			}
+		);
 	};
 
-	fetch = async (params = { type: "deposit" }) => {
-		// const plug = [
-		// 	{
-		// 		asset: "oUSD",
-		// 		amount: 1000,
-		// 		status: "active",
-		// 		id: 1,
-		// 	},
-		// ];
-		this.setState({ loading: true });
+	fetch = async (opts = {}) => {
+		const { pagination } = this.state;
+		const { user } = this.props;
+		const params = {
+			pageSize: pagination.pageSize,
+			pageNum: pagination.current,
+			...opts,
+		};
+
 		try {
-			const data = await getActiveRequests(params);
+			this.setState({ loading: true });
+			let data;
+			if (user.role === "client") {
+				params.type = "deposit";
+				data = await getActiveRequests(params);
+			} else if (user.role === "agent") {
+				data = await getMessages(params);
+			}
 			const pagination = { ...this.state.pagination };
 			pagination.total = data.total;
 			this.setState({
@@ -70,8 +82,18 @@ class DepositActiveRequests extends Component {
 		} catch (error) {}
 	};
 
+	acceptRequest = async requestId => {
+		try {
+			await acceptRequest(requestId);
+		} catch (e) {
+			message.error(e.message);
+		}
+	};
+
 	render() {
-		const columns = [
+		const { user } = this.props;
+
+		const columnsForClient = [
 			{
 				title: "Asset",
 				dataIndex: "asset",
@@ -86,7 +108,9 @@ class DepositActiveRequests extends Component {
 			},
 			{
 				title: "Created",
-				dataIndex: "trx_timestamp",
+				render: (text, record, index) => {
+					return new Date(record.trx_timestamp).toLocaleString();
+				},
 			},
 			{
 				title: "Action",
@@ -105,11 +129,46 @@ class DepositActiveRequests extends Component {
 				},
 			},
 		];
+		const columnsForAgent = [
+			{
+				title: "Asset",
+				dataIndex: "request.asset",
+			},
+			{
+				title: "Amount",
+				dataIndex: "request.amount",
+			},
+			{
+				title: "Status",
+				dataIndex: "request.status",
+			},
+			{
+				title: "Created",
+				render: (text, record, index) => {
+					return new Date(record.request.trx_timestamp).toLocaleString();
+				},
+			},
+			{
+				title: "Action",
+				render: (text, record, index) => {
+					return (
+						<>
+							<Popconfirm
+								title="Sure to accept?"
+								onConfirm={() => this.acceptRequest(record.request.id)}
+							>
+								<Button type="primary">Accept</Button>
+							</Popconfirm>
+						</>
+					);
+				},
+			},
+		];
 
 		return (
 			<>
 				<Table
-					columns={columns}
+					columns={user.role === "client" ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}
 					dataSource={this.state.data}
 					pagination={this.state.pagination}
@@ -127,4 +186,8 @@ class DepositActiveRequests extends Component {
 	}
 }
 
-export default DepositActiveRequests;
+export default connect(state => {
+	return {
+		user: state.user,
+	};
+})(DepositActiveRequests);
