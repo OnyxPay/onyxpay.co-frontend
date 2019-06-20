@@ -24,9 +24,12 @@ function Authorization(allowedRoles) {
 					// user is confirmed
 					return <WrappedComponent {...this.props} />;
 				} else if (allowedRoles.includes(user.role) && user.status !== 1 && location === "/") {
+					// user is unconfirmed show Confirmation modal
 					return <WrappedComponent {...this.props} />;
 				} else if (user.role === roles.adm || user.role === roles.sadm) {
 					return <Redirect to="/admin/investments" />;
+				} else if (!allowedRoles.includes(user.role)) {
+					return <Redirect to="/login" />;
 				} else {
 					return <Redirect to="/" />;
 				}
