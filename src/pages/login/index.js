@@ -69,11 +69,6 @@ class Login extends Component {
 		this.setState({ [type]: true });
 	};
 
-	openAdminPanel = () => {
-		this.props.saveUser({ name: "jon", role: "super_admin", status: 1 });
-		this.props.history.push("/admin/investments");
-	};
-
 	switchModal = to => () => {
 		if (to === modals.CREATE_WALLET_MODAL) {
 			this.hideModal(modals.IMPORT_WALLET_MODAL)();
@@ -183,9 +178,6 @@ class Login extends Component {
 								onClick={this.showModal(modals.REGISTRATION_MODAL)}
 							>
 								Create account
-							</Button>
-							<Button block onClick={this.openAdminPanel} type="danger" disabled={!wallet}>
-								Enter as admin
 							</Button>
 						</div>
 					)}

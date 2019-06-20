@@ -81,14 +81,12 @@ export async function getActiveRequests(params) {
 
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("requests", {
+		const { data } = await client.get("operation-requests", {
 			headers: {
 				...authHeaders,
 			},
 			params: {
 				...params,
-				// pageNum: 1,
-				// pageSize: 10,
 			},
 		});
 		return data;
