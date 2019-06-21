@@ -7,15 +7,15 @@ import { unlockWalletAccount } from "../../api/wallet";
 import { resolveContractAddress } from "../contracts";
 
 const client = getRestClient();
-const REQUESTS_DATA = "REQUESTS_DATA";
-const REQUESTS_STATUS = "REQUESTS_STATUS";
+const SAVE_UPGRADE_REQUESTS_DATA = "SAVE_UPGRADE_REQUESTS_DATA";
+const SAVE_REQUESTS_STATUS = "SAVE_REQUESTS_STATUS";
 const DELETE_REQUEST = "DELETE_REQUEST";
 
-export const adminRequestsReducer = (state, action) => {
+export const adminRequestsReducer = (state = [], action) => {
 	switch (action.type) {
-		case REQUESTS_DATA:
+		case SAVE_UPGRADE_REQUESTS_DATA:
 			return action.payload;
-		case REQUESTS_STATUS:
+		case SAVE_REQUESTS_STATUS:
 			return state.map(request => {
 				if (request.id === action.request_id) {
 					return { ...request, status: "refused" };
@@ -26,12 +26,12 @@ export const adminRequestsReducer = (state, action) => {
 		case DELETE_REQUEST:
 			return state.filter(item => item.id !== action.payload);
 		default:
-			return state || null;
+			return state;
 	}
 };
 
 export const saveRequests = requestsData => {
-	return { type: REQUESTS_DATA, payload: requestsData };
+	return { type: SAVE_UPGRADE_REQUESTS_DATA, payload: requestsData };
 };
 
 export const getRequests = params => async dispatch => {
@@ -65,7 +65,7 @@ export const setRequestReject = (request_id, reason) => async dispatch => {
 			}
 		);
 		if (status.data === "OK") {
-			dispatch({ type: REQUESTS_STATUS, request_id });
+			dispatch({ type: SAVE_REQUESTS_STATUS, request_id });
 		}
 	} catch (er) {
 		return handleReqError(er);

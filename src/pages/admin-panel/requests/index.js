@@ -11,7 +11,7 @@ import ReasonReject from "./reasonReject";
 
 class AdminRequests extends Component {
 	state = {
-		visible: false,
+		isReasonToRejectModalVisible: false,
 		reason: "",
 		request_id: null,
 		pagination: { current: 1, pageSize: 20 },
@@ -19,7 +19,7 @@ class AdminRequests extends Component {
 		loading: false,
 	};
 
-	ConfirmRole = async (wallet_addr, role, id) => {
+	confirmRole = async (wallet_addr, role, id) => {
 		this.setState({
 			loading: true,
 			request_id: id,
@@ -33,9 +33,9 @@ class AdminRequests extends Component {
 		});
 	};
 
-	RejectRequest = async request_id => {
+	rejectRequest = async request_id => {
 		this.setState({
-			visible: true,
+			isReasonToRejectModalVisible: true,
 			request_id: request_id,
 		});
 	};
@@ -49,13 +49,13 @@ class AdminRequests extends Component {
 		const { setRequestReject } = this.props;
 		setRequestReject(request_id, reason);
 		this.setState({
-			visible: visible,
+			isReasonToRejectModalVisible: visible,
 		});
 	};
 
 	handleCancel = visible => {
 		this.setState({
-			visible: visible,
+			isReasonToRejectModalVisible: visible,
 		});
 	};
 
@@ -101,7 +101,7 @@ class AdminRequests extends Component {
 	}
 
 	render() {
-		const { visible, pagination } = this.state;
+		const { isReasonToRejectModalVisible, pagination } = this.state;
 		let { requests } = this.props;
 		if (!requests) {
 			return null;
@@ -118,31 +118,31 @@ class AdminRequests extends Component {
 				title: "Date registration",
 				dataIndex: "user.registered_at",
 				with: "15%",
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? new Date(res).toDateString() : "n/a"),
 			},
 			{
 				title: "Current role",
 				dataIndex: "user.role",
 				with: "10%",
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Expected role",
 				dataIndex: "expected_position",
 				with: "10%",
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Email",
 				dataIndex: "user.email",
 				with: "20%",
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Phone",
 				dataIndex: "user.phone_number",
 				with: "20%",
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "",
@@ -154,7 +154,7 @@ class AdminRequests extends Component {
 							type="primary"
 							block
 							loading={this.state.loading && this.state.request_id === res.id}
-							onClick={() => this.ConfirmRole(res.user.wallet_addr, res.expected_position, res.id)}
+							onClick={() => this.confirmRole(res.user.wallet_addr, res.expected_position, res.id)}
 						>
 							Confirm
 						</Button>
@@ -166,7 +166,7 @@ class AdminRequests extends Component {
 				dataIndex: "id",
 				render: res => (
 					<>
-						<Button onClick={() => this.RejectRequest(res)} block type="primary">
+						<Button onClick={() => this.rejectRequest(res)} block type="danger">
 							Reject
 						</Button>
 					</>
@@ -185,11 +185,11 @@ class AdminRequests extends Component {
 					onChange={this.handleTableChange}
 					loading={this.state.loadingTable}
 				/>
-				{visible && (
+				{isReasonToRejectModalVisible && (
 					<ReasonReject
 						handleOk={this.handleOk}
 						handleCancel={this.handleCancel}
-						visible={visible}
+						visible={isReasonToRejectModalVisible}
 						handleChange={this.handleChange}
 					/>
 				)}

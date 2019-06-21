@@ -5,20 +5,13 @@ import { Input } from "antd";
 const { TextArea } = Input;
 
 class ReasonReject extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			visible: this.props.visible,
-			value: "",
-		};
-	}
-
 	render() {
+		const { visible } = this.props;
 		return (
 			<div>
 				<Modal
 					title="Basic Modal"
-					visible={this.state.visible}
+					visible={visible}
 					onOk={() => this.props.handleOk(false)}
 					onCancel={() => this.props.handleCancel(false)}
 				>

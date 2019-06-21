@@ -4,8 +4,6 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import connect from "react-redux/es/connect/connect";
 
-const SubMenu = Menu.SubMenu;
-
 class SuperAdminMenu extends Component {
 	render() {
 		const { location } = this.props;
@@ -26,7 +24,7 @@ class SuperAdminMenu extends Component {
 				<Menu.Item key="/admin/requests">
 					<Link to="/admin/requests" className="ant-menu-item-content">
 						<Icon type="pull-request" />
-						<span>Request</span>
+						<span>Requests</span>
 					</Link>
 				</Menu.Item>
 			</Menu>
