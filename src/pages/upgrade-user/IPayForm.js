@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Input } from "antd";
+import { Input, message } from "antd";
 import iPayPic from "../../assets/icons/iPay.png";
 import { getPaymentForm } from "../../api/upgrade";
-
+import { handleReqError } from "../../api/network";
 export class IPayForm extends Component {
 	state = {
 		form: {},
@@ -10,12 +10,21 @@ export class IPayForm extends Component {
 	formRef = React.createRef();
 	handleSubmit(event) {
 		event.preventDefault();
-		getPaymentForm(this.props.amount).then(data => {
-			this.setState({ form: data.data }, () => {
-				this.formRef.current.submit();
-				this.props.handleSubmit();
-			});
-		});
+		getPaymentForm(this.props.amount).then(
+			data => {
+				this.setState({ form: data.data }, () => {
+					this.formRef.current.submit();
+					this.props.handleSubmit();
+				});
+			},
+			err => {
+				console.log(err);
+				let errObj = handleReqError(err);
+				if (errObj) {
+					message.error("Internal error occured, HTTP status = " + errObj.error.status);
+				}
+			}
+		);
 	}
 
 	render() {
