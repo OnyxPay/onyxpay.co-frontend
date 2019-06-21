@@ -18,7 +18,7 @@ export const temporaryToken =
 export const tempWalletPassword = {};
 
 export const roles = {
-	c: "client",
+	c: "user",
 	a: "agent",
 	sa: "super_agent",
 	adm: "admin",

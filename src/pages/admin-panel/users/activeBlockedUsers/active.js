@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Input, Table, Button } from "antd";
-import { searchUser, BlockUser } from "./../../../../redux/admin-panel/BlockedActiveUsers";
+import {
+	searchUser,
+	BlockUser,
+	IsBlockedUser,
+} from "./../../../../redux/admin-panel/BlockedActiveUsers";
 
 const Search = Input.Search;
 
@@ -17,27 +21,33 @@ class ActiveUsers extends Component {
 
 	handleChange = value => {
 		const { searchUser } = this.props;
-		const userData = searchUser(value).then(res =>
+		searchUser(value).then(res =>
 			this.setState({
 				data: res.userData,
 				showTable: true,
 			})
 		);
-		console.log(userData);
 	};
 
-	blockedUser = async wallet_addr => {
+	blockedUser = async (wallet_addr, reason, duration) => {
 		this.setState({
 			loading: true,
 		});
 		const { BlockUser } = this.props;
-		await BlockUser(wallet_addr);
+		await BlockUser(wallet_addr, reason, duration);
 		this.setState({
 			loading: false,
 		});
 	};
 
+	isBlockUser = wallet_addr => {
+		const { IsBlockedUser } = this.props;
+		IsBlockedUser(wallet_addr);
+	};
+
 	render() {
+		console.log(this.props, this.state);
+		const { data } = this.state;
 		if (!this.state.data) {
 			return false;
 		}
@@ -87,9 +97,16 @@ class ActiveUsers extends Component {
 						<Button
 							type="primary"
 							loading={this.state.loading}
-							onClick={() => this.blockedUser("ANWEfjPsti8JbbkZLfchmgfrHS6rz9WQku", 1, 10)}
+							onClick={() => this.blockedUser(res.wallet_addr, 1, 10)}
 						>
 							Block
+						</Button>{" "}
+						<Button
+							type="primary"
+							loading={this.state.loading}
+							onClick={() => this.isBlockUser(res.wallet_addr)}
+						>
+							isBlocked
 						</Button>
 					</>
 				),
@@ -105,7 +122,12 @@ class ActiveUsers extends Component {
 				{this.state.showTable && (
 					<>
 						<hr />
-						<Table columns={columns} dataSource={this.state.data} />
+						<Table
+							columns={columns}
+							dataSource={data}
+							rowKey={data => data.user_id}
+							pagination={false}
+						/>
 					</>
 				)}
 			</>
@@ -118,5 +140,6 @@ export default connect(
 	{
 		searchUser,
 		BlockUser,
+		IsBlockedUser,
 	}
 )(ActiveUsers);

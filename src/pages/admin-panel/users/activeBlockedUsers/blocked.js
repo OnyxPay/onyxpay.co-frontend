@@ -1,7 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Table, Button } from "antd";
-import { UnblockUser, BlockedUsersData } from "./../../../../redux/admin-panel/BlockedActiveUsers";
+import {
+	UnblockUser,
+	BlockedUsersData,
+	searchUser,
+	BlockUser,
+	IsBlockedUser,
+} from "./../../../../redux/admin-panel/BlockedActiveUsers";
 
 const data = [
 	{
@@ -25,10 +31,7 @@ const data = [
 ];
 
 class BlockedUsers extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
+	state = {};
 
 	unblockUser = wallet_addr => {
 		const { UnblockUser } = this.props;
@@ -60,21 +63,32 @@ class BlockedUsers extends Component {
 				width: "10%",
 				render: res => (
 					<>
-						<Button type="primary" block onClick={() => this.unblockUser(res.wallet_addr)}>
+						<Button
+							type="primary"
+							block
+							onClick={() => this.unblockUser("ANWEfjPsti8JbbkZLfchmgfrHS6rz9WQku")}
+						>
 							Unblock
 						</Button>
 					</>
 				),
 			},
 		];
-		return <Table columns={columns} dataSource={data} size="middle" />;
+		return <Table columns={columns} dataSource={data} />;
 	}
 }
 
 export default connect(
-	null,
+	state => {
+		return {
+			blockedUsers: state.blockedUsers,
+		};
+	},
 	{
 		UnblockUser,
 		BlockedUsersData,
+		searchUser,
+		BlockUser,
+		IsBlockedUser,
 	}
 )(BlockedUsers);

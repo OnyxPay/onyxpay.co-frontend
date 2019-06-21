@@ -1,8 +1,15 @@
 import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
-import Actions from "../../../redux/actions";
 import UserSettlement from "./userSettlement";
+import {
+	UnblockUser,
+	BlockedUsersData,
+	searchUser,
+	BlockUser,
+	IsBlockedUser,
+	getUsersData,
+} from "../../../redux/admin-panel/users";
 
 class Users extends Component {
 	state = {
@@ -114,17 +121,31 @@ class Users extends Component {
 				pageNum: pagination.current,
 				...opts,
 			};
-
+			console.log(1);
 			const res = await getUsersData(params);
 			pagination.total = res.adminUsers.total;
+			console.log(res);
 			this.setState({ pagination, loading: false });
 		} catch (e) {}
 	}
 
+	blockedUser = async (wallet_addr, reason, duration) => {
+		const { BlockUser, IsBlockedUser } = this.props;
+		this.setState({
+			loading: true,
+		});
+		await BlockUser(wallet_addr, reason, duration);
+		this.setState({
+			loading: false,
+		});
+		const res = await IsBlockedUser(wallet_addr);
+	};
+
 	render() {
+		console.log(this.props, this.state);
 		const { adminUsers } = this.props;
 		const { pagination } = this.state;
-		if (!this.props.adminUsers) return null;
+		if (!adminUsers) return null;
 		const columns = [
 			{
 				title: "First name",
@@ -175,6 +196,14 @@ class Users extends Component {
 				render: res => (!res ? "n/a" : res),
 			},
 			{
+				title: "Wallet address",
+				dataIndex: "wallet_addr",
+				key: "wallet_addr",
+				width: "10%",
+				...this.getColumnSearchProps("wallet_addr"),
+				render: res => (!res ? "n/a" : res),
+			},
+			{
 				title: "Settlements accounts",
 				dataIndex: "",
 				key: "is_settlements_exists",
@@ -191,6 +220,18 @@ class Users extends Component {
 					) : (
 						"n/a"
 					),
+			},
+			{
+				title: "Actions",
+				dataIndex: "",
+				width: "10%",
+				render: res => (
+					<>
+						<Button type="primary" onClick={() => this.blockedUser(res.wallet_addr, 1, 10)}>
+							Block
+						</Button>
+					</>
+				),
 			},
 		];
 
@@ -224,6 +265,11 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		getUsersData: Actions.adminUsers.getUsersData,
+		UnblockUser,
+		BlockedUsersData,
+		searchUser,
+		BlockUser,
+		IsBlockedUser,
+		getUsersData,
 	}
 )(Users);
