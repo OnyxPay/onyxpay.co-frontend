@@ -1,26 +1,21 @@
-import { gasPrice, reverseAddressHex } from "../../utils/blockchain";
+import { message } from "antd";
 import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
+import { gasPrice, cryptoAddress } from "../../utils/blockchain";
 import { getBcClient } from "../../api/network";
 import { unlockWalletAccount } from "../../api/wallet";
-import { message } from "antd";
-
-function getContractAddress(contracts, name) {
-	try {
-		return reverseAddressHex(contracts[name]);
-	} catch (error) {
-		throw new Error("contract address is not found");
-	}
-}
+import { resolveContractAddress } from "../contracts";
 
 export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
-		let { contracts } = getState();
 		const client = getBcClient();
 
 		try {
 			const { pk, accountAddress } = await unlockWalletAccount();
 			const funcName = "SetAmount";
-			const contractAddress = getContractAddress(contracts, "Investments");
+			const address = await dispatch(resolveContractAddress("Investments"));
+			if (!address) {
+				throw new Error("contract address is not found");
+			}
 
 			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
 			const p2 = new Parameter("Amount", ParameterType.Integer, amount);
@@ -29,7 +24,7 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
 				[p1, p2],
-				contractAddress,
+				cryptoAddress(address),
 				gasPrice,
 				CONST.DEFAULT_GAS_LIMIT,
 				accountAddress
@@ -61,12 +56,14 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 
 export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
-		let { contracts } = getState();
 		const client = getBcClient();
 
 		try {
 			const funcName = "GetUnclaimed";
-			const contractAddress = getContractAddress(contracts, "Investments");
+			const address = await dispatch(resolveContractAddress("Investments"));
+			if (!address) {
+				throw new Error("contract address is not found");
+			}
 
 			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
 
@@ -74,7 +71,7 @@ export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
 				[p1],
-				contractAddress,
+				cryptoAddress(address),
 				gasPrice,
 				CONST.DEFAULT_GAS_LIMIT
 			);
@@ -116,13 +113,15 @@ export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 
 export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
-		let { contracts } = getState();
 		const client = getBcClient();
 
 		try {
 			const { pk, accountAddress } = await unlockWalletAccount();
 			const funcName = "Block";
-			const contractAddress = getContractAddress(contracts, "Investments");
+			const address = await dispatch(resolveContractAddress("Investments"));
+			if (!address) {
+				throw new Error("contract address is not found");
+			}
 
 			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
 
@@ -130,7 +129,7 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
 				[p1],
-				contractAddress,
+				cryptoAddress(address),
 				gasPrice,
 				CONST.DEFAULT_GAS_LIMIT,
 				accountAddress
@@ -161,13 +160,15 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 
 export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
-		let { contracts } = getState();
 		const client = getBcClient();
 
 		try {
 			const { pk, accountAddress } = await unlockWalletAccount();
 			const funcName = "Unblock";
-			const contractAddress = getContractAddress(contracts, "Investments");
+			const address = await dispatch(resolveContractAddress("Investments"));
+			if (!address) {
+				throw new Error("contract address is not found");
+			}
 
 			const p1 = new Parameter("secret hash", ParameterType.ByteArray, secret_hash);
 
@@ -175,7 +176,7 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 			const tx = TransactionBuilder.makeInvokeTransaction(
 				funcName,
 				[p1],
-				contractAddress,
+				cryptoAddress(address),
 				gasPrice,
 				CONST.DEFAULT_GAS_LIMIT,
 				accountAddress

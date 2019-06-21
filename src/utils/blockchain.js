@@ -2,17 +2,18 @@ import { Crypto, utils } from "ontology-ts-sdk";
 import { addressOfHead } from "../api/constants";
 
 export const gasPrice = 500;
+export const gasLimit = 50000;
 
 export function getHeadContractAddress() {
-	return new Crypto.Address(utils.reverseHex(addressOfHead));
+	return new Crypto.Address(addressOfHead);
 }
 
 export function reverseAddressHex(str) {
 	return new Crypto.Address(utils.reverseHex(str));
 }
 
-export function cryptoAddress(adress) {
-	return new Crypto.Address(adress);
+export function cryptoAddress(address) {
+	return new Crypto.Address(address);
 }
 
 export function cryptoPrivateKey(key) {
@@ -53,12 +54,15 @@ export function parseAmounts(arr) {
 	for (let i = 0; i < arr.length; i++) {
 		const amount = parseInt(utils.reverseHex(arr[i][1]), 16);
 		const symbol = utils.hexstr2str(arr[i][0]);
-		res.push({
-			symbol,
-			amount: amount ? amount : 0,
-			key: symbol,
-		});
+		if (amount) {
+			res.push({
+				symbol,
+				amount,
+				key: symbol,
+			});
+		}
 	}
+
 	return res;
 }
 
