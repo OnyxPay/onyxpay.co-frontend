@@ -77,7 +77,7 @@ class CreateWalletModal extends Component {
 		const { setWallet } = this.props;
 
 		if (generatedMnemonics !== mnemonics) {
-			formActions.setFieldError("mnemonics", "mnemonics don't match");
+			formActions.setFieldError("mnemonics", "mnemonic don't match");
 		} else {
 			// save wallet
 			setWallet(wallet);
@@ -236,7 +236,7 @@ class CreateWalletModal extends Component {
 									<Icon type="edit" /> Write down the text below on paper and keep it somewhere
 									secret and safe!
 								</BackupTitle>
-								<Label>Mnemonics phrase</Label>
+								<Label>Mnemonic phrase</Label>
 								<PrivateText mb="24px">
 									<MnemonicsText>{mnemonics}</MnemonicsText>
 								</PrivateText>
@@ -266,7 +266,7 @@ class CreateWalletModal extends Component {
 									if (!mnemonics) {
 										errors.mnemonics = "required";
 									} else if (!isMnemonicsValid(mnemonics)) {
-										errors.mnemonics = "mnemonics phrase is not valid";
+										errors.mnemonics = "mnemonic phrase is not valid";
 									}
 									return errors;
 								}}
@@ -284,7 +284,7 @@ class CreateWalletModal extends Component {
 									return (
 										<form onSubmit={handleSubmit}>
 											<Form.Item
-												label="Please, enter Mnemonics phrase"
+												label="Please, enter Mnemonic phrase"
 												validateStatus={errors.mnemonics && touched.mnemonics ? "error" : ""}
 												help={errors.mnemonics && touched.mnemonics ? errors.mnemonics : ""}
 											>

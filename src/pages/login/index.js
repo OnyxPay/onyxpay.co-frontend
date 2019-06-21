@@ -102,7 +102,10 @@ class Login extends Component {
 
 			if (res && res.error) {
 				if (res.error.data) {
-					message.error("Invalid credentials, maybe, this wallet  is not registered", 5);
+					message.error(
+						"Invalid password was entered. Or maybe your wallet is not associated with any account. Create account first.",
+						5
+					);
 				}
 			} else {
 				await getUserData();
