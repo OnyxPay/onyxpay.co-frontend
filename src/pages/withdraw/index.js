@@ -9,6 +9,7 @@ import { push } from "connected-react-router";
 import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
+import { isAssetBlocked } from "../../api/assets";
 
 const { Option } = Select;
 
@@ -43,7 +44,7 @@ class Withdraw extends Component {
 	};
 
 	handleFormSubmit = async (values, formActions) => {
-		const { isAssetBlocked, push } = this.props;
+		const { push } = this.props;
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
 			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
@@ -220,7 +221,6 @@ export default connect(
 		};
 	},
 	{
-		isAssetBlocked: Actions.assets.isAssetBlocked,
 		getExchangeRates: Actions.assets.getExchangeRates,
 		push,
 	}

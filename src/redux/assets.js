@@ -89,28 +89,3 @@ export const getExchangeRates = () => async dispatch => {
 		dispatch({ type: GET_ASSETS_EXCHANGE_RATES_FAILURE });
 	}
 };
-
-export const isAssetBlocked = tokenId => async dispatch => {
-	const client = getBcClient();
-	const funcName = "IsAssetBlocked";
-
-	const address = await dispatch(resolveContractAddress("Exchange"));
-	if (!address) throw new Error("Unable to get address of Exchange smart-contract");
-
-	const p1 = new Parameter("tokenId", ParameterType.String, tokenId);
-	//make transaction
-	const tx = TransactionBuilder.makeInvokeTransaction(
-		funcName,
-		[p1],
-		cryptoAddress(address),
-		gasPrice,
-		CONST.DEFAULT_GAS_LIMIT
-	);
-
-	try {
-		const response = await client.sendRawTransaction(tx.serialize(), true);
-		return !!parseInt(get(response, "Result.Result", "0"), 16);
-	} catch (e) {
-		console.log(e);
-	}
-};
