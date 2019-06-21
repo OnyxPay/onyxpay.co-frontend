@@ -12,7 +12,7 @@ import { get } from "lodash";
 
 const depositReqId = "e5b4f2711bc3e4a7f279a25b3d6c664a988deeeefdf0fdeb8842cd2e9dadc4ab";
 
-export async function createRequest(formValues, type) {
+export async function createRequest(formValues, requestType) {
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {
@@ -24,12 +24,10 @@ export async function createRequest(formValues, type) {
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
 
-	// TODO: send params to gas-compensator
-
 	const trx = createTrx({
 		funcName: "Request",
 		params: [
-			{ label: "operationRequested", type: ParameterType.String, value: "deposit" },
+			{ label: "operationRequested", type: ParameterType.String, value: requestType },
 			{
 				label: "initiator",
 				type: ParameterType.ByteArray,
@@ -54,8 +52,10 @@ export async function createRequest(formValues, type) {
 	formValues.trx_timestamp = trx_timestamp;
 	let createRes;
 
+	console.log(formValues);
+
 	try {
-		createRes = await client.post("requests/deposit", formValues, {
+		createRes = await client.post(`operation-requests/${requestType}`, formValues, {
 			headers: {
 				...authHeaders,
 			},
@@ -65,7 +65,7 @@ export async function createRequest(formValues, type) {
 		if (e.isAxiosError) {
 			return handleReqError(e);
 		} else if (e instanceof SendRawTrxError) {
-			await client.put(`request/${createRes.data.reqId}/cancel`, {
+			await client.put(`operation-request/${createRes.data.id}/cancel`, null, {
 				headers: {
 					...authHeaders,
 				},

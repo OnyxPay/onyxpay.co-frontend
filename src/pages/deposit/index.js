@@ -52,7 +52,7 @@ class Deposit extends Component {
 				formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
 			if (!isBlocked && isEnoughAmount) {
-				const res = await createRequest(values);
+				const res = await createRequest(values, "deposit");
 				if (!res.error) {
 					notification.success({
 						message: "Done",

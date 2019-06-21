@@ -63,17 +63,16 @@ class Withdraw extends Component {
 			}
 
 			if (!isBlocked && isEnoughAmount && isAmountNotOverMax) {
-				alert("Yo");
-				// const res = await createRequest(values);
-				// if (!res.error) {
-				// 	notification.success({
-				// 		message: "Done",
-				// 		description: "Deposit request is successfully created",
-				// 	});
-				// 	push("/active-requests");
-				// } else if (res.error.data) {
-				// 	formActions.setErrors(res.error.data);
-				// }
+				const res = await createRequest(values, "withdraw");
+				if (!res.error) {
+					notification.success({
+						message: "Done",
+						description: "Deposit request is successfully created",
+					});
+					push("/active-requests");
+				} else if (res.error.data) {
+					formActions.setErrors(res.error.data);
+				}
 			}
 		} catch (e) {
 			if (e instanceof TimeoutError) {
