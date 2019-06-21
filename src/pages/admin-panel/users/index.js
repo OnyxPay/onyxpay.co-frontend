@@ -16,11 +16,11 @@ class Users extends Component {
 		data: [],
 		visible: false,
 		settlement: [],
-		loading: false,
+		loadingTableData: false,
 		user_id: null,
 		pagination: { current: 1, pageSize: 20 },
-		loadingBtn: false,
-		loadingBtnUnblock: false,
+		loadingBlockUser: false,
+		loadingUnblockUser: false,
 	};
 
 	getColumnSearchProps = dataIndex => ({
@@ -91,7 +91,7 @@ class Users extends Component {
 	};
 
 	componentDidMount = async () => {
-		this.setState({ loading: true });
+		this.setState({ loadingTableData: true });
 		await this.fetchUsers();
 	};
 
@@ -123,27 +123,26 @@ class Users extends Component {
 			};
 			const res = await getUsersData(params);
 			pagination.total = res.adminUsers.total;
-			console.log(res);
-			this.setState({ pagination, loading: false });
+			this.setState({ pagination, loadingTableData: false });
 		} catch (e) {}
 	}
 
-	blockedUser = async (wallet_addr, reason, duration, userId) => {
+	blockUser = async (wallet_addr, reason, duration, userId) => {
 		const { blockUser, isBlockedUser } = this.props;
 		this.setState({
 			user_id: userId,
-			loadingBtn: true,
+			loadingBlockUser: true,
 		});
 		const res = await blockUser(wallet_addr, reason, duration);
 		if (!res) {
 			this.setState({
-				loadingBtn: false,
+				loadingBlockUser: false,
 			});
 			return false;
 		}
 		await isBlockedUser(wallet_addr);
 		this.setState({
-			loadingBtn: false,
+			loadingBlockUser: false,
 		});
 	};
 
@@ -151,17 +150,17 @@ class Users extends Component {
 		const { unblockUser } = this.props;
 		this.setState({
 			user_id: userId,
-			loadingBtnUnblock: true,
+			loadingUnblockUser: true,
 		});
 		await unblockUser(wallet_addr);
 		this.setState({
-			loadingBtnUnblock: false,
+			loadingUnblockUser: false,
 		});
 	};
 
 	render() {
 		const { adminUsers } = this.props;
-		const { pagination, loadingBtn, loadingBtnUnblock } = this.state;
+		const { loadingTableData, pagination, loadingBlockUser, loadingUnblockUser } = this.state;
 		if (!adminUsers) return null;
 		const columns = [
 			{
@@ -170,7 +169,7 @@ class Users extends Component {
 				key: "first_name",
 				width: "10%",
 				...this.getColumnSearchProps("first_name"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Last name",
@@ -178,7 +177,7 @@ class Users extends Component {
 				key: "last_name",
 				width: "10%",
 				...this.getColumnSearchProps("last_name"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Сountry",
@@ -186,7 +185,7 @@ class Users extends Component {
 				key: "country",
 				width: "10%",
 				...this.getColumnSearchProps("country"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Email",
@@ -194,7 +193,7 @@ class Users extends Component {
 				key: "email",
 				width: "10%",
 				...this.getColumnSearchProps("email"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Phone number",
@@ -202,7 +201,7 @@ class Users extends Component {
 				key: "phone_number",
 				width: "10%",
 				...this.getColumnSearchProps("phone_number"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Chat id",
@@ -210,7 +209,7 @@ class Users extends Component {
 				key: "chat_id",
 				width: "10%",
 				...this.getColumnSearchProps("chat_id"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Wallet address",
@@ -218,47 +217,42 @@ class Users extends Component {
 				key: "wallet_addr",
 				width: "10%",
 				...this.getColumnSearchProps("wallet_addr"),
-				render: res => (!res ? "n/a" : res),
-			},
-			{
-				title: "Settlements accounts",
-				dataIndex: "",
-				key: "is_settlements_exists",
-				width: "10%",
-				render: dataIndex =>
-					dataIndex.is_settlements_exists ? (
-						<Button
-							type="primary"
-							icon="check"
-							onClick={() => this.showSettlement(dataIndex.user_id)}
-						>
-							show
-						</Button>
-					) : (
-						"n/a"
-					),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Actions",
 				dataIndex: "",
 				width: "20%",
 				render: res => (
-					<>
+					<div className="actionBtnContainer">
 						<Button
 							type="primary"
-							loading={res.user_id === this.state.user_id && loadingBtn}
-							onClick={() => this.blockedUser(res.wallet_addr, 1, 10, res.user_id)}
+							icon="user-delete"
+							loading={res.user_id === this.state.user_id && loadingBlockUser}
+							onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
 						>
 							Block
 						</Button>{" "}
 						<Button
 							type="primary"
-							loading={res.user_id === this.state.user_id && loadingBtnUnblock}
+							icon="user-add"
+							loading={res.user_id === this.state.user_id && loadingUnblockUser}
 							onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
 						>
 							Unblock
-						</Button>
-					</>
+						</Button>{" "}
+						{res.is_settlements_exists ? (
+							<Button
+								type="primary"
+								icon="account-book"
+								onClick={() => this.showSettlement(res.user_id)}
+							>
+								Settlements account
+							</Button>
+						) : (
+							" "
+						)}
+					</div>
 				),
 			},
 		];
@@ -272,7 +266,7 @@ class Users extends Component {
 					className="usersTable ovf-auto"
 					onChange={this.handleTableChange}
 					pagination={{ ...pagination }}
-					loading={this.state.loading}
+					loading={loadingTableData}
 				/>
 				{this.state.visible && (
 					<UserSettlement

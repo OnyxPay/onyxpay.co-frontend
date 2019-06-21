@@ -8,29 +8,29 @@ import { getBcClient, getRestClient, handleReqError, getAuthHeaders } from "../.
 import { unlockWalletAccount } from "../../api/wallet";
 
 const client = getRestClient();
-const ADMIN_USERS = "ADMIN_USERS";
-const USER_SETTLEMENT_DATA = "USER_SETTLEMENT_DATA";
+const SAVE_ADMIN_USERS_DATA = "SAVE_ADMIN_USERS_DATA";
+const SAVE_USER_SETTLEMENT_DATA = "USER_SETTLEMENT_DATA";
 
-export const adminUsersReducer = (state, action) => {
+export const adminUsersReducer = (state = [], action) => {
 	switch (action.type) {
-		case ADMIN_USERS:
+		case SAVE_ADMIN_USERS_DATA:
 			return action.payload;
 		default:
-			return state || null;
+			return state;
 	}
 };
 
-export const setUserSettlementDataReducer = (state, action) => {
+export const setUserSettlementDataReducer = (state = [], action) => {
 	switch (action.type) {
-		case USER_SETTLEMENT_DATA:
+		case SAVE_USER_SETTLEMENT_DATA:
 			return action.payload;
 		default:
-			return state || null;
+			return state;
 	}
 };
 
 export const saveUsers = users => {
-	return { type: ADMIN_USERS, payload: users };
+	return { type: SAVE_ADMIN_USERS_DATA, payload: users };
 };
 
 export const getUsersData = params => async dispatch => {
@@ -52,7 +52,7 @@ export const getUsersData = params => async dispatch => {
 };
 
 export const saveUserSettlementData = userSettlements => {
-	return { type: USER_SETTLEMENT_DATA, payload: userSettlements };
+	return { type: SAVE_USER_SETTLEMENT_DATA, payload: userSettlements };
 };
 
 export const getUserSettlementData = user_id => async dispatch => {
@@ -189,7 +189,7 @@ export const isBlockedUser = userAccountAddress => {
 				const data = res.Result.Result;
 				console.log(res, data);
 				if (res.Error === 0) {
-					message.success("User was successfully blocked");
+					message.success("User is blocked");
 				}
 				return data;
 			} catch (error) {
