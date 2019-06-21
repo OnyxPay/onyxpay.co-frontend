@@ -19,7 +19,7 @@ class SuperAdminMenu extends Component {
 				</Menu.Item>
 				<Menu.Item key="/admin/users">
 					<Link to="/admin/users" className="ant-menu-item-content">
-						<Icon type="users" />
+						<Icon type="user" />
 						<span>Users</span>
 					</Link>
 				</Menu.Item>

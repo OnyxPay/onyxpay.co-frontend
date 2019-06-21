@@ -9,7 +9,6 @@ import { unlockWalletAccount } from "../../api/wallet";
 
 const client = getRestClient();
 const ADMIN_USERS = "ADMIN_USERS";
-const ADMIN_BLOCKED_USERS = "ADMIN_BLOCKED_USERS";
 const USER_SETTLEMENT_DATA = "USER_SETTLEMENT_DATA";
 
 export const adminUsersReducer = (state, action) => {
@@ -30,25 +29,11 @@ export const setUserSettlementDataReducer = (state, action) => {
 	}
 };
 
-export const blockedUsersReducer = (state, action) => {
-	switch (action.type) {
-		case ADMIN_BLOCKED_USERS:
-			return action.payload;
-		default:
-			return state || null;
-	}
-};
-
-export const saveBlockedUsers = users => {
-	return { type: ADMIN_USERS, payload: users };
-};
-
 export const saveUsers = users => {
 	return { type: ADMIN_USERS, payload: users };
 };
 
 export const getUsersData = params => async dispatch => {
-	console.log(1);
 	const authHeaders = getAuthHeaders();
 	try {
 		const { data } = await client.get("/admin/users", {
@@ -85,7 +70,7 @@ export const getUserSettlementData = user_id => async dispatch => {
 	}
 };
 
-export const BlockUser = (userAccountAddress, reason, duration) => {
+export const blockUser = (userAccountAddress, reason, duration) => {
 	return async (dispatch, getState) => {
 		const client = getBcClient();
 
@@ -117,6 +102,7 @@ export const BlockUser = (userAccountAddress, reason, duration) => {
 				console.log(res);
 				if (res.Error === 0) {
 					message.success("User was successfully blocked");
+					return true;
 				}
 			} catch (error) {
 				console.log(error);
@@ -127,11 +113,12 @@ export const BlockUser = (userAccountAddress, reason, duration) => {
 				message.error(error.message);
 			}
 			console.log(error);
+			return false;
 		}
 	};
 };
 
-export const UnblockUser = userAccountAddress => {
+export const unblockUser = userAccountAddress => {
 	return async (dispatch, getState) => {
 		const client = getBcClient();
 
@@ -175,7 +162,7 @@ export const UnblockUser = userAccountAddress => {
 	};
 };
 
-export const IsBlockedUser = userAccountAddress => {
+export const isBlockedUser = userAccountAddress => {
 	return async dispatch => {
 		const client = getBcClient();
 
@@ -218,21 +205,7 @@ export const IsBlockedUser = userAccountAddress => {
 	};
 };
 
-export const searchUser = accountAddress => async (dispatch, getState) => {
-	const authHeaders = getAuthHeaders();
-	try {
-		const { data } = await client.get(`/admin/users?addr=${accountAddress}`, {
-			headers: {
-				...authHeaders,
-			},
-		});
-		return { userData: data.items };
-	} catch (er) {
-		return handleReqError(er);
-	}
-};
-
-export const BlockedUsersData = () => async (dispatch, getState) => {
+export const blockedUsersData = () => async (dispatch, getState) => {
 	const authHeaders = getAuthHeaders();
 	try {
 		const { data } = await client.get(`/admin/users?status="blocked"`, {

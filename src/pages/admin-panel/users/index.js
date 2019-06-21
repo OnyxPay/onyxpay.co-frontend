@@ -3,11 +3,10 @@ import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
 import {
-	UnblockUser,
-	BlockedUsersData,
-	searchUser,
-	BlockUser,
-	IsBlockedUser,
+	unblockUser,
+	blockedUsersData,
+	blockUser,
+	isBlockedUser,
 	getUsersData,
 } from "../../../redux/admin-panel/users";
 
@@ -20,6 +19,8 @@ class Users extends Component {
 		loading: false,
 		user_id: null,
 		pagination: { current: 1, pageSize: 20 },
+		loadingBtn: false,
+		loadingBtnUnblock: false,
 	};
 
 	getColumnSearchProps = dataIndex => ({
@@ -115,13 +116,11 @@ class Users extends Component {
 		try {
 			const { getUsersData } = this.props;
 			const { pagination } = this.state;
-
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
-			console.log(1);
 			const res = await getUsersData(params);
 			pagination.total = res.adminUsers.total;
 			console.log(res);
@@ -129,22 +128,40 @@ class Users extends Component {
 		} catch (e) {}
 	}
 
-	blockedUser = async (wallet_addr, reason, duration) => {
-		const { BlockUser, IsBlockedUser } = this.props;
+	blockedUser = async (wallet_addr, reason, duration, userId) => {
+		const { blockUser, isBlockedUser } = this.props;
 		this.setState({
-			loading: true,
+			user_id: userId,
+			loadingBtn: true,
 		});
-		await BlockUser(wallet_addr, reason, duration);
+		const res = await blockUser(wallet_addr, reason, duration);
+		if (!res) {
+			this.setState({
+				loadingBtn: false,
+			});
+			return false;
+		}
+		await isBlockedUser(wallet_addr);
 		this.setState({
-			loading: false,
+			loadingBtn: false,
 		});
-		const res = await IsBlockedUser(wallet_addr);
+	};
+
+	unblockUser = async (wallet_addr, userId) => {
+		const { unblockUser } = this.props;
+		this.setState({
+			user_id: userId,
+			loadingBtnUnblock: true,
+		});
+		await unblockUser(wallet_addr);
+		this.setState({
+			loadingBtnUnblock: false,
+		});
 	};
 
 	render() {
-		console.log(this.props, this.state);
 		const { adminUsers } = this.props;
-		const { pagination } = this.state;
+		const { pagination, loadingBtn, loadingBtnUnblock } = this.state;
 		if (!adminUsers) return null;
 		const columns = [
 			{
@@ -224,11 +241,22 @@ class Users extends Component {
 			{
 				title: "Actions",
 				dataIndex: "",
-				width: "10%",
+				width: "20%",
 				render: res => (
 					<>
-						<Button type="primary" onClick={() => this.blockedUser(res.wallet_addr, 1, 10)}>
+						<Button
+							type="primary"
+							loading={res.user_id === this.state.user_id && loadingBtn}
+							onClick={() => this.blockedUser(res.wallet_addr, 1, 10, res.user_id)}
+						>
 							Block
+						</Button>{" "}
+						<Button
+							type="primary"
+							loading={res.user_id === this.state.user_id && loadingBtnUnblock}
+							onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
+						>
+							Unblock
 						</Button>
 					</>
 				),
@@ -265,11 +293,10 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		UnblockUser,
-		BlockedUsersData,
-		searchUser,
-		BlockUser,
-		IsBlockedUser,
+		unblockUser,
+		blockedUsersData,
+		blockUser,
+		isBlockedUser,
 		getUsersData,
 	}
 )(Users);
