@@ -1,36 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Typography, Steps, Button, Icon } from "antd";
+import { Card, Typography, Steps, Button, Icon, Spin } from "antd";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
-import { getRestClient, getAuthHeaders } from "../../api/network";
-
-const restClient = getRestClient();
-
-async function sendUpgradeRequest(role) {
-	const authHeaders = getAuthHeaders();
-	const form = await restClient.post(
-		"upgrade-request",
-		{ role: role.toLowerCase() },
-		{ headers: { ...authHeaders } }
-	);
-	return form;
-}
-
-async function getUpgradeRequest(role) {
-	const authHeaders = getAuthHeaders();
-	const form = await restClient.get(
-		"/admin/upgrade-requests?status=opened&maker=" +
-			authHeaders.OnyxAddr +
-			"&role=" +
-			role.toLowerCase(),
-		{ headers: { ...authHeaders } }
-	);
-	return form;
-}
+import { sendUpgradeRequest, getUpgradeRequest } from "../../api/upgrade";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -57,21 +33,40 @@ class UpgradeUser extends Component {
 	state = {
 		currentStep: steps.settlements,
 		showSettlements: false,
-		stepsStyle: {
-			float: "left",
-			minWidth: 130,
-			width: "20%",
-		},
 		direction: "vertical",
-		upgradeAsideStyle: {
-			float: "left",
-			paddingLeft: 10,
-			width: "50%",
-			minWidth: 200,
-			display: "block",
-			borderLeft: "1px solid rgba(167, 180, 201, 0.3)",
-		},
+		showSpin: true,
 	};
+
+	constructor(props) {
+		super(props);
+		this.updateUserDataState().then(data => {
+			this.userRoleCode = data.roleCode;
+		});
+		this.checkSettlements();
+		let role;
+		if (this.props.match.params.role === ":agent") {
+			role = "agent";
+			this.state.role = "Agent";
+		} else {
+			role = "superagent";
+			this.state.role = "Super agent";
+		}
+
+		getUpgradeRequest(role).then(data => {
+			if (data.data.items && data.data.items.length) {
+				this.setState({ currentStep: steps.waitForApprovement });
+			}
+			this.setState({ showSpin: false });
+		});
+
+		window.matchMedia("(max-width: 570px)").addListener(() => {
+			this.setState({ direction: "horizontal" });
+		});
+
+		window.matchMedia("(min-width: 575px)").addListener(() => {
+			this.setState({ direction: "vertical" });
+		});
+	}
 
 	checkSettlements() {
 		this.props.getSettlementsList().then(
@@ -84,37 +79,6 @@ class UpgradeUser extends Component {
 				throw new Error(error);
 			}
 		);
-	}
-
-	componentWillMount() {
-		let user = JSON.parse(sessionStorage.getItem("user"));
-		this.userRoleCode = user.roleCode;
-		this.checkSettlements();
-		if (window.innerWidth <= 480) {
-			let stepsStyle = { height: "100%", border: "none", width: "100%" };
-			let upgradeAsideStyle = { width: "100%" };
-			this.setState({
-				stepsStyle: stepsStyle,
-				direction: "horizontal",
-				upgradeAsideStyle: upgradeAsideStyle,
-			});
-		}
-		let role;
-		if (this.props.match.params.agent === ":agent") {
-			role = "agent";
-			this.setState({ role: "Agent" });
-		} else if (this.props.match.params.agent === ":super_agent") {
-			role = "superagent";
-			this.setState({ role: "Super agent" });
-		} else {
-			throw new Error("Unexpected role");
-		}
-
-		getUpgradeRequest(role).then(data => {
-			if (data.data.items && data.data.items.length) {
-				this.setState({ currentStep: steps.waitForApprovement });
-			}
-		});
 	}
 
 	hideModal = type => () => {
@@ -138,6 +102,12 @@ class UpgradeUser extends Component {
 		let currentStep = this.state.currentStep;
 		this.setState({ currentStep: --currentStep });
 	};
+
+	async updateUserDataState() {
+		const user = await this.props.getUserData();
+		this.setState({ user: user.user });
+		return user.user;
+	}
 
 	checkPaymentHandler = async () => {
 		const user = await this.props.getUserData();
@@ -217,34 +187,39 @@ class UpgradeUser extends Component {
 			);
 		}
 	}
-
+	getCardContent() {
+		if (this.state.showSpin) {
+			return (
+				<center>
+					<Spin />
+				</center>
+			);
+		} else {
+			return (
+				<section>
+					<nav className="upgrade_navigation">
+						<Steps direction={this.state.direction} size="small" current={this.state.currentStep}>
+							<Step
+								title={getStepTitle(0, this.state.currentStep)}
+								description="Fill settlements account."
+							/>
+							<Step title={getStepTitle(1, this.state.currentStep)} description="Buy OnyxCache." />
+							<Step
+								title={getStepTitle(2, this.state.currentStep)}
+								description="Upgrading approvement."
+							/>
+						</Steps>
+					</nav>
+					<aside className="upgrade_step">{this.getStepComponent(this.state.role)}</aside>
+				</section>
+			);
+		}
+	}
 	render() {
 		return (
 			<>
 				<PageTitle>Upgrade to the {this.state.role}</PageTitle>
-				<Card>
-					<section>
-						<nav className="upgrade_navigation" style={this.state.stepsStyle}>
-							<Steps direction={this.state.direction} size="small" current={this.state.currentStep}>
-								<Step
-									title={getStepTitle(0, this.state.currentStep)}
-									description="Fill settlements account."
-								/>
-								<Step
-									title={getStepTitle(1, this.state.currentStep)}
-									description="Buy OnyxCache."
-								/>
-								<Step
-									title={getStepTitle(2, this.state.currentStep)}
-									description="Upgrading approvement."
-								/>
-							</Steps>
-						</nav>
-						<aside className="upgrade_step" style={this.state.upgradeAsideStyle}>
-							{this.getStepComponent(this.state.role)}
-						</aside>
-					</section>
-				</Card>
+				<Card> {this.getCardContent()} </Card>
 				<AddSettlementModal
 					isModalVisible={this.state.showSettlements}
 					hideModal={this.hideModal()}

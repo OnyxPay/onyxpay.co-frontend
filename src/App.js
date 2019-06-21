@@ -81,8 +81,7 @@ class App extends Component {
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/upgrade-user:agent" exact component={UpgradeUser} />
-					<Route path="/upgrade-user:super_agent" exact component={UpgradeUser} />
+					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />

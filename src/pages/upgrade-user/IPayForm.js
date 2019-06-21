@@ -1,19 +1,7 @@
 import React, { Component } from "react";
 import { Input } from "antd";
 import iPayPic from "../../assets/icons/iPay.png";
-
-import { getRestClient, getAuthHeaders } from "../../api/network";
-const restClient = getRestClient();
-
-async function getPaymentForm(amount) {
-	const authHeaders = getAuthHeaders();
-	const form = await restClient.get("ipayform?amount=" + amount, {
-		headers: {
-			...authHeaders,
-		},
-	});
-	return form;
-}
+import { getPaymentForm } from "../../api/upgrade";
 
 export class IPayForm extends Component {
 	state = {
@@ -40,6 +28,7 @@ export class IPayForm extends Component {
 					target="_blank"
 					onSubmit={this.handleSubmit}
 					ref={this.formRef}
+					className="ipay-form"
 				>
 					{Object.keys(this.state.form).map(keyName => {
 						console.log(this.state.form);
@@ -47,20 +36,7 @@ export class IPayForm extends Component {
 							<Input key={keyName} type="hidden" name={keyName} value={this.state.form[keyName]} />
 						);
 					})}
-					<Input
-						type="image"
-						src={iPayPic}
-						alt="Buy Now with iPay"
-						style={{
-							textAlign: "left",
-							width: 186,
-							height: 79,
-							borderStyle: "solid",
-							float: "left",
-							marginRight: 5,
-							marginTop: 5,
-						}}
-					/>
+					<Input type="image" src={iPayPic} alt="Buy Now with iPay" className="ipay-form__input" />
 				</form>
 			</div>
 		);

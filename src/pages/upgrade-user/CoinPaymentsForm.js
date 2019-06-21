@@ -11,14 +11,16 @@ export class CoinPaymentsForm extends Component {
 	}
 
 	render() {
-		this.handleSubmit = this.handleSubmit.bind(this);
 		return (
 			<div>
 				<form
 					action="https://www.coinpayments.net/index.php"
 					method="post"
 					target="_blank"
-					onSubmit={this.handleSubmit}
+					onSubmit={event => {
+						this.handleSubmit(event);
+					}}
+					className="coinpayments-form"
 				>
 					<Input type="hidden" name="cmd" value="_pay" />
 					<Input type="hidden" name="reset" value="1" />
@@ -35,18 +37,10 @@ export class CoinPaymentsForm extends Component {
 					<Input type="hidden" name="ipn_url" value={backEndRestEndpoint + "/coinpayment"} />
 					<Input type="hidden" name="allow_extra" value="0" />
 					<Input
+						className="coinpayments-form__input"
 						type="image"
 						src={CoinPaymentsPic}
 						alt="Buy Now with CoinPayments.net"
-						style={{
-							textAlign: "left",
-							width: 186,
-							height: 79,
-							borderStyle: "solid",
-							float: "left",
-							marginRight: 5,
-							marginTop: 5,
-						}}
 					/>
 				</form>
 			</div>
