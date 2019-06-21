@@ -140,15 +140,11 @@ export const deleteRequest = id => {
 	return async dispatch => {
 		const authHeader = getAuthHeaders();
 		try {
-			await client.delete(
-				`admin/upgrade-request/${id}`,
-				{},
-				{
-					headers: {
-						...authHeader,
-					},
-				}
-			);
+			await client.delete(`admin/upgrade-request/${id}`, {
+				headers: {
+					...authHeader,
+				},
+			});
 			dispatch({
 				type: DELETE_REQUEST,
 				payload: id,

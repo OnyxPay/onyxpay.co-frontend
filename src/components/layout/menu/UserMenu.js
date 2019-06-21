@@ -73,19 +73,6 @@ class UserMenu extends Component {
 						<span>Messages</span>
 					</Link>
 				</Menu.Item>
-				<SubMenu
-					key="requests"
-					title={
-						<span className="ant-menu-item-content">
-							<Icon type="pull-request" />
-							<span>Request</span>
-						</span>
-					}
-				>
-					<Menu.Item key="/admin/requests">
-						<Link to="/admin/requests">Account upgrade requests</Link>
-					</Menu.Item>
-				</SubMenu>
 			</Menu>
 		);
 	}
