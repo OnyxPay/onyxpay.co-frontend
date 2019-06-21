@@ -65,7 +65,7 @@ class SetAmount extends Component {
 							touched,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit} className="admin-form">
+								<form onSubmit={handleSubmit} className="ant-form-w50">
 									<Form.Item
 										label="Login"
 										required

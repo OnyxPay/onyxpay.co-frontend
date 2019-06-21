@@ -47,7 +47,7 @@ class UnblockInvestor extends Component {
 								touched,
 							} = props;
 							return (
-								<form onSubmit={handleSubmit} className="admin-form">
+								<form onSubmit={handleSubmit} className="ant-form-w50">
 									<Form.Item
 										label="Login"
 										required

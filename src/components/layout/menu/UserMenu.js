@@ -29,8 +29,8 @@ class UserMenu extends Component {
 					<Menu.Item key="/deposit">
 						<Link to="/deposit">Deposit</Link>
 					</Menu.Item>
-					<Menu.Item key="/send">
-						<Link to="/send">Send</Link>
+					<Menu.Item key="/send-asset">
+						<Link to="/send-asset">Send</Link>
 					</Menu.Item>
 					<Menu.Item key="/withdraw">
 						<Link to="/withdraw">Withdraw</Link>
@@ -64,13 +64,6 @@ class UserMenu extends Component {
 					<Link to="/settlement-accounts" className="ant-menu-item-content">
 						<Icon type="pay-circle" />
 						<span>Settlement accounts</span>
-					</Link>
-				</Menu.Item>
-
-				<Menu.Item key="/messages">
-					<Link to="/messages" className="ant-menu-item-content">
-						<Icon type="mail" />
-						<span>Messages</span>
 					</Link>
 				</Menu.Item>
 			</Menu>

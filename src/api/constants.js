@@ -4,6 +4,7 @@ export const bcEndpoints = {
 };
 
 export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
+export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 
 export const addressOfHead = "cd1417dd5babe87788ad42f5558c3c6e1d262b80";
 
@@ -17,9 +18,11 @@ export const temporaryToken =
 export const tempWalletPassword = {};
 
 export const roles = {
-	c: "client",
+	c: "user",
 	a: "agent",
 	sa: "super_agent",
 	adm: "admin",
 	sadm: "super_admin",
 };
+
+export const notifyTimeout = 30000;
