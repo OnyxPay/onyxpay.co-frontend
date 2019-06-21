@@ -21,6 +21,12 @@ class SuperAdminMenu extends Component {
 						<span>Users</span>
 					</Link>
 				</Menu.Item>
+				<Menu.Item key="/admin/assets">
+					<Link to="/admin/assets" className="ant-menu-item-content">
+						<Icon type="dollar" />
+						<span>Assets</span>
+					</Link>
+				</Menu.Item>
 			</Menu>
 		);
 	}

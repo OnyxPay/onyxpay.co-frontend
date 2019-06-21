@@ -23,6 +23,11 @@ let Investments = Loadable({
 	loading: Loader,
 });
 
+let Assets = Loadable({
+	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/assets"),
+	loading: Loader,
+});
+
 const Login = Loadable({
 	loader: () => import(/* webpackChunkName: "Login" */ "./pages/login"),
 	loading: Loader,
@@ -104,6 +109,7 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
+					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
