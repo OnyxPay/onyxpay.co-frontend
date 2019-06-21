@@ -4,15 +4,16 @@ import styled from "styled-components";
 import { Avatar, Menu, Dropdown } from "antd";
 import { Link } from "react-router-dom";
 import Actions from "../../redux/actions";
+import { roles } from "../../api/constants";
 
 const UpgradeLink = styled.span`
 	color: #1890ff;
 `;
 
 function getMenuItem(linkRole, title, userRole) {
-	if (userRole === "superagent") {
+	if (userRole === roles.sa) {
 		return;
-	} else if (userRole === "agent" && linkRole === "agent") {
+	} else if (userRole === roles.a && linkRole === roles.a) {
 		return;
 	} else {
 		return (
