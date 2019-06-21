@@ -21,7 +21,7 @@ class AgentMenu extends Component {
 					key="OnyxCash (agent)"
 					title={
 						<span className="ant-menu-item-content">
-							<Icon type="interation" />
+							<Icon type="interaction" />
 							<span>OnyxCash</span>
 						</span>
 					}
@@ -39,21 +39,25 @@ class AgentMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="323">User active requests</Menu.Item>
-					<Menu.Item key="3dasd">Agent active requests</Menu.Item>
+					<Menu.Item key="/active-requests">
+						<Link to="/active-requests">Active requests</Link>
+					</Menu.Item>
+					<Menu.Item key="/closed-requests">
+						<Link to="/closed-requests">Closed requests</Link>
+					</Menu.Item>
 				</SubMenu>
+
+				<Menu.Item key="/exchange">
+					<Link to="/exchange" className="ant-menu-item-content">
+						<Icon type="wallet" />
+						<span>Assets Exchange</span>
+					</Link>
+				</Menu.Item>
 
 				<Menu.Item key="/settlement accounts">
 					<Link to="/settlement accounts" className="ant-menu-item-content">
 						<Icon type="pay-circle" />
 						<span>Settlement accounts</span>
-					</Link>
-				</Menu.Item>
-
-				<Menu.Item key="/messages">
-					<Link to="/messages" className="ant-menu-item-content">
-						<Icon type="mail" />
-						<span>Messages</span>
 					</Link>
 				</Menu.Item>
 			</Menu>

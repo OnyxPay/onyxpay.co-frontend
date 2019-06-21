@@ -1,10 +1,17 @@
 import BigNumber from "bignumber.js";
 
-export function decodeAmount(amount, decimals) {
+export function convertAmountToStr(amount, decimals) {
 	let amountBN = new BigNumber(amount);
 	amountBN = amountBN.shiftedBy(-decimals);
 
 	return amountBN.toString();
+}
+
+export function convertAmountFromStr(amount, asset) {
+	let amountBN = new BigNumber(amount);
+	amountBN = amountBN.times(new BigNumber(Math.pow(10, 8)));
+
+	return amountBN.toNumber();
 }
 
 export function convertAsset(asset, rate) {

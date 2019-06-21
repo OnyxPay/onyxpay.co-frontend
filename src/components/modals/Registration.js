@@ -3,13 +3,14 @@ import { connect } from "react-redux";
 import { push } from "connected-react-router";
 import { Formik } from "formik";
 import { Modal, Button, Form, Input, Select, message } from "antd";
-import { country_list } from "../../assets/country_list";
 import Actions from "../../redux/actions";
 import { unlockWalletAccount } from "../../api/wallet";
 import { ErrorText } from "../styled";
 import text from "../../assets/text.json";
 import { signWithPk } from "../../utils/blockchain";
 import { generateTokenTimeStamp } from "../../utils";
+import { getData as getCountriesData } from "country-list";
+import { isLatinChars } from "../../utils/validate";
 
 const { Option } = Select;
 
@@ -43,7 +44,7 @@ class RegistrationModal extends Component {
 			values.public_key = publicKey.key;
 			values.wallet_addr = accountAddress.toBase58();
 			values.signed_msg = signature.serializeHex();
-      
+
 			const res = await signUp(values);
 
 			if (res && res.error) {
@@ -98,11 +99,15 @@ class RegistrationModal extends Component {
 							errors.first_name = "required";
 						} else if (values.first_name.length < 2) {
 							errors.first_name = "min length 2";
+						} else if (!isLatinChars(values.first_name)) {
+							errors.first_name = "First name must contain only Latin letters";
 						}
 						if (!values.last_name) {
 							errors.last_name = "required";
 						} else if (values.last_name.length < 2) {
 							errors.last_name = "min length 2";
+						} else if (!isLatinChars(values.last_name)) {
+							errors.last_name = "Last name must contain only Latin letters";
 						}
 						if (!values.country_id) {
 							errors.country_id = "required";
@@ -174,10 +179,10 @@ class RegistrationModal extends Component {
 										}
 										disabled={isSubmitting}
 									>
-										{country_list.map((country, index) => {
+										{getCountriesData().map((country, index) => {
 											return (
-												<Option key={index} value={index}>
-													{country}
+												<Option key={country.code} value={country.code}>
+													{country.name}
 												</Option>
 											);
 										})}

@@ -51,7 +51,7 @@ class UnlockWalletModal extends Component {
 			>
 				<div>
 					<Title level={3} style={{ textAlign: "center" }}>
-						Unlock Your wallet
+						Unlock Your Wallet
 					</Title>
 					<Formik
 						onSubmit={this.handleUnlockWallet}
@@ -78,7 +78,7 @@ class UnlockWalletModal extends Component {
 							return (
 								<form onSubmit={handleSubmit}>
 									<Form.Item
-										label="Password"
+										label="Wallet password"
 										className="ant-form-item--lh32"
 										validateStatus={errors.password && touched.password ? "error" : ""}
 										help={errors.password && touched.password ? errors.password : ""}

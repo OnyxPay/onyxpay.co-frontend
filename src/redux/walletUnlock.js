@@ -48,7 +48,7 @@ export const getWalletPassword = () => (dispatch, getState) => {
 				resolve(tempWalletPassword);
 			} else if (state.walletUnlock.locked && !state.walletUnlock.isModalVisible) {
 				clearInterval(timeoutId);
-				reject(new Error("modal was closed manually!"));
+				reject(new Error("You should unlock your wallet to make transactions"));
 			}
 		}, 1000);
 	});

@@ -2,19 +2,23 @@ import React from "react";
 import { Card } from "antd";
 import styled from "styled-components";
 
-const Label = styled.div`
-	margin-bottom: 5px;
-`;
 const Amount = styled.div`
-	font-size: 36px;
+	font-size: 34px;
 	color: #374254;
 	word-break: break-all;
 `;
 
-export const BalanceCard = ({ label, title, amount = 0, extra }) => {
+const AssetLabel = styled.span`
+	color: #f07141;
+	font-size: 18px;
+	font-weight: 500;
+	text-transform: uppercase;
+`;
+
+export const BalanceCard = ({ title, amount = 0, extra, assetLabel }) => {
 	return (
 		<Card title={title} extra={extra} style={{ marginBottom: "24px" }}>
-			<Label>{label}</Label>
+			<AssetLabel>{assetLabel}</AssetLabel>
 			<Amount>{amount}</Amount>
 		</Card>
 	);

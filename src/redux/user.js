@@ -32,14 +32,15 @@ export const saveUser = user => {
 
 export const getUserData = () => async (dispatch, getState) => {
 	const authHeaders = getAuthHeaders();
-	console.log(authHeaders);
 	try {
 		const { data } = await client.get("info", {
 			headers: {
 				...authHeaders,
 			},
 		});
-		data.role = "client";
+		if (data.roleCode === 0) {
+			data.role = "user";
+		}
 		dispatch(saveUser(data));
 		dispatch(finishLoading());
 		return { user: data };

@@ -69,11 +69,6 @@ class Login extends Component {
 		this.setState({ [type]: true });
 	};
 
-	openAdminPanel = () => {
-		this.props.saveUser({ name: "jon", role: "super_admin", status: 1 });
-		this.props.history.push("/admin/investments");
-	};
-
 	switchModal = to => () => {
 		if (to === modals.CREATE_WALLET_MODAL) {
 			this.hideModal(modals.IMPORT_WALLET_MODAL)();
@@ -107,7 +102,10 @@ class Login extends Component {
 
 			if (res && res.error) {
 				if (res.error.data) {
-					message.error("Invalid credentials, maybe, this wallet  is not registered", 5);
+					message.error(
+						"Invalid password was entered. Or maybe your wallet is not associated with any account. Create account first.",
+						5
+					);
 				}
 			} else {
 				await getUserData();
@@ -183,9 +181,6 @@ class Login extends Component {
 								onClick={this.showModal(modals.REGISTRATION_MODAL)}
 							>
 								Create account
-							</Button>
-							<Button block onClick={this.openAdminPanel} type="danger" disabled={!wallet}>
-								Enter as admin
 							</Button>
 						</div>
 					)}
