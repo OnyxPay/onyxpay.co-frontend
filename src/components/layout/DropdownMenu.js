@@ -9,15 +9,15 @@ const UpgradeLink = styled.span`
 	color: #1890ff;
 `;
 
-function getMenuItem(role, title, userRole) {
+function getMenuItem(linkRole, title, userRole) {
 	if (userRole === "superagent") {
 		return;
-	} else if (userRole === "agent" && role === "agent") {
+	} else if (userRole === "agent" && linkRole === "agent") {
 		return;
 	} else {
 		return (
 			<Menu.Item>
-				<Link to={"/upgrade-user:" + role}>
+				<Link to={"/upgrade-user:" + linkRole}>
 					<UpgradeLink>{title}</UpgradeLink>
 				</Link>
 			</Menu.Item>
@@ -26,17 +26,19 @@ function getMenuItem(role, title, userRole) {
 }
 const DropdownMenu = ({ logOut }) => {
 	let user = JSON.parse(sessionStorage.getItem("user"));
-	const menu = (
-		<Menu>
-			{getMenuItem("agent", "Upgrade to Agent")}
-			{getMenuItem("super_agent", "Upgrade to Super Agent")}
-			<Menu.Divider />
-			<Menu.Item onClick={() => logOut()}>
-				<span>Logout</span>
-			</Menu.Item>
-		</Menu>
-	);
-
+	let menu;
+	if (user) {
+		menu = (
+			<Menu>
+				{getMenuItem("agent", "Upgrade to Agent", user.role)}
+				{getMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
+				<Menu.Divider />
+				<Menu.Item onClick={() => logOut()}>
+					<span>Logout</span>
+				</Menu.Item>
+			</Menu>
+		);
+	}
 	return (
 		<Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
 			<Avatar

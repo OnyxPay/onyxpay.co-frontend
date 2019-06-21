@@ -7,6 +7,7 @@ import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
 import { getRestClient, getAuthHeaders } from "../../api/network";
+
 const restClient = getRestClient();
 
 async function sendUpgradeRequest(role) {
@@ -14,11 +15,19 @@ async function sendUpgradeRequest(role) {
 	const form = await restClient.post(
 		"upgrade-request",
 		{ role: role.toLowerCase() },
-		{
-			headers: {
-				...authHeaders,
-			},
-		}
+		{ headers: { ...authHeaders } }
+	);
+	return form;
+}
+
+async function getUpgradeRequest(role) {
+	const authHeaders = getAuthHeaders();
+	const form = await restClient.get(
+		"/admin/upgrade-requests?status=opened&maker=" +
+			authHeaders.OnyxAddr +
+			"&role=" +
+			role.toLowerCase(),
+		{ headers: { ...authHeaders } }
 	);
 	return form;
 }
@@ -65,8 +74,7 @@ class UpgradeUser extends Component {
 	};
 
 	checkSettlements() {
-		const { getSettlementsList } = this.props;
-		getSettlementsList().then(
+		this.props.getSettlementsList().then(
 			() => {
 				if (this.props.settlements.length > 0) {
 					this.setState({ currentStep: steps.buyCache });
@@ -79,6 +87,8 @@ class UpgradeUser extends Component {
 	}
 
 	componentWillMount() {
+		let user = JSON.parse(sessionStorage.getItem("user"));
+		this.userRoleCode = user.roleCode;
 		this.checkSettlements();
 		if (window.innerWidth <= 480) {
 			let stepsStyle = { height: "100%", border: "none", width: "100%" };
@@ -89,13 +99,22 @@ class UpgradeUser extends Component {
 				upgradeAsideStyle: upgradeAsideStyle,
 			});
 		}
+		let role;
 		if (this.props.match.params.agent === ":agent") {
+			role = "agent";
 			this.setState({ role: "Agent" });
 		} else if (this.props.match.params.agent === ":super_agent") {
+			role = "superagent";
 			this.setState({ role: "Super agent" });
 		} else {
 			throw new Error("Unexpected role");
 		}
+
+		getUpgradeRequest(role).then(data => {
+			if (data.data.items && data.data.items.length) {
+				this.setState({ currentStep: steps.waitForApprovement });
+			}
+		});
 	}
 
 	hideModal = type => () => {
@@ -120,7 +139,22 @@ class UpgradeUser extends Component {
 		this.setState({ currentStep: --currentStep });
 	};
 
-	checkPaymentHandler() {}
+	checkPaymentHandler = async () => {
+		const user = await this.props.getUserData();
+		let userRoleCode = user.user.roleCode;
+		if (userRoleCode !== this.userRoleCode) {
+			this.setState({
+				upgradeStatus:
+					"Your status was upgraded successfully, you will be logging out in 3 seconds.",
+			});
+			setTimeout(this.props.logOut, 3000);
+		} else {
+			this.setState({ upgradeStatus: "Your role have not changed please check in a while" });
+			setTimeout(() => {
+				this.setState({ upgradeStatus: "" });
+			}, 3000);
+		}
+	};
 
 	getStepComponent(role) {
 		if (this.state.currentStep === steps.settlements) {
@@ -168,12 +202,17 @@ class UpgradeUser extends Component {
 						you didn't receive OnyxCache please &nbsp;
 						<a href="mailto:support@onyxpay.co">contact the support</a>.
 					</p>
-					<Button type="primary" onClick={this.movePrevStep()} style={{ marginRight: 10 }}>
+					<Button
+						type="primary"
+						onClick={this.movePrevStep()}
+						style={{ marginRight: 10, width: 170 }}
+					>
 						Back to payment page
 					</Button>
-					<Button onClick={this.checkPaymentHandler()} style={{ marginTop: 10 }}>
+					<Button onClick={this.checkPaymentHandler} style={{ marginTop: 10, width: 170 }}>
 						Check payment status
 					</Button>
+					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
 				</div>
 			);
 		}
@@ -224,5 +263,7 @@ export default connect(
 	},
 	{
 		getSettlementsList: Actions.settlements.getSettlementsList,
+		getUserData: Actions.user.getUserData,
+		logOut: Actions.auth.logOut,
 	}
 )(UpgradeUser);
