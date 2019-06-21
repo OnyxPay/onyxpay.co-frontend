@@ -69,7 +69,7 @@ class Withdraw extends Component {
 						message: "Done",
 						description: "Deposit request is successfully created",
 					});
-					push("/active-requests");
+					push("/active-requests/withdraw");
 				} else if (res.error.data) {
 					formActions.setErrors(res.error.data);
 				}
@@ -184,6 +184,7 @@ class Withdraw extends Component {
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+														disabled={isSubmitting}
 													>
 														max
 													</Button>

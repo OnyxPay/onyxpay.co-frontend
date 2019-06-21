@@ -207,6 +207,7 @@ class SendAsset extends Component {
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+														disabled={isSubmitting}
 													>
 														max
 													</Button>

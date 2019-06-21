@@ -43,7 +43,7 @@ let Settlement = Loadable({
 	loading: Loader,
 });
 
-const ActiveRequests = Loadable({
+let ActiveRequests = Loadable({
 	loader: () => import(/* webpackChunkName: "ActiveRequests" */ "./pages/requests/ActiveRequests"),
 	loading: Loader,
 });
@@ -90,6 +90,7 @@ Settlement = All(Settlement);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
 Users = AdminAndSuperAdmin(Users);
+ActiveRequests = All(ActiveRequests);
 
 class App extends Component {
 	componentDidMount() {
@@ -108,7 +109,8 @@ class App extends Component {
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/active-requests" exact component={ActiveRequests} />
+					<Route path="/active-requests/deposit" exact component={ActiveRequests} />
+					<Route path="/active-requests/withdraw" exact component={ActiveRequests} />
 					<Route path="/closed-requests" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />

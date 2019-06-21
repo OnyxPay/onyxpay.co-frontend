@@ -58,7 +58,7 @@ class Deposit extends Component {
 						message: "Done",
 						description: "Deposit request is successfully created",
 					});
-					push("/active-requests");
+					push("/active-requests/deposit");
 				} else if (res.error.data) {
 					formActions.setErrors(res.error.data);
 				}
