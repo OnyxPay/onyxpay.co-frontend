@@ -41,6 +41,14 @@ class AssetsExchange extends Component {
 	state = {
 		assetsForBuyData: [],
 		assetsForSellData: [],
+		assetToSell: {
+			name: "",
+			amount: "",
+		},
+		assetToBuy: {
+			name: "",
+			amount: "",
+		},
 	};
 
 	fillAssetsForBuyData = async () => {
@@ -93,6 +101,19 @@ class AssetsExchange extends Component {
 		}
 	}
 
+	handleAssetToBuyAmountChange = async event => {
+		console.log(event.target.value);
+		this.setState({ assetToBuy: { name: this.state.assetToBuy.name, amount: event.target.value } });
+		// recount assetToSell amount
+	};
+
+	handleAssetToSellAmountChange = async event => {
+		this.setState({
+			assetToSell: { name: this.state.assetToSell.name, amount: event.target.value },
+		});
+		// recount assetToBuy amount
+	};
+
 	render() {
 		return (
 			<>
@@ -105,7 +126,11 @@ class AssetsExchange extends Component {
 									<Input
 										prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
 										type="number"
+										step={0.1}
+										min={0}
 										placeholder="You send"
+										value={this.state.assetToBuy.amount}
+										onInput={this.handleAssetToBuyAmountChange}
 									/>
 								</Form.Item>
 								<Form.Item>
@@ -125,6 +150,8 @@ class AssetsExchange extends Component {
 										step={0.1}
 										min={0}
 										placeholder="You get"
+										value={this.state.assetToSell.amount}
+										onChange={this.handleAssetToSellAmountChange}
 									/>
 								</Form.Item>
 								<Form.Item>
@@ -152,6 +179,7 @@ class AssetsExchange extends Component {
 								columns={assetsForSellColumns}
 								dataSource={this.state.assetsForSellData}
 								pagination={false}
+								scroll={{ y: 240 }}
 							/>
 						</Col>
 						<Col md={24} lg={11}>
@@ -159,6 +187,7 @@ class AssetsExchange extends Component {
 								columns={assetsForBuyColumns}
 								dataSource={this.state.assetsForBuyData}
 								pagination={false}
+								scroll={{ y: 240 }}
 							/>
 						</Col>
 					</Row>
