@@ -1,19 +1,106 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Card, Form, Icon, Input, Button, Select } from "antd";
+import { Row, Col, Card, Form, Icon, Input, Button, Select, Table, Divider } from "antd";
 import Actions from "../../redux/actions";
+import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";
 const { Option } = Select;
 
+const assetsForBuyColumns = [
+	{
+		title: "Asset name",
+		dataIndex: "name",
+		key: "name",
+	},
+	{
+		title: "Buy price",
+		dataIndex: "buyPrice",
+		key: "buyPrice",
+	},
+];
+
+const assetsForSellColumns = [
+	{
+		title: "Asset name",
+		dataIndex: "name",
+		key: "name",
+	},
+	{
+		title: "Sell price",
+		dataIndex: "sellPrice",
+		key: "sellPrice",
+	},
+	{
+		title: "Balance",
+		dataIndex: "balance",
+		key: "balance",
+	},
+];
+
 class AssetsExchange extends Component {
+	state = {
+		assetsForBuyData: [],
+		assetsForSellData: [],
+	};
+
+	fillAssetsForBuyData = async () => {
+		const { exchangeRates } = this.props;
+
+		let assetsForBuyData = [];
+		for (let record of exchangeRates) {
+			assetsForBuyData.push({
+				key: record.symbol,
+				name: record.symbol,
+				buyPrice: convertAmountToStr(record.buy, 8),
+			});
+		}
+		this.setState({
+			assetsForBuyData: assetsForBuyData,
+		});
+	};
+
+	fillAssetsForSellData = async () => {
+		const { assets } = this.props.balance;
+		const { exchangeRates } = this.props;
+
+		// get all assets, in which user's balance is greater than 0
+		let assetsForSellData = [];
+		for (let record of assets) {
+			let assetRatesData = exchangeRates.find(ratesRecord => ratesRecord.symbol === record.symbol);
+			assetsForSellData.push({
+				key: record.key,
+				name: record.key,
+				balance: convertAmountToStr(record.amount, 8),
+				sellPrice: convertAmountToStr(assetRatesData.sell, 8),
+			});
+		}
+		this.setState({
+			assetsForSellData: assetsForSellData,
+		});
+	};
+
+	async componentDidMount() {
+		const { getExchangeRates } = this.props;
+		await getExchangeRates();
+
+		this.fillAssetsForBuyData();
+		this.fillAssetsForSellData();
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps.balance !== this.props.balance) {
+			this.fillAssetsForSellData();
+		}
+	}
+
 	render() {
 		return (
 			<>
 				<PageTitle>Assets Exchange</PageTitle>
 				<Card>
-					<Row gutter={48}>
+					<Row gutter={16}>
 						<Form layout="inline" onSubmit={this.handleSubmit}>
-							<Col md={{ span: 24 }} lg={{ span: 10, offset: 0 }}>
+							<Col md={{ span: 24 }} lg={{ span: 10 }}>
 								<Form.Item>
 									<Input
 										prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
@@ -23,21 +110,14 @@ class AssetsExchange extends Component {
 								</Form.Item>
 								<Form.Item>
 									<Select defaultValue="oUSD">
-										<Option value="oUSD">oUSD</Option>
-										<Option value="oEUR">oEUR</Option>
+										{this.state.assetsForSellData.map(asset => (
+											<Option key={asset.key}>{asset.key}</Option>
+										))}
 									</Select>
 								</Form.Item>
 							</Col>
 
-							<Col md={{ span: 24 }} lg={{ span: 4, offset: 0 }}>
-								<Form.Item>
-									<Button type="primary" htmlType="submit">
-										Exchange
-									</Button>
-								</Form.Item>
-							</Col>
-
-							<Col md={{ span: 24 }} lg={{ span: 10, offset: 0 }}>
+							<Col md={{ span: 24 }} lg={{ span: 10 }}>
 								<Form.Item>
 									<Input
 										prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
@@ -49,19 +129,37 @@ class AssetsExchange extends Component {
 								</Form.Item>
 								<Form.Item>
 									<Select defaultValue="oUSD">
-										<Option value="oUSD">oUSD</Option>
-										<Option value="oEUR">oEUR</Option>
+										{this.state.assetsForBuyData.map(asset => (
+											<Option key={asset.key}>{asset.key}</Option>
+										))}
 									</Select>
+								</Form.Item>
+							</Col>
+
+							<Col md={{ span: 24 }} lg={{ span: 2 }}>
+								<Form.Item>
+									<Button type="primary" htmlType="submit">
+										Exchange
+									</Button>
 								</Form.Item>
 							</Col>
 						</Form>
 					</Row>
-					<Row>
-						<Col md={24} lg={12}>
-							sell table
+					<Divider />
+					<Row gutter={48}>
+						<Col md={24} lg={11}>
+							<Table
+								columns={assetsForSellColumns}
+								dataSource={this.state.assetsForSellData}
+								pagination={false}
+							/>
 						</Col>
-						<Col md={24} lg={12}>
-							buy table
+						<Col md={24} lg={11}>
+							<Table
+								columns={assetsForBuyColumns}
+								dataSource={this.state.assetsForBuyData}
+								pagination={false}
+							/>
 						</Col>
 					</Row>
 				</Card>
@@ -73,9 +171,9 @@ class AssetsExchange extends Component {
 export default connect(
 	state => {
 		return {
-			user: state.user,
+			// wallet: state.wallet,
+			balance: state.balance,
 			exchangeRates: state.assets.rates,
-			wallet: state.wallet,
 		};
 	},
 	{
