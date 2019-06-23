@@ -242,6 +242,7 @@ class AssetsExchange extends Component {
 				wallet: wallet,
 			});
 			this.openNotification(result.Error === 0 ? "success" : "error");
+			this.setState({ transactionInProcess: false });
 			console.log(result);
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -255,8 +256,8 @@ class AssetsExchange extends Component {
 				this.openNotification("error", "Unknown error");
 			}
 			console.log("error: ", e);
+			this.setState({ transactionInProcess: false });
 		}
-		this.setState({ transactionInProcess: false });
 	};
 
 	render() {

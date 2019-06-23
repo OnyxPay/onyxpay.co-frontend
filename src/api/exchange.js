@@ -7,13 +7,7 @@ import { timeout } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { getWallet, getAccount } from "../api/wallet";
 
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export async function exchangeAssets(values) {
-	sleep(5000);
-
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("Exchange"));
 	if (!address) {
@@ -55,7 +49,6 @@ export async function exchangeAssets(values) {
 	});
 
 	signTrx(trx, pk);
-
 	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
 	return res;
 }
