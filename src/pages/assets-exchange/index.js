@@ -1,9 +1,24 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Card, Form, Icon, Input, Button, Select, Table, Divider } from "antd";
+import {
+	Row,
+	Col,
+	Card,
+	Form,
+	Icon,
+	Input,
+	Button,
+	Select,
+	Table,
+	Divider,
+	notification,
+} from "antd";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";
+import { TimeoutError } from "promise-timeout";
+import { SendRawTrxError } from "../../utils/custom-error";
+import { exchangeAssets } from "../../api/exchange";
 const { Option } = Select;
 
 const assetsForBuyColumns = [
@@ -61,6 +76,7 @@ class AssetsExchange extends Component {
 			name: "",
 			amount: "",
 		},
+		transactionInProcess: false,
 	};
 
 	fillAssetsForBuyData = async () => {
@@ -129,33 +145,32 @@ class AssetsExchange extends Component {
 	}
 
 	setAssetToBuyValues = (assetName, amount) => {
-		this.setState({ assetToBuy: { name: assetName, amount: trimFloat(amount, 8) } });
+		this.setState({ assetToBuy: { name: assetName, amount: trimFloat(amount, 9) } });
 	};
 
 	setAssetToSellValues = (assetName, amount) => {
-		if (String(Number(amount)) === String(amount)) amount = Number(amount).toFixed(8);
-		this.setState({ assetToSell: { name: assetName, amount: trimFloat(amount, 8) } });
+		this.setState({ assetToSell: { name: assetName, amount: trimFloat(amount, 9) } });
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const amountToBuyInUsd = amountToBuy / buyPrice;
+		const amountToBuyInUsd = amountToBuy * buyPrice;
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToSell = amountToBuyInUsd * sellPrice;
+		const amountToSell = amountToBuyInUsd / sellPrice;
 		return amountToSell;
 	};
 
 	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const amountToSellInUsd = amountToSell * buyPrice;
+		const amountToSellInUsd = amountToSell / buyPrice;
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToBuy = amountToSellInUsd / sellPrice;
+		const amountToBuy = amountToSellInUsd * sellPrice;
 		return amountToBuy;
 	};
 
@@ -201,13 +216,61 @@ class AssetsExchange extends Component {
 		);
 	};
 
+	openNotification = (type, description) => {
+		notification[type]({
+			message: type === "success" ? "Exchange operation successful" : "Exchange operation failed",
+			description: description,
+			duration: 0,
+		});
+	};
+
+	handleSubmit = async (e, operationType) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		await this.setState({ transactionInProcess: true });
+
+		const { assetToBuy, assetToSell } = this.state;
+		const { wallet } = this.props;
+		console.log("asset to buy", assetToBuy);
+		console.log("asset to sell", assetToSell);
+		try {
+			let result = await exchangeAssets({
+				assetToSellName: assetToSell.name,
+				assetToBuyName: assetToBuy.name,
+				amountToBuy: assetToBuy.amount,
+				wallet: wallet,
+			});
+			this.openNotification(result.Error === 0 ? "success" : "error");
+			console.log(result);
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				this.openNotification(
+					"error",
+					"Transaction timed out. Try checking your balance some time later."
+				);
+			} else if (e instanceof SendRawTrxError) {
+				this.openNotification("error", "Contract execution error");
+			} else {
+				this.openNotification("error", "Unknown error");
+			}
+			console.log("error: ", e);
+		}
+		this.setState({ transactionInProcess: false });
+	};
+
 	render() {
 		return (
 			<>
 				<PageTitle>Assets Exchange</PageTitle>
 				<Card>
 					<Row gutter={16}>
-						<Form layout="inline" onSubmit={this.handleSubmit}>
+						<Form
+							layout="inline"
+							onSubmit={e => {
+								this.handleSubmit(e);
+							}}
+						>
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
 								<Form.Item>
 									<Input
@@ -216,14 +279,16 @@ class AssetsExchange extends Component {
 										step={10 ** -8}
 										min={0}
 										placeholder="You send"
-										value={this.state.assetToBuy.amount}
-										onChange={this.handleAssetToBuyAmountChange}
+										value={this.state.assetToSell.amount}
+										onChange={this.handleAssetToSellAmountChange}
+										disabled={this.state.transactionInProcess}
 									/>
 								</Form.Item>
 								<Form.Item>
 									<Select
 										value={this.state.assetToSell.name}
 										onChange={this.handleAssetToSellChange}
+										disabled={this.state.transactionInProcess}
 									>
 										{this.state.assetsForSellData.map(asset => (
 											<Option key={asset.key}>{asset.key}</Option>
@@ -240,12 +305,17 @@ class AssetsExchange extends Component {
 										step={10 ** -8}
 										min={0}
 										placeholder="You get"
-										value={this.state.assetToSell.amount}
-										onChange={this.handleAssetToSellAmountChange}
+										value={this.state.assetToBuy.amount}
+										onChange={this.handleAssetToBuyAmountChange}
+										disabled={this.state.transactionInProcess}
 									/>
 								</Form.Item>
 								<Form.Item>
-									<Select value={this.state.assetToBuy.name} onChange={this.handleAssetToBuyChange}>
+									<Select
+										value={this.state.assetToBuy.name}
+										onChange={this.handleAssetToBuyChange}
+										disabled={this.state.transactionInProcess}
+									>
 										{this.state.assetsForBuyData.map(asset => (
 											<Option key={asset.key}>{asset.key}</Option>
 										))}
@@ -255,9 +325,14 @@ class AssetsExchange extends Component {
 
 							<Col md={{ span: 24 }} lg={{ span: 2 }}>
 								<Form.Item>
-									<Button type="primary" htmlType="submit">
-										Exchange
-									</Button>
+									{this.state.transactionInProcess !== true ? (
+										<Button type="primary" htmlType="submit">
+											{" "}
+											Exchange{" "}
+										</Button>
+									) : (
+										<Icon type="loading" />
+									)}
 								</Form.Item>
 							</Col>
 						</Form>
@@ -290,7 +365,7 @@ class AssetsExchange extends Component {
 export default connect(
 	state => {
 		return {
-			// wallet: state.wallet,
+			wallet: state.wallet,
 			balance: state.balance,
 			exchangeRates: state.assets.rates,
 		};

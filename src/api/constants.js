@@ -25,7 +25,4 @@ export const roles = {
 	sadm: "super_admin",
 };
 
-export const defaultAsset = {
-	symbol: "oUSD",
-};
 export const notifyTimeout = 30000;
