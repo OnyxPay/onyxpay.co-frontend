@@ -43,11 +43,11 @@ class AssetsExchange extends Component {
 		assetsForSellData: [],
 		assetToSell: {
 			name: "",
-			amount: "",
+			amount: 0,
 		},
 		assetToBuy: {
 			name: "",
-			amount: "",
+			amount: 0,
 		},
 	};
 
@@ -62,7 +62,7 @@ class AssetsExchange extends Component {
 				buyPrice: convertAmountToStr(record.buy, 8),
 			});
 		}
-		this.setState({
+		await this.setState({
 			assetsForBuyData: assetsForBuyData,
 		});
 	};
@@ -82,9 +82,22 @@ class AssetsExchange extends Component {
 				sellPrice: convertAmountToStr(assetRatesData.sell, 8),
 			});
 		}
-		this.setState({
+
+		await this.setState({
 			assetsForSellData: assetsForSellData,
 		});
+	};
+
+	setDefaultAssets = () => {
+		const { assetsForBuyData, assetsForSellData } = this.state;
+
+		const defaultAssetToSell = assetsForSellData[0];
+		const defaultAssetToBuy = assetsForBuyData.find(
+			record => record.name !== defaultAssetToSell.name
+		);
+
+		this.setAssetToSellValues(defaultAssetToSell.name, 0);
+		this.setAssetToBuyValues(defaultAssetToBuy.name, 0);
 	};
 
 	async componentDidMount() {
@@ -95,23 +108,90 @@ class AssetsExchange extends Component {
 		this.fillAssetsForSellData();
 	}
 
-	componentDidUpdate(prevProps, prevState) {
-		if (prevProps.balance !== this.props.balance) {
-			this.fillAssetsForSellData();
+	async componentDidUpdate(prevProps, prevState) {
+		// should asset prices also update on change?
+		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
+			await this.fillAssetsForSellData();
+			this.setDefaultAssets();
 		}
 	}
 
-	handleAssetToBuyAmountChange = async event => {
-		console.log(event.target.value);
-		this.setState({ assetToBuy: { name: this.state.assetToBuy.name, amount: event.target.value } });
-		// recount assetToSell amount
+	setAssetToBuyValues = (assetName, amount) => {
+		this.setState({ assetToBuy: { name: assetName, amount: Number(amount).toFixed(8) } });
 	};
 
-	handleAssetToSellAmountChange = async event => {
-		this.setState({
-			assetToSell: { name: this.state.assetToSell.name, amount: event.target.value },
-		});
-		// recount assetToBuy amount
+	setAssetToSellValues = (assetName, amount) => {
+		this.setState({ assetToSell: { name: assetName, amount: Number(amount).toFixed(8) } });
+	};
+
+	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
+		const { assetsForBuyData, assetsForSellData } = this.state;
+
+		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
+		const amountToBuyInUsd = amountToBuy / buyPrice;
+
+		const { sellPrice } = assetsForSellData.find(
+			ratesRecord => ratesRecord.name === assetToSellName
+		);
+		const amountToSell = amountToBuyInUsd * sellPrice;
+
+		return amountToSell;
+	};
+
+	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
+		const { assetsForBuyData, assetsForSellData } = this.state;
+
+		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
+		const amountToSellInUsd = amountToSell * buyPrice;
+
+		const { sellPrice } = assetsForSellData.find(
+			ratesRecord => ratesRecord.name === assetToSellName
+		);
+		const amountToBuy = amountToSellInUsd / sellPrice;
+
+		return amountToBuy;
+	};
+
+	handleAssetToBuyAmountChange = event => {
+		const { value } = event.target;
+		const { assetToSell, assetToBuy } = this.state;
+
+		this.setAssetToBuyValues(assetToBuy.name, value);
+		this.setAssetToSellValues(
+			assetToSell.name,
+			this.recountAssetToSellAmount(assetToSell.name, assetToBuy.name, value)
+		);
+	};
+
+	handleAssetToSellAmountChange = event => {
+		const { value } = event.target;
+		const { assetToSell, assetToBuy } = this.state;
+
+		this.setAssetToSellValues(assetToSell.name, value);
+		this.setAssetToBuyValues(
+			assetToBuy.name,
+			this.recountAssetToBuyAmount(assetToSell.name, assetToBuy.name, value)
+		);
+	};
+
+	handleAssetToBuyChange = value => {
+		const { assetToSell, assetToBuy } = this.state;
+
+		this.setAssetToBuyValues(value, this.state.assetToBuy.amount);
+		this.setAssetToSellValues(
+			assetToSell.name,
+			this.recountAssetToSellAmount(assetToSell.name, value, assetToBuy.amount)
+		);
+	};
+
+	handleAssetToSellChange = value => {
+		const { assetToSell, assetToBuy } = this.state;
+
+		this.setAssetToSellValues(value, this.state.assetToSell.amount);
+		this.setAssetToBuyValues(
+			assetToBuy.name,
+			this.recountAssetToBuyAmount(value, assetToBuy.name, assetToSell.amount)
+		);
 	};
 
 	render() {
@@ -126,15 +206,18 @@ class AssetsExchange extends Component {
 									<Input
 										prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
 										type="number"
-										step={0.1}
+										step={10 ** -8}
 										min={0}
 										placeholder="You send"
 										value={this.state.assetToBuy.amount}
-										onInput={this.handleAssetToBuyAmountChange}
+										onChange={this.handleAssetToBuyAmountChange}
 									/>
 								</Form.Item>
 								<Form.Item>
-									<Select defaultValue="oUSD">
+									<Select
+										value={this.state.assetToSell.name}
+										onChange={this.handleAssetToSellChange}
+									>
 										{this.state.assetsForSellData.map(asset => (
 											<Option key={asset.key}>{asset.key}</Option>
 										))}
@@ -147,7 +230,7 @@ class AssetsExchange extends Component {
 									<Input
 										prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
 										type="number"
-										step={0.1}
+										step={10 ** -8}
 										min={0}
 										placeholder="You get"
 										value={this.state.assetToSell.amount}
@@ -155,7 +238,7 @@ class AssetsExchange extends Component {
 									/>
 								</Form.Item>
 								<Form.Item>
-									<Select defaultValue="oUSD">
+									<Select value={this.state.assetToBuy.name} onChange={this.handleAssetToBuyChange}>
 										{this.state.assetsForBuyData.map(asset => (
 											<Option key={asset.key}>{asset.key}</Option>
 										))}
