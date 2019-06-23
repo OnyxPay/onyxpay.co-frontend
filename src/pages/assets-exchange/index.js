@@ -77,6 +77,7 @@ class AssetsExchange extends Component {
 			amount: "",
 		},
 		transactionInProcess: false,
+		dataLoaded: false,
 	};
 
 	fillAssetsForBuyData = async () => {
@@ -140,7 +141,8 @@ class AssetsExchange extends Component {
 		// should asset prices also update on change?
 		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
 			await this.fillAssetsForSellData();
-			this.setDefaultAssets();
+			await this.setDefaultAssets();
+			this.setState({ dataLoaded: true });
 		}
 	}
 
@@ -282,14 +284,14 @@ class AssetsExchange extends Component {
 										placeholder="You send"
 										value={this.state.assetToSell.amount}
 										onChange={this.handleAssetToSellAmountChange}
-										disabled={this.state.transactionInProcess}
+										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 									/>
 								</Form.Item>
 								<Form.Item>
 									<Select
 										value={this.state.assetToSell.name}
 										onChange={this.handleAssetToSellChange}
-										disabled={this.state.transactionInProcess}
+										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 									>
 										{this.state.assetsForSellData.map(asset => (
 											<Option key={asset.key}>{asset.key}</Option>
@@ -308,14 +310,14 @@ class AssetsExchange extends Component {
 										placeholder="You get"
 										value={this.state.assetToBuy.amount}
 										onChange={this.handleAssetToBuyAmountChange}
-										disabled={this.state.transactionInProcess}
+										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 									/>
 								</Form.Item>
 								<Form.Item>
 									<Select
 										value={this.state.assetToBuy.name}
 										onChange={this.handleAssetToBuyChange}
-										disabled={this.state.transactionInProcess}
+										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 									>
 										{this.state.assetsForBuyData.map(asset => (
 											<Option key={asset.key}>{asset.key}</Option>
@@ -327,7 +329,7 @@ class AssetsExchange extends Component {
 							<Col md={{ span: 24 }} lg={{ span: 2 }}>
 								<Form.Item>
 									{this.state.transactionInProcess !== true ? (
-										<Button type="primary" htmlType="submit">
+										<Button type="primary" htmlType="submit" disabled={!this.state.dataLoaded}>
 											{" "}
 											Exchange{" "}
 										</Button>
