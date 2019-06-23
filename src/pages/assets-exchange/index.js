@@ -37,17 +37,29 @@ const assetsForSellColumns = [
 	},
 ];
 
+function countDecimals(value) {
+	if (Math.floor(value) === value) return 0;
+	if (value.toString().split(".").length !== 2) return 0;
+	return value.toString().split(".")[1].length || 0;
+}
+
+function trimFloat(value, digits) {
+	if (String(Number(value)) === String(value) && countDecimals(value) > digits)
+		return Number(value).toFixed(digits);
+	return value;
+}
+
 class AssetsExchange extends Component {
 	state = {
 		assetsForBuyData: [],
 		assetsForSellData: [],
 		assetToSell: {
 			name: "",
-			amount: 0,
+			amount: "",
 		},
 		assetToBuy: {
 			name: "",
-			amount: 0,
+			amount: "",
 		},
 	};
 
@@ -96,8 +108,8 @@ class AssetsExchange extends Component {
 			record => record.name !== defaultAssetToSell.name
 		);
 
-		this.setAssetToSellValues(defaultAssetToSell.name, 0);
-		this.setAssetToBuyValues(defaultAssetToBuy.name, 0);
+		this.setAssetToSellValues(defaultAssetToSell.name, "");
+		this.setAssetToBuyValues(defaultAssetToBuy.name, "");
 	};
 
 	async componentDidMount() {
@@ -117,38 +129,33 @@ class AssetsExchange extends Component {
 	}
 
 	setAssetToBuyValues = (assetName, amount) => {
-		this.setState({ assetToBuy: { name: assetName, amount: Number(amount).toFixed(8) } });
+		this.setState({ assetToBuy: { name: assetName, amount: trimFloat(amount, 8) } });
 	};
 
 	setAssetToSellValues = (assetName, amount) => {
-		this.setState({ assetToSell: { name: assetName, amount: Number(amount).toFixed(8) } });
+		if (String(Number(amount)) === String(amount)) amount = Number(amount).toFixed(8);
+		this.setState({ assetToSell: { name: assetName, amount: trimFloat(amount, 8) } });
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
-
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
 		const amountToBuyInUsd = amountToBuy / buyPrice;
-
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
 		const amountToSell = amountToBuyInUsd * sellPrice;
-
 		return amountToSell;
 	};
 
 	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
-
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
 		const amountToSellInUsd = amountToSell * buyPrice;
-
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
 		const amountToBuy = amountToSellInUsd / sellPrice;
-
 		return amountToBuy;
 	};
 
