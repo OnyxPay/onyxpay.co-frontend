@@ -7,7 +7,7 @@ import { getActiveRequests, acceptRequest } from "../../api/requests";
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/SendToAgent";
-import { roles } from "../../api/constants";
+import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 
 const modals = {
@@ -107,6 +107,23 @@ class ActiveRequests extends Component {
 				}
 				const pagination = { ...this.state.pagination };
 				pagination.total = data.total;
+
+				// -------------  imitate if agent is accepted --------------
+				data.items[5].operation_messages.push({
+					id: 33,
+					status: "accepted",
+					status_code: 3,
+					receiver: { addr: "fdsfasdfdsf3234", id: 3242 },
+				});
+				data.items[5].operation_messages[0].status = "accepted";
+				data.items[5].operation_messages[0].status_code = 3;
+
+				data.items[6].operation_messages[0].status = "accepted";
+				data.items[6].operation_messages[0].status_code = 3;
+
+				// ---------------------------------------------------------
+
+				console.log(data.items);
 				this.setState({
 					loading: false,
 					data: data.items,
@@ -117,14 +134,18 @@ class ActiveRequests extends Component {
 	};
 
 	acceptRequest = async requestId => {
+		// agent accepts deposit or withdraw request
 		try {
 			await acceptRequest(requestId);
+			// show notification
+			// update data in table
 		} catch (e) {
 			message.error(e.message);
 		}
 	};
 
 	hideRequest = async requestId => {
+		// agent can hide request
 		try {
 			await hideMessage(requestId);
 			this.fetch(); // update data in table
@@ -132,6 +153,11 @@ class ActiveRequests extends Component {
 			message.error(e.message);
 		}
 	};
+
+	isAgentAccepted(operationMessages) {
+		// check if at least one agent is accepted the request
+		return operationMessages.some(mg => mg.status_code === operationMessageStatus.accepted);
+	}
 
 	render() {
 		const { user } = this.props;
@@ -158,6 +184,7 @@ class ActiveRequests extends Component {
 			{
 				title: "Action",
 				render: (text, record, index) => {
+					// console.log(text, record, index);
 					return (
 						<>
 							<Button
@@ -167,6 +194,14 @@ class ActiveRequests extends Component {
 								Send to agents
 							</Button>
 							<CancelRequest btnStyle={style.btn} requestId={record.id} />
+							{this.isAgentAccepted(record.operation_messages) && (
+								<Button
+									style={style.btn}
+									// onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id)}
+								>
+									Choose agent
+								</Button>
+							)}
 						</>
 					);
 				},
@@ -198,7 +233,7 @@ class ActiveRequests extends Component {
 						<>
 							<Popconfirm
 								title="Sure to accept?"
-								onConfirm={() => this.acceptRequest(record.request.id)}
+								onConfirm={() => this.acceptRequest(record.request.id)} // TODO: change to request_id?
 							>
 								<Button type="primary" style={style.btn}>
 									Accept

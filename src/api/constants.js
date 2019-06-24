@@ -26,3 +26,9 @@ export const roles = {
 };
 
 export const notifyTimeout = 30000;
+
+export const operationMessageStatus = {
+	opened: 1,
+	hidden: 2,
+	accepted: 3,
+};

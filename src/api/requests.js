@@ -10,7 +10,8 @@ import { timeout, TimeoutError } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
 
-const depositReqId = "e5b4f2711bc3e4a7f279a25b3d6c664a988deeeefdf0fdeb8842cd2e9dadc4ab";
+const depositReqId = "fc50fc92c4fd628610f02edf4180343d0e1c1c83fba7d5af049344b44dc38334"; // 12 oEUR
+const depositReqId2 = "d8ed79ba2c9b1237cf615886858c950cb3415b2742b3baf5cde1c55a5f8c07ad"; // 13 oEUR
 
 /* 
 	Get operation requests (url: /api/v1/operation-requests, method: GET)
@@ -110,7 +111,9 @@ export async function createRequest(formValues, requestType) {
 				...authHeaders,
 			},
 		});
-		return await timeout(sendTrx(trx, false, true), notifyTimeout);
+		const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
+		console.log(`createTrx for ${requestType}`, res);
+		return res;
 	} catch (e) {
 		if (e.isAxiosError) {
 			return handleReqError(e);
