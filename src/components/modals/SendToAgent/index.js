@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Modal, Select, Form, Button } from "antd";
+import { Modal, Select, Form, Button, notification } from "antd";
 import { getData as getCountriesData } from "country-list";
 import { Formik } from "formik";
 import AgentsTable from "./AgentsTable";
@@ -37,8 +37,16 @@ class SendToAgent extends Component {
 		selectedRows.forEach(row => {
 			ids.push(row.user_id);
 		});
-		await sendMessage(requestId, ids);
-		formActions.resetForm();
+		const res = await sendMessage(requestId, ids);
+		if (!res.error) {
+			formActions.resetForm();
+			notification.success({
+				message: "Done",
+				description: "Request is successfully sent to agent/agents",
+			});
+			this.handleClose();
+			// refetch requests data
+		}
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
