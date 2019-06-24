@@ -10,6 +10,9 @@ import {
 	getUsersData,
 } from "../../../redux/admin-panel/users";
 
+const styles = {
+	btn: { marginRight: 8 },
+};
 class Users extends Component {
 	state = {
 		searchText: "",
@@ -53,13 +56,6 @@ class Users extends Component {
 		filterIcon: filtered => (
 			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
 		),
-		onFilter: (value, record) =>
-			record[dataIndex] === null
-				? false
-				: record[dataIndex]
-						.toString()
-						.toLowerCase()
-						.includes(value.toLowerCase()),
 		onFilterDropdownVisibleChange: visible => {
 			if (visible) {
 				setTimeout(() => this.searchInput.select());
@@ -91,7 +87,6 @@ class Users extends Component {
 	};
 
 	componentDidMount = async () => {
-		this.setState({ loadingTableData: true });
 		await this.fetchUsers();
 	};
 
@@ -105,15 +100,17 @@ class Users extends Component {
 				},
 			},
 			() => {
-				this.fetchUsers({
-					...filters,
-				});
+				for (const filter in filters) {
+					filters[filter] = filters[filter][0];
+				}
+				this.fetchUsers(filters);
 			}
 		);
 	};
 
 	async fetchUsers(opts = {}) {
 		try {
+			this.setState({ loadingTableData: true });
 			const { getUsersData } = this.props;
 			const { pagination } = this.state;
 			const params = {
@@ -167,7 +164,6 @@ class Users extends Component {
 				title: "First name",
 				dataIndex: "first_name",
 				key: "first_name",
-				width: "10%",
 				...this.getColumnSearchProps("first_name"),
 				render: res => (res ? res : "n/a"),
 			},
@@ -175,15 +171,13 @@ class Users extends Component {
 				title: "Last name",
 				dataIndex: "last_name",
 				key: "last_name",
-				width: "10%",
 				...this.getColumnSearchProps("last_name"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Сountry",
+				title: "Country",
 				dataIndex: "country",
 				key: "country",
-				width: "10%",
 				...this.getColumnSearchProps("country"),
 				render: res => (res ? res : "n/a"),
 			},
@@ -191,7 +185,6 @@ class Users extends Component {
 				title: "Email",
 				dataIndex: "email",
 				key: "email",
-				width: "10%",
 				...this.getColumnSearchProps("email"),
 				render: res => (res ? res : "n/a"),
 			},
@@ -199,7 +192,6 @@ class Users extends Component {
 				title: "Phone number",
 				dataIndex: "phone_number",
 				key: "phone_number",
-				width: "10%",
 				...this.getColumnSearchProps("phone_number"),
 				render: res => (res ? res : "n/a"),
 			},
@@ -207,7 +199,6 @@ class Users extends Component {
 				title: "Chat id",
 				dataIndex: "chat_id",
 				key: "chat_id",
-				width: "10%",
 				...this.getColumnSearchProps("chat_id"),
 				render: res => (res ? res : "n/a"),
 			},
@@ -215,43 +206,47 @@ class Users extends Component {
 				title: "Wallet address",
 				dataIndex: "wallet_addr",
 				key: "wallet_addr",
-				width: "10%",
 				...this.getColumnSearchProps("wallet_addr"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
+				title: "Status",
+				dataIndex: "status",
+				key: "status",
+				...this.getColumnSearchProps("status"),
+				render: res => (res ? res : "n/a"),
+			},
+			{
 				title: "Actions",
-				dataIndex: "",
-				width: "20%",
 				render: res => (
-					<div className="actionBtnContainer">
+					<div>
 						<Button
-							type="primary"
+							style={styles.btn}
+							type="danger"
 							icon="user-delete"
 							loading={res.user_id === this.state.user_id && loadingBlockUser}
 							onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
 						>
 							Block
-						</Button>{" "}
+						</Button>
 						<Button
+							style={styles.btn}
 							type="primary"
 							icon="user-add"
 							loading={res.user_id === this.state.user_id && loadingUnblockUser}
 							onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
 						>
 							Unblock
-						</Button>{" "}
+						</Button>
 						{res.is_settlements_exists ? (
 							<Button
-								type="primary"
+								style={styles.btn}
 								icon="account-book"
 								onClick={() => this.showSettlement(res.user_id)}
 							>
-								Settlements account
+								Settlement accounts
 							</Button>
-						) : (
-							" "
-						)}
+						) : null}
 					</div>
 				),
 			},
