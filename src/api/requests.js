@@ -12,6 +12,56 @@ import { get } from "lodash";
 
 const depositReqId = "e5b4f2711bc3e4a7f279a25b3d6c664a988deeeefdf0fdeb8842cd2e9dadc4ab";
 
+/* 
+	Get operation requests (url: /api/v1/operation-requests, method: GET)
+/* 
+{
+    "items": [
+        {
+            "id": <int>,
+            "type_code": <int>,
+            "type": <string>,
+            "asset": <string>,
+            "maker_addr": <string>,
+            "taker_addr": <string>, поменяется после ChooseAgent trx
+            "amount": <float>,
+            "country": <string>,
+            "status_code": <int>,
+            "status": <string>,
+            "finalization_at": <string>,
+            "trx_hash": <string>,
+            "trx_timestamp": <string>,
+            "operation_messages": [
+                {
+                    "id": <array>,
+                    "status": <string>, поменяется после Accept(requestId, agent) trx на 3 и "/operation-message/{operationMessageId}/hide" на 2
+                    "status_code": <int>,
+                    "receiver": {
+                        "id": <int>,
+                        "addr": <string>
+                    }
+                }
+            ]
+        }
+    ]
+}
+
+	Request status:
+	1 - opened
+	2 - choose
+	3 - rejected
+	4 - canceled
+	5 - complained
+	6 - completed
+	7 - closed
+	
+	operation_messages status:
+	1 - opened
+	2 - hidden 
+	3 - accepted
+
+*/
+
 export async function createRequest(formValues, requestType) {
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
@@ -143,6 +193,8 @@ export async function getRejectionCounter(userId) {
 	let counter = get(res, "Result.Result", 0);
 	if (counter === "") {
 		counter = 0;
+	} else {
+		counter = parseInt(counter, 16);
 	}
 	return counter;
 }
