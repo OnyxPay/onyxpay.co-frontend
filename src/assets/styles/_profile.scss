@@ -1,22 +1,38 @@
 .profile-editor-input {
 	text-align: left;
 	border: none;
+	width: 50%;
+	min-width: 300px;
 }
 
-.profile_editor_form p {
+.profile-editor-select {
+	width: 1000px;
+	min-width: 300px;
+}
+
+.profile_editor_item {
 	width: 50%;
 	float: left;
+	margin-top: 15px;
 }
 
-.profile_editor_form p {
-	width: 50%;
-	float: left;
-}
-
-.profile_editor_form p:nth-child(2n + 2) {
+.profile_editor_form .profile_editor_item:nth-child(2n + 2) {
 	padding-left: 5px;
 }
 
-.profile_editor_form p:nth-child(1n + 1) {
+.profile_editor_form .profile_editor_item:nth-child(1n + 1) {
 	padding-right: 5px;
+}
+
+.change-icon {
+	color: rgb(0, 206, 0);
+	margin-right: 5px;
+}
+
+.reject-icon {
+	color: #f5222d;
+}
+
+.edit-icon {
+	color: rgba(0, 0, 0, 0.45);
 }
