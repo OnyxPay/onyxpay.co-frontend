@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table, Button, Popconfirm, message } from "antd";
 import { getActiveRequests, acceptRequest } from "../../api/requests";
-import { getMessages } from "../../api/operation-messages";
+import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/SendToAgent";
 import { roles } from "../../api/constants";
@@ -25,7 +25,7 @@ class ActiveRequests extends Component {
 		super(props);
 		this.state = {
 			data: [],
-			pagination: { current: 1, pageSize: 10 },
+			pagination: { current: 1, pageSize: 20 },
 			loading: false,
 			SEND_REQ_TO_AGENT: false,
 			requestId: null,
@@ -102,6 +102,7 @@ class ActiveRequests extends Component {
 					params.type = this.parseRequestType();
 					data = await getActiveRequests(params);
 				} else if (user.role === "agent") {
+					params.requestType = this.parseRequestType();
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };
@@ -118,6 +119,15 @@ class ActiveRequests extends Component {
 	acceptRequest = async requestId => {
 		try {
 			await acceptRequest(requestId);
+		} catch (e) {
+			message.error(e.message);
+		}
+	};
+
+	hideRequest = async requestId => {
+		try {
+			await hideMessage(requestId);
+			this.fetch(); // update data in table
 		} catch (e) {
 			message.error(e.message);
 		}
@@ -190,7 +200,15 @@ class ActiveRequests extends Component {
 								title="Sure to accept?"
 								onConfirm={() => this.acceptRequest(record.request.id)}
 							>
-								<Button type="primary">Accept</Button>
+								<Button type="primary" style={style.btn}>
+									Accept
+								</Button>
+							</Popconfirm>
+							<Popconfirm
+								title="Sure to hide?"
+								onConfirm={() => this.hideRequest(record.id)} // messageId
+							>
+								<Button style={style.btn}>Hide</Button>
 							</Popconfirm>
 						</>
 					);
