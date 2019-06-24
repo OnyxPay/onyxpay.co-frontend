@@ -69,7 +69,7 @@ let Withdraw = Loadable({
 });
 
 let Users = Loadable({
-	loader: () => import(/* webpackChunkName: "Users" */ "./pages/admin-panel/users"),
+	loader: () => import(/* webpackChunkName: "Users" */ "./pages/admin-panel/users/index"),
 	loading: Loader,
 });
 
@@ -88,6 +88,7 @@ AssetsExchange = UserOrAgent(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
 SendAsset = User(SendAsset);
+
 Withdraw = User(Withdraw);
 Users = AdminAndSuperAdmin(Users);
 

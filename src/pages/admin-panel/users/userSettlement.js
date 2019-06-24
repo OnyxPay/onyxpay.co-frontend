@@ -1,7 +1,7 @@
 import { Modal, Table } from "antd";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import Actions from "../../../redux/actions";
+import { getUserSettlementData } from "../../../redux/admin-panel/users";
 
 class UserSettlement extends Component {
 	state = {
@@ -12,8 +12,8 @@ class UserSettlement extends Component {
 		this.setState({
 			loading: true,
 		});
-		const { getUserSetElementData } = this.props;
-		await getUserSetElementData(this.props.userId);
+		const { getUserSettlementData } = this.props;
+		await getUserSettlementData(this.props.userId);
 		const { userSettlement } = this.props;
 		this.setState({
 			data: userSettlement,
@@ -86,6 +86,6 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		getUserSetElementData: Actions.userSettlementAccountData.getUserSettlementData,
+		getUserSettlementData,
 	}
 )(UserSettlement);

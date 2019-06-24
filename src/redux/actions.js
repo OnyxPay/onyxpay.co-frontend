@@ -13,6 +13,7 @@ import { signUp, login, confirmEmail, logOut } from "./auth";
 import { startLoading, finishLoading } from "./loading";
 import { getSettlementsList, add, deleteAccount } from "./settlements";
 import { showSessionExpiredModal } from "./session";
+import { getRequestsData } from "./admin-panel/requests";
 import { getAssetsList, getExchangeRates, isAssetBlocked } from "./assets";
 
 export default {
@@ -46,4 +47,5 @@ export default {
 		getExchangeRates,
 		isAssetBlocked,
 	},
+	adminRequests: { getRequestsData },
 };
