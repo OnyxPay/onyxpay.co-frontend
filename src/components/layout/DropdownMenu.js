@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { Avatar, Menu, Dropdown } from "antd";
 import Actions from "../../redux/actions";
+import { Link } from "react-router-dom";
 
 const UpgradeLink = styled.span`
 	color: #1890ff;
@@ -16,6 +17,11 @@ const DropdownMenu = ({ logOut }) => {
 			</Menu.Item>
 			<Menu.Item>
 				<UpgradeLink>Upgrade to Super Agent</UpgradeLink>
+			</Menu.Item>
+			<Menu.Item>
+				<Link to={"/profile"}>
+					<UpgradeLink>Profile</UpgradeLink>
+				</Link>
 			</Menu.Item>
 			<Menu.Divider />
 			<Menu.Item onClick={() => logOut()}>

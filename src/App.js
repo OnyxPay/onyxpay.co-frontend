@@ -73,6 +73,11 @@ let Users = Loadable({
 	loading: Loader,
 });
 
+let Profile = Loadable({
+	loader: () => import(/* webpackChunkName: "Profile" */ "./pages/profile"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
@@ -89,6 +94,7 @@ Page404 = All(Page404);
 Settlement = All(Settlement);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
+Profile = All(Profile);
 Users = AdminAndSuperAdmin(Users);
 
 class App extends Component {
@@ -113,6 +119,7 @@ class App extends Component {
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
 					<Route path="/withdraw" exact component={Withdraw} />
+					<Route path="/profile" exact component={Profile} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
