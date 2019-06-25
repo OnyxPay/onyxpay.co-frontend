@@ -4,6 +4,8 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import connect from "react-redux/es/connect/connect";
 
+const SubMenu = Menu.SubMenu;
+
 class SuperAdminMenu extends Component {
 	render() {
 		const { location } = this.props;
