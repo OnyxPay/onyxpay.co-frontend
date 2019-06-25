@@ -36,6 +36,7 @@ export async function refreshBalance() {
 	}
 }
 
+// TODO: on logout  remove event listener
 export function initBalanceProvider() {
 	refreshBalance();
 	window.setInterval(async () => {

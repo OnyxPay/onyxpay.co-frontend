@@ -3,7 +3,12 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table, Button, Popconfirm, message, notification } from "antd";
-import { getActiveRequests, acceptRequest, performRequest } from "../../api/requests";
+import {
+	getActiveRequests,
+	acceptRequest,
+	performRequest,
+	cancelAcceptedRequest,
+} from "../../api/requests";
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/SendToAgent";
@@ -126,8 +131,14 @@ class ActiveRequests extends Component {
 					data.items[6].operation_messages[0].status = "accepted";
 					data.items[6].operation_messages[0].status_code = 3;
 
-					data.items[13].operation_messages[0].status = "accepted";
-					data.items[13].operation_messages[0].status_code = 3;
+					data.items[14].operation_messages[0].status = "accepted";
+					data.items[14].operation_messages[0].status_code = 3;
+
+					data.items[15].operation_messages[0].status = "accepted";
+					data.items[15].operation_messages[0].status_code = 3;
+
+					data.items[16].operation_messages[0].status = "accepted";
+					data.items[16].operation_messages[0].status_code = 3;
 				}
 
 				// ---------------------------------------------------------
@@ -201,6 +212,28 @@ class ActiveRequests extends Component {
 		}
 	};
 
+	cancelAcceptedRequest = async requestId => {
+		// agent performs request
+		try {
+			await cancelAcceptedRequest(requestId);
+			notification.success({
+				message: "Done",
+				description: "You canceled the request",
+			});
+			// update data in table
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				message.error(e.message);
+			}
+		}
+	};
+
 	render() {
 		const { user } = this.props;
 
@@ -253,6 +286,7 @@ class ActiveRequests extends Component {
 				},
 			},
 		];
+
 		const columnsForAgent = [
 			{
 				title: "Asset",
@@ -300,6 +334,16 @@ class ActiveRequests extends Component {
 							>
 								<Button type="primary" style={style.btn}>
 									Perform
+								</Button>
+							</Popconfirm>
+
+							<Popconfirm // TODO: add condition on tacker_id
+								title="Sure to cancel acceptation?"
+								cancelText="No"
+								onConfirm={() => this.cancelAcceptedRequest(record.id)} // TODO: change to request_id
+							>
+								<Button type="danger" style={style.btn}>
+									Cancel acceptation
 								</Button>
 							</Popconfirm>
 						</>

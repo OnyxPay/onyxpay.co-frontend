@@ -12,9 +12,9 @@ import { get } from "lodash";
 
 const depositReqId = "fc50fc92c4fd628610f02edf4180343d0e1c1c83fba7d5af049344b44dc38334"; // 12 oEUR
 const depositReqId2 = "d8ed79ba2c9b1237cf615886858c950cb3415b2742b3baf5cde1c55a5f8c07ad"; // 13 oEUR
-const depositReqId3 = "f9f595d9ba0bb2bb4f9a4b6d9064b4742d05eb2f71553291299a77612d95664e"; // 15 EUR !!!
 const depositReqId4 = "14fe7e6f5f3360577f62faa170182ee76826af750c99afdae898769441ff91c0"; // 2 EUR !!!
 const depositReqId5 = "d9ff12f7bb2def2228812fda674f9ec11ccbddd0deb4d0943fc948dbb5e8c997"; // 1 EUR !!!
+const depositReqId6 = "149a1829899eaafdbaf0196ca341fb634b709fa167e5d46797980f1f5e927931"; // 3 EUR !!!
 
 /*
 	REST API
@@ -180,11 +180,10 @@ export async function acceptRequest(requestId) {
 	}
 	const { pk, accountAddress } = await unlockWalletAccount();
 
-	console.log("depositReqId3", depositReqId3);
 	const trx = createTrx({
 		funcName: "Accept",
 		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId5 }, // TODO: change id
+			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId6 }, // TODO: change id
 			{
 				label: "agent",
 				type: ParameterType.ByteArray,
@@ -215,7 +214,7 @@ export async function chooseAgent(requestId, agentAddress) {
 	const trx = createTrx({
 		funcName: "ChooseAgent",
 		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId3 }, // TODO: change id
+			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId6 }, // TODO: change id
 			{
 				label: "agentAddress",
 				type: ParameterType.ByteArray,
@@ -244,7 +243,36 @@ export async function performRequest(requestId) {
 	const trx = createTrx({
 		funcName: "Perform",
 		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId3 }, // TODO: change id
+			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId4 }, // TODO: change id
+		],
+		contractAddress: address,
+		accountAddress,
+	});
+
+	signTrx(trx, pk);
+	console.log("trx", trx);
+
+	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
+	console.log(res);
+}
+
+export async function cancelAcceptedRequest(requestId) {
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
+	}
+	const { pk, accountAddress } = await unlockWalletAccount();
+
+	const trx = createTrx({
+		funcName: "CancelAcceptation",
+		params: [
+			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId6 }, // TODO: change id
+			{
+				label: "agentAddress",
+				type: ParameterType.ByteArray,
+				value: utils.reverseHex(accountAddress.toHexString()),
+			},
 		],
 		contractAddress: address,
 		accountAddress,

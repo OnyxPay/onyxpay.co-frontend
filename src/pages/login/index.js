@@ -14,6 +14,7 @@ import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal"
 import RegistrationModal from "../../components/modals/Registration";
 import { generateTokenTimeStamp } from "../../utils";
 import { signWithPk } from "../../utils/blockchain";
+import { refreshBalance } from "../../providers/balanceProvider";
 
 const { Title } = Typography;
 
@@ -109,6 +110,7 @@ class Login extends Component {
 				}
 			} else {
 				await getUserData();
+				await refreshBalance();
 				push("/");
 			}
 		} catch (er) {
