@@ -48,8 +48,8 @@ function createCustomRestClient() {
 
 export function getToken() {
 	return {
-		OnyxAuth: sessionStorage.getItem("OnyxAuth"),
-		OnyxAddr: sessionStorage.getItem("OnyxAddr"),
+		OnyxAuth: localStorage.getItem("OnyxAuth"),
+		OnyxAddr: localStorage.getItem("OnyxAddr"),
 	};
 }
 

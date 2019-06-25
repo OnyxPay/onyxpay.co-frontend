@@ -88,7 +88,7 @@ class Login extends Component {
 	};
 
 	handleLogin = async () => {
-		const { push, login, getUserData } = this.props;
+		const { push, login, getUserData, location } = this.props;
 		this.setState({ loading: true });
 		try {
 			const { pk, accountAddress, publicKey } = await unlockWalletAccount();
@@ -111,7 +111,13 @@ class Login extends Component {
 			} else {
 				await getUserData();
 				await refreshBalance();
-				push("/");
+				console.log(location);
+
+				if (location.state && location.state.redirectFrom) {
+					push(location.state.redirectFrom);
+				} else {
+					push("/");
+				}
 			}
 		} catch (er) {
 			console.log(er);
@@ -209,7 +215,7 @@ class Login extends Component {
 
 export default connect(
 	state => {
-		return { wallet: state.wallet, user: state.user };
+		return { wallet: state.wallet, user: state.user, location: state.router.location };
 	},
 	{
 		saveUser: Actions.user.saveUser,
