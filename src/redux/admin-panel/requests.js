@@ -52,7 +52,7 @@ export const getRequests = params => async dispatch => {
 	}
 };
 
-export const setRequestReject = (request_id, reason) => async dispatch => {
+export const rejectRequest = (request_id, reason) => async dispatch => {
 	const authHeaders = getAuthHeaders();
 	try {
 		const status = await client.put(

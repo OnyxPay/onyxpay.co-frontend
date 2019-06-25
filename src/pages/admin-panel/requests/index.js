@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import { Table, Button } from "antd";
+import { Table, Button, notification } from "antd";
 import { connect } from "react-redux";
 import {
-	setRequestReject,
+	rejectRequest,
 	sentRequest,
 	upgradeUser,
 	getRequests,
 } from "../../../redux/admin-panel/requests";
-import ReasonReject from "./reasonReject";
+import ReasonToRejectUpgradeModal from "../../../components/modals/admin/ReasonToRejectUpgrade";
 
 const style = {
 	button: {
@@ -17,7 +17,6 @@ const style = {
 class AdminRequests extends Component {
 	state = {
 		isReasonToRejectModalVisible: false,
-		reason: "",
 		request_id: null,
 		pagination: { current: 1, pageSize: 20 },
 		loadingTable: false,
@@ -38,29 +37,32 @@ class AdminRequests extends Component {
 		});
 	};
 
-	rejectRequest = async request_id => {
+	showModal = async request_id => {
 		this.setState({
 			isReasonToRejectModalVisible: true,
 			request_id: request_id,
 		});
 	};
 
-	handleChange = event => {
-		this.setState({ reason: event.target.value });
+	handleRejectRequest = async reason => {
+		const { request_id } = this.state;
+		const { rejectRequest } = this.props;
+
+		const res = await rejectRequest(request_id, reason);
+		if (!res.error) {
+			notification.success({
+				message: "Done",
+				description: `You rejected request with id ${request_id}`,
+			});
+			this.hideModal();
+		}
+		console.log(res);
 	};
 
-	handleOk = visible => {
-		const { request_id, reason } = this.state;
-		const { setRequestReject } = this.props;
-		setRequestReject(request_id, reason);
+	hideModal = () => {
 		this.setState({
-			isReasonToRejectModalVisible: visible,
-		});
-	};
-
-	handleCancel = visible => {
-		this.setState({
-			isReasonToRejectModalVisible: visible,
+			isReasonToRejectModalVisible: false,
+			request_id: null,
 		});
 	};
 
@@ -161,7 +163,7 @@ class AdminRequests extends Component {
 						>
 							Confirm
 						</Button>
-						<Button onClick={() => this.rejectRequest(res)} type="danger" style={style.button}>
+						<Button onClick={() => this.showModal(res.id)} type="danger" style={style.button}>
 							Reject
 						</Button>
 					</>
@@ -181,9 +183,9 @@ class AdminRequests extends Component {
 					loading={this.state.loadingTable}
 				/>
 				{isReasonToRejectModalVisible && (
-					<ReasonReject
-						handleOk={this.handleOk}
-						handleCancel={this.handleCancel}
+					<ReasonToRejectUpgradeModal
+						handleRejectRequest={this.handleRejectRequest}
+						hideModal={this.hideModal}
 						visible={isReasonToRejectModalVisible}
 						handleChange={this.handleChange}
 					/>
@@ -201,7 +203,7 @@ export default connect(
 	mapStateToProps,
 	{
 		getRequests,
-		setRequestReject,
+		rejectRequest,
 		sentRequest,
 		upgradeUser,
 	}
