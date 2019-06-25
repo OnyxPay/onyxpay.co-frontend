@@ -2,13 +2,14 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Table, Button, Popconfirm, message } from "antd";
+import { Table, Button, Popconfirm, message, notification } from "antd";
 import { getActiveRequests, acceptRequest } from "../../api/requests";
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/SendToAgent";
 import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
+import { TimeoutError } from "promise-timeout";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -29,6 +30,8 @@ class ActiveRequests extends Component {
 			loading: false,
 			SEND_REQ_TO_AGENT: false,
 			requestId: null,
+			isSendingMessage: false,
+			operationMessages: [],
 		};
 	}
 
@@ -64,8 +67,9 @@ class ActiveRequests extends Component {
 		this.setState({ [type]: false });
 	};
 
-	showModal = (type, requestId) => () => {
-		this.setState({ [type]: true, requestId });
+	showModal = (type, requestId, isSendingMessage = false, operationMessages = []) => () => {
+		console.log(requestId);
+		this.setState({ [type]: true, requestId, isSendingMessage, operationMessages });
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
@@ -109,17 +113,22 @@ class ActiveRequests extends Component {
 				pagination.total = data.total;
 
 				// -------------  imitate if agent is accepted --------------
-				data.items[5].operation_messages.push({
-					id: 33,
-					status: "accepted",
-					status_code: 3,
-					receiver: { addr: "fdsfasdfdsf3234", id: 3242 },
-				});
-				data.items[5].operation_messages[0].status = "accepted";
-				data.items[5].operation_messages[0].status_code = 3;
+				if (user.role === roles.c && this.parseRequestType() === "deposit") {
+					data.items[5].operation_messages.push({
+						id: 33,
+						status: "accepted",
+						status_code: 3,
+						receiver: { addr: "fdsfasdfdsf3234", id: 3242 },
+					});
+					data.items[5].operation_messages[0].status = "accepted";
+					data.items[5].operation_messages[0].status_code = 3;
 
-				data.items[6].operation_messages[0].status = "accepted";
-				data.items[6].operation_messages[0].status_code = 3;
+					data.items[6].operation_messages[0].status = "accepted";
+					data.items[6].operation_messages[0].status_code = 3;
+
+					data.items[13].operation_messages[0].status = "accepted";
+					data.items[13].operation_messages[0].status_code = 3;
+				}
 
 				// ---------------------------------------------------------
 
@@ -137,10 +146,21 @@ class ActiveRequests extends Component {
 		// agent accepts deposit or withdraw request
 		try {
 			await acceptRequest(requestId);
-			// show notification
+			notification.success({
+				message: "Done",
+				description: "You accepted the request",
+			});
 			// update data in table
 		} catch (e) {
-			message.error(e.message);
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				message.error(e.message);
+			}
 		}
 	};
 
@@ -184,12 +204,11 @@ class ActiveRequests extends Component {
 			{
 				title: "Action",
 				render: (text, record, index) => {
-					// console.log(text, record, index);
 					return (
 						<>
 							<Button
 								style={style.btn}
-								onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id)}
+								onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id, true)}
 							>
 								Send to agents
 							</Button>
@@ -197,7 +216,12 @@ class ActiveRequests extends Component {
 							{this.isAgentAccepted(record.operation_messages) && (
 								<Button
 									style={style.btn}
-									// onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id)}
+									onClick={this.showModal(
+										modals.SEND_REQ_TO_AGENT,
+										record.request_id,
+										false,
+										record.operation_messages
+									)} // TODO: pick request_id
 								>
 									Choose agent
 								</Button>
@@ -266,6 +290,8 @@ class ActiveRequests extends Component {
 					isModalVisible={this.state.SEND_REQ_TO_AGENT}
 					hideModal={this.hideModal(modals.SEND_REQ_TO_AGENT)}
 					requestId={this.state.requestId}
+					isSendingMessage={this.state.isSendingMessage}
+					operationMessages={this.state.operationMessages}
 				/>
 			</>
 		);
