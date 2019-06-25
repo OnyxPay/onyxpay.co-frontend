@@ -90,6 +90,7 @@ Settlement = All(Settlement);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
 Users = AdminAndSuperAdmin(Users);
+Investments = AdminAndSuperAdmin(Investments);
 
 class App extends Component {
 	componentDidMount() {
