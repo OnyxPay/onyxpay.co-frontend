@@ -59,7 +59,7 @@ class UserSettlement extends Component {
 		return (
 			<>
 				<Modal
-					title="Settlement"
+					title="Settlement accounts"
 					visible={this.props.visible}
 					onOk={() => this.props.hideModal(false)}
 					onCancel={() => this.props.hideModal(false)}
