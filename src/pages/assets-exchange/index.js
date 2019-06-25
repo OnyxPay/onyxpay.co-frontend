@@ -133,8 +133,14 @@ class AssetsExchange extends Component {
 		const { getExchangeRates } = this.props;
 		await getExchangeRates();
 
-		this.fillAssetsForBuyData();
-		this.fillAssetsForSellData();
+		await this.fillAssetsForBuyData();
+		await this.fillAssetsForSellData();
+
+		const { assetsForSellData } = this.state;
+		if (assetsForSellData.length !== 0) {
+			await this.setDefaultAssets();
+			this.setState({ dataLoaded: true });
+		}
 	}
 
 	async componentDidUpdate(prevProps, prevState) {
@@ -226,7 +232,7 @@ class AssetsExchange extends Component {
 		});
 	};
 
-	handleSubmit = async (e, operationType) => {
+	handleSubmit = async e => {
 		e.preventDefault();
 		e.stopPropagation();
 
@@ -277,9 +283,10 @@ class AssetsExchange extends Component {
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
 								<Form.Item>
 									<Input
+										name="asset_to_sell_amount"
 										prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
 										type="number"
-										step={10 ** -8}
+										step={10 ** -9}
 										min={0}
 										placeholder="You send"
 										value={this.state.assetToSell.amount}
@@ -289,6 +296,7 @@ class AssetsExchange extends Component {
 								</Form.Item>
 								<Form.Item>
 									<Select
+										name="asset_to_sell_name"
 										value={this.state.assetToSell.name}
 										onChange={this.handleAssetToSellChange}
 										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
@@ -303,9 +311,10 @@ class AssetsExchange extends Component {
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
 								<Form.Item>
 									<Input
+										name="asset_to_buy_amount"
 										prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
 										type="number"
-										step={10 ** -8}
+										step={10 ** -9}
 										min={0}
 										placeholder="You get"
 										value={this.state.assetToBuy.amount}
@@ -315,6 +324,7 @@ class AssetsExchange extends Component {
 								</Form.Item>
 								<Form.Item>
 									<Select
+										name="asset_to_buy_name"
 										value={this.state.assetToBuy.name}
 										onChange={this.handleAssetToBuyChange}
 										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
@@ -375,5 +385,6 @@ export default connect(
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
+		isAssetBlocked: Actions.assets.isAssetBlocked,
 	}
 )(AssetsExchange);
