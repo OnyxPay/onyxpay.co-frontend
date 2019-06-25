@@ -3,7 +3,7 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table, Button, Popconfirm, message, notification } from "antd";
-import { getActiveRequests, acceptRequest } from "../../api/requests";
+import { getActiveRequests, acceptRequest, performRequest } from "../../api/requests";
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/SendToAgent";
@@ -179,6 +179,28 @@ class ActiveRequests extends Component {
 		return operationMessages.some(mg => mg.status_code === operationMessageStatus.accepted);
 	}
 
+	performRequest = async requestId => {
+		// agent performs request
+		try {
+			await performRequest(requestId);
+			notification.success({
+				message: "Done",
+				description: "You performed the request",
+			});
+			// update data in table
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				message.error(e.message);
+			}
+		}
+	};
+
 	render() {
 		const { user } = this.props;
 
@@ -257,7 +279,7 @@ class ActiveRequests extends Component {
 						<>
 							<Popconfirm
 								title="Sure to accept?"
-								onConfirm={() => this.acceptRequest(record.request.id)} // TODO: change to request_id?
+								onConfirm={() => this.acceptRequest(record.request.id)} // TODO: change to request_id, add condition on tacker_id
 							>
 								<Button type="primary" style={style.btn}>
 									Accept
@@ -267,7 +289,18 @@ class ActiveRequests extends Component {
 								title="Sure to hide?"
 								onConfirm={() => this.hideRequest(record.id)} // messageId
 							>
-								<Button style={style.btn}>Hide</Button>
+								<Button type="danger" style={style.btn}>
+									Hide
+								</Button>
+							</Popconfirm>
+
+							<Popconfirm // TODO: add condition on tacker_id
+								title="Sure to perform?"
+								onConfirm={() => this.performRequest(record.id)} // TODO: change to request_id
+							>
+								<Button type="primary" style={style.btn}>
+									Perform
+								</Button>
 							</Popconfirm>
 						</>
 					);
