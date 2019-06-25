@@ -23,12 +23,22 @@ class SuperAdminMenu extends Component {
 						<span>Users</span>
 					</Link>
 				</Menu.Item>
-				<Menu.Item key="/admin/requests">
-					<Link to="/admin/requests" className="ant-menu-item-content">
-						<Icon type="pull-request" />
-						<span>Requests</span>
-					</Link>
-				</Menu.Item>
+
+				<SubMenu
+					key="requests"
+					title={
+						<span className="ant-menu-item-content">
+							<Icon type="pull-request" />
+							<span>Requests</span>
+						</span>
+					}
+				>
+					<Menu.Item key="/admin/requests">
+						<Link to="/admin/requests" className="ant-menu-item-content">
+							<span>Account upgrade</span>
+						</Link>
+					</Menu.Item>
+				</SubMenu>
 			</Menu>
 		);
 	}

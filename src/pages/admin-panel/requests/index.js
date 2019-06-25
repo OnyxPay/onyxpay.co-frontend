@@ -9,6 +9,11 @@ import {
 } from "../../../redux/admin-panel/requests";
 import ReasonReject from "./reasonReject";
 
+const style = {
+	button: {
+		marginRight: 8,
+	},
+};
 class AdminRequests extends Component {
 	state = {
 		isReasonToRejectModalVisible: false,
@@ -111,62 +116,52 @@ class AdminRequests extends Component {
 			{
 				title: "User name",
 				dataIndex: "user",
-				with: "20%",
-				render: res => <>{res.first_name + " " + res.last_name}</>,
+				render: res => <span>{res.first_name + " " + res.last_name}</span>,
 			},
 			{
 				title: "Date registration",
 				dataIndex: "user.registered_at",
-				with: "15%",
-				render: res => (res ? new Date(res).toDateString() : "n/a"),
+				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
 				title: "Current role",
 				dataIndex: "user.role",
-				with: "10%",
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Expected role",
 				dataIndex: "expected_position",
-				with: "10%",
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Email",
 				dataIndex: "user.email",
-				with: "20%",
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Phone",
 				dataIndex: "user.phone_number",
-				with: "20%",
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "",
+				title: "Wallet address",
+				dataIndex: "user.wallet_addr",
+				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Actions",
 				dataIndex: "",
-				with: "10%",
 				render: res => (
 					<>
 						<Button
 							type="primary"
-							block
 							loading={this.state.loading && this.state.request_id === res.id}
 							onClick={() => this.confirmRole(res.user.wallet_addr, res.expected_position, res.id)}
+							style={style.button}
 						>
 							Confirm
 						</Button>
-					</>
-				),
-			},
-			{
-				title: "",
-				dataIndex: "id",
-				render: res => (
-					<>
-						<Button onClick={() => this.rejectRequest(res)} block type="danger">
+						<Button onClick={() => this.rejectRequest(res)} type="danger" style={style.button}>
 							Reject
 						</Button>
 					</>
@@ -180,7 +175,7 @@ class AdminRequests extends Component {
 					columns={columns}
 					rowKey={requests => requests.id}
 					dataSource={requests}
-					pagination={{ ...pagination }}
+					pagination={pagination}
 					className="ovf-auto"
 					onChange={this.handleTableChange}
 					loading={this.state.loadingTable}
