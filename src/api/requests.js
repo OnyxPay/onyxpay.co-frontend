@@ -10,29 +10,6 @@ import { timeout, TimeoutError } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
 
-const depositReqId = "fc50fc92c4fd628610f02edf4180343d0e1c1c83fba7d5af049344b44dc38334"; // 12 oEUR
-const depositReqId2 = "d8ed79ba2c9b1237cf615886858c950cb3415b2742b3baf5cde1c55a5f8c07ad"; // 13 oEUR
-const depositReqId4 = "14fe7e6f5f3360577f62faa170182ee76826af750c99afdae898769441ff91c0"; // 2 EUR !!!
-const depositReqId5 = "d9ff12f7bb2def2228812fda674f9ec11ccbddd0deb4d0943fc948dbb5e8c997"; // 1 EUR !!!
-const depositReqId6 = "149a1829899eaafdbaf0196ca341fb634b709fa167e5d46797980f1f5e927931"; // 3 EUR !!!
-
-/*
-	REST API
-	Request status:
-	1 - opened
-	2 - choose
-	3 - rejected
-	4 - canceled
-	5 - complained
-	6 - completed
-	7 - closed
-	
-	operation_messages status:
-	1 - opened
-	2 - hidden 
-	3 - accepted
-*/
-
 export async function createRequest(formValues, requestType) {
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
@@ -129,7 +106,7 @@ export async function cancelRequest(requestId, type) {
 
 	const trx = createTrx({
 		funcName: "RejectRequest",
-		params: [{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId }],
+		params: [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }],
 		contractAddress: address,
 		accountAddress,
 	});
@@ -173,6 +150,7 @@ export async function getRejectionCounter(userId) {
 }
 
 export async function acceptRequest(requestId) {
+	console.log(requestId);
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {
@@ -183,7 +161,7 @@ export async function acceptRequest(requestId) {
 	const trx = createTrx({
 		funcName: "Accept",
 		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId6 }, // TODO: change id
+			{ label: "requestId", type: ParameterType.ByteArray, value: requestId }, // TODO: change id
 			{
 				label: "agent",
 				type: ParameterType.ByteArray,
@@ -214,7 +192,7 @@ export async function chooseAgent(requestId, agentAddress) {
 	const trx = createTrx({
 		funcName: "ChooseAgent",
 		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId6 }, // TODO: change id
+			{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
 			{
 				label: "agentAddress",
 				type: ParameterType.ByteArray,
@@ -233,6 +211,7 @@ export async function chooseAgent(requestId, agentAddress) {
 }
 
 export async function performRequest(requestId) {
+	console.log(requestId);
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {
@@ -242,9 +221,7 @@ export async function performRequest(requestId) {
 
 	const trx = createTrx({
 		funcName: "Perform",
-		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId4 }, // TODO: change id
-		],
+		params: [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }],
 		contractAddress: address,
 		accountAddress,
 	});
@@ -257,6 +234,7 @@ export async function performRequest(requestId) {
 }
 
 export async function cancelAcceptedRequest(requestId) {
+	console.log(requestId);
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {
@@ -267,7 +245,7 @@ export async function cancelAcceptedRequest(requestId) {
 	const trx = createTrx({
 		funcName: "CancelAcceptation",
 		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: depositReqId6 }, // TODO: change id
+			{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
 			{
 				label: "agentAddress",
 				type: ParameterType.ByteArray,

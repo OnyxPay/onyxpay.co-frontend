@@ -52,9 +52,8 @@ class SendToAgent extends Component {
 				// refetch requests data
 			}
 		} else {
-			// send ChooseAgent(requestId, agent) trx
 			try {
-				const agentAddress = selectedRows[0].receiver.addr;
+				const agentAddress = selectedRows[0].receiver.wallet_addr;
 				await chooseAgent(requestId, agentAddress);
 				formActions.resetForm();
 				notification.success({

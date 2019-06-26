@@ -36,7 +36,7 @@ class CancelRequest extends Component {
 
 	handleConfirm = async () => {
 		const { requestId } = this.props;
-		console.log("confirm");
+		console.log("CancelRequest", requestId);
 		try {
 			await cancelRequest(requestId, "deposit");
 		} catch (e) {
@@ -83,7 +83,6 @@ class CancelRequest extends Component {
 				onVisibleChange={this.handleVisibleChange}
 			>
 				<Button type="danger" style={btnStyle}>
-					<Icon type="delete" />
 					Cancel
 				</Button>
 			</Popover>

@@ -12,9 +12,10 @@ import {
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/SendToAgent";
-import { roles, operationMessageStatus } from "../../api/constants";
+import { roles, operationMessageStatus, requestStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
+import { convertAmountToStr } from "../../utils/number";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -73,7 +74,6 @@ class ActiveRequests extends Component {
 	};
 
 	showModal = (type, requestId, isSendingMessage = false, operationMessages = []) => () => {
-		console.log(requestId);
 		this.setState({ [type]: true, requestId, isSendingMessage, operationMessages });
 	};
 
@@ -95,6 +95,7 @@ class ActiveRequests extends Component {
 	};
 
 	fetch = async (opts = {}) => {
+		// TODO: use status from constants
 		if (this._isMounted) {
 			const { pagination } = this.state;
 			const { user } = this.props;
@@ -109,39 +110,15 @@ class ActiveRequests extends Component {
 				let data;
 				if (user.role === roles.c) {
 					params.type = this.parseRequestType();
+					params.status = "pending,opened,choose";
 					data = await getActiveRequests(params);
 				} else if (user.role === "agent") {
 					params.requestType = this.parseRequestType();
+					// params.requestStatus = "opened,choose";
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };
 				pagination.total = data.total;
-
-				// -------------  imitate if agent is accepted --------------
-				/* if (user.role === roles.c && this.parseRequestType() === "deposit") {
-					data.items[5].operation_messages.push({
-						id: 33,
-						status: "accepted",
-						status_code: 3,
-						receiver: { addr: "fdsfasdfdsf3234", id: 3242 },
-					});
-					data.items[5].operation_messages[0].status = "accepted";
-					data.items[5].operation_messages[0].status_code = 3;
-
-					data.items[6].operation_messages[0].status = "accepted";
-					data.items[6].operation_messages[0].status_code = 3;
-
-					data.items[14].operation_messages[0].status = "accepted";
-					data.items[14].operation_messages[0].status_code = 3;
-
-					data.items[15].operation_messages[0].status = "accepted";
-					data.items[15].operation_messages[0].status_code = 3;
-
-					data.items[16].operation_messages[0].status = "accepted";
-					data.items[16].operation_messages[0].status_code = 3;
-				} */
-
-				// ---------------------------------------------------------
 
 				console.log(data.items);
 				this.setState({
@@ -235,7 +212,7 @@ class ActiveRequests extends Component {
 	};
 
 	render() {
-		const { user } = this.props;
+		const { user, walletAddress } = this.props;
 
 		const columnsForClient = [
 			{
@@ -244,7 +221,9 @@ class ActiveRequests extends Component {
 			},
 			{
 				title: "Amount",
-				dataIndex: "amount",
+				render: (text, record, index) => {
+					return convertAmountToStr(record.amount, 8);
+				},
 			},
 			{
 				title: "Status",
@@ -261,14 +240,19 @@ class ActiveRequests extends Component {
 				render: (text, record, index) => {
 					return (
 						<>
-							<Button
-								style={style.btn}
-								onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id, true)}
-							>
-								Send to agents
-							</Button>
-							<CancelRequest btnStyle={style.btn} requestId={record.id} />
-							{this.isAgentAccepted(record.operation_messages) && (
+							{record.status === "opened" && !record.operation_messages.length && (
+								<Button
+									style={style.btn}
+									onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id, true)}
+								>
+									Send to agents
+								</Button>
+							)}
+
+							{(record.status === "opened" || record.status === "choose") && (
+								<CancelRequest btnStyle={style.btn} requestId={record.request_id} />
+							)}
+							{this.isAgentAccepted(record.operation_messages) && record.status === "opened" && (
 								<Button
 									style={style.btn}
 									onClick={this.showModal(
@@ -276,7 +260,7 @@ class ActiveRequests extends Component {
 										record.request_id,
 										false,
 										record.operation_messages
-									)} // TODO: pick request_id
+									)}
 								>
 									Choose agent
 								</Button>
@@ -294,7 +278,9 @@ class ActiveRequests extends Component {
 			},
 			{
 				title: "Amount",
-				dataIndex: "request.amount",
+				render: (text, record, index) => {
+					return convertAmountToStr(record.request.amount, 8);
+				},
 			},
 			{
 				title: "Status",
@@ -311,41 +297,51 @@ class ActiveRequests extends Component {
 				render: (text, record, index) => {
 					return (
 						<>
-							<Popconfirm
-								title="Sure to accept?"
-								onConfirm={() => this.acceptRequest(record.request.id)} // TODO: change to request_id, add condition on tacker_id
-							>
-								<Button type="primary" style={style.btn}>
-									Accept
-								</Button>
-							</Popconfirm>
-							<Popconfirm
-								title="Sure to hide?"
-								onConfirm={() => this.hideRequest(record.id)} // messageId
-							>
-								<Button type="danger" style={style.btn}>
-									Hide
-								</Button>
-							</Popconfirm>
+							{record.status !== "accepted" && (
+								<Popconfirm
+									title="Sure to accept?"
+									onConfirm={() => this.acceptRequest(record.request.request_id)}
+								>
+									<Button type="primary" style={style.btn}>
+										Accept
+									</Button>
+								</Popconfirm>
+							)}
 
-							<Popconfirm // TODO: add condition on tacker_id
-								title="Sure to perform?"
-								onConfirm={() => this.performRequest(record.id)} // TODO: change to request_id
-							>
-								<Button type="primary" style={style.btn}>
-									Perform
-								</Button>
-							</Popconfirm>
+							{record.status !== "accepted" && (
+								<Popconfirm
+									title="Sure to hide?"
+									onConfirm={() => this.hideRequest(record.id)} // messageId
+								>
+									<Button type="danger" style={style.btn}>
+										Hide
+									</Button>
+								</Popconfirm>
+							)}
 
-							<Popconfirm // TODO: add condition on tacker_id
-								title="Sure to cancel acceptation?"
-								cancelText="No"
-								onConfirm={() => this.cancelAcceptedRequest(record.id)} // TODO: change to request_id
-							>
-								<Button type="danger" style={style.btn}>
-									Cancel acceptation
-								</Button>
-							</Popconfirm>
+							{record.request.taker_addr === walletAddress &&
+								record.request.status !== "completed" && (
+									<Popconfirm
+										title="Sure to perform?"
+										onConfirm={() => this.performRequest(record.request.request_id)}
+									>
+										<Button type="primary" style={style.btn}>
+											Perform
+										</Button>
+									</Popconfirm>
+								)}
+
+							{record.status === "accepted" && record.request.taker_addr !== walletAddress && (
+								<Popconfirm
+									title="Sure to cancel acceptation?"
+									cancelText="No"
+									onConfirm={() => this.cancelAcceptedRequest(record.request.request_id)}
+								>
+									<Button type="danger" style={style.btn}>
+										Cancel acceptation
+									</Button>
+								</Popconfirm>
+							)}
 						</>
 					);
 				},
@@ -381,6 +377,7 @@ ActiveRequests = compose(
 		state => {
 			return {
 				user: state.user,
+				walletAddress: state.wallet.defaultAccountAddress,
 			};
 		},
 		{ push }
