@@ -43,14 +43,12 @@ export default function StyledInput(props) {
 
 	return (
 		<Input
-			defaultValue={value}
+			defaultValue={props.value}
 			value={value}
 			className="profile-editor-input"
 			ref={input => (inputRef = input)}
-			onClick={() => {
-				setDisabled(false);
-			}}
 			onChange={event => {
+				setDisabled(false);
 				setValue(event.target.value);
 			}}
 			suffix={getInputSuffix(
