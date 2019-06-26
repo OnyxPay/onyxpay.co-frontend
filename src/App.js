@@ -98,6 +98,7 @@ SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
+Investments = AdminAndSuperAdmin(Investments);
 
 class App extends Component {
 	componentDidMount() {
