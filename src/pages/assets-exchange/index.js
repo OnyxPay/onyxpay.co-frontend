@@ -350,6 +350,7 @@ class AssetsExchange extends Component {
 							}}
 						>
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
+								<Col lg={{ span: 24 }}>Asset to sell:</Col>
 								<Col lg={{ span: 24 }}>
 									<Form.Item
 										validateStatus={
@@ -398,6 +399,7 @@ class AssetsExchange extends Component {
 							</Col>
 
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
+								<Col lg={{ span: 24 }}>Asset to buy:</Col>
 								<Col lg={{ span: 24 }}>
 									<Form.Item
 										validateStatus={
