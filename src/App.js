@@ -11,8 +11,6 @@ import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
 
-import AdminRequests from "./pages/admin-panel/requests/index";
-
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
 let Dashboard = Loadable({
@@ -71,7 +69,13 @@ let Withdraw = Loadable({
 });
 
 let Users = Loadable({
-	loader: () => import(/* webpackChunkName: "Users" */ "./pages/admin-panel/users/index"),
+	loader: () => import(/* webpackChunkName: "Users" */ "./pages/admin-panel/users"),
+	loading: Loader,
+});
+
+let UserUpgradeRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "Users" */ "./pages/admin-panel/requests/UserUpgradeRequests"),
 	loading: Loader,
 });
 
@@ -93,6 +97,7 @@ SendAsset = User(SendAsset);
 
 Withdraw = User(Withdraw);
 Users = AdminAndSuperAdmin(Users);
+UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 
 class App extends Component {
 	componentDidMount() {
@@ -107,7 +112,7 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
-					<Route path="/admin/requests" exact component={AdminRequests} />
+					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
