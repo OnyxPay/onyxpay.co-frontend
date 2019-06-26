@@ -131,12 +131,13 @@ function ProfileEditor(props) {
 				onOk={() => {
 					console.info(emailConfirmationInputRef.state.value);
 					confirmEmail({ token: emailConfirmationInputRef.state.value }).then(
-						data => {
-							console.log(data);
+						() => {
+							message.info("Email was changed successfully", 5);
 						},
 						err => {
 							console.error(err.response.data.errors);
-							message.error("Error updating email. Details: " + err.response.data.errors, 5);
+							message.error("Error updating email. Details: " + err.response.data.errors.token, 5);
+							emailConfirmationInputRef.setState(emailConfirmationInputRef.value);
 						}
 					);
 					setConfirmEmailVisible(false);
