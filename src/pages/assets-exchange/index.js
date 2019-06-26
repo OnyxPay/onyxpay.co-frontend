@@ -195,9 +195,9 @@ class AssetsExchange extends Component {
 		let value = assetType === "sell" ? assetToSell.name : assetToBuy.name;
 		let error = "";
 		if (assetToSell.name === assetToBuy.name) {
-			error = "Cannot exchange asset on itself.";
+			error = "Cannot exchange asset on itself";
 		} else if (await isAssetBlocked(value)) {
-			error = value + " asset is blocked at the moment.";
+			error = value + " asset is blocked at the moment";
 		}
 
 		await this.setState({
@@ -217,7 +217,7 @@ class AssetsExchange extends Component {
 		const amountToSellInUsd = assetToSell.amount * sellPrice;
 
 		if (Number(amountToSellInUsd) < 1) {
-			error = "Amount to sell must be greater than 1 oUSD.";
+			error = "Amount to sell must be greater than 1 oUSD";
 		} else if (Number(assetToSell.amount) > Number(asset.balance)) {
 			error = "Not enough " + asset.name + " to perform operation";
 		}
