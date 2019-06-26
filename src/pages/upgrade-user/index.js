@@ -43,15 +43,8 @@ class UpgradeUser extends Component {
 			this.userRoleCode = data.roleCode;
 		});
 		this.checkSettlements();
-		let role;
-		if (this.props.match.params.role === ":agent") {
-			role = "agent";
-			this.state.role = "Agent";
-		} else {
-			role = "superagent";
-			this.state.role = "Super agent";
-		}
 
+		const role = props.match.params.role.substr(1).replace("_", "");
 		getUpgradeRequest(role).then(data => {
 			if (data.data.items && data.data.items.length) {
 				this.setState({ currentStep: steps.waitForApprovement });
@@ -66,6 +59,16 @@ class UpgradeUser extends Component {
 		window.matchMedia("(min-width: 575px)").addListener(() => {
 			this.setState({ direction: "vertical" });
 		});
+	}
+
+	static getDerivedStateFromProps(props, currentState) {
+		console.info("getDerivedStateFromProps");
+		let role = props.match.params.role.substr(1).replace("_", " ");
+		role = role.charAt(0).toUpperCase() + role.slice(1);
+		return {
+			value: props.value,
+			role: role,
+		};
 	}
 
 	checkSettlements() {
