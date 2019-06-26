@@ -6,7 +6,7 @@ export const bcEndpoints = {
 export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 
-export const addressOfHead = "cd1417dd5babe87788ad42f5558c3c6e1d262b80";
+export const addressOfHead = "9459005e778d990b7edd4447be277e3dd61785be";
 
 // TODO: get address from Head
 export const OnyxCashDecimals = 8;
