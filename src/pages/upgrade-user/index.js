@@ -156,7 +156,7 @@ class UpgradeUser extends Component {
 						Please, buy OnyxCash amounting to <b>{role === "Agent" ? "500$" : "100 000$"}.</b>
 					</p>
 					<CoinPaymentsForm
-						user={JSON.parse(sessionStorage.getItem("user"))}
+						user={this.props.user}
 						amount={role === "Agent" ? 500 : 100000}
 						handleSubmit={this.moveNextStep()}
 					/>
