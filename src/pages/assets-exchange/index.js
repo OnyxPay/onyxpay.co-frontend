@@ -70,12 +70,17 @@ class AssetsExchange extends Component {
 		assetsForSellData: [],
 		assetToSell: {
 			name: "",
-			amount: "",
+			amount: 0,
 		},
 		assetToBuy: {
 			name: "",
-			amount: "",
+			amount: 0,
 		},
+		assetToSellNameError: "",
+		assetToBuyNameError: "",
+		assetToSellAmountError: "",
+		assetToBuyAmountError: "",
+		formDataIsValid: true,
 		transactionInProcess: false,
 		dataLoaded: false,
 	};
@@ -182,46 +187,109 @@ class AssetsExchange extends Component {
 		return amountToBuy;
 	};
 
-	handleAssetToBuyAmountChange = event => {
+	validateAssetName = async assetType => {
+		const { isAssetBlocked } = this.props;
+		const { assetToSell, assetToBuy } = this.state;
+
+		let value = assetType === "sell" ? assetToSell.name : assetToBuy.name;
+		let error = "";
+		if (assetToSell.name === assetToBuy.name) {
+			error = "Cannot exchange asset on itself.";
+		} else if (await isAssetBlocked(value)) {
+			error = value + " asset is blocked at the moment.";
+		}
+
+		await this.setState({
+			assetToSellNameError: assetType === "sell" ? error : this.state.assetToSellNameError,
+			assetToBuyNameError: assetType === "buy" ? error : this.state.assetToBuyNameError,
+		});
+	};
+
+	validateToSellAmount = async () => {
+		const { assetToSell, assetsForSellData, assetsForBuyData } = this.state;
+		let error = "";
+
+		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
+		const { buyPrice } = assetsForBuyData.find(
+			ratesRecord => ratesRecord.name === assetToSell.name
+		);
+		const amountToSellInUsd = assetToSell.amount * buyPrice;
+
+		if (Number(amountToSellInUsd) < 1) {
+			error = "Amount to sell must be greater than 1 oUSD.";
+		} else if (Number(assetToSell.amount) > Number(asset.balance)) {
+			error = "Not enough " + asset.name + " to perform operation";
+		}
+		await this.setState({ assetToSellAmountError: error });
+	};
+
+	validateForm = async () => {
+		await this.validateAssetName("buy");
+		await this.validateAssetName("sell");
+		await this.validateToSellAmount();
+
+		this.setState({ formDataIsValid: this.inputIsValid() });
+	};
+
+	inputIsValid = () => {
+		const {
+			assetToSellNameError,
+			assetToBuyNameError,
+			assetToSellAmountError,
+			assetToBuyAmountError,
+		} = this.state;
+		return (
+			assetToSellNameError.length === 0 &&
+			assetToBuyNameError.length === 0 &&
+			assetToSellAmountError.length === 0 &&
+			assetToBuyAmountError.length === 0
+		);
+	};
+
+	handleAssetToBuyAmountChange = async event => {
 		const { value } = event.target;
 		const { assetToSell, assetToBuy } = this.state;
 
-		this.setAssetToBuyValues(assetToBuy.name, value);
-		this.setAssetToSellValues(
+		await this.setAssetToBuyValues(assetToBuy.name, value);
+		await this.setAssetToSellValues(
 			assetToSell.name,
 			this.recountAssetToSellAmount(assetToSell.name, assetToBuy.name, value)
 		);
+		this.validateForm();
 	};
 
-	handleAssetToSellAmountChange = event => {
+	handleAssetToSellAmountChange = async event => {
 		const { value } = event.target;
 		const { assetToSell, assetToBuy } = this.state;
 
-		this.setAssetToSellValues(assetToSell.name, value);
-		this.setAssetToBuyValues(
+		await this.setAssetToSellValues(assetToSell.name, value);
+		await this.setAssetToBuyValues(
 			assetToBuy.name,
 			this.recountAssetToBuyAmount(assetToSell.name, assetToBuy.name, value)
 		);
+		this.validateForm();
 	};
 
-	handleAssetToBuyChange = value => {
+	handleAssetToBuyChange = async value => {
 		const { assetToSell, assetToBuy } = this.state;
 
-		this.setAssetToBuyValues(value, this.state.assetToBuy.amount);
-		this.setAssetToSellValues(
+		await this.setAssetToBuyValues(value, this.state.assetToBuy.amount);
+		await this.setAssetToSellValues(
 			assetToSell.name,
 			this.recountAssetToSellAmount(assetToSell.name, value, assetToBuy.amount)
 		);
+		this.validateForm();
 	};
 
-	handleAssetToSellChange = value => {
+	handleAssetToSellChange = async value => {
 		const { assetToSell, assetToBuy } = this.state;
 
-		this.setAssetToSellValues(value, this.state.assetToSell.amount);
-		this.setAssetToBuyValues(
+		await this.setAssetToSellValues(value, this.state.assetToSell.amount);
+		await this.setAssetToBuyValues(
 			assetToBuy.name,
 			this.recountAssetToBuyAmount(value, assetToBuy.name, assetToSell.amount)
 		);
+		this.validateForm();
 	};
 
 	openNotification = (type, description) => {
@@ -281,9 +349,12 @@ class AssetsExchange extends Component {
 							}}
 						>
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Form.Item>
+								<Form.Item
+									validateStatus={
+										this.state.assetToSellAmountError.length === 0 ? "success" : "error"
+									}
+								>
 									<Input
-										name="asset_to_sell_amount"
 										prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
 										type="number"
 										step={10 ** -9}
@@ -294,9 +365,12 @@ class AssetsExchange extends Component {
 										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 									/>
 								</Form.Item>
-								<Form.Item>
+								<Form.Item
+									validateStatus={
+										this.state.assetToSellNameError.length === 0 ? "success" : "error"
+									}
+								>
 									<Select
-										name="asset_to_sell_name"
 										value={this.state.assetToSell.name}
 										onChange={this.handleAssetToSellChange}
 										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
@@ -309,9 +383,12 @@ class AssetsExchange extends Component {
 							</Col>
 
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Form.Item>
+								<Form.Item
+									validateStatus={
+										this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
+									}
+								>
 									<Input
-										name="asset_to_buy_amount"
 										prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
 										type="number"
 										step={10 ** -9}
@@ -322,9 +399,10 @@ class AssetsExchange extends Component {
 										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 									/>
 								</Form.Item>
-								<Form.Item>
+								<Form.Item
+									validateStatus={this.state.assetToBuyNameError.length === 0 ? "success" : "error"}
+								>
 									<Select
-										name="asset_to_buy_name"
 										value={this.state.assetToBuy.name}
 										onChange={this.handleAssetToBuyChange}
 										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
@@ -339,9 +417,12 @@ class AssetsExchange extends Component {
 							<Col md={{ span: 24 }} lg={{ span: 2 }}>
 								<Form.Item>
 									{this.state.transactionInProcess !== true ? (
-										<Button type="primary" htmlType="submit" disabled={!this.state.dataLoaded}>
-											{" "}
-											Exchange{" "}
+										<Button
+											type="primary"
+											htmlType="submit"
+											disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
+										>
+											Exchange
 										</Button>
 									) : (
 										<Icon type="loading" />
