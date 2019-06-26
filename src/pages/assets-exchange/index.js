@@ -12,6 +12,7 @@ import {
 	Table,
 	Divider,
 	notification,
+	Tag,
 } from "antd";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
@@ -130,8 +131,8 @@ class AssetsExchange extends Component {
 			record => record.name !== defaultAssetToSell.name
 		);
 
-		this.setAssetToSellValues(defaultAssetToSell.name, "");
-		this.setAssetToBuyValues(defaultAssetToBuy.name, "");
+		this.setAssetToSellValues(defaultAssetToSell.name, 0);
+		this.setAssetToBuyValues(defaultAssetToBuy.name, 0);
 	};
 
 	async componentDidMount() {
@@ -206,14 +207,14 @@ class AssetsExchange extends Component {
 	};
 
 	validateToSellAmount = async () => {
-		const { assetToSell, assetsForSellData, assetsForBuyData } = this.state;
+		const { assetToSell, assetsForSellData } = this.state;
 		let error = "";
 
 		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
-		const { buyPrice } = assetsForBuyData.find(
+		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSell.name
 		);
-		const amountToSellInUsd = assetToSell.amount * buyPrice;
+		const amountToSellInUsd = assetToSell.amount * sellPrice;
 
 		if (Number(amountToSellInUsd) < 1) {
 			error = "Amount to sell must be greater than 1 oUSD.";
@@ -349,69 +350,94 @@ class AssetsExchange extends Component {
 							}}
 						>
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Form.Item
-									validateStatus={
-										this.state.assetToSellAmountError.length === 0 ? "success" : "error"
-									}
-								>
-									<Input
-										prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
-										type="number"
-										step={10 ** -9}
-										min={0}
-										placeholder="You send"
-										value={this.state.assetToSell.amount}
-										onChange={this.handleAssetToSellAmountChange}
-										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-									/>
-								</Form.Item>
-								<Form.Item
-									validateStatus={
-										this.state.assetToSellNameError.length === 0 ? "success" : "error"
-									}
-								>
-									<Select
-										value={this.state.assetToSell.name}
-										onChange={this.handleAssetToSellChange}
-										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+								<Col lg={{ span: 24 }}>
+									<Form.Item
+										validateStatus={
+											this.state.assetToSellAmountError.length === 0 ? "success" : "error"
+										}
 									>
-										{this.state.assetsForSellData.map(asset => (
-											<Option key={asset.key}>{asset.key}</Option>
-										))}
-									</Select>
-								</Form.Item>
+										<Input
+											prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
+											type="number"
+											step={10 ** -9}
+											min={0}
+											placeholder="You send"
+											value={this.state.assetToSell.amount}
+											onChange={this.handleAssetToSellAmountChange}
+											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										/>
+									</Form.Item>
+									<Form.Item
+										validateStatus={
+											this.state.assetToSellNameError.length === 0 ? "success" : "error"
+										}
+									>
+										<Select
+											value={this.state.assetToSell.name}
+											onChange={this.handleAssetToSellChange}
+											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										>
+											{this.state.assetsForSellData.map(asset => (
+												<Option key={asset.key}>{asset.key}</Option>
+											))}
+										</Select>
+									</Form.Item>
+								</Col>
+								<Col lg={{ span: 24 }}>
+									{this.state.assetToSellNameError.length !== 0 ? (
+										<Tag color="red">{this.state.assetToSellNameError}</Tag>
+									) : (
+										""
+									)}
+									{this.state.assetToSellAmountError.length !== 0 ? (
+										<Tag color="red"> {this.state.assetToSellAmountError}</Tag>
+									) : (
+										""
+									)}
+								</Col>
 							</Col>
 
 							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Form.Item
-									validateStatus={
-										this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
-									}
-								>
-									<Input
-										prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
-										type="number"
-										step={10 ** -9}
-										min={0}
-										placeholder="You get"
-										value={this.state.assetToBuy.amount}
-										onChange={this.handleAssetToBuyAmountChange}
-										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-									/>
-								</Form.Item>
-								<Form.Item
-									validateStatus={this.state.assetToBuyNameError.length === 0 ? "success" : "error"}
-								>
-									<Select
-										value={this.state.assetToBuy.name}
-										onChange={this.handleAssetToBuyChange}
-										disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+								<Col lg={{ span: 24 }}>
+									<Form.Item
+										validateStatus={
+											this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
+										}
 									>
-										{this.state.assetsForBuyData.map(asset => (
-											<Option key={asset.key}>{asset.key}</Option>
-										))}
-									</Select>
-								</Form.Item>
+										<Input
+											prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
+											type="number"
+											step={10 ** -9}
+											min={0}
+											placeholder="You get"
+											value={this.state.assetToBuy.amount}
+											onChange={this.handleAssetToBuyAmountChange}
+											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										/>
+									</Form.Item>
+									<Form.Item
+										validateStatus={
+											this.state.assetToBuyNameError.length === 0 ? "success" : "error"
+										}
+									>
+										<Select
+											value={this.state.assetToBuy.name}
+											onChange={this.handleAssetToBuyChange}
+											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										>
+											{this.state.assetsForBuyData.map(asset => (
+												<Option key={asset.key}>{asset.key}</Option>
+											))}
+										</Select>
+									</Form.Item>
+								</Col>
+								<Col lg={{ span: 24 }}>
+									{this.state.assetToBuyNameError.length !== 0 ? (
+										<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
+									) : (
+										""
+									)}
+								</Col>
 							</Col>
 
 							<Col md={{ span: 24 }} lg={{ span: 2 }}>
