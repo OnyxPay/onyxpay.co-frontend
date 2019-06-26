@@ -137,7 +137,6 @@ function ProfileEditor(props) {
 						err => {
 							console.error(err.response.data.errors);
 							message.error("Error updating email. Details: " + err.response.data.errors.token, 5);
-							emailConfirmationInputRef.setState(emailConfirmationInputRef.value);
 						}
 					);
 					setConfirmEmailVisible(false);
