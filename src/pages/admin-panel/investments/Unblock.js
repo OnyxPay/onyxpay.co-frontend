@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { Formik } from "formik";
 import { Card, Button, Input, Form, Typography } from "antd";
 import { Unblock } from "../../../redux/admin-panel/investment";
-import { createSecret } from "./../../../utils/secretHash";
-import { TextAligner } from "./../../../components/styled";
+import { createSecret } from "../../../utils/secretHash";
+import { TextAligner } from "../../../components/styled";
 
 const { Title } = Typography;
 

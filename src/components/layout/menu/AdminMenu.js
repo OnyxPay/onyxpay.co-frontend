@@ -6,7 +6,7 @@ import connect from "react-redux/es/connect/connect";
 
 const SubMenu = Menu.SubMenu;
 
-class SuperAdminMenu extends Component {
+class AdminMenu extends Component {
 	render() {
 		const { location } = this.props;
 		return (
@@ -23,17 +23,20 @@ class SuperAdminMenu extends Component {
 						<span>Users</span>
 					</Link>
 				</Menu.Item>
+
 				<SubMenu
 					key="requests"
 					title={
 						<span className="ant-menu-item-content">
 							<Icon type="pull-request" />
-							<span>Request</span>
+							<span>Requests</span>
 						</span>
 					}
 				>
-					<Menu.Item key="/admin/requests">
-						<Link to="/admin/requests">Account upgrade requests</Link>
+					<Menu.Item key="/admin/requests/user-upgrade">
+						<Link to="/admin/requests/user-upgrade" className="ant-menu-item-content">
+							<span>Account upgrade</span>
+						</Link>
 					</Menu.Item>
 				</SubMenu>
 			</Menu>
@@ -47,9 +50,9 @@ function mapStateToProps(state) {
 	};
 }
 
-SuperAdminMenu = compose(
+AdminMenu = compose(
 	withRouter,
 	connect(mapStateToProps)
-)(SuperAdminMenu);
+)(AdminMenu);
 
-export default SuperAdminMenu;
+export default AdminMenu;
