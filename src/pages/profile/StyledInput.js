@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input, Icon } from "antd";
 
-function getInputSuffix(disabled, setDisabled, onChenge) {
+function getInputSuffix(disabled, setDisabled, onChange, onCancel) {
 	if (disabled) {
 		return (
 			<Icon
@@ -19,13 +19,15 @@ function getInputSuffix(disabled, setDisabled, onChenge) {
 					type="check"
 					className="change-icon"
 					onClick={() => {
-						onChenge();
+						onChange();
+						setDisabled(true);
 					}}
 				/>
 				<Icon
 					type="close"
 					className="reject-icon"
 					onClick={() => {
+						onCancel();
 						setDisabled(true);
 					}}
 				/>
@@ -36,25 +38,27 @@ function getInputSuffix(disabled, setDisabled, onChenge) {
 
 export default function StyledInput(props) {
 	const [disabled, setDisabled] = useState(true);
+	const [value, setValue] = useState(props.value);
 	let inputRef;
-
-	useEffect(() => {
-		if (!disabled) {
-			inputRef.input.select();
-		}
-	});
 
 	return (
 		<Input
-			value={props.value}
+			defaultValue={value}
+			value={value}
 			className="profile-editor-input"
 			ref={input => (inputRef = input)}
 			onClick={() => {
 				setDisabled(false);
 			}}
-			suffix={getInputSuffix(disabled, setDisabled, () => {
-				props.updateValue();
-			})}
+			onChange={event => {
+				setValue(event.target.value);
+			}}
+			suffix={getInputSuffix(
+				disabled,
+				setDisabled,
+				() => props.updateValue(inputRef),
+				() => setValue(props.value)
+			)}
 		/>
 	);
 }

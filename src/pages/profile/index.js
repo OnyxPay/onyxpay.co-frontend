@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Typography, Steps, Button, Icon, Spin } from "antd";
+import { Card } from "antd";
 import { PageTitle } from "../../components";
 import { ReferralLink } from "./ReferralLink";
 import ProfileEditor from "./ProfileEditor";
