@@ -45,6 +45,7 @@ export async function createRequest(formValues, requestType) {
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
 
+	const amount = convertAmountFromStr(formValues.amount);
 	const trx = createTrx({
 		funcName: "Request",
 		params: [
@@ -58,7 +59,7 @@ export async function createRequest(formValues, requestType) {
 			{
 				label: "amount",
 				type: ParameterType.Integer,
-				value: convertAmountFromStr(formValues.amount),
+				value: amount,
 			},
 		],
 		contractAddress: address,
@@ -67,13 +68,12 @@ export async function createRequest(formValues, requestType) {
 
 	signTrx(trx, pk);
 
-	const trx_hash = trx.getHash();
+	const trx_hash = utils.reverseHex(trx.getHash());
 	const trx_timestamp = new Date().toISOString();
 	formValues.trx_hash = trx_hash;
 	formValues.trx_timestamp = trx_timestamp;
+	formValues.amount = amount;
 	let createRes;
-
-	console.log(formValues);
 
 	try {
 		createRes = await client.post(`operation-requests/${requestType}`, formValues, {

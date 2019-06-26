@@ -118,7 +118,7 @@ class ActiveRequests extends Component {
 				pagination.total = data.total;
 
 				// -------------  imitate if agent is accepted --------------
-				if (user.role === roles.c && this.parseRequestType() === "deposit") {
+				/* if (user.role === roles.c && this.parseRequestType() === "deposit") {
 					data.items[5].operation_messages.push({
 						id: 33,
 						status: "accepted",
@@ -139,7 +139,7 @@ class ActiveRequests extends Component {
 
 					data.items[16].operation_messages[0].status = "accepted";
 					data.items[16].operation_messages[0].status_code = 3;
-				}
+				} */
 
 				// ---------------------------------------------------------
 
