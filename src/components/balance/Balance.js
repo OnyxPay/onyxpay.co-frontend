@@ -88,7 +88,7 @@ class Balance extends Component {
 				assetsTotal = this.calcTotalAmount(assetsConverted, 0);
 			}
 		} else if (user.role === roles.a) {
-			if (assetsConverted.length && onyxCash) {
+			if (assetsConverted.length || onyxCash) {
 				onyxCashTotal = this.calcTotalAmount(assetsConverted, onyxCashStr);
 			}
 		}
@@ -96,7 +96,7 @@ class Balance extends Component {
 		return (
 			<div>
 				<Row gutter={16}>
-					<Col md={24} lg={8}>
+					<Col md={24} lg={10}>
 						<BalanceCard
 							title="Balance"
 							assetLabel={user.role === roles.a || user.role === roles.sa ? "OnyxCash" : "USD"}
@@ -108,14 +108,14 @@ class Balance extends Component {
 									: onyxCashStr
 							}
 							extra={
-								user.role === roles.c && user.role === roles.c ? (
+								user.role === roles.c || user.role === roles.a ? (
 									<Button onClick={this.showModal("main")}>see detailed balance</Button>
 								) : null
 							}
 						/>
 					</Col>
 				</Row>
-				{user.role === roles.c && user.role === roles.c ? (
+				{user.role === roles.c || user.role === roles.a ? (
 					<BalanceModal
 						isModalVisible={isModalVisible}
 						hideModal={this.hideModal}

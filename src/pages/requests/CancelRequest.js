@@ -1,15 +1,28 @@
 import React, { Component } from "react";
-import { Popover, Button, Icon, message, notification } from "antd";
+import { Popover, Button, Icon, message, notification, Spin } from "antd";
 import { TextAligner } from "../../components/styled";
-import { cancelRequest } from "../../api/requests";
+import { cancelRequest, getRejectionCounter } from "../../api/requests";
 // import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
 import { TimeoutError } from "promise-timeout";
 
-// TODO: get counter of cancellations
 class CancelRequest extends Component {
 	state = {
 		visible: false,
+		loading: false,
+		counter: null,
 	};
+
+	async componentDidUpdate(prevProps, prevState) {
+		if (!prevState.visible && prevState.visible !== this.state.visible) {
+			try {
+				this.setState({ loading: true });
+				const counter = await getRejectionCounter();
+				this.setState({ loading: false, counter });
+			} catch (e) {
+				message.error(e.message);
+			}
+		}
+	}
 
 	hide = () => {
 		this.setState({
@@ -41,24 +54,29 @@ class CancelRequest extends Component {
 
 	render() {
 		const { btnStyle } = this.props;
+		const { loading, counter } = this.state;
 		return (
 			<Popover
 				content={
-					<div>
+					loading ? (
+						<Spin />
+					) : (
 						<div>
-							You have <strong>2 cancellations left</strong> before blocking your account
+							<div>
+								You have <strong>{3 - counter}</strong> cancellations left before blocking your
+								account
+							</div>
+							<div>Sure to Cancel?</div>
+							<TextAligner align="right">
+								<Button size="small" style={{ marginRight: 8 }} onClick={this.hide}>
+									No
+								</Button>
+								<Button size="small" type="primary" onClick={this.handleConfirm}>
+									Ok
+								</Button>
+							</TextAligner>
 						</div>
-						<div>Sure to Cancel?</div>
-						<TextAligner align="right">
-							<Button size="small" style={{ marginRight: 8 }} onClick={this.hide}>
-								No
-							</Button>
-							<Button size="small" type="primary" onClick={this.handleConfirm}>
-								Ok
-							</Button>
-						</TextAligner>
-					</div>
-					// <Spin />
+					)
 				}
 				trigger="click"
 				visible={this.state.visible}
