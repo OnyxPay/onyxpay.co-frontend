@@ -6,6 +6,7 @@ import { getTelegramBotLink, confirmEmail, changeProfile } from "../../api/profi
 import StyledSelect from "./StyledSelect";
 import StyledInput from "./StyledInput";
 import Actions from "../../redux/actions";
+import { isEmailValid } from "../../utils/validate";
 
 const { Option } = Select;
 
@@ -22,6 +23,10 @@ function updateProfile(data, getUserData) {
 
 function changeEmail(inputRef, prevEmail, getUserData) {
 	const newEmail = inputRef.state.value;
+	if (!isEmailValid(newEmail)) {
+		message.warn("Email is not valid", 5);
+		return false;
+	}
 	if (newEmail === prevEmail) {
 		message.warn("Email is not changed", 5);
 		return false;
@@ -100,7 +105,7 @@ function openTelegramLink() {
 }
 
 function ProfileEditor(props) {
-	const [updatePhoneVisible, setUpdatePhoneVisible] = useState(false);
+	const [updatePhoneModalVisible, setUpdatePhoneModalVisible] = useState(false);
 	const [confirmEmailVisible, setConfirmEmailVisible] = useState(false);
 	let emailConfirmationInputRef;
 	return (
@@ -108,16 +113,21 @@ function ProfileEditor(props) {
 			<h3>
 				<b>User settings</b>
 			</h3>
-			{getProfileForm(props.user, setUpdatePhoneVisible, setConfirmEmailVisible, props.getUserData)}
+			{getProfileForm(
+				props.user,
+				setUpdatePhoneModalVisible,
+				setConfirmEmailVisible,
+				props.getUserData
+			)}
 			<Modal
 				title="Update phone number via Telegram bot"
-				visible={updatePhoneVisible}
+				visible={updatePhoneModalVisible}
 				okText="Open Telegram"
 				onOk={() => {
 					openTelegramLink();
-					setUpdatePhoneVisible(false);
+					setUpdatePhoneModalVisible(false);
 				}}
-				onCancel={() => setUpdatePhoneVisible(false)}
+				onCancel={() => setUpdatePhoneModalVisible(false)}
 			>
 				<p>
 					To change the phone number you should click "Open Telegram" button. And allow to receive

@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Input, Icon } from "antd";
 
-function getInputSuffix(disabled, setDisabled, onChange, onCancel) {
+function getInputSuffix(disabled, setDisabled, onClickEdit, onChange, onCancel) {
 	if (disabled) {
 		return (
 			<Icon
 				type="edit"
 				className="edit-icon"
 				onClick={() => {
-					setDisabled(false);
+					onClickEdit();
 				}}
 			/>
 		);
@@ -54,6 +54,7 @@ export default function StyledInput(props) {
 			suffix={getInputSuffix(
 				disabled,
 				setDisabled,
+				() => inputRef.input.select(),
 				() => props.updateValue(inputRef),
 				() => setValue(props.value)
 			)}
