@@ -1,18 +1,29 @@
 import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
-import Actions from "../../../redux/actions";
 import UserSettlement from "./userSettlement";
+import {
+	unblockUser,
+	blockedUsersData,
+	blockUser,
+	isBlockedUser,
+	getUsersData,
+} from "../../../redux/admin-panel/users";
 
+const styles = {
+	btn: { marginRight: 8 },
+};
 class Users extends Component {
 	state = {
 		searchText: "",
 		data: [],
 		visible: false,
 		settlement: [],
-		loading: false,
+		loadingTableData: false,
 		user_id: null,
 		pagination: { current: 1, pageSize: 20 },
+		loadingBlockUser: false,
+		loadingUnblockUser: false,
 	};
 
 	getColumnSearchProps = dataIndex => ({
@@ -45,13 +56,6 @@ class Users extends Component {
 		filterIcon: filtered => (
 			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
 		),
-		onFilter: (value, record) =>
-			record[dataIndex] === null
-				? false
-				: record[dataIndex]
-						.toString()
-						.toLowerCase()
-						.includes(value.toLowerCase()),
 		onFilterDropdownVisibleChange: visible => {
 			if (visible) {
 				setTimeout(() => this.searchInput.select());
@@ -83,7 +87,6 @@ class Users extends Component {
 	};
 
 	componentDidMount = async () => {
-		this.setState({ loading: true });
 		await this.fetchUsers();
 	};
 
@@ -97,100 +100,155 @@ class Users extends Component {
 				},
 			},
 			() => {
-				this.fetchUsers({
-					...filters,
-				});
+				for (const filter in filters) {
+					filters[filter] = filters[filter][0];
+				}
+				this.fetchUsers(filters);
 			}
 		);
 	};
 
 	async fetchUsers(opts = {}) {
 		try {
+			this.setState({ loadingTableData: true });
 			const { getUsersData } = this.props;
 			const { pagination } = this.state;
-
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
-
 			const res = await getUsersData(params);
 			pagination.total = res.adminUsers.total;
-			this.setState({ pagination, loading: false });
+			this.setState({ pagination, loadingTableData: false });
 		} catch (e) {}
 	}
 
+	blockUser = async (wallet_addr, reason, duration, userId) => {
+		const { blockUser, isBlockedUser } = this.props;
+		this.setState({
+			user_id: userId,
+			loadingBlockUser: true,
+		});
+		const res = await blockUser(wallet_addr, reason, duration);
+		if (!res) {
+			this.setState({
+				loadingBlockUser: false,
+			});
+			return false;
+		}
+		await isBlockedUser(wallet_addr);
+		this.setState({
+			loadingBlockUser: false,
+		});
+	};
+
+	unblockUser = async (wallet_addr, userId) => {
+		const { unblockUser } = this.props;
+		this.setState({
+			user_id: userId,
+			loadingUnblockUser: true,
+		});
+		await unblockUser(wallet_addr);
+		this.setState({
+			loadingUnblockUser: false,
+		});
+	};
+
 	render() {
 		const { adminUsers } = this.props;
-		const { pagination } = this.state;
-		if (!this.props.adminUsers) return null;
+		const { loadingTableData, pagination, loadingBlockUser, loadingUnblockUser } = this.state;
+		if (!adminUsers) return null;
 		const columns = [
 			{
 				title: "First name",
 				dataIndex: "first_name",
 				key: "first_name",
-				width: "10%",
 				...this.getColumnSearchProps("first_name"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Last name",
 				dataIndex: "last_name",
 				key: "last_name",
-				width: "10%",
 				...this.getColumnSearchProps("last_name"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Сountry",
+				title: "Country",
 				dataIndex: "country",
 				key: "country",
-				width: "10%",
 				...this.getColumnSearchProps("country"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Email",
 				dataIndex: "email",
 				key: "email",
-				width: "10%",
 				...this.getColumnSearchProps("email"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Phone number",
 				dataIndex: "phone_number",
 				key: "phone_number",
-				width: "10%",
 				...this.getColumnSearchProps("phone_number"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Chat id",
 				dataIndex: "chat_id",
 				key: "chat_id",
-				width: "10%",
 				...this.getColumnSearchProps("chat_id"),
-				render: res => (!res ? "n/a" : res),
+				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Settlements accounts",
-				dataIndex: "",
-				key: "is_settlements_exists",
-				width: "10%",
-				render: dataIndex =>
-					dataIndex.is_settlements_exists ? (
+				title: "Wallet address",
+				dataIndex: "wallet_addr",
+				key: "wallet_addr",
+				...this.getColumnSearchProps("wallet_addr"),
+				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Status",
+				dataIndex: "status",
+				key: "status",
+				...this.getColumnSearchProps("status"),
+				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Actions",
+				render: res => (
+					<div>
 						<Button
-							type="primary"
-							icon="check"
-							onClick={() => this.showSettlement(dataIndex.user_id)}
+							style={styles.btn}
+							type="danger"
+							icon="user-delete"
+							loading={res.user_id === this.state.user_id && loadingBlockUser}
+							onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
 						>
-							show
+							Block
 						</Button>
-					) : (
-						"n/a"
-					),
+						<Button
+							style={styles.btn}
+							type="primary"
+							icon="user-add"
+							loading={res.user_id === this.state.user_id && loadingUnblockUser}
+							onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
+						>
+							Unblock
+						</Button>
+						{res.is_settlements_exists ? (
+							<Button
+								style={styles.btn}
+								icon="account-book"
+								onClick={() => this.showSettlement(res.user_id)}
+							>
+								Settlement accounts
+							</Button>
+						) : null}
+					</div>
+				),
 			},
 		];
 
@@ -203,7 +261,7 @@ class Users extends Component {
 					className="usersTable ovf-auto"
 					onChange={this.handleTableChange}
 					pagination={{ ...pagination }}
-					loading={this.state.loading}
+					loading={loadingTableData}
 				/>
 				{this.state.visible && (
 					<UserSettlement
@@ -224,6 +282,10 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		getUsersData: Actions.adminUsers.getUsersData,
+		unblockUser,
+		blockedUsersData,
+		blockUser,
+		isBlockedUser,
+		getUsersData,
 	}
 )(Users);

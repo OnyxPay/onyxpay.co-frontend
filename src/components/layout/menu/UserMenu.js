@@ -52,18 +52,22 @@ class UserMenu extends Component {
 						<Link to="/closed-requests">Closed requests</Link>
 					</Menu.Item>
 				</SubMenu>
-
 				<Menu.Item key="/exchange">
 					<Link to="/exchange" className="ant-menu-item-content">
 						<Icon type="wallet" />
 						<span>Assets Exchange</span>
 					</Link>
 				</Menu.Item>
-
 				<Menu.Item key="/settlement-accounts">
 					<Link to="/settlement-accounts" className="ant-menu-item-content">
 						<Icon type="pay-circle" />
 						<span>Settlement accounts</span>
+					</Link>
+				</Menu.Item>
+				<Menu.Item key="/messages">
+					<Link to="/messages" className="ant-menu-item-content">
+						<Icon type="mail" />
+						<span>Messages</span>
 					</Link>
 				</Menu.Item>
 			</Menu>
