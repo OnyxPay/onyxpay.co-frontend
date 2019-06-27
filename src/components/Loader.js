@@ -18,6 +18,7 @@ const Bg = styled.div`
 // TODO: better error display
 export const Loader = ({ error, pastDelay }) => {
 	if (error) {
+		console.log(error);
 		return <div>Oh no, something went wrong!</div>;
 	} else if (pastDelay) {
 		return (
