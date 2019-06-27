@@ -449,17 +449,14 @@ class AssetsExchange extends Component {
 
 							<Col md={{ span: 24 }} lg={{ span: 2 }}>
 								<Form.Item>
-									{this.state.transactionInProcess !== true ? (
-										<Button
-											type="primary"
-											htmlType="submit"
-											disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
-										>
-											Exchange
-										</Button>
-									) : (
-										<Icon type="loading" />
-									)}
+									<Button
+										type="primary"
+										htmlType="submit"
+										disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
+										loading={this.state.transactionInProcess}
+									>
+										Exchange
+									</Button>
 								</Form.Item>
 							</Col>
 						</Form>
