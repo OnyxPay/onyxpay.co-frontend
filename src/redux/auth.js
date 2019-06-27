@@ -6,25 +6,25 @@ export const SIGN_UP = "SIGN_UP";
 export const LOG_IN = "LOG_IN";
 export const LOG_OUT = "LOG_OUT";
 
-const OnyxAuth = sessionStorage.getItem("OnyxAuth");
-const OnyxAddr = sessionStorage.getItem("OnyxAddr");
+const OnyxAuth = localStorage.getItem("OnyxAuth");
+const OnyxAddr = localStorage.getItem("OnyxAddr");
 
 const initialState = OnyxAuth && OnyxAddr ? { OnyxAuth, OnyxAddr } : null;
 
 export const authReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SIGN_UP:
-			sessionStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
-			sessionStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
+			localStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
+			localStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
 			return action.payload;
 		case LOG_IN:
-			sessionStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
-			sessionStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
+			localStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
+			localStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
 			localStorage.setItem("logged_in", true);
 			return action.payload;
 		case LOG_OUT:
-			sessionStorage.removeItem("OnyxAuth");
-			sessionStorage.removeItem("OnyxAddr");
+			localStorage.removeItem("OnyxAuth");
+			localStorage.removeItem("OnyxAddr");
 			localStorage.removeItem("logged_in");
 			return null;
 		default:

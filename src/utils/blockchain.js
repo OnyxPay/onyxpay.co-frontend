@@ -2,7 +2,7 @@ import { Crypto, utils } from "ontology-ts-sdk";
 import { addressOfHead } from "../api/constants";
 
 export const gasPrice = 500;
-export const gasLimit = 50000;
+export const gasLimit = 90000;
 
 export function getHeadContractAddress() {
 	return new Crypto.Address(addressOfHead);

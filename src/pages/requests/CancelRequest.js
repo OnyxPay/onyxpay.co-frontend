@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Popover, Button, Icon, message, notification, Spin } from "antd";
+import { Popover, Button, message, notification, Spin } from "antd";
 import { TextAligner } from "../../components/styled";
 import { cancelRequest, getRejectionCounter } from "../../api/requests";
 // import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
@@ -10,6 +10,7 @@ class CancelRequest extends Component {
 		visible: false,
 		loading: false,
 		counter: null,
+		actionIsOn: false,
 	};
 
 	async componentDidUpdate(prevProps, prevState) {
@@ -35,10 +36,15 @@ class CancelRequest extends Component {
 	};
 
 	handleConfirm = async () => {
-		const { requestId } = this.props;
-		console.log("confirm");
+		const { requestId, fetchRequests } = this.props;
 		try {
+			this.setState({ actionIsOn: true });
 			await cancelRequest(requestId, "deposit");
+			fetchRequests();
+			notification.success({
+				message: "Done",
+				description: "You have canceled the request",
+			});
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				notification.info({
@@ -49,12 +55,14 @@ class CancelRequest extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({ actionIsOn: false });
 		}
 	};
 
 	render() {
 		const { btnStyle } = this.props;
-		const { loading, counter } = this.state;
+		const { loading, counter, actionIsOn } = this.state;
 		return (
 			<Popover
 				content={
@@ -82,8 +90,7 @@ class CancelRequest extends Component {
 				visible={this.state.visible}
 				onVisibleChange={this.handleVisibleChange}
 			>
-				<Button type="danger" style={btnStyle}>
-					<Icon type="delete" />
+				<Button type="danger" style={btnStyle} loading={actionIsOn} disabled={actionIsOn}>
 					Cancel
 				</Button>
 			</Popover>

@@ -7,7 +7,7 @@ import { ContractAddressError /* SendRawTrxError */ } from "../utils/custom-erro
 import { createTrx, signTrx, sendTrx } from "./bc";
 import { timeout /* TimeoutError */ } from "promise-timeout";
 import { notifyTimeout } from "./constants";
-// import { get } from "lodash";
+import { get } from "lodash";
 
 export async function sendAsset(values) {
 	const store = getStore();
@@ -43,4 +43,27 @@ export async function sendAsset(values) {
 	signTrx(trx, pk);
 
 	await timeout(sendTrx(trx, false, true), notifyTimeout);
+}
+
+export async function isAssetBlocked(tokenId) {
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("Exchange"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of Exchange smart-contract");
+	}
+
+	const trx = createTrx({
+		funcName: "IsAssetBlocked",
+		params: [
+			{
+				label: "tokenId",
+				type: ParameterType.String,
+				value: tokenId,
+			},
+		],
+		contractAddress: address,
+	});
+
+	const response = await sendTrx(trx, true, false);
+	return !!parseInt(get(response, "Result.Result", "0"), 16);
 }

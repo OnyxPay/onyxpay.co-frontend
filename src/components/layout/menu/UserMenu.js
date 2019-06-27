@@ -45,8 +45,11 @@ class UserMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="/active-requests">
-						<Link to="/active-requests">Active requests</Link>
+					<Menu.Item key="/active-requests:deposit">
+						<Link to="/active-requests:deposit">Active deposit requests</Link>
+					</Menu.Item>
+					<Menu.Item key="/active-requests:withdraw">
+						<Link to="/active-requests:withdraw">Active withdraw requests</Link>
 					</Menu.Item>
 					<Menu.Item key="/closed-requests">
 						<Link to="/closed-requests">Closed requests</Link>
