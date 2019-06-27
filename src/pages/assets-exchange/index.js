@@ -27,11 +27,13 @@ const assetsForBuyColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
+		width: 80,
 	},
 	{
 		title: "Buy price",
 		dataIndex: "buyPrice",
 		key: "buyPrice",
+		width: 80,
 	},
 ];
 
@@ -40,16 +42,19 @@ const assetsForSellColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
+		width: 80,
 	},
 	{
 		title: "Sell price",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
+		width: 80,
 	},
 	{
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
+		width: 80,
 	},
 ];
 
