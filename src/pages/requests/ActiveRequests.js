@@ -12,7 +12,7 @@ import {
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "../../components/modals/SendToAgent";
-import { roles, operationMessageStatus, requestStatus } from "../../api/constants";
+import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
@@ -138,7 +138,7 @@ class ActiveRequests extends Component {
 				message: "Done",
 				description: "You accepted the request",
 			});
-			// update data in table
+			this.fetch(); // update data in table
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				notification.info({
@@ -175,7 +175,7 @@ class ActiveRequests extends Component {
 				message: "Done",
 				description: "You performed the request",
 			});
-			// update data in table
+			this.fetch();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				notification.info({
@@ -365,6 +365,7 @@ class ActiveRequests extends Component {
 					requestId={this.state.requestId}
 					isSendingMessage={this.state.isSendingMessage}
 					operationMessages={this.state.operationMessages}
+					fetchRequests={this.fetch}
 				/>
 			</>
 		);

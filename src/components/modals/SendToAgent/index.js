@@ -33,7 +33,7 @@ class SendToAgent extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { requestId, isSendingMessage } = this.props;
+		const { requestId, isSendingMessage, fetchRequests } = this.props;
 		const { selectedRows } = this.state;
 
 		if (isSendingMessage) {
@@ -48,8 +48,8 @@ class SendToAgent extends Component {
 					message: "Done",
 					description: "Request is successfully sent to agent/agents",
 				});
+				fetchRequests();
 				this.handleClose();
-				// refetch requests data
 			}
 		} else {
 			try {
@@ -60,6 +60,7 @@ class SendToAgent extends Component {
 					message: "Done",
 					description: "You successfully chosen an agent",
 				});
+				fetchRequests();
 				this.handleClose();
 			} catch (e) {
 				if (e instanceof TimeoutError) {
@@ -133,7 +134,7 @@ class SendToAgent extends Component {
 
 		return (
 			<Modal
-				title="Send deposit request to agent/agents"
+				title="Send deposit request"
 				visible={isModalVisible}
 				onCancel={this.handleClose}
 				footer={null}

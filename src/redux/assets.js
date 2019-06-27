@@ -1,4 +1,4 @@
-import { TransactionBuilder, CONST, Parameter, ParameterType } from "ontology-ts-sdk";
+import { TransactionBuilder, CONST } from "ontology-ts-sdk";
 import { get } from "lodash";
 import { getBcClient } from "../api/network";
 import { cryptoAddress, gasPrice } from "../utils/blockchain";

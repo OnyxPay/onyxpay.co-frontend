@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Popover, Button, Icon, message, notification, Spin } from "antd";
+import { Popover, Button, message, notification, Spin } from "antd";
 import { TextAligner } from "../../components/styled";
 import { cancelRequest, getRejectionCounter } from "../../api/requests";
 // import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
