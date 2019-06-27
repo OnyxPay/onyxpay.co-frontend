@@ -101,7 +101,6 @@ export const blockUser = (userAccountAddress, reason, duration) => {
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("User was successfully blocked");
 					return true;
 				}
 			} catch (error) {
