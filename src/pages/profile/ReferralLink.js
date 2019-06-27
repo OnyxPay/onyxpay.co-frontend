@@ -4,7 +4,7 @@ import { BackendUrl } from "../../api/constants";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
 export function ReferralLink() {
-	let referralCode = sessionStorage.getItem("OnyxAddr");
+	let referralCode = localStorage.getItem("OnyxAddr");
 	const link = BackendUrl + "?rcode=" + referralCode;
 	return (
 		<div>

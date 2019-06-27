@@ -26,8 +26,7 @@ function getMenuItem(linkRole, title, userRole) {
 	}
 }
 
-const DropdownMenu = ({ logOut }) => {
-	let user = JSON.parse(sessionStorage.getItem("user"));
+const DropdownMenu = ({ logOut, user }) => {
 	let menu;
 	if (user) {
 		menu = (
@@ -59,7 +58,11 @@ const DropdownMenu = ({ logOut }) => {
 };
 
 export default connect(
-	null,
+	state => {
+		return {
+			user: state.user,
+		};
+	},
 	{
 		logOut: Actions.auth.logOut,
 	}
