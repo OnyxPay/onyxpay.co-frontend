@@ -1,0 +1,51 @@
+.coinpayments-form {
+	.coinpayments-form__input {
+		text-align: left;
+		width: 186px;
+		height: 79px;
+		border-style: solid;
+		float: left;
+		margin-right: 5px;
+		margin-top: 5px;
+	}
+}
+.ipay-form {
+	.ipay-form__input {
+		text-align: left;
+		width: 186px;
+		height: 79px;
+		border-style: solid;
+		float: left;
+		margin-right: 5px;
+		margin-top: 5px;
+	}
+}
+
+@media (max-width: 575px) {
+	.upgrade_navigation {
+		height: 100%;
+		border: none;
+		width: 100%;
+	}
+
+	.upgrade_step {
+		width: 100%;
+	}
+}
+
+@media (min-width: 576px) {
+	.upgrade_navigation {
+		float: left;
+		min-width: 130px;
+		width: 20%;
+	}
+
+	.upgrade_step {
+		float: left;
+		padding-left: 10px;
+		width: 50%;
+		min-width: 200px;
+		display: block;
+		border-left: 1px solid rgba(167, 180, 201, 0.3);
+	}
+}

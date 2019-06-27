@@ -11,6 +11,10 @@ class ConfirmEmailModal extends Component {
 		loading: false,
 	};
 
+	componentDidMount() {
+		this.checkUserStatus();
+	}
+
 	handleFormSubmit = async (values, formActions) => {
 		const { confirmEmail } = this.props;
 		const res = await confirmEmail(values);
@@ -32,6 +36,8 @@ class ConfirmEmailModal extends Component {
 		if (user.status === 1) {
 			hideModal();
 			// enable dashboard
+		} else if (user.email !== null) {
+			this.changeView(1)();
 		}
 	};
 
