@@ -114,7 +114,7 @@ class ActiveRequests extends Component {
 					data = await getActiveRequests(params);
 				} else if (user.role === "agent") {
 					params.requestType = this.parseRequestType();
-					// params.requestStatus = "opened,choose";
+					params.requestStatus = "opened,choose,completed";
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };
@@ -216,6 +216,10 @@ class ActiveRequests extends Component {
 
 		const columnsForClient = [
 			{
+				title: "Id",
+				dataIndex: "id",
+			},
+			{
 				title: "Asset",
 				dataIndex: "asset",
 			},
@@ -236,7 +240,7 @@ class ActiveRequests extends Component {
 				},
 			},
 			{
-				title: "Action",
+				title: "Actions",
 				render: (text, record, index) => {
 					return (
 						<>
@@ -250,7 +254,11 @@ class ActiveRequests extends Component {
 							)}
 
 							{(record.status === "opened" || record.status === "choose") && (
-								<CancelRequest btnStyle={style.btn} requestId={record.request_id} />
+								<CancelRequest
+									btnStyle={style.btn}
+									requestId={record.request_id}
+									fetchRequests={this.fetch}
+								/>
 							)}
 							{this.isAgentAccepted(record.operation_messages) && record.status === "opened" && (
 								<Button
@@ -293,7 +301,7 @@ class ActiveRequests extends Component {
 				},
 			},
 			{
-				title: "Action",
+				title: "Actions",
 				render: (text, record, index) => {
 					return (
 						<>
