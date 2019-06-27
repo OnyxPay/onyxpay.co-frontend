@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Typography, Steps, Button, Icon, Spin } from "antd";
+import { Card, Typography, Steps, Button, Icon, Spin, message } from "antd";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
@@ -28,6 +28,12 @@ function getStepTitle(item, step) {
 		return "Finished";
 	}
 }
+function getTitleRoleByRole(role) {
+	if (role === "agent") {
+		return "Agent";
+	}
+	return "Super agent";
+}
 
 class UpgradeUser extends Component {
 	state = {
@@ -45,12 +51,21 @@ class UpgradeUser extends Component {
 		this.checkSettlements();
 
 		const role = props.match.params.role.substr(1).replace("_", "");
-		getUpgradeRequest(role).then(data => {
-			if (data.data.items && data.data.items.length) {
-				this.setState({ currentStep: steps.waitForApprovement });
+		getUpgradeRequest(role).then(
+			data => {
+				if (data.data.items && data.data.items.length) {
+					this.setState({ currentStep: steps.waitForApprovement });
+				}
+				this.setState({ showSpin: false });
+			},
+			err => {
+				console.error(err.errors);
+				message.error(
+					"There is an error occurred while receiving upgrade requests. Details:" +
+						JSON.stringify(err.errors)
+				);
 			}
-			this.setState({ showSpin: false });
-		});
+		);
 
 		window.matchMedia("(max-width: 570px)").addListener(() => {
 			this.setState({ direction: "horizontal" });
@@ -62,9 +77,7 @@ class UpgradeUser extends Component {
 	}
 
 	static getDerivedStateFromProps(props, currentState) {
-		console.info("getDerivedStateFromProps");
-		let role = props.match.params.role.substr(1).replace("_", " ");
-		role = role.charAt(0).toUpperCase() + role.slice(1);
+		let role = props.match.params.role.substr(1).replace("_", "");
 		return {
 			value: props.value,
 			role: role,
@@ -153,11 +166,11 @@ class UpgradeUser extends Component {
 						Buy OnyxCache.
 					</Title>
 					<p>
-						Please, buy OnyxCash amounting to <b>{role === "Agent" ? "500$" : "100 000$"}.</b>
+						Please, buy OnyxCash amounting to <b>{role === "agent" ? "500$" : "100 000$"}.</b>
 					</p>
 					<CoinPaymentsForm
 						user={this.props.user}
-						amount={role === "Agent" ? 500 : 100000}
+						amount={role === "agent" ? 500 : 100000}
 						handleSubmit={this.moveNextStep()}
 					/>
 					<IPayForm amount={role === "Agent" ? 500 : 100000} handleSubmit={this.moveNextStep()} />
@@ -221,7 +234,7 @@ class UpgradeUser extends Component {
 	render() {
 		return (
 			<>
-				<PageTitle>Upgrade to the {this.state.role}</PageTitle>
+				<PageTitle>Upgrade to the {getTitleRoleByRole(this.state.role)}</PageTitle>
 				<Card> {this.getCardContent()} </Card>
 				<AddSettlementModal
 					isModalVisible={this.state.showSettlements}

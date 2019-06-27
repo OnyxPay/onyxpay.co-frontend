@@ -40,7 +40,6 @@ export class IPayForm extends Component {
 					className="ipay-form"
 				>
 					{Object.keys(this.state.form).map(keyName => {
-						console.log(this.state.form);
 						return (
 							<Input key={keyName} type="hidden" name={keyName} value={this.state.form[keyName]} />
 						);
