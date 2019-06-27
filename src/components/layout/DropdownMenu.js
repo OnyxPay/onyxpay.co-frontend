@@ -25,6 +25,7 @@ function getMenuItem(linkRole, title, userRole) {
 		);
 	}
 }
+
 const DropdownMenu = ({ logOut }) => {
 	let user = JSON.parse(sessionStorage.getItem("user"));
 	let menu;
@@ -33,6 +34,11 @@ const DropdownMenu = ({ logOut }) => {
 			<Menu>
 				{getMenuItem("agent", "Upgrade to Agent", user.role)}
 				{getMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
+				<Menu.Item>
+					<Link to={"/profile"}>
+						<UpgradeLink>Profile</UpgradeLink>
+					</Link>
+				</Menu.Item>
 				<Menu.Divider />
 				<Menu.Item onClick={() => logOut()}>
 					<span>Logout</span>
@@ -40,6 +46,7 @@ const DropdownMenu = ({ logOut }) => {
 			</Menu>
 		);
 	}
+
 	return (
 		<Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
 			<Avatar
