@@ -143,6 +143,7 @@ class UpgradeUser extends Component {
 	};
 
 	getStepComponent(role) {
+		const paymentAmount = role === "agent" ? 500 : 100000;
 		if (this.state.currentStep === steps.settlements) {
 			return (
 				<div style={{ marginBottom: 30 }}>
@@ -170,10 +171,10 @@ class UpgradeUser extends Component {
 					</p>
 					<CoinPaymentsForm
 						user={this.props.user}
-						amount={role === "agent" ? 500 : 100000}
+						amount={paymentAmount}
 						handleSubmit={this.moveNextStep()}
 					/>
-					<IPayForm amount={role === "Agent" ? 500 : 100000} handleSubmit={this.moveNextStep()} />
+					<IPayForm amount={paymentAmount} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
 		} else if (this.state.currentStep === steps.waitForApprovement) {
