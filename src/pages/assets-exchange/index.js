@@ -20,6 +20,7 @@ import { PageTitle } from "../../components";
 import { TimeoutError } from "promise-timeout";
 import { SendRawTrxError } from "../../utils/custom-error";
 import { exchangeAssets } from "../../api/exchange";
+import { isAssetBlocked } from "../../api/assets";
 const { Option } = Select;
 
 const assetsForBuyColumns = [
@@ -194,7 +195,6 @@ class AssetsExchange extends Component {
 	};
 
 	validateAssetName = async assetType => {
-		const { isAssetBlocked } = this.props;
 		const { assetToSell, assetToBuy } = this.state;
 
 		let value = assetType === "sell" ? assetToSell.name : assetToBuy.name;
@@ -496,6 +496,5 @@ export default connect(
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
-		isAssetBlocked: Actions.assets.isAssetBlocked,
 	}
 )(AssetsExchange);
