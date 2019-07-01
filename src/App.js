@@ -43,7 +43,6 @@ let Settlement = Loadable({
 	loading: Loader,
 });
 
-
 let UpgradeUser = Loadable({
 	loader: () => import(/* webpackChunkName: "UpgradeUser" */ "./pages/upgrade-user"),
 	loading: Loader,
@@ -79,10 +78,9 @@ let Users = Loadable({
 	loading: Loader,
 });
 
-
 let Profile = Loadable({
 	loader: () => import(/* webpackChunkName: "Profile" */ "./pages/profile"),
-  	loading: Loader,
+	loading: Loader,
 });
 
 let UserUpgradeRequests = Loadable({
@@ -133,7 +131,7 @@ class App extends Component {
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/active-requests:type" exact component={ActiveRequests} />
+					<Route path="/active-requests/:type" exact component={ActiveRequests} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
 					<Route path="/closed-requests" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />

@@ -62,9 +62,9 @@ class ActiveRequests extends Component {
 
 	parseRequestType() {
 		const { match, push } = this.props;
-		if (match.params.type === ":withdraw") {
+		if (match.params.type === "withdraw") {
 			return "withdraw";
-		} else if (match.params.type === ":deposit") {
+		} else if (match.params.type === "deposit") {
 			return "deposit";
 		} else {
 			push("/active-requests");
