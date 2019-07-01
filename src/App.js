@@ -43,12 +43,13 @@ let Settlement = Loadable({
 	loading: Loader,
 });
 
+
 let UpgradeUser = Loadable({
 	loader: () => import(/* webpackChunkName: "UpgradeUser" */ "./pages/upgrade-user"),
 	loading: Loader,
 });
 
-const ActiveRequests = Loadable({
+let ActiveRequests = Loadable({
 	loader: () => import(/* webpackChunkName: "ActiveRequests" */ "./pages/requests/ActiveRequests"),
 	loading: Loader,
 });
@@ -78,6 +79,12 @@ let Users = Loadable({
 	loading: Loader,
 });
 
+
+let Profile = Loadable({
+	loader: () => import(/* webpackChunkName: "Profile" */ "./pages/profile"),
+  	loading: Loader,
+});
+
 let UserUpgradeRequests = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "Users" */ "./pages/admin-panel/requests/UserUpgradeRequests"),
@@ -102,7 +109,9 @@ UpgradeUser = All(UpgradeUser);
 SendAsset = User(SendAsset);
 
 Withdraw = User(Withdraw);
+Profile = All(Profile);
 Users = AdminAndSuperAdmin(Users);
+ActiveRequests = All(ActiveRequests);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
 
@@ -124,12 +133,13 @@ class App extends Component {
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
+					<Route path="/active-requests:type" exact component={ActiveRequests} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					<Route path="/active-requests" exact component={ActiveRequests} />
 					<Route path="/closed-requests" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
 					<Route path="/withdraw" exact component={Withdraw} />
+					<Route path="/profile" exact component={Profile} />
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />

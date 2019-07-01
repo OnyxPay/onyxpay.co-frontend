@@ -25,14 +25,19 @@ function getMenuItem(linkRole, title, userRole) {
 		);
 	}
 }
-const DropdownMenu = ({ logOut }) => {
-	let user = JSON.parse(sessionStorage.getItem("user"));
+
+const DropdownMenu = ({ logOut, user }) => {
 	let menu;
 	if (user) {
 		menu = (
 			<Menu>
 				{getMenuItem("agent", "Upgrade to Agent", user.role)}
 				{getMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
+				<Menu.Item>
+					<Link to={"/profile"}>
+						<UpgradeLink>Profile</UpgradeLink>
+					</Link>
+				</Menu.Item>
 				<Menu.Divider />
 				<Menu.Item onClick={() => logOut()}>
 					<span>Logout</span>
@@ -40,6 +45,7 @@ const DropdownMenu = ({ logOut }) => {
 			</Menu>
 		);
 	}
+
 	return (
 		<Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
 			<Avatar
@@ -52,7 +58,11 @@ const DropdownMenu = ({ logOut }) => {
 };
 
 export default connect(
-	null,
+	state => {
+		return {
+			user: state.user,
+		};
+	},
 	{
 		logOut: Actions.auth.logOut,
 	}

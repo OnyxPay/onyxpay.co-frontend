@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Button } from "antd";
+import { Row, Col, Button, message } from "antd";
 import { BalanceCard } from "./Card";
 import { convertAmountToStr, convertAsset, addAmounts } from "../../utils/number";
 import { OnyxCashDecimals, roles } from "../../api/constants";
@@ -29,32 +29,36 @@ class Balance extends Component {
 	};
 
 	convertAssets(assets) {
-		const { exchangeRates } = this.props;
+		try {
+			const { exchangeRates } = this.props;
 
-		return assets.map(asset => {
-			const rates = exchangeRates.find(rate => rate.symbol === asset.symbol);
-			const { amount, symbol, key } = asset;
-			if (rates === undefined) {
+			return assets.map(asset => {
+				const rates = exchangeRates.find(rate => rate.symbol === asset.symbol);
+				const { amount, symbol, key } = asset;
+				if (rates === undefined) {
+					return {
+						amount: convertAmountToStr(amount, 8),
+						symbol,
+						key,
+						buy: "n/a",
+						sell: "n/a",
+						asset_converted: 0,
+					};
+				}
+				const { sell, buy } = rates;
+				const asset_converted = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
 				return {
 					amount: convertAmountToStr(amount, 8),
 					symbol,
 					key,
-					buy: "n/a",
-					sell: "n/a",
-					asset_converted: 0,
+					buy: convertAmountToStr(buy, 8),
+					sell: convertAmountToStr(sell, 8),
+					asset_converted,
 				};
-			}
-			const { sell, buy } = rates;
-			const asset_converted = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
-			return {
-				amount: convertAmountToStr(amount, 8),
-				symbol,
-				key,
-				buy: convertAmountToStr(buy, 8),
-				sell: convertAmountToStr(sell, 8),
-				asset_converted,
-			};
-		});
+			});
+		} catch (e) {
+			message.error(e.message);
+		}
 	}
 
 	calcTotalAmount(arr, amount) {

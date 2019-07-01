@@ -61,7 +61,6 @@ export async function importPrivateKey(privateKeyStr, password, wallet) {
 		publicKey: privateKey.getPublicKey(),
 		accountAddress: account.address.toBase58(),
 	};
-	console.log(res);
 	return res;
 }
 

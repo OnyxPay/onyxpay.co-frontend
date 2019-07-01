@@ -14,6 +14,7 @@ import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal"
 import RegistrationModal from "../../components/modals/Registration";
 import { generateTokenTimeStamp } from "../../utils";
 import { signWithPk } from "../../utils/blockchain";
+import { refreshBalance } from "../../providers/balanceProvider";
 
 const { Title } = Typography;
 
@@ -87,7 +88,7 @@ class Login extends Component {
 	};
 
 	handleLogin = async () => {
-		const { push, login, getUserData } = this.props;
+		const { push, login, getUserData, location } = this.props;
 		this.setState({ loading: true });
 		try {
 			const { pk, accountAddress, publicKey } = await unlockWalletAccount();
@@ -109,7 +110,14 @@ class Login extends Component {
 				}
 			} else {
 				await getUserData();
-				push("/");
+				await refreshBalance();
+				console.log(location);
+
+				if (location.state && location.state.redirectFrom) {
+					push(location.state.redirectFrom);
+				} else {
+					push("/");
+				}
 			}
 		} catch (er) {
 			console.log(er);
@@ -207,7 +215,7 @@ class Login extends Component {
 
 export default connect(
 	state => {
-		return { wallet: state.wallet, user: state.user };
+		return { wallet: state.wallet, user: state.user, location: state.router.location };
 	},
 	{
 		saveUser: Actions.user.saveUser,

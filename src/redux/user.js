@@ -1,25 +1,21 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
-import { finishLoading } from "./loading";
+import { finishLoading, startLoading } from "./loading";
 import { LOG_OUT } from "./auth";
 
 const client = getRestClient();
 
-const userData = sessionStorage.getItem("user");
+const userData = localStorage.getItem("user");
 const initialState = (userData && JSON.parse(userData)) || null;
 
 const SAVE_USER = "SAVE_USER";
 
-// const STATUS_CONFIRMED = 2;
-// const STATUS_CONFIRMED_EMAIL_ONLY = 1;
-// const STATUS_UNCONFIRMED = 0;
-
 export const userReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SAVE_USER:
-			sessionStorage.setItem("user", JSON.stringify(action.payload));
+			localStorage.setItem("user", JSON.stringify(action.payload));
 			return action.payload;
 		case LOG_OUT:
-			sessionStorage.removeItem("user");
+			localStorage.removeItem("user");
 			return null;
 		default:
 			return state;
@@ -31,6 +27,7 @@ export const saveUser = user => {
 };
 
 export const getUserData = () => async (dispatch, getState) => {
+	dispatch(startLoading());
 	const authHeaders = getAuthHeaders();
 	try {
 		const { data } = await client.get("info", {

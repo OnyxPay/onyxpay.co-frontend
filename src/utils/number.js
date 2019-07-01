@@ -4,7 +4,7 @@ export function convertAmountToStr(amount, decimals) {
 	let amountBN = new BigNumber(amount);
 	amountBN = amountBN.shiftedBy(-decimals);
 
-	return amountBN.toString();
+	return amountBN.toFixed();
 }
 
 export function convertAmountFromStr(amount, asset) {
