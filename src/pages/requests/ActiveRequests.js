@@ -16,6 +16,7 @@ import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
+import { add } from "../../redux/settlements";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -211,6 +212,17 @@ class ActiveRequests extends Component {
 		}
 	};
 
+	getPerformerName({ taker_addr: addr, operation_messages: messages } = {}) {
+		const msg = messages.filter(msg => msg.receiver.wallet_addr === addr);
+
+		const { first_name, last_name } = msg[0].receiver;
+		if (first_name || last_name) {
+			return `${first_name} ${last_name}`;
+		} else {
+			return addr;
+		}
+	}
+
 	render() {
 		const { user, walletAddress } = this.props;
 
@@ -237,6 +249,12 @@ class ActiveRequests extends Component {
 				title: "Created",
 				render: (text, record, index) => {
 					return new Date(record.trx_timestamp).toLocaleString();
+				},
+			},
+			{
+				title: "Performer",
+				render: (text, record, index) => {
+					return record.taker_addr ? this.getPerformerName(record) : "n/a";
 				},
 			},
 			{

@@ -7,7 +7,6 @@ import {
 	downgradeUser,
 	checkUserRole,
 	rejectRequest,
-	createRequest,
 } from "../../../api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
 
