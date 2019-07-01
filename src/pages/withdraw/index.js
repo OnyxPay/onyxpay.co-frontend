@@ -9,6 +9,7 @@ import { push } from "connected-react-router";
 import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
+import { isAssetBlocked } from "../../api/assets";
 
 const { Option } = Select;
 
@@ -43,7 +44,7 @@ class Withdraw extends Component {
 	};
 
 	handleFormSubmit = async (values, formActions) => {
-		const { isAssetBlocked, push } = this.props;
+		const { push } = this.props;
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
 			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
@@ -62,17 +63,16 @@ class Withdraw extends Component {
 			}
 
 			if (!isBlocked && isEnoughAmount && isAmountNotOverMax) {
-				alert("Yo");
-				// const res = await createRequest(values);
-				// if (!res.error) {
-				// 	notification.success({
-				// 		message: "Done",
-				// 		description: "Deposit request is successfully created",
-				// 	});
-				// 	push("/active-requests");
-				// } else if (res.error.data) {
-				// 	formActions.setErrors(res.error.data);
-				// }
+				const res = await createRequest(values, "withdraw");
+				if (!res.error) {
+					notification.success({
+						message: "Done",
+						description: "Deposit request is successfully created",
+					});
+					push("/active-requests/withdraw");
+				} else if (res.error.data) {
+					formActions.setErrors(res.error.data);
+				}
 			}
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -184,6 +184,7 @@ class Withdraw extends Component {
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+														disabled={isSubmitting}
 													>
 														max
 													</Button>
@@ -220,7 +221,6 @@ export default connect(
 		};
 	},
 	{
-		isAssetBlocked: Actions.assets.isAssetBlocked,
 		getExchangeRates: Actions.assets.getExchangeRates,
 		push,
 	}

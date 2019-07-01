@@ -4,7 +4,9 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import connect from "react-redux/es/connect/connect";
 
-class SuperAdminMenu extends Component {
+const SubMenu = Menu.SubMenu;
+
+class AdminMenu extends Component {
 	render() {
 		const { location } = this.props;
 		return (
@@ -27,6 +29,21 @@ class SuperAdminMenu extends Component {
 						<span>Assets</span>
 					</Link>
 				</Menu.Item>
+				<SubMenu
+					key="requests"
+					title={
+						<span className="ant-menu-item-content">
+							<Icon type="pull-request" />
+							<span>Requests</span>
+						</span>
+					}
+				>
+					<Menu.Item key="/admin/requests/user-upgrade">
+						<Link to="/admin/requests/user-upgrade" className="ant-menu-item-content">
+							<span>Account upgrade</span>
+						</Link>
+					</Menu.Item>
+				</SubMenu>
 			</Menu>
 		);
 	}
@@ -38,9 +55,9 @@ function mapStateToProps(state) {
 	};
 }
 
-SuperAdminMenu = compose(
+AdminMenu = compose(
 	withRouter,
 	connect(mapStateToProps)
-)(SuperAdminMenu);
+)(AdminMenu);
 
-export default SuperAdminMenu;
+export default AdminMenu;

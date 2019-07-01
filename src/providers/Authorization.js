@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Redirect } from "react-router-dom";
 import { roles } from "../api/constants";
+import { getUserData } from "../redux/user";
 
 /**
  * HOC that Handles whether or not the user is allowed to see the page.
@@ -16,14 +17,31 @@ function Authorization(allowedRoles) {
 			static propTypes = {
 				user: PropTypes.object,
 			};
+
+			getRedirectPath(location) {
+				return location.pathname + location.search;
+			}
+
 			render() {
 				const { user, location } = this.props;
 				if (!user) {
-					return <Redirect to="/login" />;
+					// user in not logged in
+					return (
+						<Redirect
+							to={{
+								pathname: "/login",
+								state: { redirectFrom: this.getRedirectPath(location) },
+							}}
+						/>
+					);
 				} else if (allowedRoles.includes(user.role) && user.status === 1) {
 					// user is confirmed
 					return <WrappedComponent {...this.props} />;
-				} else if (allowedRoles.includes(user.role) && user.status !== 1 && location === "/") {
+				} else if (
+					allowedRoles.includes(user.role) &&
+					user.status !== 1 &&
+					location.pathname === "/"
+				) {
 					// user is unconfirmed show Confirmation modal
 					return <WrappedComponent {...this.props} />;
 				} else if (user.role === roles.adm || user.role === roles.sadm) {
@@ -35,9 +53,12 @@ function Authorization(allowedRoles) {
 				}
 			}
 		}
-		return connect(state => {
-			return { user: state.user, location: state.router.location.pathname };
-		})(WithAuthorization);
+		return connect(
+			state => {
+				return { user: state.user, location: state.router.location };
+			},
+			{ getUserData }
+		)(WithAuthorization);
 	};
 }
 

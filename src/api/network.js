@@ -48,8 +48,8 @@ function createCustomRestClient() {
 
 export function getToken() {
 	return {
-		OnyxAuth: sessionStorage.getItem("OnyxAuth"),
-		OnyxAddr: sessionStorage.getItem("OnyxAddr"),
+		OnyxAuth: localStorage.getItem("OnyxAuth"),
+		OnyxAddr: localStorage.getItem("OnyxAddr"),
 	};
 }
 
@@ -70,6 +70,8 @@ export function handleReqError(error) {
 		// that falls out of the range of 2xx
 		if (error.response.status === 404) {
 			message.error("Something went wrong at the server side", 5);
+		} else if (error.response.status === 403) {
+			message.error("Forbidden", 5);
 		} else if (error.response.status >= 400 && error.response.status < 500) {
 			return {
 				error: {
@@ -77,7 +79,8 @@ export function handleReqError(error) {
 					status: error.response.status,
 				},
 			};
-			// 403, 401 invalid credentials
+			// 401 invalid credentials
+			// 403 forbidden
 			// 400 validation error
 			// 422 Unprocessable Entity
 			// 403 Forbidden - blocked user?????

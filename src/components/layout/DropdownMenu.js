@@ -2,27 +2,49 @@ import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { Avatar, Menu, Dropdown } from "antd";
+import { Link } from "react-router-dom";
 import Actions from "../../redux/actions";
+import { roles } from "../../api/constants";
 
 const UpgradeLink = styled.span`
 	color: #1890ff;
 `;
 
-const DropdownMenu = ({ logOut }) => {
-	const menu = (
-		<Menu>
+function getMenuItem(linkRole, title, userRole) {
+	if (userRole === roles.sa) {
+		return;
+	} else if (userRole === roles.a && linkRole === roles.a) {
+		return;
+	} else {
+		return (
 			<Menu.Item>
-				<UpgradeLink>Upgrade to Agent</UpgradeLink>
+				<Link to={"/upgrade-user:" + linkRole}>
+					<UpgradeLink>{title}</UpgradeLink>
+				</Link>
 			</Menu.Item>
-			<Menu.Item>
-				<UpgradeLink>Upgrade to Super Agent</UpgradeLink>
-			</Menu.Item>
-			<Menu.Divider />
-			<Menu.Item onClick={() => logOut()}>
-				<span>Logout</span>
-			</Menu.Item>
-		</Menu>
-	);
+		);
+	}
+}
+
+const DropdownMenu = ({ logOut, user }) => {
+	let menu;
+	if (user) {
+		menu = (
+			<Menu>
+				{getMenuItem("agent", "Upgrade to Agent", user.role)}
+				{getMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
+				<Menu.Item>
+					<Link to={"/profile"}>
+						<UpgradeLink>Profile</UpgradeLink>
+					</Link>
+				</Menu.Item>
+				<Menu.Divider />
+				<Menu.Item onClick={() => logOut()}>
+					<span>Logout</span>
+				</Menu.Item>
+			</Menu>
+		);
+	}
 
 	return (
 		<Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
@@ -36,7 +58,11 @@ const DropdownMenu = ({ logOut }) => {
 };
 
 export default connect(
-	null,
+	state => {
+		return {
+			user: state.user,
+		};
+	},
 	{
 		logOut: Actions.auth.logOut,
 	}

@@ -19,6 +19,7 @@ import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
 import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
+import { isAssetBlocked } from "../../api/assets";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -39,7 +40,7 @@ class Deposit extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { isAssetBlocked, push } = this.props;
+		const { push } = this.props;
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
 			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
@@ -51,13 +52,13 @@ class Deposit extends Component {
 				formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
 			if (!isBlocked && isEnoughAmount) {
-				const res = await createRequest(values);
+				const res = await createRequest(values, "deposit");
 				if (!res.error) {
 					notification.success({
 						message: "Done",
 						description: "Deposit request is successfully created",
 					});
-					push("/active-requests");
+					push("/active-requests:deposit");
 				} else if (res.error.data) {
 					formActions.setErrors(res.error.data);
 				}
@@ -203,7 +204,6 @@ export default connect(
 	},
 	{
 		getAssetsList: Actions.assets.getAssetsList,
-		isAssetBlocked: Actions.assets.isAssetBlocked,
 		getExchangeRates: Actions.assets.getExchangeRates,
 		push,
 	}

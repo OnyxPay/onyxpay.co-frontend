@@ -21,6 +21,23 @@ export async function sendMessage(requestId, receivers = []) {
 	}
 }
 
+export async function hideMessage(requestId) {
+	const client = getRestClient();
+
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.put(`operation-message/${requestId}/hide`, null, {
+			headers: {
+				...authHeaders,
+			},
+		});
+		return data;
+	} catch (error) {
+		console.log(error);
+		return handleReqError(error);
+	}
+}
+
 export async function getMessages(params) {
 	const client = getRestClient();
 
