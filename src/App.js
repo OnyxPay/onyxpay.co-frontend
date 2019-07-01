@@ -133,7 +133,7 @@ class App extends Component {
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/active-requests/:type" exact component={ActiveRequests} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					<Route path="/closed-requests" exact component={ClosedRequests} />
+					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
 					<Route path="/withdraw" exact component={Withdraw} />

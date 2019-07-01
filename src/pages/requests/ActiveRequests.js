@@ -115,7 +115,7 @@ class ActiveRequests extends Component {
 					params.type = this.parseRequestType();
 					params.status = "pending,opened,choose";
 					data = await getActiveRequests(params);
-				} else if (user.role === "agent") {
+				} else if (user.role === roles.a) {
 					params.requestType = this.parseRequestType();
 					params.requestStatus = "opened,choose,completed";
 					data = await getMessages(params);
@@ -137,8 +137,8 @@ class ActiveRequests extends Component {
 		// agent accepts deposit or withdraw request
 		try {
 			this.setState({ requestId, activeAction: "accept" });
-			await wait(10000);
-			// await acceptRequest(requestId);
+			// await wait(10000);
+			await acceptRequest(requestId);
 			notification.success({
 				message: "Done",
 				description: "You accepted the request",
@@ -178,8 +178,8 @@ class ActiveRequests extends Component {
 		// agent performs request
 		try {
 			this.setState({ requestId, activeAction: "perform" });
-			await wait(10000);
-			// await performRequest(requestId);
+			// await wait(10000);
+			await performRequest(requestId);
 			notification.success({
 				message: "Done",
 				description: "You performed the request",

@@ -31,16 +31,16 @@ export const operationMessageStatus = {
 	opened: 1,
 	hidden: 2,
 	accepted: 3,
-	cancel: 4, // ?
+	canceled: 4, // agent canceled a request
 };
 
 export const requestStatus = {
 	pending: 0,
 	opened: 1,
 	choose: 2,
-	rejected: 3,
-	canceled: 4,
+	rejected: 3, // client canceled a request
+	canceled: 4, // client called /api/v1/operation-request/{requestId}/cancel
 	complained: 5,
 	completed: 6,
-	closed: 7,
+	closed: 7, //  not set at back-end now
 };
