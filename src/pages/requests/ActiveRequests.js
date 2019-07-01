@@ -17,6 +17,7 @@ import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
 import { add } from "../../redux/settlements";
+import { wait } from "../../utils";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -39,6 +40,7 @@ class ActiveRequests extends Component {
 			requestId: null,
 			isSendingMessage: false,
 			operationMessages: [],
+			activeAction: "",
 		};
 	}
 
@@ -134,7 +136,9 @@ class ActiveRequests extends Component {
 	acceptRequest = async requestId => {
 		// agent accepts deposit or withdraw request
 		try {
-			await acceptRequest(requestId);
+			this.setState({ requestId, activeAction: "accept" });
+			await wait(10000);
+			// await acceptRequest(requestId);
 			notification.success({
 				message: "Done",
 				description: "You accepted the request",
@@ -150,6 +154,8 @@ class ActiveRequests extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
 		}
 	};
 
@@ -171,7 +177,9 @@ class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs request
 		try {
-			await performRequest(requestId);
+			this.setState({ requestId, activeAction: "perform" });
+			await wait(10000);
+			// await performRequest(requestId);
 			notification.success({
 				message: "Done",
 				description: "You performed the request",
@@ -187,6 +195,8 @@ class ActiveRequests extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
 		}
 	};
 
@@ -321,40 +331,72 @@ class ActiveRequests extends Component {
 			{
 				title: "Actions",
 				render: (text, record, index) => {
+					const isAcceptActive =
+						record.request.request_id === this.state.requestId &&
+						this.state.activeAction === "accept";
+
+					const isPerformActive =
+						record.request.request_id === this.state.requestId &&
+						this.state.activeAction === "perform";
+
 					return (
 						<>
 							{record.status !== "accepted" && (
-								<Popconfirm
-									title="Sure to accept?"
-									onConfirm={() => this.acceptRequest(record.request.request_id)}
-								>
-									<Button type="primary" style={style.btn}>
-										Accept
-									</Button>
-								</Popconfirm>
+								<>
+									{isAcceptActive ? (
+										<Button type="primary" style={style.btn} loading={true} disabled={true}>
+											Accept
+										</Button>
+									) : (
+										<Popconfirm
+											title="Sure to accept?"
+											onConfirm={() => this.acceptRequest(record.request.request_id)}
+										>
+											<Button type="primary" style={style.btn}>
+												Accept
+											</Button>
+										</Popconfirm>
+									)}
+								</>
 							)}
 
 							{record.status !== "accepted" && (
-								<Popconfirm
-									title="Sure to hide?"
-									onConfirm={() => this.hideRequest(record.id)} // messageId
-								>
-									<Button type="danger" style={style.btn}>
-										Hide
-									</Button>
-								</Popconfirm>
+								<>
+									{isAcceptActive ? (
+										<Button type="danger" style={style.btn} disabled={true}>
+											Hide
+										</Button>
+									) : (
+										<Popconfirm
+											title="Sure to hide?"
+											onConfirm={() => this.hideRequest(record.id)} // messageId
+										>
+											<Button type="danger" style={style.btn}>
+												Hide
+											</Button>
+										</Popconfirm>
+									)}
+								</>
 							)}
 
 							{record.request.taker_addr === walletAddress &&
 								record.request.status !== "completed" && (
-									<Popconfirm
-										title="Sure to perform?"
-										onConfirm={() => this.performRequest(record.request.request_id)}
-									>
-										<Button type="primary" style={style.btn}>
-											Perform
-										</Button>
-									</Popconfirm>
+									<>
+										{isPerformActive ? (
+											<Button type="primary" style={style.btn} loading={true} disabled={true}>
+												Perform
+											</Button>
+										) : (
+											<Popconfirm
+												title="Sure to perform?"
+												onConfirm={() => this.performRequest(record.request.request_id)}
+											>
+												<Button type="primary" style={style.btn}>
+													Perform
+												</Button>
+											</Popconfirm>
+										)}
+									</>
 								)}
 
 							{record.status === "accepted" && record.request.taker_addr !== walletAddress && (
