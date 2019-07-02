@@ -113,11 +113,11 @@ class ActiveRequests extends Component {
 				let data;
 				if (user.role === roles.c) {
 					params.type = this.parseRequestType();
-					params.status = "pending,opened,choose";
+					params.status = "pending,opened,choose,complained";
 					data = await getActiveRequests(params);
 				} else if (user.role === roles.a) {
 					params.requestType = this.parseRequestType();
-					params.requestStatus = "opened,choose,completed";
+					params.requestStatus = "opened,choose,completed,complained";
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };
@@ -309,6 +309,10 @@ class ActiveRequests extends Component {
 
 		const columnsForAgent = [
 			{
+				title: "Id",
+				dataIndex: "request.id",
+			},
+			{
 				title: "Asset",
 				dataIndex: "request.asset",
 			},
@@ -327,6 +331,10 @@ class ActiveRequests extends Component {
 				render: (text, record, index) => {
 					return new Date(record.request.trx_timestamp).toLocaleString();
 				},
+			},
+			{
+				title: "Client",
+				dataIndex: "sender.addr", // TODO: change to client's name
 			},
 			{
 				title: "Actions",

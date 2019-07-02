@@ -88,7 +88,7 @@ class ClosedRequests extends Component {
 					data = await getActiveRequests(params);
 				} else if (user.role === roles.a) {
 					params.requestType = this.parseRequestType();
-					params.requestStatus = "completed";
+					// params.requestStatus = "completed";
 					params.messageStatus = "canceled";
 					data = await getMessages(params);
 				}
@@ -135,6 +135,10 @@ class ClosedRequests extends Component {
 		];
 
 		const columnsForAgent = [
+			{
+				title: "Id",
+				dataIndex: "request.id",
+			},
 			{
 				title: "Asset",
 				dataIndex: "request.asset",
