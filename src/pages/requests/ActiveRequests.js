@@ -340,17 +340,6 @@ class ActiveRequests extends Component {
 									Choose agent
 								</Button>
 							)}
-							{/* {record.taker_addr && record.status !== "complained" && (
-								<Button
-									style={style.btn}
-									type="danger"
-									onClick={() => this.handleComplain(record.request_id, true)}
-									loading={isComplainActive}
-									disabled={isComplainActive}
-								>
-									Complain
-								</Button>
-							)} */}
 						</>
 					);
 				},
