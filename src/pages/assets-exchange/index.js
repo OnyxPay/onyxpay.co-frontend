@@ -145,9 +145,13 @@ class AssetsExchange extends Component {
 
 	async componentDidUpdate(prevProps, prevState) {
 		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
+			const { dataLoaded } = this.state;
+
 			await this.fillAssetsForSellData();
-			await this.setDefaultAssets();
-			this.setState({ dataLoaded: true });
+			if (!dataLoaded) {
+				await this.setDefaultAssets();
+				this.setState({ dataLoaded: true });
+			}
 		}
 	}
 
