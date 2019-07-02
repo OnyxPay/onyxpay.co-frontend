@@ -1,17 +1,35 @@
 import { TransactionBuilder, Parameter, Transaction } from "ontology-ts-sdk";
-import { getRestClient, getBcClient } from "./network";
-import { SendRawTrxError } from "../utils/custom-error";
+import { getRestClient, getBcClient, getAuthHeaders } from "./network";
+import { SendRawTrxError, GasCompensationError } from "../utils/custom-error";
 import { gasPrice, gasLimit, cryptoAddress } from "../utils/blockchain";
 
 export async function createAndSignTrxViaGasCompensator(contractName, funcName, params) {
 	const client = getRestClient({ type: "gas" });
-	const res = await client.post("compensate-gas", {
-		contractName,
-		funcName,
-		params,
-	});
-	return res.data.data;
-	// TODO: throw custom error
+
+	try {
+		const res = await client.post(
+			"compensate-gas",
+			{
+				contractName,
+				funcName,
+				params,
+			},
+			{
+				headers: {
+					...getAuthHeaders(),
+				},
+			}
+		);
+		return res.data.data;
+	} catch (e) {
+		if (e.response) {
+			throw new GasCompensationError(JSON.stringify(e.response.data));
+		} else if (e.request) {
+			throw new GasCompensationError("Something went wrong at the GAS compensation server");
+		} else {
+			throw new GasCompensationError("Something went wrong");
+		}
+	}
 }
 
 export function createTrx({ funcName, params, contractAddress, accountAddress }) {

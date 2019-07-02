@@ -56,8 +56,7 @@ class Deposit extends Component {
 				const res = await createRequest(values, "deposit");
 				if (!res.error) {
 					notification.success({
-						message: "Done",
-						description: "Deposit request is successfully created",
+						message: "Deposit request is successfully created",
 					});
 					push("/active-requests/deposit");
 				} else if (res.error.data) {

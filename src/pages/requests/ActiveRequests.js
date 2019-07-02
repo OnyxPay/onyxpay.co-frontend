@@ -17,7 +17,6 @@ import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
-import { wait } from "../../utils";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -140,8 +139,7 @@ class ActiveRequests extends Component {
 			// await wait(10000);
 			await acceptRequest(requestId);
 			notification.success({
-				message: "Done",
-				description: "You accepted the request",
+				message: "You have accepted the request",
 			});
 			this.fetch(); // update data in table
 		} catch (e) {
@@ -181,8 +179,7 @@ class ActiveRequests extends Component {
 			// await wait(10000);
 			await performRequest(requestId);
 			notification.success({
-				message: "Done",
-				description: "You performed the request",
+				message: "You have performed the request",
 			});
 			this.fetch();
 		} catch (e) {
@@ -203,12 +200,12 @@ class ActiveRequests extends Component {
 	cancelAcceptedRequest = async requestId => {
 		// agent performs request
 		try {
+			this.setState({ requestId, activeAction: "cancel_accepted_request" });
 			await cancelAcceptedRequest(requestId);
 			notification.success({
-				message: "Done",
-				description: "You canceled the request",
+				message: "You have canceled the request",
 			});
-			// update data in table
+			this.fetch();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				notification.info({
@@ -219,6 +216,8 @@ class ActiveRequests extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
 		}
 	};
 
@@ -341,7 +340,7 @@ class ActiveRequests extends Component {
 									Choose agent
 								</Button>
 							)}
-							{record.taker_addr && record.status !== "complained" && (
+							{/* {record.taker_addr && record.status !== "complained" && (
 								<Button
 									style={style.btn}
 									type="danger"
@@ -351,7 +350,7 @@ class ActiveRequests extends Component {
 								>
 									Complain
 								</Button>
-							)}
+							)} */}
 						</>
 					);
 				},
@@ -398,77 +397,78 @@ class ActiveRequests extends Component {
 						record.request.request_id === this.state.requestId &&
 						this.state.activeAction === "perform";
 
+					const isCancelAcceptedRequestActive =
+						record.request.request_id === this.state.requestId &&
+						this.state.activeAction === "cancel_accepted_request";
+
 					return (
 						<>
-							{record.status !== "accepted" && (
-								<>
-									{isAcceptActive ? (
-										<Button type="primary" style={style.btn} loading={true} disabled={true}>
+							{record.status !== "accepted" &&
+								(isAcceptActive ? (
+									<Button type="primary" style={style.btn} loading={true} disabled={true}>
+										Accept
+									</Button>
+								) : (
+									<Popconfirm
+										title="Sure to accept?"
+										onConfirm={() => this.acceptRequest(record.request.request_id)}
+									>
+										<Button type="primary" style={style.btn}>
 											Accept
 										</Button>
-									) : (
-										<Popconfirm
-											title="Sure to accept?"
-											onConfirm={() => this.acceptRequest(record.request.request_id)}
-										>
-											<Button type="primary" style={style.btn}>
-												Accept
-											</Button>
-										</Popconfirm>
-									)}
-								</>
-							)}
+									</Popconfirm>
+								))}
 
-							{record.status !== "accepted" && (
-								<>
-									{isAcceptActive ? (
-										<Button type="danger" style={style.btn} disabled={true}>
+							{record.status !== "accepted" &&
+								(isAcceptActive || isCancelAcceptedRequestActive ? (
+									<Button type="danger" style={style.btn} disabled={true}>
+										Hide
+									</Button>
+								) : (
+									<Popconfirm
+										title="Sure to hide?"
+										onConfirm={() => this.hideRequest(record.id)} // messageId
+									>
+										<Button type="danger" style={style.btn}>
 											Hide
 										</Button>
-									) : (
-										<Popconfirm
-											title="Sure to hide?"
-											onConfirm={() => this.hideRequest(record.id)} // messageId
-										>
-											<Button type="danger" style={style.btn}>
-												Hide
-											</Button>
-										</Popconfirm>
-									)}
-								</>
-							)}
+									</Popconfirm>
+								))}
 
 							{record.request.taker_addr === walletAddress &&
-								record.request.status !== "completed" && (
-									<>
-										{isPerformActive ? (
-											<Button type="primary" style={style.btn} loading={true} disabled={true}>
-												Perform
-											</Button>
-										) : (
-											<Popconfirm
-												title="Sure to perform?"
-												onConfirm={() => this.performRequest(record.request.request_id)}
-											>
-												<Button type="primary" style={style.btn}>
-													Perform
-												</Button>
-											</Popconfirm>
-										)}
-									</>
-								)}
+								record.request.status !== "completed" &&
+								(isPerformActive ? (
+									<Button type="primary" style={style.btn} loading={true} disabled={true}>
+										Perform
+									</Button>
+								) : (
+									<Popconfirm
+										title="Sure to perform?"
+										onConfirm={() => this.performRequest(record.request.request_id)}
+									>
+										<Button type="primary" style={style.btn}>
+											Perform
+										</Button>
+									</Popconfirm>
+								))}
 
-							{record.status === "accepted" && record.request.taker_addr !== walletAddress && (
-								<Popconfirm
-									title="Sure to cancel acceptation?"
-									cancelText="No"
-									onConfirm={() => this.cancelAcceptedRequest(record.request.request_id)}
-								>
-									<Button type="danger" style={style.btn}>
+							{record.status === "accepted" &&
+								record.request.taker_addr !== walletAddress &&
+								(isCancelAcceptedRequestActive ? (
+									<Button type="danger" style={style.btn} loading={true} disabled={true}>
 										Cancel acceptation
 									</Button>
-								</Popconfirm>
-							)}
+								) : (
+									<Popconfirm
+										title="Sure to cancel acceptation?"
+										cancelText="No"
+										onConfirm={() => this.cancelAcceptedRequest(record.request.request_id)}
+									>
+										<Button type="danger" style={style.btn}>
+											Cancel acceptation
+										</Button>
+									</Popconfirm>
+								))}
 						</>
 					);
 				},

@@ -45,8 +45,7 @@ class CancelRequest extends Component {
 			await cancelRequest(requestId, "deposit");
 			fetchRequests();
 			notification.success({
-				message: "Done",
-				description: "You have canceled the request",
+				message: "You have canceled the request",
 			});
 		} catch (e) {
 			if (e instanceof TimeoutError) {
