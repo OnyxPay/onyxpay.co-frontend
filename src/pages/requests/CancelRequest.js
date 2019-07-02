@@ -32,7 +32,10 @@ class CancelRequest extends Component {
 	};
 
 	handleVisibleChange = visible => {
-		this.setState({ visible });
+		const { disabled } = this.props;
+		if (!disabled) {
+			this.setState({ visible });
+		}
 	};
 
 	handleConfirm = async () => {
@@ -61,7 +64,7 @@ class CancelRequest extends Component {
 	};
 
 	render() {
-		const { btnStyle } = this.props;
+		const { btnStyle, disabled } = this.props;
 		const { loading, counter, actionIsOn } = this.state;
 		return (
 			<Popover
@@ -90,7 +93,12 @@ class CancelRequest extends Component {
 				visible={this.state.visible}
 				onVisibleChange={this.handleVisibleChange}
 			>
-				<Button type="danger" style={btnStyle} loading={actionIsOn} disabled={actionIsOn}>
+				<Button
+					type="danger"
+					style={btnStyle}
+					loading={actionIsOn}
+					disabled={actionIsOn || disabled}
+				>
 					Cancel
 				</Button>
 			</Popover>

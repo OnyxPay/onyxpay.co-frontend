@@ -262,3 +262,32 @@ export async function cancelAcceptedRequest(requestId) {
 	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
 	console.log(res);
 }
+
+export async function complain(requestId) {
+	console.log(requestId);
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
+	}
+	const { pk, accountAddress } = await unlockWalletAccount();
+
+	const trx = createTrx({
+		funcName: "Complain",
+		params: [
+			{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
+			{
+				label: "plaintiff",
+				type: ParameterType.ByteArray,
+				value: utils.reverseHex(accountAddress.toHexString()),
+			},
+		],
+		contractAddress: address,
+		accountAddress,
+	});
+
+	signTrx(trx, pk);
+
+	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
+	console.log(res);
+}

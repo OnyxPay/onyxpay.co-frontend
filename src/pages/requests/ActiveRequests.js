@@ -8,6 +8,7 @@ import {
 	acceptRequest,
 	performRequest,
 	cancelAcceptedRequest,
+	complain,
 } from "../../api/requests";
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
@@ -16,6 +17,7 @@ import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
+import { wait } from "../../utils";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -231,6 +233,42 @@ class ActiveRequests extends Component {
 		}
 	}
 
+	calcTimeDiff(timestamp) {
+		const trxCreatedMs = new Date(timestamp).getTime();
+		const nowMs = new Date().getTime();
+		return nowMs - trxCreatedMs;
+	}
+
+	is24hOver(timestamp) {
+		const diff = this.calcTimeDiff(timestamp);
+		const h24Mc = 24 * 60 * 60 * 1000;
+		return diff > h24Mc;
+	}
+
+	is12hOver(timestamp) {
+		const diff = this.calcTimeDiff(timestamp);
+		const h12Mc = 12 * 60 * 60 * 1000;
+		return diff > h12Mc;
+	}
+
+	handleComplain = async (requestId, canComplain = false) => {
+		if (canComplain) {
+			try {
+				this.setState({ requestId, activeAction: "complain" });
+				await complain(requestId);
+				// await wait(10000);
+			} catch (e) {
+				console.log(e);
+			} finally {
+				this.setState({ requestId: null, activeAction: "" });
+			}
+		} else {
+			notification.info({
+				message: "A complaint can only be filed 12 hours after the selection of the performer",
+			});
+		}
+	};
+
 	render() {
 		const { user, walletAddress } = this.props;
 
@@ -268,6 +306,9 @@ class ActiveRequests extends Component {
 			{
 				title: "Actions",
 				render: (text, record, index) => {
+					const isComplainActive =
+						record.request_id === this.state.requestId && this.state.activeAction === "complain";
+
 					return (
 						<>
 							{record.status === "opened" && !record.operation_messages.length && (
@@ -284,6 +325,7 @@ class ActiveRequests extends Component {
 									btnStyle={style.btn}
 									requestId={record.request_id}
 									fetchRequests={this.fetch}
+									disabled={isComplainActive}
 								/>
 							)}
 							{this.isAgentAccepted(record.operation_messages) && record.status === "opened" && (
@@ -297,6 +339,17 @@ class ActiveRequests extends Component {
 									)}
 								>
 									Choose agent
+								</Button>
+							)}
+							{record.taker_addr && record.status !== "complained" && (
+								<Button
+									style={style.btn}
+									type="danger"
+									onClick={() => this.handleComplain(record.request_id, true)}
+									loading={isComplainActive}
+									disabled={isComplainActive}
+								>
+									Complain
 								</Button>
 							)}
 						</>
