@@ -10,7 +10,7 @@ class ReasonToRejectUpgradeModal extends Component {
 	};
 
 	render() {
-		const { visible, hideModal, handleRejectRequest } = this.props;
+		const { visible, hideModal } = this.props;
 		return (
 			<div>
 				<Modal

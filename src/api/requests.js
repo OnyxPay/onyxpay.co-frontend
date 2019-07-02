@@ -4,65 +4,67 @@ import { unlockWalletAccount, getAccount, getWallet } from "./wallet";
 import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
-import { ContractAddressError, SendRawTrxError } from "../utils/custom-error";
-import { createTrx, signTrx, sendTrx } from "./bc";
+import { ContractAddressError, SendRawTrxError, GasCompensationError } from "../utils/custom-error";
+import {
+	createTrx,
+	signTrx,
+	sendTrx,
+	createAndSignTrxViaGasCompensator,
+	addSignAndSendTrx,
+} from "./bc";
 import { timeout, TimeoutError } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
 
 export async function createRequest(formValues, requestType) {
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
-	if (!address) {
-		throw new Error("Unable to get address of RequestHolder smart-contract");
-	}
-
 	const { pk, accountAddress } = await unlockWalletAccount();
 
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
 
 	const amount = convertAmountFromStr(formValues.amount);
-	const trx = createTrx({
-		funcName: "Request",
-		params: [
-			{ label: "operationRequested", type: ParameterType.String, value: requestType },
-			{
-				label: "initiator",
-				type: ParameterType.ByteArray,
-				value: utils.reverseHex(accountAddress.toHexString()),
-			},
-			{ label: "assetId", type: ParameterType.String, value: formValues.asset_symbol },
-			{
-				label: "amount",
-				type: ParameterType.Integer,
-				value: amount,
-			},
-		],
-		contractAddress: address,
-		accountAddress,
-	});
 
-	signTrx(trx, pk);
-
-	const trx_hash = utils.reverseHex(trx.getHash());
-	const trx_timestamp = new Date().toISOString();
-	formValues.trx_hash = trx_hash;
-	formValues.trx_timestamp = trx_timestamp;
-	formValues.amount = amount;
+	const params = [
+		{ label: "operationRequested", type: ParameterType.String, value: requestType },
+		{
+			label: "initiator",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(accountAddress.toHexString()),
+		},
+		{ label: "assetId", type: ParameterType.String, value: formValues.asset_symbol },
+		{
+			label: "amount",
+			type: ParameterType.Integer,
+			value: amount,
+		},
+	];
 	let createRes;
 
 	try {
+		const serializedTrx = await createAndSignTrxViaGasCompensator(
+			"RequestHolder",
+			"Request",
+			params
+		);
+		const signedTrx = signTrx(serializedTrx, pk, true);
+
+		const trxHash = utils.reverseHex(signedTrx.getHash());
+		const trxTimestamp = new Date().toISOString();
+		formValues.trx_hash = trxHash;
+		formValues.trx_timestamp = trxTimestamp;
+		formValues.amount = amount;
+
 		createRes = await client.post(`operation-requests/${requestType}`, formValues, {
 			headers: {
 				...authHeaders,
 			},
 		});
-		const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-		console.log(`createTrx for ${requestType}`, res);
+		const res = await timeout(sendTrx(signedTrx, false, true), notifyTimeout);
 		return res;
 	} catch (e) {
-		if (e.isAxiosError) {
+		if (e instanceof GasCompensationError) {
+			throw new GasCompensationError(e.message);
+		} else if (e.isAxiosError) {
 			return handleReqError(e);
 		} else if (e instanceof SendRawTrxError) {
 			await client.put(`operation-request/${createRes.data.id}/cancel`, null, {
@@ -97,24 +99,15 @@ export async function getActiveRequests(params) {
 }
 
 export async function cancelRequest(requestId, type) {
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
-	}
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk } = await unlockWalletAccount();
+	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"RejectRequest",
+		params
+	);
 
-	const trx = createTrx({
-		funcName: "RejectRequest",
-		params: [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }],
-		contractAddress: address,
-		accountAddress,
-	});
-
-	signTrx(trx, pk);
-
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function getRejectionCounter(userId) {
@@ -150,115 +143,82 @@ export async function getRejectionCounter(userId) {
 }
 
 export async function acceptRequest(requestId) {
-	console.log(requestId);
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
-	}
 	const { pk, accountAddress } = await unlockWalletAccount();
+	const params = [
+		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
+		{
+			label: "agent",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(accountAddress.toHexString()),
+		},
+	];
+	const serializedTrx = await createAndSignTrxViaGasCompensator("RequestHolder", "Accept", params);
 
-	const trx = createTrx({
-		funcName: "Accept",
-		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: requestId }, // TODO: change id
-			{
-				label: "agent",
-				type: ParameterType.ByteArray,
-				value: utils.reverseHex(accountAddress.toHexString()),
-			},
-		],
-		contractAddress: address,
-		accountAddress,
-	});
-
-	signTrx(trx, pk);
-	console.log("trx", trx);
-
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
-}
-
-export async function chooseAgent(requestId, agentAddress) {
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
-	}
-	const { pk, accountAddress } = await unlockWalletAccount();
-
-	agentAddress = new Crypto.Address(agentAddress).toHexString();
-
-	const trx = createTrx({
-		funcName: "ChooseAgent",
-		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
-			{
-				label: "agentAddress",
-				type: ParameterType.ByteArray,
-				value: utils.reverseHex(agentAddress),
-			},
-		],
-		contractAddress: address,
-		accountAddress,
-	});
-
-	signTrx(trx, pk);
-	console.log("trx", trx);
-
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
-}
-
-export async function performRequest(requestId) {
-	console.log(requestId);
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
-	}
-	const { pk, accountAddress } = await unlockWalletAccount();
-
-	const trx = createTrx({
-		funcName: "Perform",
-		params: [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }],
-		contractAddress: address,
-		accountAddress,
-	});
-
-	signTrx(trx, pk);
-	console.log("trx", trx);
-
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function cancelAcceptedRequest(requestId) {
-	console.log(requestId);
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
-	}
 	const { pk, accountAddress } = await unlockWalletAccount();
+	const params = [
+		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
+		{
+			label: "agentAddress",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(accountAddress.toHexString()),
+		},
+	];
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"CancelAcceptation",
+		params
+	);
 
-	const trx = createTrx({
-		funcName: "CancelAcceptation",
-		params: [
-			{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
-			{
-				label: "agentAddress",
-				type: ParameterType.ByteArray,
-				value: utils.reverseHex(accountAddress.toHexString()),
-			},
-		],
-		contractAddress: address,
-		accountAddress,
-	});
+	return addSignAndSendTrx(serializedTrx, pk);
+}
 
-	signTrx(trx, pk);
-	console.log("trx", trx);
+export async function chooseAgent(requestId, agentAddress) {
+	const { pk } = await unlockWalletAccount();
+	const params = [
+		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
+		{
+			label: "agentAddress",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(new Crypto.Address(agentAddress).toHexString()),
+		},
+	];
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"ChooseAgent",
+		params
+	);
 
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
+	return addSignAndSendTrx(serializedTrx, pk);
+}
+
+export async function performRequest(requestId) {
+	const { pk } = await unlockWalletAccount();
+	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
+	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "Perform", params);
+	const serializedTrx = signTrx(trx, pk, true);
+
+	return addSignAndSendTrx(serializedTrx, pk);
+}
+
+export async function complain(requestId) {
+	const { pk, accountAddress } = await unlockWalletAccount();
+	const params = [
+		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
+		{
+			label: "plaintiff",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(accountAddress.toHexString()),
+		},
+	];
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"Complain",
+		params
+	);
+
+	return addSignAndSendTrx(serializedTrx, pk);
 }

@@ -8,6 +8,7 @@ import {
 	acceptRequest,
 	performRequest,
 	cancelAcceptedRequest,
+	complain,
 } from "../../api/requests";
 import { getMessages, hideMessage } from "../../api/operation-messages";
 import CancelRequest from "./CancelRequest";
@@ -38,6 +39,7 @@ class ActiveRequests extends Component {
 			requestId: null,
 			isSendingMessage: false,
 			operationMessages: [],
+			activeAction: "",
 		};
 	}
 
@@ -59,9 +61,9 @@ class ActiveRequests extends Component {
 
 	parseRequestType() {
 		const { match, push } = this.props;
-		if (match.params.type === ":withdraw") {
+		if (match.params.type === "withdraw") {
 			return "withdraw";
-		} else if (match.params.type === ":deposit") {
+		} else if (match.params.type === "deposit") {
 			return "deposit";
 		} else {
 			push("/active-requests");
@@ -110,11 +112,11 @@ class ActiveRequests extends Component {
 				let data;
 				if (user.role === roles.c) {
 					params.type = this.parseRequestType();
-					params.status = "pending,opened,choose";
+					params.status = "pending,opened,choose,complained";
 					data = await getActiveRequests(params);
-				} else if (user.role === "agent") {
+				} else if (user.role === roles.a) {
 					params.requestType = this.parseRequestType();
-					params.requestStatus = "opened,choose,completed";
+					params.requestStatus = "opened,choose,completed,complained";
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };
@@ -133,10 +135,11 @@ class ActiveRequests extends Component {
 	acceptRequest = async requestId => {
 		// agent accepts deposit or withdraw request
 		try {
+			this.setState({ requestId, activeAction: "accept" });
+			// await wait(10000);
 			await acceptRequest(requestId);
 			notification.success({
-				message: "Done",
-				description: "You accepted the request",
+				message: "You have accepted the request",
 			});
 			this.fetch(); // update data in table
 		} catch (e) {
@@ -149,6 +152,8 @@ class ActiveRequests extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
 		}
 	};
 
@@ -170,10 +175,11 @@ class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs request
 		try {
+			this.setState({ requestId, activeAction: "perform" });
+			// await wait(10000);
 			await performRequest(requestId);
 			notification.success({
-				message: "Done",
-				description: "You performed the request",
+				message: "You have performed the request",
 			});
 			this.fetch();
 		} catch (e) {
@@ -186,18 +192,20 @@ class ActiveRequests extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
 		}
 	};
 
 	cancelAcceptedRequest = async requestId => {
 		// agent performs request
 		try {
+			this.setState({ requestId, activeAction: "cancel_accepted_request" });
 			await cancelAcceptedRequest(requestId);
 			notification.success({
-				message: "Done",
-				description: "You canceled the request",
+				message: "You have canceled the request",
 			});
-			// update data in table
+			this.fetch();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				notification.info({
@@ -208,6 +216,55 @@ class ActiveRequests extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
+		}
+	};
+
+	getPerformerName({ taker_addr: addr, operation_messages: messages } = {}) {
+		const msg = messages.filter(msg => msg.receiver.wallet_addr === addr);
+
+		const { first_name, last_name } = msg[0].receiver;
+		if (first_name || last_name) {
+			return `${first_name} ${last_name}`;
+		} else {
+			return addr;
+		}
+	}
+
+	calcTimeDiff(timestamp) {
+		const trxCreatedMs = new Date(timestamp).getTime();
+		const nowMs = new Date().getTime();
+		return nowMs - trxCreatedMs;
+	}
+
+	is24hOver(timestamp) {
+		const diff = this.calcTimeDiff(timestamp);
+		const h24Mc = 24 * 60 * 60 * 1000;
+		return diff > h24Mc;
+	}
+
+	is12hOver(timestamp) {
+		const diff = this.calcTimeDiff(timestamp);
+		const h12Mc = 12 * 60 * 60 * 1000;
+		return diff > h12Mc;
+	}
+
+	handleComplain = async (requestId, canComplain = false) => {
+		if (canComplain) {
+			try {
+				this.setState({ requestId, activeAction: "complain" });
+				await complain(requestId);
+				// await wait(10000);
+			} catch (e) {
+				console.log(e);
+			} finally {
+				this.setState({ requestId: null, activeAction: "" });
+			}
+		} else {
+			notification.info({
+				message: "A complaint can only be filed 12 hours after the selection of the performer",
+			});
 		}
 	};
 
@@ -240,8 +297,17 @@ class ActiveRequests extends Component {
 				},
 			},
 			{
+				title: "Performer",
+				render: (text, record, index) => {
+					return record.taker_addr ? this.getPerformerName(record) : "n/a";
+				},
+			},
+			{
 				title: "Actions",
 				render: (text, record, index) => {
+					const isComplainActive =
+						record.request_id === this.state.requestId && this.state.activeAction === "complain";
+
 					return (
 						<>
 							{record.status === "opened" && !record.operation_messages.length && (
@@ -258,6 +324,7 @@ class ActiveRequests extends Component {
 									btnStyle={style.btn}
 									requestId={record.request_id}
 									fetchRequests={this.fetch}
+									disabled={isComplainActive}
 								/>
 							)}
 							{this.isAgentAccepted(record.operation_messages) && record.status === "opened" && (
@@ -281,6 +348,10 @@ class ActiveRequests extends Component {
 
 		const columnsForAgent = [
 			{
+				title: "Id",
+				dataIndex: "request.id",
+			},
+			{
 				title: "Asset",
 				dataIndex: "request.asset",
 			},
@@ -301,34 +372,65 @@ class ActiveRequests extends Component {
 				},
 			},
 			{
+				title: "Client",
+				dataIndex: "sender.addr", // TODO: change to client's name
+			},
+			{
 				title: "Actions",
 				render: (text, record, index) => {
+					const isAcceptActive =
+						record.request.request_id === this.state.requestId &&
+						this.state.activeAction === "accept";
+
+					const isPerformActive =
+						record.request.request_id === this.state.requestId &&
+						this.state.activeAction === "perform";
+
+					const isCancelAcceptedRequestActive =
+						record.request.request_id === this.state.requestId &&
+						this.state.activeAction === "cancel_accepted_request";
+
 					return (
 						<>
-							{record.status !== "accepted" && (
-								<Popconfirm
-									title="Sure to accept?"
-									onConfirm={() => this.acceptRequest(record.request.request_id)}
-								>
-									<Button type="primary" style={style.btn}>
+							{record.status !== "accepted" &&
+								(isAcceptActive ? (
+									<Button type="primary" style={style.btn} loading={true} disabled={true}>
 										Accept
 									</Button>
-								</Popconfirm>
-							)}
+								) : (
+									<Popconfirm
+										title="Sure to accept?"
+										onConfirm={() => this.acceptRequest(record.request.request_id)}
+									>
+										<Button type="primary" style={style.btn}>
+											Accept
+										</Button>
+									</Popconfirm>
+								))}
 
-							{record.status !== "accepted" && (
-								<Popconfirm
-									title="Sure to hide?"
-									onConfirm={() => this.hideRequest(record.id)} // messageId
-								>
-									<Button type="danger" style={style.btn}>
+							{record.status !== "accepted" &&
+								(isAcceptActive || isCancelAcceptedRequestActive ? (
+									<Button type="danger" style={style.btn} disabled={true}>
 										Hide
 									</Button>
-								</Popconfirm>
-							)}
+								) : (
+									<Popconfirm
+										title="Sure to hide?"
+										onConfirm={() => this.hideRequest(record.id)} // messageId
+									>
+										<Button type="danger" style={style.btn}>
+											Hide
+										</Button>
+									</Popconfirm>
+								))}
 
 							{record.request.taker_addr === walletAddress &&
-								record.request.status !== "completed" && (
+								record.request.status !== "completed" &&
+								(isPerformActive ? (
+									<Button type="primary" style={style.btn} loading={true} disabled={true}>
+										Perform
+									</Button>
+								) : (
 									<Popconfirm
 										title="Sure to perform?"
 										onConfirm={() => this.performRequest(record.request.request_id)}
@@ -337,19 +439,25 @@ class ActiveRequests extends Component {
 											Perform
 										</Button>
 									</Popconfirm>
-								)}
+								))}
 
-							{record.status === "accepted" && record.request.taker_addr !== walletAddress && (
-								<Popconfirm
-									title="Sure to cancel acceptation?"
-									cancelText="No"
-									onConfirm={() => this.cancelAcceptedRequest(record.request.request_id)}
-								>
-									<Button type="danger" style={style.btn}>
+							{record.status === "accepted" &&
+								record.request.taker_addr !== walletAddress &&
+								(isCancelAcceptedRequestActive ? (
+									<Button type="danger" style={style.btn} loading={true} disabled={true}>
 										Cancel acceptation
 									</Button>
-								</Popconfirm>
-							)}
+								) : (
+									<Popconfirm
+										title="Sure to cancel acceptation?"
+										cancelText="No"
+										onConfirm={() => this.cancelAcceptedRequest(record.request.request_id)}
+									>
+										<Button type="danger" style={style.btn}>
+											Cancel acceptation
+										</Button>
+									</Popconfirm>
+								))}
 						</>
 					);
 				},
