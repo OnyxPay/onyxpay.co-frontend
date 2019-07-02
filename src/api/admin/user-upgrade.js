@@ -1,13 +1,13 @@
-import { ParameterType, utils, Crypto } from "ontology-ts-sdk";
+import { ParameterType, utils, Parameter } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "../network";
 import { getStore } from "../../store";
 import { resolveContractAddress } from "../../redux/contracts";
 import { unlockWalletAccount } from "../wallet";
 import { createTrx, signTrx, sendTrx } from "../bc";
-import { timeout, TimeoutError } from "promise-timeout";
+import { timeout } from "promise-timeout";
 import { notifyTimeout, roles } from "../constants";
-import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
-import { gasPrice, cryptoAddress } from "../../utils/blockchain";
+import { ContractAddressError } from "../../utils/custom-error";
+import { cryptoAddress } from "../../utils/blockchain";
 import { get } from "lodash";
 
 const client = getRestClient();
@@ -46,10 +46,13 @@ export async function upgradeUser(userAccountAddress, role) {
 		funcName = "RegisterSuperAgent";
 	}
 	console.log(funcName, userAccountAddress);
+	const p1 = new Parameter("caller", ParameterType.String, "did:onx:" + accountAddress.value);
+	const p2 = new Parameter("keyNo", ParameterType.Integer, 1);
+	const p3 = new Parameter("userAddress ", ParameterType.ByteArray, userAddress);
 
 	const trx = createTrx({
 		funcName,
-		params: [{ label: "userAddress", type: ParameterType.ByteArray, value: userAddress }],
+		params: [p1, p2, p3],
 		contractAddress: address,
 		accountAddress,
 	});
@@ -78,10 +81,13 @@ export async function downgradeUser(userAccountAddress, role) {
 	}
 
 	console.log(funcName, userAccountAddress);
+	const p1 = new Parameter("caller", ParameterType.String, "did:onx:" + accountAddress.value);
+	const p2 = new Parameter("keyNo", ParameterType.Integer, 1);
+	const p3 = new Parameter("userAddress ", ParameterType.ByteArray, userAddress);
 
 	const trx = createTrx({
 		funcName,
-		params: [{ label: "userAddress", type: ParameterType.ByteArray, value: userAddress }],
+		params: [p1, p2, p3],
 		contractAddress: address,
 		accountAddress,
 	});
