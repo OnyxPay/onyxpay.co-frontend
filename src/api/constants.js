@@ -20,7 +20,7 @@ export const tempWalletPassword = {};
 export const roles = {
 	c: "user",
 	a: "agent",
-	sa: "super_agent",
+	sa: "superagent", // at back-end
 	adm: "admin",
 	sadm: "super_admin",
 };
