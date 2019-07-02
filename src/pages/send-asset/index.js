@@ -7,7 +7,7 @@ import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { sendAsset } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
-import { isBase58Address } from "../../utils/validate";
+import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr } from "../../utils/number";
 
 const { Option } = Select;
@@ -110,6 +110,8 @@ class SendAsset extends Component {
 							}
 							if (!values.amount) {
 								errors.amount = "required";
+							} else if (countDecimals(values.amount) > 8) {
+								errors.amount = "max number of decimal places is 8";
 							}
 
 							return errors;

@@ -108,3 +108,10 @@ export function isBase58Address(address) {
 export function isLatinChars(value) {
 	return /^[A-Za-z0-9]+$/i.test(value);
 }
+
+export function countDecimals(value) {
+	if (Math.floor(value) !== value) {
+		return value.toString().split(".")[1].length || 0;
+	}
+	return 0;
+}

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Table, Button } from "antd";
+import { Table } from "antd";
 import { getActiveRequests } from "../../api/requests";
 import { getMessages } from "../../api/operation-messages";
 import { roles } from "../../api/constants";

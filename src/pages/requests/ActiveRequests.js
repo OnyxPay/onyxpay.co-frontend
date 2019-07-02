@@ -16,8 +16,6 @@ import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
-import { add } from "../../redux/settlements";
-import { wait } from "../../utils";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
