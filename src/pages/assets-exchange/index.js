@@ -59,18 +59,6 @@ const assetsForSellColumns = [
 	},
 ];
 
-function countDecimals(value) {
-	if (Math.floor(value) === value) return 0;
-	if (value.toString().split(".").length !== 2) return 0;
-	return value.toString().split(".")[1].length || 0;
-}
-
-function trimFloat(value, digits) {
-	if (String(Number(value)) === String(value) && countDecimals(value) > digits)
-		return Number(value).toFixed(digits);
-	return value;
-}
-
 class AssetsExchange extends Component {
 	state = {
 		assetsForBuyData: [],
@@ -164,32 +152,30 @@ class AssetsExchange extends Component {
 	}
 
 	setAssetToBuyValues = (assetName, amount) => {
-		this.setState({ assetToBuy: { name: assetName, amount: trimFloat(amount, 8) } });
+		this.setState({ assetToBuy: { name: assetName, amount: amount } });
 	};
 
 	setAssetToSellValues = (assetName, amount) => {
-		this.setState({ assetToSell: { name: assetName, amount: trimFloat(amount, 8) } });
+		this.setState({ assetToSell: { name: assetName, amount: amount } });
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const amountToBuyInUsd = amountToBuy * buyPrice;
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToSell = amountToBuyInUsd / sellPrice;
+		const amountToSell = (amountToBuy * buyPrice) / sellPrice; // amountToBuyInUsd / sellPrice
 		return amountToSell;
 	};
 
 	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const amountToSellInUsd = amountToSell / buyPrice;
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToBuy = amountToSellInUsd * sellPrice;
+		const amountToBuy = (amountToSell * sellPrice) / buyPrice; // amountToSellInUsd * sellPrice
 		return amountToBuy;
 	};
 
@@ -367,6 +353,7 @@ class AssetsExchange extends Component {
 											value={this.state.assetToSell.amount}
 											onChange={this.handleAssetToSellAmountChange}
 											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+											style={{ width: "100%" }}
 										/>
 									</Form.Item>
 									<Form.Item
@@ -415,6 +402,7 @@ class AssetsExchange extends Component {
 											value={this.state.assetToBuy.amount}
 											onChange={this.handleAssetToBuyAmountChange}
 											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+											style={{ width: "100%" }}
 										/>
 									</Form.Item>
 									<Form.Item
