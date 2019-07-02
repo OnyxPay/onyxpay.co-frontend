@@ -2,6 +2,8 @@ import { TransactionBuilder, Parameter, Transaction } from "ontology-ts-sdk";
 import { getRestClient, getBcClient, getAuthHeaders } from "./network";
 import { SendRawTrxError, GasCompensationError } from "../utils/custom-error";
 import { gasPrice, gasLimit, cryptoAddress } from "../utils/blockchain";
+import { timeout } from "promise-timeout";
+import { notifyTimeout } from "./constants";
 
 export async function createAndSignTrxViaGasCompensator(contractName, funcName, params) {
 	const client = getRestClient({ type: "gas" });
@@ -66,4 +68,10 @@ export async function sendTrx(trx, preExec = false, waitNotify = false) {
 	} catch (e) {
 		throw new SendRawTrxError(e.message);
 	}
+}
+
+export async function addSignAndSendTrx(serializedTrx, pk) {
+	console.log("!!");
+	const signedTrx = signTrx(serializedTrx, pk, true);
+	return await timeout(sendTrx(signedTrx, false, true), notifyTimeout);
 }

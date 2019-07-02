@@ -59,8 +59,7 @@ class SendAsset extends Component {
 				await sendAsset(values);
 				formActions.resetForm();
 				notification.success({
-					message: "Done",
-					description: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
+					message: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
 						values.receiver_address
 					} address`,
 				});

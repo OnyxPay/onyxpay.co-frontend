@@ -5,7 +5,13 @@ import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
 import { ContractAddressError, SendRawTrxError, GasCompensationError } from "../utils/custom-error";
-import { createTrx, signTrx, sendTrx, createAndSignTrxViaGasCompensator } from "./bc";
+import {
+	createTrx,
+	signTrx,
+	sendTrx,
+	createAndSignTrxViaGasCompensator,
+	addSignAndSendTrx,
+} from "./bc";
 import { timeout, TimeoutError } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
@@ -35,13 +41,17 @@ export async function createRequest(formValues, requestType) {
 	let createRes;
 
 	try {
-		const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "Request", params);
-		const signed_trx = signTrx(trx, pk, true);
+		const serializedTrx = await createAndSignTrxViaGasCompensator(
+			"RequestHolder",
+			"Request",
+			params
+		);
+		const signedTrx = signTrx(serializedTrx, pk, true);
 
-		const trx_hash = utils.reverseHex(signed_trx.getHash());
-		const trx_timestamp = new Date().toISOString();
-		formValues.trx_hash = trx_hash;
-		formValues.trx_timestamp = trx_timestamp;
+		const trxHash = utils.reverseHex(signedTrx.getHash());
+		const trxTimestamp = new Date().toISOString();
+		formValues.trx_hash = trxHash;
+		formValues.trx_timestamp = trxTimestamp;
 		formValues.amount = amount;
 
 		createRes = await client.post(`operation-requests/${requestType}`, formValues, {
@@ -49,7 +59,7 @@ export async function createRequest(formValues, requestType) {
 				...authHeaders,
 			},
 		});
-		const res = await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+		const res = await timeout(sendTrx(signedTrx, false, true), notifyTimeout);
 		return res;
 	} catch (e) {
 		if (e instanceof GasCompensationError) {
@@ -91,10 +101,13 @@ export async function getActiveRequests(params) {
 export async function cancelRequest(requestId, type) {
 	const { pk } = await unlockWalletAccount();
 	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
-	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "RejectRequest", params);
-	const signed_trx = signTrx(trx, pk, true);
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"RejectRequest",
+		params
+	);
 
-	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function getRejectionCounter(userId) {
@@ -139,10 +152,9 @@ export async function acceptRequest(requestId) {
 			value: utils.reverseHex(accountAddress.toHexString()),
 		},
 	];
-	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "Accept", params);
-	const signed_trx = signTrx(trx, pk, true);
+	const serializedTrx = await createAndSignTrxViaGasCompensator("RequestHolder", "Accept", params);
 
-	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function cancelAcceptedRequest(requestId) {
@@ -155,10 +167,13 @@ export async function cancelAcceptedRequest(requestId) {
 			value: utils.reverseHex(accountAddress.toHexString()),
 		},
 	];
-	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "CancelAcceptation", params);
-	const signed_trx = signTrx(trx, pk, true);
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"CancelAcceptation",
+		params
+	);
 
-	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function chooseAgent(requestId, agentAddress) {
@@ -171,19 +186,22 @@ export async function chooseAgent(requestId, agentAddress) {
 			value: utils.reverseHex(new Crypto.Address(agentAddress).toHexString()),
 		},
 	];
-	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "ChooseAgent", params);
-	const signed_trx = signTrx(trx, pk, true);
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"ChooseAgent",
+		params
+	);
 
-	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function performRequest(requestId) {
 	const { pk } = await unlockWalletAccount();
 	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
 	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "Perform", params);
-	const signed_trx = signTrx(trx, pk, true);
+	const serializedTrx = signTrx(trx, pk, true);
 
-	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function complain(requestId) {
@@ -196,8 +214,11 @@ export async function complain(requestId) {
 			value: utils.reverseHex(accountAddress.toHexString()),
 		},
 	];
-	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "Complain", params);
-	const signed_trx = signTrx(trx, pk, true);
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"RequestHolder",
+		"Complain",
+		params
+	);
 
-	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+	return addSignAndSendTrx(serializedTrx, pk);
 }
