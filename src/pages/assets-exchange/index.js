@@ -6,7 +6,7 @@ import {
 	Card,
 	Form,
 	Icon,
-	Input,
+	InputNumber,
 	Button,
 	Select,
 	Table,
@@ -156,7 +156,6 @@ class AssetsExchange extends Component {
 	}
 
 	async componentDidUpdate(prevProps, prevState) {
-		// should asset prices also update on change?
 		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
 			await this.fillAssetsForSellData();
 			await this.setDefaultAssets();
@@ -165,11 +164,11 @@ class AssetsExchange extends Component {
 	}
 
 	setAssetToBuyValues = (assetName, amount) => {
-		this.setState({ assetToBuy: { name: assetName, amount: trimFloat(amount, 9) } });
+		this.setState({ assetToBuy: { name: assetName, amount: trimFloat(amount, 8) } });
 	};
 
 	setAssetToSellValues = (assetName, amount) => {
-		this.setState({ assetToSell: { name: assetName, amount: trimFloat(amount, 9) } });
+		this.setState({ assetToSell: { name: assetName, amount: trimFloat(amount, 8) } });
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
@@ -252,8 +251,7 @@ class AssetsExchange extends Component {
 		);
 	};
 
-	handleAssetToBuyAmountChange = async event => {
-		const { value } = event.target;
+	handleAssetToBuyAmountChange = async value => {
 		const { assetToSell, assetToBuy } = this.state;
 
 		await this.setAssetToBuyValues(assetToBuy.name, value);
@@ -264,8 +262,7 @@ class AssetsExchange extends Component {
 		this.validateForm();
 	};
 
-	handleAssetToSellAmountChange = async event => {
-		const { value } = event.target;
+	handleAssetToSellAmountChange = async value => {
 		const { assetToSell, assetToBuy } = this.state;
 
 		await this.setAssetToSellValues(assetToSell.name, value);
@@ -362,11 +359,10 @@ class AssetsExchange extends Component {
 											this.state.assetToSellAmountError.length === 0 ? "success" : "error"
 										}
 									>
-										<Input
+										<InputNumber
 											prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
-											type="number"
-											step={10 ** -9}
 											min={0}
+											precision={8}
 											placeholder="You send"
 											value={this.state.assetToSell.amount}
 											onChange={this.handleAssetToSellAmountChange}
@@ -411,11 +407,10 @@ class AssetsExchange extends Component {
 											this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
 										}
 									>
-										<Input
+										<InputNumber
 											prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
-											type="number"
-											step={10 ** -9}
 											min={0}
+											precision={8}
 											placeholder="You get"
 											value={this.state.assetToBuy.amount}
 											onChange={this.handleAssetToBuyAmountChange}
