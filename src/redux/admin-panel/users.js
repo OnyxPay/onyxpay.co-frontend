@@ -51,6 +51,10 @@ export const getUsersData = params => async dispatch => {
 	}
 };
 
+export const updateUsersData = users => dispatch => {
+	dispatch(saveUsers(users));
+};
+
 export const saveUserSettlementData = userSettlements => {
 	return { type: SAVE_USER_SETTLEMENT_DATA, payload: userSettlements };
 };
