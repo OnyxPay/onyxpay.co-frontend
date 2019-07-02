@@ -1,22 +1,38 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Card, Button, Input, Form } from "antd";
-import { TextAligner } from "./../../../components/styled";
-import { addNewAssets } from "../../../redux/admin-panel/assets";
+import { Modal, Button, Input, Form, notification, message } from "antd";
+import { TextAligner } from "../../styled";
+import { addNewAsset } from "../../../api/admin/assets";
+import Actions from "../../../redux/actions";
+import { TimeoutError } from "promise-timeout";
 
-class NewAssets extends Component {
-	handleFormSubmit = (values, { setSubmitting, resetForm }) => {
-		const { addNewAssets } = this.props;
-		const { assets_symbol } = values;
-		const { asset_name } = values;
-		addNewAssets(assets_symbol, asset_name, { setSubmitting, resetForm });
+class AddNewAsset extends Component {
+	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
+		const { hideModal, getAssetsList } = this.props;
+		const { assets_symbol, asset_name } = values;
+		try {
+			await addNewAsset(assets_symbol, asset_name);
+			getAssetsList();
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				message.error(e.message);
+			}
+		}
+		hideModal();
 	};
 
 	render() {
+		const { isModalVisible, hideModal } = this.props;
 		return (
 			<>
-				<Card>
+				<Modal title="Add asset" visible={isModalVisible} onCancel={hideModal} footer={null}>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{ assets_symbol: "", asset_name: "" }}
@@ -42,7 +58,7 @@ class NewAssets extends Component {
 								touched,
 							} = props;
 							return (
-								<form onSubmit={handleSubmit} className="ant-form-w50">
+								<form onSubmit={handleSubmit}>
 									<Form.Item
 										label="Assets symbol"
 										required
@@ -90,7 +106,7 @@ class NewAssets extends Component {
 							);
 						}}
 					</Formik>
-				</Card>
+				</Modal>
 			</>
 		);
 	}
@@ -98,5 +114,5 @@ class NewAssets extends Component {
 
 export default connect(
 	null,
-	{ addNewAssets }
-)(NewAssets);
+	{ getAssetsList: Actions.assets.getAssetsList }
+)(AddNewAsset);
