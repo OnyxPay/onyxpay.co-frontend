@@ -23,9 +23,13 @@ class AddNewAsset extends Component {
 				});
 			} else {
 				message.error(e.message);
+				setSubmitting(false);
 			}
+		} finally {
+			hideModal();
+			setSubmitting(false);
+			resetForm();
 		}
-		hideModal();
 	};
 
 	render() {
@@ -69,7 +73,6 @@ class AddNewAsset extends Component {
 											name="assets_symbol"
 											placeholder="enter assets symbol"
 											disabled={isSubmitting}
-											size="large"
 											value={values.assets_symbol}
 											onChange={handleChange}
 											onBlur={handleBlur}
@@ -85,7 +88,6 @@ class AddNewAsset extends Component {
 										<Input
 											name="asset_name"
 											placeholder="enter asset name"
-											size="large"
 											disabled={isSubmitting}
 											value={values.asset_name}
 											onChange={handleChange}

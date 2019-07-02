@@ -22,20 +22,20 @@ class AssetsList extends Component {
 		this.state = {
 			loadingBlockedAsset: false,
 			loadingIsBlockedAsset: false,
+			loadingAssetsData: true,
 			ADD_ASSETS_MODAL: false,
 			data: null,
-			pagination: { current: 1, pageSize: 20 },
+			pagination: { pageSize: 20 },
 			symbolKey: null,
 		};
 	}
 
-	static getDerivedStateFromProps(props) {
-		return { data: props.assets.map((item, i) => ({ key: i, symbol: item })) };
-	}
-
-	componentDidMount() {
+	async componentDidMount() {
 		const { getAssetsList } = this.props;
-		getAssetsList();
+		await getAssetsList();
+		this.setState({
+			loadingAssetsData: false,
+		});
 	}
 
 	showModal = type => () => {
@@ -63,10 +63,11 @@ class AssetsList extends Component {
 			} else {
 				message.error(e.message);
 			}
+		} finally {
+			this.setState({
+				loadingBlockedAsset: false,
+			});
 		}
-		this.setState({
-			loadingBlockedAsset: false,
-		});
 	};
 
 	handleCheckAssetBlocked = async (asset_symbol, key) => {
@@ -86,7 +87,13 @@ class AssetsList extends Component {
 	};
 
 	render() {
-		const { loadingIsBlockedAsset, pagination, data, loadingBlockedAsset } = this.state;
+		const {
+			loadingIsBlockedAsset,
+			pagination,
+			loadingBlockedAsset,
+			loadingAssetsData,
+		} = this.state;
+		const { data } = this.props;
 		if (!data.length) {
 			return false;
 		}
@@ -139,6 +146,7 @@ class AssetsList extends Component {
 						dataSource={data}
 						style={{ overflowX: "auto" }}
 						pagination={pagination}
+						loading={loadingAssetsData}
 					/>
 				</Card>
 
@@ -154,12 +162,10 @@ class AssetsList extends Component {
 export default connect(
 	state => {
 		return {
-			assets: state.assets.list,
+			data: state.assets.list.map((item, i) => ({ key: i, symbol: item })),
 		};
 	},
 	{
 		getAssetsList: Actions.assets.getAssetsList,
-		blockAsset,
-		isBlockedAsset,
 	}
 )(AssetsList);

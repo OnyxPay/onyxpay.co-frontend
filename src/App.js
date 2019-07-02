@@ -117,6 +117,7 @@ Users = AdminAndSuperAdmin(Users);
 ActiveRequests = All(ActiveRequests);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
+Assets = AdminAndSuperAdmin(Assets);
 
 class App extends Component {
 	componentDidMount() {
