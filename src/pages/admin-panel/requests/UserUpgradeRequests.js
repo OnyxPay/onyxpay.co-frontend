@@ -43,7 +43,10 @@ class UserUpgradeRequests extends Component {
 				loadingUpgradeUser: true,
 				request_id: id,
 			});
-			await upgradeUser(wallet_addr, role);
+			const res = await upgradeUser(wallet_addr, role);
+			if (res.Error === 0) {
+				message.success("User was successfully upgrade");
+			}
 			this.fetchRequests();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -67,7 +70,10 @@ class UserUpgradeRequests extends Component {
 				loadingDowngradeUser: true,
 				request_id: id,
 			});
-			await downgradeUser(wallet_addr, role);
+			const res = await downgradeUser(wallet_addr, role);
+			if (res.Error === 0) {
+				message.success("User was successfully downgrade");
+			}
 			this.fetchRequests();
 		} catch (e) {
 			if (e instanceof TimeoutError) {

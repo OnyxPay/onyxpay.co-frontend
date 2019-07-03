@@ -32,12 +32,13 @@ class ConfirmEmailModal extends Component {
 		const { getUserData, hideModal, startLoading } = this.props;
 		startLoading();
 		const { user, error } = await getUserData();
-		console.log(user, error);
-		if (user.status === 1) {
-			hideModal();
-			// enable dashboard
-		} else if (user.email !== null) {
-			this.changeView(1)();
+		if (!error) {
+			if (user.status === 1) {
+				hideModal();
+				// enable dashboard
+			} else if (user.email !== null) {
+				this.changeView(1)();
+			}
 		}
 	};
 
