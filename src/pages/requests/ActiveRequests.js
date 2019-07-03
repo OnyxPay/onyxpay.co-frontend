@@ -373,7 +373,10 @@ class ActiveRequests extends Component {
 			},
 			{
 				title: "Client",
-				dataIndex: "sender.addr", // TODO: change to client's name
+				dataIndex: "sender.addr",
+				render: (text, record, index) => {
+					return `${record.sender.first_name} ${record.sender.last_name}`;
+				},
 			},
 			{
 				title: "Actions",

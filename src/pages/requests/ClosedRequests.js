@@ -104,6 +104,17 @@ class ClosedRequests extends Component {
 		}
 	};
 
+	getPerformerName({ taker_addr: addr, operation_messages: messages } = {}) {
+		const msg = messages.filter(msg => msg.receiver.wallet_addr === addr);
+
+		const { first_name, last_name } = msg[0].receiver;
+		if (first_name || last_name) {
+			return `${first_name} ${last_name}`;
+		} else {
+			return addr;
+		}
+	}
+
 	render() {
 		const { user } = this.props;
 
@@ -132,6 +143,12 @@ class ClosedRequests extends Component {
 					return new Date(record.trx_timestamp).toLocaleString();
 				},
 			},
+			{
+				title: "Performer",
+				render: (text, record, index) => {
+					return record.taker_addr ? this.getPerformerName(record) : "n/a";
+				},
+			},
 		];
 
 		const columnsForAgent = [
@@ -157,6 +174,13 @@ class ClosedRequests extends Component {
 				title: "Created",
 				render: (text, record, index) => {
 					return new Date(record.request.trx_timestamp).toLocaleString();
+				},
+			},
+			{
+				title: "Client",
+				dataIndex: "sender.addr",
+				render: (text, record, index) => {
+					return `${record.sender.first_name} ${record.sender.last_name}`;
 				},
 			},
 		];
