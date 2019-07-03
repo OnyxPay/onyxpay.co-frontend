@@ -4,17 +4,12 @@ import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
 import { ContractAddressError /* SendRawTrxError */ } from "../utils/custom-error";
-import { createTrx, signTrx, sendTrx } from "./bc";
+import { createTrx, signTrx, sendTrx, createAndSignTrxViaGasCompensator } from "./bc";
 import { timeout /* TimeoutError */ } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
 
 export async function sendAsset(values) {
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("InternalRevenueService"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
-	}
 	const { pk, accountAddress } = await unlockWalletAccount();
 
 	const receiverAddress = new Crypto.Address(values.receiver_address);
@@ -34,15 +29,10 @@ export async function sendAsset(values) {
 		{ label: "amount", type: ParameterType.Integer, value: convertAmountFromStr(values.amount) },
 	];
 
-	const trx = createTrx({
-		funcName: "Send",
-		params,
-		contractAddress: address,
-		accountAddress,
-	});
-	signTrx(trx, pk);
+	const trx = await createAndSignTrxViaGasCompensator("InternalRevenueService", "Send", params);
+	const signed_trx = signTrx(trx, pk, true);
 
-	await timeout(sendTrx(trx, false, true), notifyTimeout);
+	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
 }
 
 export async function isAssetBlocked(tokenId) {

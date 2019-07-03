@@ -31,6 +31,10 @@ let Complaints = Loadable({
 let ResolvedComplaints = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints/ResolvedComplaints"),
+});
+
+let Assets = Loadable({
+	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/assets"),
 	loading: Loader,
 });
 
@@ -125,6 +129,7 @@ UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdmin(Complaints);
 ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
+Assets = AdminAndSuperAdmin(Assets);
 
 class App extends Component {
 	componentDidMount() {
@@ -139,6 +144,7 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
+					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/admin/complaints/creat" exact component={Complaints} />
 					<Route path="/admin/complaints/resolve" exact component={ResolvedComplaints} />
@@ -146,9 +152,9 @@ class App extends Component {
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/active-requests:type" exact component={ActiveRequests} />
+					<Route path="/active-requests/:type" exact component={ActiveRequests} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					<Route path="/closed-requests" exact component={ClosedRequests} />
+					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
 					<Route path="/withdraw" exact component={Withdraw} />
