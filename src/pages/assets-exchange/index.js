@@ -360,6 +360,20 @@ class AssetsExchange extends Component {
 											style={{ width: "100%" }}
 										/>
 									</Form.Item>
+									<Form.Item>
+										<Button
+											onClick={() => {
+												const { assetsForSellData, assetToSell } = this.state;
+												let asset = assetsForSellData.find(
+													record => record.name === assetToSell.name
+												);
+												this.handleAssetToSellAmountChange(asset.balance);
+											}}
+											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										>
+											Max
+										</Button>
+									</Form.Item>
 									<Form.Item
 										validateStatus={
 											this.state.assetToSellNameError.length === 0 ? "success" : "error"
@@ -409,6 +423,26 @@ class AssetsExchange extends Component {
 											style={{ width: "100%" }}
 										/>
 									</Form.Item>
+									<Form.Item>
+										<Button
+											onClick={() => {
+												const { assetsForSellData, assetToSell, assetToBuy } = this.state;
+												let asset = assetsForSellData.find(
+													record => record.name === assetToSell.name
+												);
+												this.handleAssetToBuyAmountChange(
+													this.recountAssetToBuyAmount(
+														assetToSell.name,
+														assetToBuy.name,
+														asset.balance
+													)
+												);
+											}}
+											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										>
+											Max
+										</Button>
+									</Form.Item>
 									<Form.Item
 										validateStatus={
 											this.state.assetToBuyNameError.length === 0 ? "success" : "error"
@@ -455,7 +489,7 @@ class AssetsExchange extends Component {
 								columns={assetsForSellColumns}
 								dataSource={this.state.assetsForSellData}
 								pagination={false}
-								scroll={{ y: 240 }}
+								scroll={{ y: 150 }}
 							/>
 						</Col>
 						<Col md={24} lg={11}>
@@ -463,7 +497,7 @@ class AssetsExchange extends Component {
 								columns={assetsForBuyColumns}
 								dataSource={this.state.assetsForBuyData}
 								pagination={false}
-								scroll={{ y: 240 }}
+								scroll={{ y: 150 }}
 							/>
 						</Col>
 					</Row>
