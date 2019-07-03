@@ -205,6 +205,8 @@ class SendAsset extends Component {
 														onChange={handleChange}
 														onBlur={handleBlur}
 														disabled={isSubmitting}
+														min={0.1}
+														step="any"
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
