@@ -12,7 +12,6 @@ class AddNewAsset extends Component {
 		const { hideModal, getAssetsList } = this.props;
 		const { assets_symbol, asset_name } = values;
 		try {
-			await addNewAsset(assets_symbol, asset_name);
 			const res = await addNewAsset(assets_symbol, asset_name);
 			if (res.Error === 0) {
 				message.success("Asset was successfully added");
@@ -27,10 +26,6 @@ class AddNewAsset extends Component {
 				});
 			} else {
 				message.error(e.message);
-			}
-		}
-		hideModal();
-				setSubmitting(false);
 			}
 		} finally {
 			hideModal();
