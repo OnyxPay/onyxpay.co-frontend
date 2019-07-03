@@ -27,15 +27,19 @@ class AgentMenu extends Component {
 					}
 				>
 					<Menu.Item key="/deposit:agent">
-						<Link to="/deposit:agent">Deposit / buy OnyxCash</Link>
+						<Link to="/deposit:agent">Deposit</Link>
+					</Menu.Item>
+					<Menu.Item key="/test-link">
+						<Link to="/test-link">Requests</Link>
 					</Menu.Item>
 				</SubMenu>
+
 				<SubMenu
 					key="active-requests"
 					title={
 						<span className="ant-menu-item-content">
 							<Icon type="team" />
-							<span>Requests</span>
+							<span>Customer requests</span>
 						</span>
 					}
 				>
