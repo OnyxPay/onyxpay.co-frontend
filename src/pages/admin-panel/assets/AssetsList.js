@@ -52,7 +52,10 @@ class AssetsList extends Component {
 			loadingBlockedAsset: true,
 		});
 		try {
-			await blockAsset(asset_symbol);
+			const res = await blockAsset(asset_symbol);
+			if (res.Error === 0) {
+				message.success("Asset was successfully blocked");
+			}
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				notification.info({

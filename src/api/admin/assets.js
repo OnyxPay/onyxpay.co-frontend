@@ -2,76 +2,41 @@ import { ParameterType } from "ontology-ts-sdk";
 import { getStore } from "../../store";
 import { unlockWalletAccount } from "../wallet";
 import { resolveContractAddress } from "../../redux/contracts";
-import { createTrx, signTrx, sendTrx } from "../bc";
+import { createTrx, sendTrx, createAndSignTrxViaGasCompensator, addSignAndSendTrx } from "../bc";
 import { ContractAddressError } from "../../utils/custom-error";
-import { timeout } from "promise-timeout";
-import { notifyTimeout } from "../constants";
 import { get } from "lodash";
-import { message } from "antd";
-
-const store = getStore();
 
 export async function addNewAsset(assetSymbol, assetName) {
-	const address = await store.dispatch(resolveContractAddress("Assets"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of OnyxPay smart-contract");
-	}
 	const { pk, accountAddress } = await unlockWalletAccount();
-	const funcName = "addAsset";
 
-	const trx = createTrx({
-		funcName,
-		params: [
-			{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
-			{ label: "keyNo", type: ParameterType.Integer, value: 1 },
-			{ label: "assetSymbol", type: ParameterType.String, value: assetSymbol },
-			{ label: "assetName", type: ParameterType.String, value: assetName },
-		],
-		contractAddress: address,
-		accountAddress,
-	});
+	const params = [
+		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
+		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
+		{ label: "assetSymbol", type: ParameterType.String, value: assetSymbol },
+		{ label: "assetName", type: ParameterType.String, value: assetName },
+	];
 
-	signTrx(trx, pk);
+	const serializedTrx = await createAndSignTrxViaGasCompensator("Assets", "addAsset", params);
 
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
-	if (res.Error === 0) {
-		message.success("Asset was successfully added");
-	}
-	return res;
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function blockAsset(assetSymbol) {
-	const address = await store.dispatch(resolveContractAddress("Exchange"));
-	if (!address) {
-		throw new ContractAddressError("Unable to get address of OnyxPay smart-contract");
-	}
-
 	const { pk, accountAddress } = await unlockWalletAccount();
-	const funcName = "BlockAsset";
 
-	const trx = createTrx({
-		funcName,
-		params: [
-			{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
-			{ label: "keyNo", type: ParameterType.Integer, value: 1 },
-			{ label: "assetSymbol", type: ParameterType.String, value: assetSymbol },
-		],
-		contractAddress: address,
-		accountAddress,
-	});
+	const params = [
+		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
+		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
+		{ label: "assetSymbol", type: ParameterType.String, value: assetSymbol },
+	];
 
-	signTrx(trx, pk);
+	const serializedTrx = await createAndSignTrxViaGasCompensator("Exchange", "BlockAsset", params);
 
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	console.log(res);
-	if (res.Error === 0) {
-		message.success("Asset was successfully blocked");
-	}
-	return res;
+	return addSignAndSendTrx(serializedTrx, pk);
 }
 
 export async function isBlockedAsset(assetSymbol) {
+	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("Exchange"));
 	if (!address) {
 		throw new ContractAddressError("Unable to get address of OnyxPay smart-contract");
