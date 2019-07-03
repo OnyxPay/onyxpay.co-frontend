@@ -8,6 +8,7 @@ import { getMessages } from "../../api/operation-messages";
 import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
+import { getPerformerName } from "../../utils";
 
 class ClosedRequests extends Component {
 	constructor(props) {
@@ -104,17 +105,6 @@ class ClosedRequests extends Component {
 		}
 	};
 
-	getPerformerName({ taker_addr: addr, operation_messages: messages } = {}) {
-		const msg = messages.filter(msg => msg.receiver.wallet_addr === addr);
-
-		const { first_name, last_name } = msg[0].receiver;
-		if (first_name || last_name) {
-			return `${first_name} ${last_name}`;
-		} else {
-			return addr;
-		}
-	}
-
 	render() {
 		const { user } = this.props;
 
@@ -146,7 +136,7 @@ class ClosedRequests extends Component {
 			{
 				title: "Performer",
 				render: (text, record, index) => {
-					return record.taker_addr ? this.getPerformerName(record) : "n/a";
+					return record.taker_addr ? getPerformerName(record) : "n/a";
 				},
 			},
 		];
