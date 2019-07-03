@@ -13,6 +13,10 @@ class AddNewAsset extends Component {
 		const { assets_symbol, asset_name } = values;
 		try {
 			await addNewAsset(assets_symbol, asset_name);
+			const res = await addNewAsset(assets_symbol, asset_name);
+			if (res.Error === 0) {
+				message.success("Asset was successfully added");
+			}
 			getAssetsList();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -26,6 +30,13 @@ class AddNewAsset extends Component {
 			}
 		}
 		hideModal();
+				setSubmitting(false);
+			}
+		} finally {
+			hideModal();
+			setSubmitting(false);
+			resetForm();
+		}
 	};
 
 	render() {
