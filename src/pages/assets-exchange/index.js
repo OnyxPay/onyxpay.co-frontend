@@ -28,13 +28,13 @@ const assetsForBuyColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: 80,
+		width: "calc(5em)",
 	},
 	{
 		title: "Buy price",
 		dataIndex: "buyPrice",
 		key: "buyPrice",
-		width: 80,
+		width: "calc(5em)",
 	},
 ];
 
@@ -43,19 +43,19 @@ const assetsForSellColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: 100,
+		width: "calc(5em)",
 	},
 	{
 		title: "Sell price",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
-		width: 100,
+		width: "calc(5em)",
 	},
 	{
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
-		width: 100,
+		width: "calc(5em)",
 	},
 ];
 
@@ -334,14 +334,15 @@ class AssetsExchange extends Component {
 			<>
 				<PageTitle>Assets Exchange</PageTitle>
 				<Card>
-					<Row gutter={16}>
+					<Row type="flex" justify="space-around" align="bottom">
 						<Form
 							layout="inline"
 							onSubmit={e => {
 								this.handleSubmit(e);
 							}}
+							className="exchange-form"
 						>
-							<Col md={{ span: 24 }} lg={{ span: 10 }}>
+							<Col sm={{ span: 24 }} lg={{ span: 10 }}>
 								<Col lg={{ span: 24 }}>Asset to sell:</Col>
 								<Col lg={{ span: 24 }}>
 									<Form.Item
@@ -407,7 +408,7 @@ class AssetsExchange extends Component {
 								</Col>
 							</Col>
 
-							<Col md={{ span: 24 }} lg={{ span: 10 }}>
+							<Col sm={{ span: 24 }} lg={{ span: 10 }}>
 								<Col lg={{ span: 24 }}>Asset to buy:</Col>
 								<Col lg={{ span: 24 }}>
 									<Form.Item
@@ -474,13 +475,14 @@ class AssetsExchange extends Component {
 								</Col>
 							</Col>
 
-							<Col md={{ span: 24 }} lg={{ span: 2 }}>
+							<Col sm={{ span: 24 }} lg={{ span: 2 }}>
 								<Form.Item>
 									<Button
 										type="primary"
 										htmlType="submit"
 										disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
 										loading={this.state.transactionInProcess}
+										className="exchange-submit-button"
 									>
 										Exchange
 									</Button>
@@ -490,7 +492,7 @@ class AssetsExchange extends Component {
 					</Row>
 					<Divider />
 					<Row gutter={48}>
-						<Col md={24} lg={11}>
+						<Col sm={24} md={24} lg={12}>
 							<Table
 								columns={assetsForSellColumns}
 								dataSource={this.state.assetsForSellData}
@@ -498,7 +500,7 @@ class AssetsExchange extends Component {
 								scroll={{ y: 150 }}
 							/>
 						</Col>
-						<Col md={24} lg={11}>
+						<Col sm={24} md={24} lg={12}>
 							<Table
 								columns={assetsForBuyColumns}
 								dataSource={this.state.assetsForBuyData}
