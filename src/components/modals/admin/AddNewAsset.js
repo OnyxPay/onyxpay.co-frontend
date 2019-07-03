@@ -12,6 +12,7 @@ class AddNewAsset extends Component {
 		const { hideModal, getAssetsList } = this.props;
 		const { assets_symbol, asset_name } = values;
 		try {
+			await addNewAsset(assets_symbol, asset_name);
 			const res = await addNewAsset(assets_symbol, asset_name);
 			if (res.Error === 0) {
 				message.success("Asset was successfully added");
@@ -26,6 +27,9 @@ class AddNewAsset extends Component {
 				});
 			} else {
 				message.error(e.message);
+			}
+		}
+		hideModal();
 				setSubmitting(false);
 			}
 		} finally {
@@ -76,6 +80,7 @@ class AddNewAsset extends Component {
 											name="assets_symbol"
 											placeholder="enter assets symbol"
 											disabled={isSubmitting}
+											size="large"
 											value={values.assets_symbol}
 											onChange={handleChange}
 											onBlur={handleBlur}
@@ -91,6 +96,7 @@ class AddNewAsset extends Component {
 										<Input
 											name="asset_name"
 											placeholder="enter asset name"
+											size="large"
 											disabled={isSubmitting}
 											value={values.asset_name}
 											onChange={handleChange}
