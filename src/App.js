@@ -23,6 +23,17 @@ let Investments = Loadable({
 	loading: Loader,
 });
 
+let Complaints = Loadable({
+	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints"),
+	loading: Loader,
+});
+
+let ResolvedComplaints = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints/ResolvedComplaints"),
+	loading: Loader,
+});
+
 const Login = Loadable({
 	loader: () => import(/* webpackChunkName: "Login" */ "./pages/login"),
 	loading: Loader,
@@ -42,7 +53,6 @@ let Settlement = Loadable({
 	loader: () => import(/* webpackChunkName: "Settlement" */ "./pages/settlements"),
 	loading: Loader,
 });
-
 
 let UpgradeUser = Loadable({
 	loader: () => import(/* webpackChunkName: "UpgradeUser" */ "./pages/upgrade-user"),
@@ -79,10 +89,9 @@ let Users = Loadable({
 	loading: Loader,
 });
 
-
 let Profile = Loadable({
 	loader: () => import(/* webpackChunkName: "Profile" */ "./pages/profile"),
-  	loading: Loader,
+	loading: Loader,
 });
 
 let UserUpgradeRequests = Loadable({
@@ -114,6 +123,8 @@ Users = AdminAndSuperAdmin(Users);
 ActiveRequests = All(ActiveRequests);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
+Complaints = AdminAndSuperAdmin(Complaints);
+ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
 
 class App extends Component {
 	componentDidMount() {
@@ -129,6 +140,8 @@ class App extends Component {
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
+					<Route path="/admin/complaints/creat" exact component={Complaints} />
+					<Route path="/admin/complaints/resolve" exact component={ResolvedComplaints} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
