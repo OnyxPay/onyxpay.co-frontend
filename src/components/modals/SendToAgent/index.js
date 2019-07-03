@@ -72,6 +72,8 @@ class SendToAgent extends Component {
 				} else {
 					message.error(e.message);
 				}
+			} finally {
+				formActions.setSubmitting(false);
 			}
 		}
 	};

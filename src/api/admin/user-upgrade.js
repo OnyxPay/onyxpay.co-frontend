@@ -1,13 +1,13 @@
-import { ParameterType, utils, Crypto } from "ontology-ts-sdk";
+import { ParameterType, utils } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "../network";
 import { getStore } from "../../store";
 import { resolveContractAddress } from "../../redux/contracts";
 import { unlockWalletAccount } from "../wallet";
 import { createTrx, signTrx, sendTrx } from "../bc";
-import { timeout, TimeoutError } from "promise-timeout";
+import { timeout } from "promise-timeout";
 import { notifyTimeout, roles } from "../constants";
-import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
-import { gasPrice, cryptoAddress } from "../../utils/blockchain";
+import { ContractAddressError } from "../../utils/custom-error";
+import { cryptoAddress } from "../../utils/blockchain";
 import { get } from "lodash";
 
 const client = getRestClient();
