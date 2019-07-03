@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Card, Button, Table, Icon, message, notification } from "antd";
 import Actions from "../../../redux/actions";
-import { blockAsset, isBlockedAsset } from "../../../api/admin/assets";
+import { blockAsset } from "../../../api/admin/assets";
+import { isAssetBlocked } from "../../../api/assets";
 import AddNewAsset from "../../../components/modals/admin/AddNewAsset";
 import { TimeoutError } from "promise-timeout";
 
@@ -78,11 +79,11 @@ class AssetsList extends Component {
 			symbolKey: key,
 			loadingIsBlockedAsset: true,
 		});
-		const res = await isBlockedAsset(asset_symbol);
+		const res = await isAssetBlocked(asset_symbol);
 		this.setState({
 			loadingIsBlockedAsset: false,
 		});
-		if (res === "01") {
+		if (res) {
 			message.success("Asset is blocked");
 		} else {
 			message.success("Asset isn't blocked");
