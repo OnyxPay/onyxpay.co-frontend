@@ -43,19 +43,19 @@ const assetsForSellColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: 80,
+		width: 100,
 	},
 	{
 		title: "Sell price",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
-		width: 80,
+		width: 100,
 	},
 	{
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
-		width: 80,
+		width: 100,
 	},
 ];
 
@@ -361,33 +361,36 @@ class AssetsExchange extends Component {
 										/>
 									</Form.Item>
 									<Form.Item>
-										<Button
-											onClick={() => {
-												const { assetsForSellData, assetToSell } = this.state;
-												let asset = assetsForSellData.find(
-													record => record.name === assetToSell.name
-												);
-												this.handleAssetToSellAmountChange(asset.balance);
-											}}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										<Form.Item style={{ display: "inline-block" }}>
+											<Button
+												onClick={() => {
+													const { assetsForSellData, assetToSell } = this.state;
+													let asset = assetsForSellData.find(
+														record => record.name === assetToSell.name
+													);
+													this.handleAssetToSellAmountChange(asset.balance);
+												}}
+												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+											>
+												Max
+											</Button>
+										</Form.Item>
+										<Form.Item
+											validateStatus={
+												this.state.assetToSellNameError.length === 0 ? "success" : "error"
+											}
+											style={{ display: "inline-block" }}
 										>
-											Max
-										</Button>
-									</Form.Item>
-									<Form.Item
-										validateStatus={
-											this.state.assetToSellNameError.length === 0 ? "success" : "error"
-										}
-									>
-										<Select
-											value={this.state.assetToSell.name}
-											onChange={this.handleAssetToSellChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-										>
-											{this.state.assetsForSellData.map(asset => (
-												<Option key={asset.key}>{asset.key}</Option>
-											))}
-										</Select>
+											<Select
+												value={this.state.assetToSell.name}
+												onChange={this.handleAssetToSellChange}
+												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+											>
+												{this.state.assetsForSellData.map(asset => (
+													<Option key={asset.key}>{asset.key}</Option>
+												))}
+											</Select>
+										</Form.Item>
 									</Form.Item>
 								</Col>
 								<Col lg={{ span: 24 }}>
@@ -424,39 +427,42 @@ class AssetsExchange extends Component {
 										/>
 									</Form.Item>
 									<Form.Item>
-										<Button
-											onClick={() => {
-												const { assetsForSellData, assetToSell, assetToBuy } = this.state;
-												let asset = assetsForSellData.find(
-													record => record.name === assetToSell.name
-												);
-												this.handleAssetToBuyAmountChange(
-													this.recountAssetToBuyAmount(
-														assetToSell.name,
-														assetToBuy.name,
-														asset.balance
-													)
-												);
-											}}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+										<Form.Item style={{ display: "inline-block" }}>
+											<Button
+												onClick={() => {
+													const { assetsForSellData, assetToSell, assetToBuy } = this.state;
+													let asset = assetsForSellData.find(
+														record => record.name === assetToSell.name
+													);
+													this.handleAssetToBuyAmountChange(
+														this.recountAssetToBuyAmount(
+															assetToSell.name,
+															assetToBuy.name,
+															asset.balance
+														)
+													);
+												}}
+												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+											>
+												Max
+											</Button>
+										</Form.Item>
+										<Form.Item
+											validateStatus={
+												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
+											}
+											style={{ display: "inline-block" }}
 										>
-											Max
-										</Button>
-									</Form.Item>
-									<Form.Item
-										validateStatus={
-											this.state.assetToBuyNameError.length === 0 ? "success" : "error"
-										}
-									>
-										<Select
-											value={this.state.assetToBuy.name}
-											onChange={this.handleAssetToBuyChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-										>
-											{this.state.assetsForBuyData.map(asset => (
-												<Option key={asset.key}>{asset.key}</Option>
-											))}
-										</Select>
+											<Select
+												value={this.state.assetToBuy.name}
+												onChange={this.handleAssetToBuyChange}
+												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+											>
+												{this.state.assetsForBuyData.map(asset => (
+													<Option key={asset.key}>{asset.key}</Option>
+												))}
+											</Select>
+										</Form.Item>
 									</Form.Item>
 								</Col>
 								<Col lg={{ span: 24 }}>
