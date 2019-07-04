@@ -175,6 +175,20 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
+				title: "Registration date",
+				dataIndex: "created_at",
+				key: "created_at",
+				...this.getColumnSearchProps("created_at"),
+				render: res => (res ? new Date(res).toDateString() : "n/a"),
+			},
+			{
+				title: "Role",
+				dataIndex: "role",
+				key: "role",
+				...this.getColumnSearchProps("role"),
+				render: res => (res ? res : "n/a"),
+			},
+			{
 				title: "Country",
 				dataIndex: "country",
 				key: "country",
@@ -215,6 +229,27 @@ class Users extends Component {
 				key: "status",
 				...this.getColumnSearchProps("status"),
 				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "",
+				dataIndex: "count",
+				key: "count",
+				undefined,
+				render: res => {
+					console.log(res);
+					if (res.operations_successful_count && res.operations_unsuccessful_count) {
+						return (
+							"Number of successful/unsuccessful operations: " +
+							res.operations_successful_count +
+							"/" +
+							res.operations_unsuccessful_count
+						);
+					}
+					if (res.requests_canceled_count) {
+						return "Number of canceled customer requests: " + res.requests_canceled_count;
+					}
+					return "";
+				},
 			},
 			{
 				title: "Actions",
