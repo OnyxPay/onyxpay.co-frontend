@@ -8,7 +8,7 @@ import {
 	blockUser,
 	isBlockedUser,
 	getUsersData,
-	updateUsersData,
+	updateUserStatus,
 } from "../../../redux/admin-panel/users";
 
 const styles = {
@@ -140,7 +140,7 @@ class Users extends Component {
 		}
 		await isBlockedUser(wallet_addr);
 
-		this.changeUserStatus(userId, 2);
+		updateUserStatus(userId, 2);
 
 		this.setState({
 			loadingBlockUser: false,
@@ -155,7 +155,7 @@ class Users extends Component {
 		});
 		await unblockUser(wallet_addr);
 
-		this.changeUserStatus(userId, 1);
+		updateUserStatus(userId, 1);
 
 		this.setState({
 			loadingUnblockUser: false,
@@ -163,14 +163,14 @@ class Users extends Component {
 	};
 
 	changeUserStatus = (userId, status) => {
-		const adminUsers = this.props.adminUsers.map(user => {
+		/*const adminUsers = this.props.adminUsers.map(user => {
 			if (user.user_id === userId) {
 				return { ...user, status_code: status, status: status === 1 ? "active" : "blocked" };
 			}
 			return user;
 		});
 		const { updateUsersData } = this.props;
-		updateUsersData(adminUsers);
+		updateUsersData(adminUsers);*/
 	};
 
 	render() {
@@ -305,6 +305,6 @@ export default connect(
 		blockUser,
 		isBlockedUser,
 		getUsersData,
-		updateUsersData,
+		updateUserStatus,
 	}
 )(Users);

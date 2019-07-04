@@ -10,11 +10,24 @@ import { unlockWalletAccount } from "../../api/wallet";
 const client = getRestClient();
 const SAVE_ADMIN_USERS_DATA = "SAVE_ADMIN_USERS_DATA";
 const SAVE_USER_SETTLEMENT_DATA = "USER_SETTLEMENT_DATA";
+const UPDATE_ADMIN_USER_STATUS = "UPDATE_ADMIN_USER_STATUS";
 
 export const adminUsersReducer = (state = [], action) => {
 	switch (action.type) {
 		case SAVE_ADMIN_USERS_DATA:
 			return action.payload;
+		case UPDATE_ADMIN_USER_STATUS:
+			console.log("UPDATE_ADMIN_USER_STATUS");
+			return action.payload.map(user => {
+				if (user.user_id === action.payload.userId) {
+					return {
+						...user,
+						status_code: action.payload.status,
+						status: action.payload.status === 1 ? "active" : "blocked",
+					};
+				}
+				return user;
+			});
 		default:
 			return state;
 	}
@@ -24,6 +37,18 @@ export const setUserSettlementDataReducer = (state = [], action) => {
 	switch (action.type) {
 		case SAVE_USER_SETTLEMENT_DATA:
 			return action.payload;
+		case UPDATE_ADMIN_USER_STATUS:
+			console.log("UPDATE_ADMIN_USER_STATUS");
+			return action.payload.map(user => {
+				if (user.user_id === action.payload.userId) {
+					return {
+						...user,
+						status_code: action.payload.status,
+						status: action.payload.status === 1 ? "active" : "blocked",
+					};
+				}
+				return user;
+			});
 		default:
 			return state;
 	}
@@ -51,8 +76,9 @@ export const getUsersData = params => async dispatch => {
 	}
 };
 
-export const updateUsersData = users => dispatch => {
-	dispatch(saveUsers(users));
+export const updateUserStatus = (userId, status) => {
+	console.log("updateUserStatus");
+	return { type: UPDATE_ADMIN_USER_STATUS, payload: { userId, status } };
 };
 
 export const saveUserSettlementData = userSettlements => {
