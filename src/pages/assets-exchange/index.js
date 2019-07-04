@@ -404,7 +404,7 @@ class AssetsExchange extends Component {
 											</Form.Item>
 										</Col>
 									</Col>
-									<Col xm={{ span: 24 }}>
+									<Col lg={{ span: 24 }}>
 										{this.state.assetToSellNameError.length !== 0 ? (
 											<Tag color="red">{this.state.assetToSellNameError}</Tag>
 										) : (
@@ -489,7 +489,7 @@ class AssetsExchange extends Component {
 											</Form.Item>
 										</Col>
 									</Col>
-									<Col xm={{ span: 24 }}>
+									<Col xl={{ span: 24 }}>
 										{this.state.assetToBuyNameError.length !== 0 ? (
 											<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
 										) : (
