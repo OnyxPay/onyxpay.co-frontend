@@ -7,3 +7,17 @@
 		margin-top: 1.7em;
 	}
 }
+
+@media (max-width: 990px) {
+	.exchange-form {
+		.form-divider {
+			padding-top: 1.7em;
+		}
+	}
+
+	.exchange-tables {
+		.table-divider {
+			padding-top: 3em;
+		}
+	}
+}

@@ -342,7 +342,7 @@ class AssetsExchange extends Component {
 							}}
 							className="exchange-form"
 						>
-							<Col sm={{ span: 24 }} lg={{ span: 10 }}>
+							<Col md={{ span: 24 }} lg={{ span: 10 }}>
 								<Col lg={{ span: 24 }}>Asset to sell:</Col>
 								<Col lg={{ span: 24 }}>
 									<Form.Item
@@ -408,7 +408,11 @@ class AssetsExchange extends Component {
 								</Col>
 							</Col>
 
-							<Col sm={{ span: 24 }} lg={{ span: 10 }}>
+							<Col md={{ span: 24 }} lg={{ span: 0 }}>
+								<div className="form-divider" />
+							</Col>
+
+							<Col md={{ span: 24 }} lg={{ span: 10 }}>
 								<Col lg={{ span: 24 }}>Asset to buy:</Col>
 								<Col lg={{ span: 24 }}>
 									<Form.Item
@@ -491,8 +495,8 @@ class AssetsExchange extends Component {
 						</Form>
 					</Row>
 					<Divider />
-					<Row gutter={48}>
-						<Col sm={24} md={24} lg={12}>
+					<Row gutter={48} className="exchange-tables">
+						<Col md={24} lg={12}>
 							<Table
 								columns={assetsForSellColumns}
 								dataSource={this.state.assetsForSellData}
@@ -500,7 +504,12 @@ class AssetsExchange extends Component {
 								scroll={{ y: 150 }}
 							/>
 						</Col>
-						<Col sm={24} md={24} lg={12}>
+
+						<Col md={{ span: 24 }} lg={{ span: 0 }}>
+							<div className="table-divider" />
+						</Col>
+
+						<Col md={24} lg={12}>
 							<Table
 								columns={assetsForBuyColumns}
 								dataSource={this.state.assetsForBuyData}
