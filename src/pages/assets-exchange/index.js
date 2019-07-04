@@ -387,11 +387,13 @@ class AssetsExchange extends Component {
 												this.state.assetToSellNameError.length === 0 ? "success" : "error"
 											}
 											style={{ display: "inline-block" }}
+											className="asset-exchange-select-form-item"
 										>
 											<Select
 												value={this.state.assetToSell.name}
 												onChange={this.handleAssetToSellChange}
 												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+												className="asset-exchange-select"
 											>
 												{this.state.assetsForSellData.map(asset => (
 													<Option key={asset.key}>{asset.key}</Option>
@@ -466,11 +468,13 @@ class AssetsExchange extends Component {
 												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
 											}
 											style={{ display: "inline-block" }}
+											className="asset-exchange-select-form-item"
 										>
 											<Select
 												value={this.state.assetToBuy.name}
 												onChange={this.handleAssetToBuyChange}
 												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+												className="asset-exchange-select"
 											>
 												{this.state.assetsForBuyData.map(asset => (
 													<Option key={asset.key}>{asset.key}</Option>
@@ -509,7 +513,7 @@ class AssetsExchange extends Component {
 									columns={assetsForSellColumns}
 									dataSource={this.state.assetsForSellData}
 									pagination={false}
-									scroll={{ y: 150 }}
+									scroll={{ y: "16em" }}
 								/>
 							</Col>
 
@@ -522,7 +526,7 @@ class AssetsExchange extends Component {
 									columns={assetsForBuyColumns}
 									dataSource={this.state.assetsForBuyData}
 									pagination={false}
-									scroll={{ y: 150 }}
+									scroll={{ y: "16em" }}
 								/>
 							</Col>
 						</Row>

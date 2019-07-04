@@ -8,18 +8,19 @@
 	}
 }
 
-.exchange-page {
-	.exchange-card-wrapper {
-		// background-color: antiquewhite;
-		// padding: 0px;
-		// margin: 0px;
-	}
-}
-
 @media (max-width: 990px) {
 	.exchange-form {
 		.form-divider {
 			padding-top: 1.7em;
+		}
+
+		.asset-exchange-select-form-item {
+			background-color: aqua;
+			width: 100%;
+		}
+
+		.asset-exchange-select {
+			width: 100%;
 		}
 	}
 
