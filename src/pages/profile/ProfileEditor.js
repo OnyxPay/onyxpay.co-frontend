@@ -25,7 +25,7 @@ function checkNameField(value) {
 	if (!value) {
 		return "required";
 	} else if (!isLatinChars(value)) {
-		return "only Latin letters are required";
+		return "only Latin characters are accepted";
 	}
 }
 
@@ -48,7 +48,7 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<StyledInput
 					value={user.firstName}
 					updateValue={ref => updateProfile({ firstName: ref.state.value }, getUserData)}
-					checkValue={ref => checkNameField(ref.state.value)}
+					validateValue={ref => checkNameField(ref.state.value)}
 				/>
 			</div>
 			<div className="profile-editor-item">
@@ -56,7 +56,7 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<StyledInput
 					value={user.lastName}
 					updateValue={ref => updateProfile({ lastName: ref.state.value }, getUserData)}
-					checkValue={ref => checkNameField(ref.state.value)}
+					validateValue={ref => checkNameField(ref.state.value)}
 				/>
 			</div>
 			<div className="profile-editor-item">
@@ -82,7 +82,7 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 						updateProfile({ email: ref.state.value }, getUserData);
 						setConfirmEmailVisible(true);
 					}}
-					checkValue={ref => checkEmail(ref, user.email)}
+					validateValue={ref => checkEmail(ref, user.email)}
 				/>
 			</div>
 			<div className="profile-editor-item">

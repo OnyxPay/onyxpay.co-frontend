@@ -65,7 +65,7 @@ export default function StyledInput(props) {
 						setContentError(undefined);
 					},
 					() => {
-						const status = props.checkValue(inputRef);
+						const status = props.validateValue(inputRef);
 						setContentError(status);
 						return !status;
 					}
