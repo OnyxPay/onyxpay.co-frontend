@@ -6,7 +6,7 @@ import { getTelegramBotLink, confirmEmail, changeProfile } from "../../api/profi
 import StyledSelect from "./StyledSelect";
 import StyledInput from "./StyledInput";
 import Actions from "../../redux/actions";
-import { isEmailValid } from "../../utils/validate";
+import { isEmailValid, isLatinChars } from "../../utils/validate";
 
 const { Option } = Select;
 
@@ -21,18 +21,23 @@ function updateProfile(data, getUserData) {
 	);
 }
 
-function changeEmail(inputRef, prevEmail, getUserData) {
+function checkName(value) {
+	if (!value) {
+		return "required";
+	} else if (!isLatinChars(value)) {
+		return "Only Latin letters are required";
+	}
+}
+
+function checkEmail(inputRef, prevEmail) {
 	const newEmail = inputRef.state.value;
-	if (!isEmailValid(newEmail)) {
-		message.warn("Email is not valid", 5);
-		return false;
+	if (!inputRef.state.value) {
+		return "required";
+	} else if (!isEmailValid(inputRef.state.value)) {
+		return "Email is not valid";
+	} else if (newEmail === prevEmail) {
+		return "Email is not changed";
 	}
-	if (newEmail === prevEmail) {
-		message.warn("Email is not changed", 5);
-		return false;
-	}
-	updateProfile({ email: newEmail }, getUserData);
-	return true;
 }
 
 function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, getUserData) {
@@ -43,6 +48,7 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<StyledInput
 					value={user.firstName}
 					updateValue={ref => updateProfile({ firstName: ref.state.value }, getUserData)}
+					checkValue={ref => checkName(ref.state.value)}
 				/>
 			</div>
 			<div className="profile-editor-item">
@@ -50,6 +56,7 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<StyledInput
 					value={user.lastName}
 					updateValue={ref => updateProfile({ lastName: ref.state.value }, getUserData)}
+					checkValue={ref => checkName(ref.state.value)}
 				/>
 			</div>
 			<div className="profile-editor-item">
@@ -66,10 +73,10 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<StyledInput
 					value={user.email}
 					updateValue={ref => {
-						if (changeEmail(ref, user.email, getUserData)) {
-							setConfirmEmailVisible(true);
-						}
+						updateProfile({ email: ref.state.value }, getUserData);
+						setConfirmEmailVisible(true);
 					}}
+					checkValue={ref => checkEmail(ref, user.email)}
 				/>
 			</div>
 			<div className="profile-editor-item">
