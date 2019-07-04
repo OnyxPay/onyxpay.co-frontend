@@ -6,6 +6,7 @@ import {
 	Card,
 	Form,
 	Icon,
+	Input,
 	InputNumber,
 	Button,
 	Select,
@@ -332,50 +333,55 @@ class AssetsExchange extends Component {
 	render() {
 		return (
 			<>
-				<PageTitle>Assets Exchange</PageTitle>
-				<Card>
-					<Row type="flex" justify="space-around" align="bottom">
-						<Form
-							layout="inline"
-							onSubmit={e => {
-								this.handleSubmit(e);
-							}}
-							className="exchange-form"
-						>
-							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Col lg={{ span: 24 }}>Asset to sell:</Col>
-								<Col lg={{ span: 24 }}>
-									<Form.Item
-										validateStatus={
-											this.state.assetToSellAmountError.length === 0 ? "success" : "error"
-										}
-									>
-										<InputNumber
-											prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
-											min={0}
-											precision={8}
-											placeholder="You send"
-											value={this.state.assetToSell.amount}
-											onChange={this.handleAssetToSellAmountChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-											style={{ width: "100%" }}
-										/>
-									</Form.Item>
-									<Form.Item>
+				<div class="exchange-page">
+					<PageTitle>Assets Exchange</PageTitle>
+					<Card className="exchange-card-wrapper">
+						<Row type="flex" justify="space-around" align="bottom">
+							<Form
+								layout="inline"
+								onSubmit={e => {
+									this.handleSubmit(e);
+								}}
+								className="exchange-form"
+							>
+								<Col md={{ span: 24 }} lg={{ span: 10 }}>
+									<Col lg={{ span: 24 }}>Asset to sell:</Col>
+									<Col lg={{ span: 24 }}>
 										<Form.Item style={{ display: "inline-block" }}>
-											<Button
-												onClick={() => {
-													const { assetsForSellData, assetToSell } = this.state;
-													let asset = assetsForSellData.find(
-														record => record.name === assetToSell.name
-													);
-													this.handleAssetToSellAmountChange(asset.balance);
-												}}
-												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-											>
-												Max
-											</Button>
+											<Input.Group compact style={{ display: "flex" }}>
+												<Form.Item
+													validateStatus={
+														this.state.assetToSellAmountError.length === 0 ? "success" : "error"
+													}
+												>
+													<InputNumber
+														prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
+														min={0}
+														precision={8}
+														placeholder="You send"
+														value={this.state.assetToSell.amount}
+														onChange={this.handleAssetToSellAmountChange}
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+														style={{ width: "100%" }}
+													/>
+												</Form.Item>
+												<Form.Item>
+													<Button
+														onClick={() => {
+															const { assetsForSellData, assetToSell } = this.state;
+															let asset = assetsForSellData.find(
+																record => record.name === assetToSell.name
+															);
+															this.handleAssetToSellAmountChange(asset.balance);
+														}}
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+													>
+														Max
+													</Button>
+												</Form.Item>
+											</Input.Group>
 										</Form.Item>
+
 										<Form.Item
 											validateStatus={
 												this.state.assetToSellNameError.length === 0 ? "success" : "error"
@@ -392,66 +398,69 @@ class AssetsExchange extends Component {
 												))}
 											</Select>
 										</Form.Item>
-									</Form.Item>
+									</Col>
+									<Col lg={{ span: 24 }}>
+										{this.state.assetToSellNameError.length !== 0 ? (
+											<Tag color="red">{this.state.assetToSellNameError}</Tag>
+										) : (
+											""
+										)}
+										{this.state.assetToSellAmountError.length !== 0 ? (
+											<Tag color="red"> {this.state.assetToSellAmountError}</Tag>
+										) : (
+											""
+										)}
+									</Col>
 								</Col>
-								<Col lg={{ span: 24 }}>
-									{this.state.assetToSellNameError.length !== 0 ? (
-										<Tag color="red">{this.state.assetToSellNameError}</Tag>
-									) : (
-										""
-									)}
-									{this.state.assetToSellAmountError.length !== 0 ? (
-										<Tag color="red"> {this.state.assetToSellAmountError}</Tag>
-									) : (
-										""
-									)}
+
+								<Col md={{ span: 24 }} lg={{ span: 0 }}>
+									<div className="form-divider" />
 								</Col>
-							</Col>
 
-							<Col md={{ span: 24 }} lg={{ span: 0 }}>
-								<div className="form-divider" />
-							</Col>
-
-							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Col lg={{ span: 24 }}>Asset to buy:</Col>
-								<Col lg={{ span: 24 }}>
-									<Form.Item
-										validateStatus={
-											this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
-										}
-									>
-										<InputNumber
-											prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
-											min={0}
-											precision={8}
-											placeholder="You get"
-											value={this.state.assetToBuy.amount}
-											onChange={this.handleAssetToBuyAmountChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-											style={{ width: "100%" }}
-										/>
-									</Form.Item>
-									<Form.Item>
+								<Col md={{ span: 24 }} lg={{ span: 10 }}>
+									<Col lg={{ span: 24 }}>Asset to buy:</Col>
+									<Col lg={{ span: 24 }}>
 										<Form.Item style={{ display: "inline-block" }}>
-											<Button
-												onClick={() => {
-													const { assetsForSellData, assetToSell, assetToBuy } = this.state;
-													let asset = assetsForSellData.find(
-														record => record.name === assetToSell.name
-													);
-													this.handleAssetToBuyAmountChange(
-														this.recountAssetToBuyAmount(
-															assetToSell.name,
-															assetToBuy.name,
-															asset.balance
-														)
-													);
-												}}
-												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-											>
-												Max
-											</Button>
+											<Input.Group compact style={{ display: "flex" }}>
+												<Form.Item
+													validateStatus={
+														this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
+													}
+												>
+													<InputNumber
+														prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
+														min={0}
+														precision={8}
+														placeholder="You get"
+														value={this.state.assetToBuy.amount}
+														onChange={this.handleAssetToBuyAmountChange}
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+														style={{ width: "100%" }}
+													/>
+												</Form.Item>
+												<Form.Item>
+													<Button
+														onClick={() => {
+															const { assetsForSellData, assetToSell, assetToBuy } = this.state;
+															let asset = assetsForSellData.find(
+																record => record.name === assetToSell.name
+															);
+															this.handleAssetToBuyAmountChange(
+																this.recountAssetToBuyAmount(
+																	assetToSell.name,
+																	assetToBuy.name,
+																	asset.balance
+																)
+															);
+														}}
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+													>
+														Max
+													</Button>
+												</Form.Item>
+											</Input.Group>
 										</Form.Item>
+
 										<Form.Item
 											validateStatus={
 												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
@@ -468,57 +477,57 @@ class AssetsExchange extends Component {
 												))}
 											</Select>
 										</Form.Item>
+									</Col>
+									<Col lg={{ span: 24 }}>
+										{this.state.assetToBuyNameError.length !== 0 ? (
+											<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
+										) : (
+											""
+										)}
+									</Col>
+								</Col>
+
+								<Col sm={{ span: 24 }} lg={{ span: 2 }}>
+									<Form.Item>
+										<Button
+											type="primary"
+											htmlType="submit"
+											disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
+											loading={this.state.transactionInProcess}
+											className="exchange-submit-button"
+										>
+											Exchange
+										</Button>
 									</Form.Item>
 								</Col>
-								<Col lg={{ span: 24 }}>
-									{this.state.assetToBuyNameError.length !== 0 ? (
-										<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
-									) : (
-										""
-									)}
-								</Col>
+							</Form>
+						</Row>
+						<Divider />
+						<Row gutter={48} className="exchange-tables">
+							<Col md={24} lg={12}>
+								<Table
+									columns={assetsForSellColumns}
+									dataSource={this.state.assetsForSellData}
+									pagination={false}
+									scroll={{ y: 150 }}
+								/>
 							</Col>
 
-							<Col sm={{ span: 24 }} lg={{ span: 2 }}>
-								<Form.Item>
-									<Button
-										type="primary"
-										htmlType="submit"
-										disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
-										loading={this.state.transactionInProcess}
-										className="exchange-submit-button"
-									>
-										Exchange
-									</Button>
-								</Form.Item>
+							<Col md={{ span: 24 }} lg={{ span: 0 }}>
+								<div className="table-divider" />
 							</Col>
-						</Form>
-					</Row>
-					<Divider />
-					<Row gutter={48} className="exchange-tables">
-						<Col md={24} lg={12}>
-							<Table
-								columns={assetsForSellColumns}
-								dataSource={this.state.assetsForSellData}
-								pagination={false}
-								scroll={{ y: 150 }}
-							/>
-						</Col>
 
-						<Col md={{ span: 24 }} lg={{ span: 0 }}>
-							<div className="table-divider" />
-						</Col>
-
-						<Col md={24} lg={12}>
-							<Table
-								columns={assetsForBuyColumns}
-								dataSource={this.state.assetsForBuyData}
-								pagination={false}
-								scroll={{ y: 150 }}
-							/>
-						</Col>
-					</Row>
-				</Card>
+							<Col md={24} lg={12}>
+								<Table
+									columns={assetsForBuyColumns}
+									dataSource={this.state.assetsForBuyData}
+									pagination={false}
+									scroll={{ y: 150 }}
+								/>
+							</Col>
+						</Row>
+					</Card>
+				</div>
 			</>
 		);
 	}
