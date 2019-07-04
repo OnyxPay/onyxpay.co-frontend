@@ -8,25 +8,29 @@
 	}
 }
 
-@media (max-width: 990px) {
+@media (max-width: 1200px) {
 	.exchange-form {
 		.form-divider {
 			padding-top: 1.7em;
-		}
-
-		.asset-exchange-select-form-item {
-			background-color: aqua;
-			width: 100%;
-		}
-
-		.asset-exchange-select {
-			width: 100%;
 		}
 	}
 
 	.exchange-tables {
 		.table-divider {
 			padding-top: 3em;
+		}
+	}
+}
+
+@media (max-width: 576px) {
+	.exchange-form {
+		.asset-exchange-select-form-item {
+			background-color: aqua;
+			width: 100%;
+		}
+
+		.asset-exchange-select {
+			width: 91%;
 		}
 	}
 }
