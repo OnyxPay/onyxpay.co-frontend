@@ -64,7 +64,13 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<Input
 					value={user.phone}
 					className="profile-editor-input"
-					suffix={<Icon type="edit" style={{ color: "rgba(0,0,0,.45)" }} />}
+					suffix={
+						<Icon
+							type="edit"
+							style={{ color: "rgba(0,0,0,.45)" }}
+							onClick={() => setUpdatePhoneVisible(true)}
+						/>
+					}
 					onChange={() => setUpdatePhoneVisible(true)}
 				/>
 			</div>
