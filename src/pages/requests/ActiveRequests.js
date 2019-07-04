@@ -17,6 +17,7 @@ import { roles, operationMessageStatus } from "../../api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
+import Countdown from "./Countdown";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -27,6 +28,9 @@ const style = {
 		marginRight: 8,
 	},
 };
+
+const h12Mc = 12 * 60 * 60 * 1000;
+const h24Mc = 24 * 60 * 60 * 1000;
 
 class ActiveRequests extends Component {
 	constructor(props) {
@@ -240,13 +244,11 @@ class ActiveRequests extends Component {
 
 	is24hOver(timestamp) {
 		const diff = this.calcTimeDiff(timestamp);
-		const h24Mc = 24 * 60 * 60 * 1000;
 		return diff > h24Mc;
 	}
 
 	is12hOver(timestamp) {
 		const diff = this.calcTimeDiff(timestamp);
-		const h12Mc = 12 * 60 * 60 * 1000;
 		return diff > h12Mc;
 	}
 
@@ -300,6 +302,16 @@ class ActiveRequests extends Component {
 				title: "Performer",
 				render: (text, record, index) => {
 					return record.taker_addr ? this.getPerformerName(record) : "n/a";
+				},
+			},
+			{
+				title: "Countdown",
+				render: (text, record, index) => {
+					return record.taker_addr && record.choose_timestamp ? (
+						<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
+					) : (
+						"n/a"
+					);
 				},
 			},
 			{
@@ -374,6 +386,18 @@ class ActiveRequests extends Component {
 			{
 				title: "Client",
 				dataIndex: "sender.addr", // TODO: change to client's name
+			},
+			{
+				title: "Countdown",
+				render: (text, record, index) => {
+					return record.request.taker_addr &&
+						record.request.taker_addr === walletAddress &&
+						record.request.choose_timestamp ? (
+						<Countdown date={new Date(record.request.choose_timestamp).getTime() + h24Mc} />
+					) : (
+						"n/a"
+					);
+				},
 			},
 			{
 				title: "Actions",
