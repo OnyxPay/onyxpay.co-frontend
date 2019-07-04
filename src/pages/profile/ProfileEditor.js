@@ -21,11 +21,11 @@ function updateProfile(data, getUserData) {
 	);
 }
 
-function checkName(value) {
+function checkNameField(value) {
 	if (!value) {
 		return "required";
 	} else if (!isLatinChars(value)) {
-		return "Only Latin letters are required";
+		return "only Latin letters are required";
 	}
 }
 
@@ -48,7 +48,7 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<StyledInput
 					value={user.firstName}
 					updateValue={ref => updateProfile({ firstName: ref.state.value }, getUserData)}
-					checkValue={ref => checkName(ref.state.value)}
+					checkValue={ref => checkNameField(ref.state.value)}
 				/>
 			</div>
 			<div className="profile-editor-item">
@@ -56,7 +56,7 @@ function getProfileForm(user, setUpdatePhoneVisible, setConfirmEmailVisible, get
 				<StyledInput
 					value={user.lastName}
 					updateValue={ref => updateProfile({ lastName: ref.state.value }, getUserData)}
-					checkValue={ref => checkName(ref.state.value)}
+					checkValue={ref => checkNameField(ref.state.value)}
 				/>
 			</div>
 			<div className="profile-editor-item">
