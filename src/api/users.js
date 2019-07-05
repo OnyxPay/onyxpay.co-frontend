@@ -5,7 +5,7 @@ export async function searchUsers(params) {
 
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("admin/users", {
+		const { data } = await client.get("users", {
 			headers: {
 				...authHeaders,
 			},
@@ -15,7 +15,6 @@ export async function searchUsers(params) {
 		});
 		return data;
 	} catch (error) {
-		console.log(error);
 		return handleReqError(error);
 	}
 }
