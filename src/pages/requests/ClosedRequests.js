@@ -8,6 +8,7 @@ import { getMessages } from "../../api/operation-messages";
 import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
+import { PageTitle } from "../../components/styled";
 
 class ClosedRequests extends Component {
 	constructor(props) {
@@ -104,6 +105,16 @@ class ClosedRequests extends Component {
 		}
 	};
 
+	renderTitle() {
+		const { user } = this.props;
+		const requestType = this.parseRequestType();
+		if (user.role === roles.c) {
+			return <PageTitle>Active customer {requestType} requests</PageTitle>;
+		} else if (user.role === roles.a) {
+			return <PageTitle>Closed customer {requestType} requests</PageTitle>;
+		}
+	}
+
 	render() {
 		const { user } = this.props;
 
@@ -163,6 +174,7 @@ class ClosedRequests extends Component {
 
 		return (
 			<>
+				{this.renderTitle()}
 				<Table
 					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}
