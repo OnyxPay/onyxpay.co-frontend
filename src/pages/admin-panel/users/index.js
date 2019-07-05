@@ -210,6 +210,23 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
+				title: "Balances",
+				dataIndex: "assets_balances",
+				key: "assets_balances",
+				...this.getColumnSearchProps("assets_balances"),
+				render: res => {
+					let balances = "";
+					for (let asset in res) {
+						if (!res.hasOwnProperty(asset)) {
+							continue;
+						}
+						balances += asset + ": " + res[asset] + "\n";
+					}
+
+					return balances;
+				},
+			},
+			{
 				title: "Chat id",
 				dataIndex: "chat_id",
 				key: "chat_id",
@@ -231,22 +248,32 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "",
+				title: "Total remuneration",
+				dataIndex: "remuneration",
+				key: "remuneration",
+				...this.getColumnSearchProps("remuneration"),
+				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Other data",
 				dataIndex: "count",
 				key: "count",
 				undefined,
 				render: res => {
 					console.log(res);
-					if (res.operations_successful_count && res.operations_unsuccessful_count) {
+					if (
+						res.operations_successful !== undefined &&
+						res.operations_unsuccessful !== undefined
+					) {
 						return (
 							"Number of successful/unsuccessful operations: " +
-							res.operations_successful_count +
+							res.operations_successful +
 							"/" +
-							res.operations_unsuccessful_count
+							res.operations_unsuccessful
 						);
 					}
-					if (res.requests_canceled_count) {
-						return "Number of canceled customer requests: " + res.requests_canceled_count;
+					if (res.requests_canceled !== undefined) {
+						return "Number of canceled customer requests: " + res.requests_canceled;
 					}
 					return "";
 				},
