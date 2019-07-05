@@ -41,3 +41,37 @@ export async function exchangeAssets(values) {
 
 	return await addSignAndSendTrx(serializedTrx, pk);
 }
+
+export async function exchangeAssetsForOnyxCash(values) {
+	const { pk } = await unlockWalletAccount();
+	const walletDecoded = getWallet(values.wallet);
+	const account = getAccount(walletDecoded);
+
+	//make transaction
+	const params = [
+		{
+			label: "tokenId",
+			type: ParameterType.String,
+			value: values.tokenId,
+		},
+		{
+			label: "amount",
+			type: ParameterType.Integer,
+			value: Math.round(values.amount * 10 ** 8),
+		},
+		{
+			label: "agent",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(account.address.toHexString()),
+		},
+	];
+	console.log(params);
+
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"Exchange",
+		values.operationType === "buy" ? "Buy" : "Sell",
+		params
+	);
+
+	return await addSignAndSendTrx(serializedTrx, pk);
+}

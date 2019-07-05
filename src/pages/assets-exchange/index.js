@@ -20,8 +20,9 @@ import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";
 import { TimeoutError } from "promise-timeout";
 import { SendRawTrxError } from "../../utils/custom-error";
-import { exchangeAssets } from "../../api/exchange";
+import { exchangeAssets, exchangeAssetsForOnyxCash } from "../../api/exchange";
 import { isAssetBlocked } from "../../api/assets";
+import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 const { Option } = Select;
 
 const assetsForBuyColumns = [
@@ -82,9 +83,16 @@ class AssetsExchange extends Component {
 	};
 
 	fillAssetsForBuyData = async () => {
-		const { exchangeRates } = this.props;
+		const { exchangeRates, user } = this.props;
 
 		let assetsForBuyData = [];
+		if (user.role === roles.a || user.role === roles.sa) {
+			assetsForBuyData.push({
+				key: onyxCashSymbol,
+				name: onyxCashSymbol,
+				buyPrice: 1,
+			});
+		}
 		for (let record of exchangeRates) {
 			assetsForBuyData.push({
 				key: record.symbol,
@@ -98,11 +106,19 @@ class AssetsExchange extends Component {
 	};
 
 	fillAssetsForSellData = async () => {
-		const { assets } = this.props.balance;
-		const { exchangeRates } = this.props;
+		const { assets, onyxCash } = this.props.balance;
+		const { exchangeRates, user } = this.props;
 
 		// get all assets, in which user's balance is greater than 0
 		let assetsForSellData = [];
+		if (user.role === roles.a || user.role === roles.sa) {
+			assetsForSellData.push({
+				key: onyxCashSymbol,
+				name: onyxCashSymbol,
+				balance: convertAmountToStr(onyxCash, OnyxCashDecimals),
+				sellPrice: 1,
+			});
+		}
 		for (let record of assets) {
 			let assetRatesData = exchangeRates.find(ratesRecord => ratesRecord.symbol === record.symbol);
 			assetsForSellData.push({
@@ -305,12 +321,29 @@ class AssetsExchange extends Component {
 		console.log("asset to buy", assetToBuy);
 		console.log("asset to sell", assetToSell);
 		try {
-			let result = await exchangeAssets({
-				assetToSellName: assetToSell.name,
-				assetToBuyName: assetToBuy.name,
-				amountToBuy: assetToBuy.amount,
-				wallet: wallet,
-			});
+			let result = {};
+			if (assetToSell.name === onyxCashSymbol) {
+				result = await exchangeAssetsForOnyxCash({
+					tokenId: assetToBuy.name,
+					amount: assetToBuy.amount,
+					operationType: "buy",
+					wallet: wallet,
+				});
+			} else if (assetToBuy.name === onyxCashSymbol) {
+				result = await exchangeAssetsForOnyxCash({
+					tokenId: assetToSell.name,
+					amount: assetToSell.amount,
+					operationType: "sell",
+					wallet: wallet,
+				});
+			} else {
+				result = await exchangeAssets({
+					assetToSellName: assetToSell.name,
+					assetToBuyName: assetToBuy.name,
+					amountToBuy: assetToBuy.amount,
+					wallet: wallet,
+				});
+			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
 			this.setState({ transactionInProcess: false });
 			console.log(result);
@@ -578,6 +611,7 @@ export default connect(
 			wallet: state.wallet,
 			balance: state.balance,
 			exchangeRates: state.assets.rates,
+			user: state.user,
 		};
 	},
 	{
