@@ -17,8 +17,7 @@ export const adminUsersReducer = (state = [], action) => {
 		case SAVE_ADMIN_USERS_DATA:
 			return action.payload;
 		case UPDATE_ADMIN_USER_STATUS:
-			console.log("UPDATE_ADMIN_USER_STATUS");
-			return action.payload.map(user => {
+			return state.map(user => {
 				if (user.user_id === action.payload.userId) {
 					return {
 						...user,
@@ -37,18 +36,6 @@ export const setUserSettlementDataReducer = (state = [], action) => {
 	switch (action.type) {
 		case SAVE_USER_SETTLEMENT_DATA:
 			return action.payload;
-		case UPDATE_ADMIN_USER_STATUS:
-			console.log("UPDATE_ADMIN_USER_STATUS");
-			return action.payload.map(user => {
-				if (user.user_id === action.payload.userId) {
-					return {
-						...user,
-						status_code: action.payload.status,
-						status: action.payload.status === 1 ? "active" : "blocked",
-					};
-				}
-				return user;
-			});
 		default:
 			return state;
 	}
@@ -77,7 +64,6 @@ export const getUsersData = params => async dispatch => {
 };
 
 export const updateUserStatus = (userId, status) => {
-	console.log("updateUserStatus");
 	return { type: UPDATE_ADMIN_USER_STATUS, payload: { userId, status } };
 };
 

@@ -126,7 +126,7 @@ class Users extends Component {
 	}
 
 	blockUser = async (wallet_addr, reason, duration, userId) => {
-		const { blockUser, isBlockedUser } = this.props;
+		const { blockUser, isBlockedUser, updateUserStatus } = this.props;
 		this.setState({
 			user_id: userId,
 			loadingBlockUser: true,
@@ -148,7 +148,7 @@ class Users extends Component {
 	};
 
 	unblockUser = async (wallet_addr, userId) => {
-		const { unblockUser } = this.props;
+		const { unblockUser, updateUserStatus } = this.props;
 		this.setState({
 			user_id: userId,
 			loadingUnblockUser: true,
@@ -160,17 +160,6 @@ class Users extends Component {
 		this.setState({
 			loadingUnblockUser: false,
 		});
-	};
-
-	changeUserStatus = (userId, status) => {
-		/*const adminUsers = this.props.adminUsers.map(user => {
-			if (user.user_id === userId) {
-				return { ...user, status_code: status, status: status === 1 ? "active" : "blocked" };
-			}
-			return user;
-		});
-		const { updateUsersData } = this.props;
-		updateUsersData(adminUsers);*/
 	};
 
 	render() {
