@@ -32,6 +32,7 @@ const style = {
 const h12Mc = 12 * 60 * 60 * 1000;
 const h24Mc = 24 * 60 * 60 * 1000;
 
+// TODO: extract buttons render to separate funcs
 class ActiveRequests extends Component {
 	constructor(props) {
 		super(props);
@@ -126,7 +127,6 @@ class ActiveRequests extends Component {
 				const pagination = { ...this.state.pagination };
 				pagination.total = data.total;
 
-				console.log(data.items);
 				this.setState({
 					loading: false,
 					data: data.items,
@@ -257,9 +257,12 @@ class ActiveRequests extends Component {
 			try {
 				this.setState({ requestId, activeAction: "complain" });
 				await complain(requestId);
-				// await wait(10000);
+				notification.success({
+					message: "You have complained on the request",
+				});
+				this.fetch();
 			} catch (e) {
-				console.log(e);
+				message.error(e.message);
 			} finally {
 				this.setState({ requestId: null, activeAction: "" });
 			}
@@ -268,6 +271,52 @@ class ActiveRequests extends Component {
 				message: "A complaint can only be filed 12 hours after the selection of the performer",
 			});
 		}
+	};
+
+	renderComplainButton = (record, isComplainActive) => {
+		let button;
+		if (!this.is12hOver(record.choose_timestamp)) {
+			button = (
+				<Button
+					style={style.btn}
+					type="danger"
+					onClick={() => this.handleComplain(record.request_id, false)} // can't complain
+				>
+					Complain
+				</Button>
+			);
+		} else {
+			if (isComplainActive) {
+				button = (
+					<Button
+						type="danger"
+						style={style.btn}
+						loading={isComplainActive}
+						disabled={isComplainActive}
+					>
+						Complain
+					</Button>
+				);
+			} else {
+				button = (
+					<Popconfirm
+						title="Sure to complain?"
+						cancelText="No"
+						onConfirm={() => this.handleComplain(record.request_id, true)}
+					>
+						<Button
+							type="danger"
+							style={style.btn}
+							loading={isComplainActive}
+							disabled={isComplainActive}
+						>
+							Complain
+						</Button>
+					</Popconfirm>
+				);
+			}
+		}
+		return button;
 	};
 
 	render() {
@@ -352,6 +401,11 @@ class ActiveRequests extends Component {
 									Choose agent
 								</Button>
 							)}
+							{record.taker_addr &&
+								record.choose_timestamp &&
+								record.status !== "complained" &&
+								!this.is24hOver(record.choose_timestamp) &&
+								this.renderComplainButton(record, isComplainActive)}
 						</>
 					);
 				},
