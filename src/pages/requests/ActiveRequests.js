@@ -18,6 +18,7 @@ import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
 import { getPerformerName } from "../../utils";
+import { PageTitle } from "../../components/styled";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -258,6 +259,16 @@ class ActiveRequests extends Component {
 		}
 	};
 
+	renderTitle() {
+		const { user } = this.props;
+		const requestType = this.parseRequestType();
+		if (user.role === roles.c) {
+			return <PageTitle>Active {requestType} requests</PageTitle>;
+		} else if (user.role === roles.a) {
+			return <PageTitle>Customer active {requestType} requests</PageTitle>;
+		}
+	}
+
 	render() {
 		const { user, walletAddress } = this.props;
 
@@ -459,6 +470,7 @@ class ActiveRequests extends Component {
 
 		return (
 			<>
+				{this.renderTitle()}
 				<Table
 					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}
