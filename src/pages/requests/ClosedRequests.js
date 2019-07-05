@@ -8,6 +8,7 @@ import { getMessages } from "../../api/operation-messages";
 import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
+import { getPerformerName } from "../../utils";
 import { PageTitle } from "../../components/styled";
 
 class ClosedRequests extends Component {
@@ -143,6 +144,12 @@ class ClosedRequests extends Component {
 					return new Date(record.trx_timestamp).toLocaleString();
 				},
 			},
+			{
+				title: "Performer",
+				render: (text, record, index) => {
+					return record.taker_addr ? getPerformerName(record) : "n/a";
+				},
+			},
 		];
 
 		const columnsForAgent = [
@@ -168,6 +175,13 @@ class ClosedRequests extends Component {
 				title: "Created",
 				render: (text, record, index) => {
 					return new Date(record.request.trx_timestamp).toLocaleString();
+				},
+			},
+			{
+				title: "Client",
+				dataIndex: "sender.addr",
+				render: (text, record, index) => {
+					return `${record.sender.first_name} ${record.sender.last_name}`;
 				},
 			},
 		];
