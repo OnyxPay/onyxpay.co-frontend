@@ -124,6 +124,7 @@ class ActiveRequests extends Component {
 				} else if (user.role === roles.a) {
 					params.requestType = this.parseRequestType();
 					params.requestStatus = "opened,choose,completed,complained";
+					params.isTaker = 0;
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };

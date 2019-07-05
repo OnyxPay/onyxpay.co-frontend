@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table } from "antd";
 import { getActiveRequests } from "../../api/requests";
-import { getMessages } from "../../api/operation-messages";
+import { getMessagesForClosedRequests } from "../../api/operation-messages";
 import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
@@ -89,10 +89,10 @@ class ClosedRequests extends Component {
 					params.status = "rejected,completed";
 					data = await getActiveRequests(params);
 				} else if (user.role === roles.a) {
-					params.requestType = this.parseRequestType();
+					// params.requestType = this.parseRequestType();
 					// params.requestStatus = "completed";
-					params.messageStatus = "canceled";
-					data = await getMessages(params);
+					// params.messageStatus = "canceled";
+					data = await getMessagesForClosedRequests(params);
 				}
 				const pagination = { ...this.state.pagination };
 				pagination.total = data.total;
