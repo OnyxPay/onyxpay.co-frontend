@@ -7,6 +7,9 @@ export const PageTitle = styled.h1`
 	padding-bottom: 13px;
 	border-bottom: 1px solid rgba(167, 180, 201, 0.3);
 	font-size: 26px;
+	@media (max-width: 1199px) {
+		padding-bottom: 5px;
+	}
 `;
 
 export const Container = styled.div`

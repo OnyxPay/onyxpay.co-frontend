@@ -71,12 +71,6 @@ class UserMenu extends Component {
 						<span>Settlement accounts</span>
 					</Link>
 				</Menu.Item>
-				<Menu.Item key="/messages">
-					<Link to="/messages" className="ant-menu-item-content">
-						<Icon type="mail" />
-						<span>Messages</span>
-					</Link>
-				</Menu.Item>
 			</Menu>
 		);
 	}

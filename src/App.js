@@ -23,6 +23,11 @@ let Investments = Loadable({
 	loading: Loader,
 });
 
+let Assets = Loadable({
+	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/assets"),
+	loading: Loader,
+});
+
 const Login = Loadable({
 	loader: () => import(/* webpackChunkName: "Login" */ "./pages/login"),
 	loading: Loader,
@@ -112,6 +117,7 @@ Users = AdminAndSuperAdmin(Users);
 ActiveRequests = All(ActiveRequests);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
+Assets = AdminAndSuperAdmin(Assets);
 
 class App extends Component {
 	componentDidMount() {
@@ -126,6 +132,7 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
+					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />

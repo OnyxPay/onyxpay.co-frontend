@@ -8,6 +8,8 @@ import { getMessages } from "../../api/operation-messages";
 import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
+import { getPerformerName } from "../../utils";
+import { PageTitle } from "../../components/styled";
 
 class ClosedRequests extends Component {
 	constructor(props) {
@@ -104,6 +106,16 @@ class ClosedRequests extends Component {
 		}
 	};
 
+	renderTitle() {
+		const { user } = this.props;
+		const requestType = this.parseRequestType();
+		if (user.role === roles.c) {
+			return <PageTitle>Active customer {requestType} requests</PageTitle>;
+		} else if (user.role === roles.a) {
+			return <PageTitle>Closed customer {requestType} requests</PageTitle>;
+		}
+	}
+
 	render() {
 		const { user } = this.props;
 
@@ -130,6 +142,12 @@ class ClosedRequests extends Component {
 				title: "Created",
 				render: (text, record, index) => {
 					return new Date(record.trx_timestamp).toLocaleString();
+				},
+			},
+			{
+				title: "Performer",
+				render: (text, record, index) => {
+					return record.taker_addr ? getPerformerName(record) : "n/a";
 				},
 			},
 		];
@@ -159,10 +177,18 @@ class ClosedRequests extends Component {
 					return new Date(record.request.trx_timestamp).toLocaleString();
 				},
 			},
+			{
+				title: "Client",
+				dataIndex: "sender.addr",
+				render: (text, record, index) => {
+					return `${record.sender.first_name} ${record.sender.last_name}`;
+				},
+			},
 		];
 
 		return (
 			<>
+				{this.renderTitle()}
 				<Table
 					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}

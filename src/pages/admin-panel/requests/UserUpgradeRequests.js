@@ -22,7 +22,8 @@ class UserUpgradeRequests extends Component {
 		request_id: null,
 		pagination: { current: 1, pageSize: 20 },
 		fetchingRequests: false,
-		loading: false,
+		loadingUpgradeUser: false,
+		loadingDowngradeUser: false,
 	};
 
 	componentDidMount = () => {
@@ -36,9 +37,16 @@ class UserUpgradeRequests extends Component {
 		alert(`${role} ${res}`);
 	};
 
-	handleUpgrade = async (wallet_addr, role) => {
+	handleUpgrade = async (wallet_addr, role, id) => {
 		try {
-			await upgradeUser(wallet_addr, role);
+			this.setState({
+				loadingUpgradeUser: true,
+				request_id: id,
+			});
+			const res = await upgradeUser(wallet_addr, role);
+			if (res.Error === 0) {
+				message.success("User was successfully upgrade");
+			}
 			this.fetchRequests();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -51,11 +59,21 @@ class UserUpgradeRequests extends Component {
 				message.error(e.message);
 			}
 		}
+		this.setState({
+			loadingUpgradeUser: false,
+		});
 	};
 
-	handleDowngrade = async (wallet_addr, role) => {
+	handleDowngrade = async (wallet_addr, role, id) => {
 		try {
-			await downgradeUser(wallet_addr, role);
+			this.setState({
+				loadingDowngradeUser: true,
+				request_id: id,
+			});
+			const res = await downgradeUser(wallet_addr, role);
+			if (res.Error === 0) {
+				message.success("User was successfully downgrade");
+			}
 			this.fetchRequests();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -68,6 +86,9 @@ class UserUpgradeRequests extends Component {
 				message.error(e.message);
 			}
 		}
+		this.setState({
+			loadingDowngradeUser: false,
+		});
 	};
 
 	handleRejectRequest = async reason => {
@@ -136,7 +157,14 @@ class UserUpgradeRequests extends Component {
 	}
 
 	render() {
-		const { isReasonToRejectModalVisible, pagination, requestsData } = this.state;
+		const {
+			isReasonToRejectModalVisible,
+			pagination,
+			requestsData,
+			loadingUpgradeUser,
+			loadingDowngradeUser,
+			request_id,
+		} = this.state;
 
 		const columns = [
 			{
@@ -181,8 +209,11 @@ class UserUpgradeRequests extends Component {
 					<>
 						<Button
 							type="primary"
-							onClick={() => this.handleUpgrade(res.user.wallet_addr, res.expected_position)}
+							onClick={() =>
+								this.handleUpgrade(res.user.wallet_addr, res.expected_position, res.id)
+							}
 							style={style.button}
+							loading={res.id === request_id && loadingUpgradeUser}
 						>
 							Confirm
 						</Button>
@@ -191,8 +222,11 @@ class UserUpgradeRequests extends Component {
 						</Button>
 						<Button
 							type="danger"
-							onClick={() => this.handleDowngrade(res.user.wallet_addr, res.expected_position)}
+							onClick={() =>
+								this.handleDowngrade(res.user.wallet_addr, res.expected_position, res.id)
+							}
 							style={style.button}
+							loading={res.id === request_id && loadingDowngradeUser}
 						>
 							Downgrade
 						</Button>

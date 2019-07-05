@@ -18,6 +18,8 @@ import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
 import Countdown from "./Countdown";
+import { getPerformerName } from "../../utils";
+import { PageTitle } from "../../components/styled";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -225,17 +227,6 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	getPerformerName({ taker_addr: addr, operation_messages: messages } = {}) {
-		const msg = messages.filter(msg => msg.receiver.wallet_addr === addr);
-
-		const { first_name, last_name } = msg[0].receiver;
-		if (first_name || last_name) {
-			return `${first_name} ${last_name}`;
-		} else {
-			return addr;
-		}
-	}
-
 	calcTimeDiff(timestamp) {
 		const trxCreatedMs = new Date(timestamp).getTime();
 		const nowMs = new Date().getTime();
@@ -318,6 +309,15 @@ class ActiveRequests extends Component {
 		}
 		return button;
 	};
+	renderTitle() {
+		const { user } = this.props;
+		const requestType = this.parseRequestType();
+		if (user.role === roles.c) {
+			return <PageTitle>Active {requestType} requests</PageTitle>;
+		} else if (user.role === roles.a) {
+			return <PageTitle>Customer active {requestType} requests</PageTitle>;
+		}
+	}
 
 	render() {
 		const { user, walletAddress } = this.props;
@@ -350,7 +350,7 @@ class ActiveRequests extends Component {
 			{
 				title: "Performer",
 				render: (text, record, index) => {
-					return record.taker_addr ? this.getPerformerName(record) : "n/a";
+					return record.taker_addr ? getPerformerName(record) : "n/a";
 				},
 			},
 			{
@@ -439,7 +439,10 @@ class ActiveRequests extends Component {
 			},
 			{
 				title: "Client",
-				dataIndex: "sender.addr", // TODO: change to client's name
+				dataIndex: "sender.addr",
+				render: (text, record, index) => {
+					return `${record.sender.first_name} ${record.sender.last_name}`;
+				},
 			},
 			{
 				title: "Countdown",
@@ -544,6 +547,7 @@ class ActiveRequests extends Component {
 
 		return (
 			<>
+				{this.renderTitle()}
 				<Table
 					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}
