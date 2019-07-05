@@ -227,24 +227,28 @@ class Users extends Component {
 				title: "Actions",
 				render: res => (
 					<div>
-						<Button
-							style={styles.btn}
-							type="danger"
-							icon="user-delete"
-							loading={res.user_id === this.state.user_id && loadingBlockUser}
-							onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
-						>
-							Block
-						</Button>
-						<Button
-							style={styles.btn}
-							type="primary"
-							icon="user-add"
-							loading={res.user_id === this.state.user_id && loadingUnblockUser}
-							onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
-						>
-							Unblock
-						</Button>
+						{res.status_code === 1 ? (
+							<Button
+								style={styles.btn}
+								type="danger"
+								icon="user-delete"
+								loading={res.user_id === this.state.user_id && loadingBlockUser}
+								onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
+							>
+								Block
+							</Button>
+						) : null}
+						{res.status_code === 2 ? (
+							<Button
+								style={styles.btn}
+								type="primary"
+								icon="user-add"
+								loading={res.user_id === this.state.user_id && loadingUnblockUser}
+								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
+							>
+								Unblock
+							</Button>
+						) : null}
 						{res.is_settlements_exists ? (
 							<Button
 								style={styles.btn}
