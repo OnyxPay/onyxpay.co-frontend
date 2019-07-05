@@ -8,6 +8,7 @@ import {
 	blockUser,
 	isBlockedUser,
 	getUsersData,
+	updateUserStatus,
 } from "../../../redux/admin-panel/users";
 
 const styles = {
@@ -125,7 +126,7 @@ class Users extends Component {
 	}
 
 	blockUser = async (wallet_addr, reason, duration, userId) => {
-		const { blockUser, isBlockedUser } = this.props;
+		const { blockUser, isBlockedUser, updateUserStatus } = this.props;
 		this.setState({
 			user_id: userId,
 			loadingBlockUser: true,
@@ -138,18 +139,24 @@ class Users extends Component {
 			return false;
 		}
 		await isBlockedUser(wallet_addr);
+
+		updateUserStatus(userId, 2);
+
 		this.setState({
 			loadingBlockUser: false,
 		});
 	};
 
 	unblockUser = async (wallet_addr, userId) => {
-		const { unblockUser } = this.props;
+		const { unblockUser, updateUserStatus } = this.props;
 		this.setState({
 			user_id: userId,
 			loadingUnblockUser: true,
 		});
 		await unblockUser(wallet_addr);
+
+		updateUserStatus(userId, 1);
+
 		this.setState({
 			loadingUnblockUser: false,
 		});
@@ -220,24 +227,28 @@ class Users extends Component {
 				title: "Actions",
 				render: res => (
 					<div>
-						<Button
-							style={styles.btn}
-							type="danger"
-							icon="user-delete"
-							loading={res.user_id === this.state.user_id && loadingBlockUser}
-							onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
-						>
-							Block
-						</Button>
-						<Button
-							style={styles.btn}
-							type="primary"
-							icon="user-add"
-							loading={res.user_id === this.state.user_id && loadingUnblockUser}
-							onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
-						>
-							Unblock
-						</Button>
+						{res.status_code === 1 ? (
+							<Button
+								style={styles.btn}
+								type="danger"
+								icon="user-delete"
+								loading={res.user_id === this.state.user_id && loadingBlockUser}
+								onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
+							>
+								Block
+							</Button>
+						) : null}
+						{res.status_code === 2 ? (
+							<Button
+								style={styles.btn}
+								type="primary"
+								icon="user-add"
+								loading={res.user_id === this.state.user_id && loadingUnblockUser}
+								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
+							>
+								Unblock
+							</Button>
+						) : null}
 						{res.is_settlements_exists ? (
 							<Button
 								style={styles.btn}
@@ -287,5 +298,6 @@ export default connect(
 		blockUser,
 		isBlockedUser,
 		getUsersData,
+		updateUserStatus,
 	}
 )(Users);
