@@ -344,15 +344,23 @@ class AssetsExchange extends Component {
 							className="exchange-form"
 						>
 							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
-								<Col xs={{ span: 24 }}>Asset to sell:</Col>
-								<Col xs={{ span: 24 }}>
+								<Col span={24}>Asset to sell:</Col>
+								<Col span={24}>
 									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
-										<Form.Item style={{ display: "inline-block" }}>
-											<Input.Group compact style={{ display: "flex" }}>
+										<Form.Item
+											style={{ display: "inline-block" }}
+											className="asset-exchange-form-input-parent"
+										>
+											<Input.Group
+												compact
+												style={{ display: "flex" }}
+												className="asset-exchange-amount-input-group"
+											>
 												<Form.Item
 													validateStatus={
 														this.state.assetToSellAmountError.length === 0 ? "success" : "error"
 													}
+													className="asset-exchange-amount-input-group-form-item"
 												>
 													<InputNumber
 														prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
@@ -374,6 +382,7 @@ class AssetsExchange extends Component {
 															);
 															this.handleAssetToSellAmountChange(asset.balance);
 														}}
+														className="asset-exchange-amount-input-group-button"
 														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 													>
 														Max
@@ -388,7 +397,7 @@ class AssetsExchange extends Component {
 												this.state.assetToSellNameError.length === 0 ? "success" : "error"
 											}
 											style={{ display: "inline-block" }}
-											className="asset-exchange-select-form-item"
+											className="asset-exchange-form-select-parent"
 										>
 											<Select
 												value={this.state.assetToSell.name}
@@ -403,7 +412,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 									</Col>
 								</Col>
-								<Col xm={{ span: 24 }}>
+								<Col span={24}>
 									{this.state.assetToSellNameError.length !== 0 ? (
 										<Tag color="red">{this.state.assetToSellNameError}</Tag>
 									) : (
@@ -417,20 +426,34 @@ class AssetsExchange extends Component {
 								</Col>
 							</Col>
 
-							<Col sm={{ span: 24 }} xl={{ span: 0 }}>
+							<Col
+								xs={{ span: 24 }}
+								sm={{ span: 24 }}
+								md={{ span: 24 }}
+								lg={{ span: 24 }}
+								xl={{ span: 0 }}
+							>
 								<div className="form-divider" />
 							</Col>
 
 							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
-								<Col xs={{ span: 24 }}>Asset to buy:</Col>
-								<Col xs={{ span: 24 }}>
+								<Col span={24}>Asset to buy:</Col>
+								<Col span={24}>
 									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
-										<Form.Item style={{ display: "inline-block" }}>
-											<Input.Group compact style={{ display: "flex" }}>
+										<Form.Item
+											style={{ display: "inline-block" }}
+											className="asset-exchange-form-input-parent"
+										>
+											<Input.Group
+												compact
+												style={{ display: "flex" }}
+												className="asset-exchange-amount-input-group"
+											>
 												<Form.Item
 													validateStatus={
 														this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
 													}
+													className="asset-exchange-amount-input-group-form-item"
 												>
 													<InputNumber
 														prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
@@ -458,6 +481,7 @@ class AssetsExchange extends Component {
 																)
 															);
 														}}
+														className="asset-exchange-amount-input-group-button"
 														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 													>
 														Max
@@ -473,7 +497,7 @@ class AssetsExchange extends Component {
 												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
 											}
 											style={{ display: "inline-block" }}
-											className="asset-exchange-select-form-item"
+											className="asset-exchange-form-select-parent"
 										>
 											<Select
 												value={this.state.assetToBuy.name}
@@ -488,7 +512,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 									</Col>
 								</Col>
-								<Col xm={{ span: 24 }}>
+								<Col span={24}>
 									{this.state.assetToBuyNameError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
 									) : (
@@ -497,7 +521,13 @@ class AssetsExchange extends Component {
 								</Col>
 							</Col>
 
-							<Col lg={{ span: 24 }} xl={{ span: 2 }}>
+							<Col
+								xs={{ span: 24 }}
+								sm={{ span: 24 }}
+								md={{ span: 24 }}
+								lg={{ span: 24 }}
+								xl={{ span: 2 }}
+							>
 								<Form.Item>
 									<Button
 										type="primary"

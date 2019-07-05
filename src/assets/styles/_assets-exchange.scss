@@ -24,13 +24,25 @@
 
 @media (max-width: 576px) {
 	.exchange-form {
-		.asset-exchange-select-form-item {
-			background-color: aqua;
+		.asset-exchange-form-input-parent {
 			width: 100%;
 		}
 
-		.asset-exchange-select {
-			width: 91%;
+		.asset-exchange-form-select-parent {
+			padding-right: 1em;
+			width: 100%;
+		}
+
+		.asset-exchange-amount-input-group {
+			width: 100%;
+		}
+
+		.asset-exchange-amount-input-group-form-item {
+			flex-grow: 1;
+		}
+
+		.asset-exchange-amount-input-group-button {
+			width: 100%;
 		}
 	}
 }
