@@ -29,13 +29,13 @@ const assetsForBuyColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: "calc(5em)",
+		width: "9em",
 	},
 	{
 		title: "Buy price",
 		dataIndex: "buyPrice",
 		key: "buyPrice",
-		width: "calc(5em)",
+		width: "9em",
 	},
 ];
 
@@ -44,19 +44,19 @@ const assetsForSellColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: "calc(5em)",
+		width: "9em",
 	},
 	{
 		title: "Sell price",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
-		width: "calc(5em)",
+		width: "9em",
 	},
 	{
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
-		width: "calc(5em)",
+		width: "9em",
 	},
 ];
 
@@ -335,7 +335,7 @@ class AssetsExchange extends Component {
 			<>
 				<PageTitle>Assets Exchange</PageTitle>
 				<Card className="exchange-card-wrapper">
-					<Row type="flex" justify="space-around" align="bottom">
+					<Row>
 						<Form
 							layout="inline"
 							onSubmit={e => {
