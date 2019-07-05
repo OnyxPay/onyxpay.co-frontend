@@ -1,71 +1,120 @@
 import React, { Component } from "react";
 import { Button, Table } from "antd";
+import ShowUserData from "../../../components/modals/admin/ShowUserData";
+import { connect } from "react-redux";
+import { getRequestsComplaint, HandleComplainedRequest } from "../../../api/admin/complaints";
 
-const data = [
-	{
-		id_request: "1",
-		type_request: "1",
-		name_initiator_request: "John Brown",
-		name_performer_request: "John Brown",
-		currency_request: "$",
-		request_amount: 32,
-		address: "New York No. 1 Lake Park",
-		date_request_creation: "18.10.2018",
+const styles = {
+	btn: {
+		marginBottom: 5,
 	},
-	{
-		id_request: "2",
-		type_request: "2",
-		name_initiator_request: "John Brown",
-		name_performer_request: "John Brown",
-		currency_request: "$",
-		request_amount: 32,
-		address: "New York No. 1 Lake Park",
-		date_request_creation: "18.10.2018",
-	},
-	{
-		id_request: "3",
-		type_request: "3",
-		name_initiator_request: "John Brown",
-		name_performer_request: "John Brown",
-		currency_request: "$",
-		request_amount: 32,
-		address: "New York No. 1 Lake Park",
-		date_request_creation: "18.10.2018",
-	},
-];
-
-const style = {
-	button: {
-		marginRight: 8,
+	btnColor: {
+		color: "rgba(0, 0, 0, 0.65)",
 	},
 };
 
 class ComplaintsList extends Component {
+	state = {
+		visible: false,
+		dataUser: [],
+		data: [],
+		pagination: { current: 1, pageSize: 20 },
+		loadingRequestData: true,
+	};
+
+	componentDidMount = async () => {
+		await this.fetchRequestComplain({ status: "complained" });
+		this.setState({
+			loadingRequestData: false,
+		});
+	};
+
+	showUserData = data => {
+		this.setState({
+			visible: true,
+			dataUser: data,
+		});
+	};
+
+	hideModal = visible => {
+		this.setState({
+			visible: visible,
+		});
+	};
+
+	handleStartCheckComplaint = () => {
+		alert("Start checking complaint");
+	};
+
+	HandleComplainedRequest = async (requestId, winnerAddress) => {
+		try {
+			const res = await HandleComplainedRequest(requestId, winnerAddress);
+			console.log(res);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	async fetchRequestComplain(opts = {}) {
+		try {
+			const { pagination } = this.state;
+			const params = {
+				pageSize: pagination.pageSize,
+				pageNum: pagination.current,
+				...opts,
+			};
+			const res = await getRequestsComplaint(params);
+			console.log(res);
+			this.setState({
+				data: res.items,
+			});
+			pagination.total = res.items.total;
+		} catch (e) {
+			console.log(e);
+		}
+	}
+
 	render() {
 		const columns = [
 			{
 				title: "Type request",
-				dataIndex: "type_request",
+				dataIndex: "type",
+				render: res => (res ? res : "n/a"),
 			},
+			/*{
+				title: "Having complained",
+				dataIndex: "having_complained",
+			},*/
 			{
 				title: "Name initiator of the request",
-				dataIndex: "name_initiator_request",
+				render: res => (
+					<Button style={styles.btnColor} type="link" onClick={() => this.showUserData(res.maker)}>
+						<span>{res.maker.first_name + " " + res.maker.last_name}</span>
+					</Button>
+				),
 			},
 			{
 				title: "Name performer of the request",
-				dataIndex: "name_performer_request",
+				render: res => (
+					<Button style={styles.btnColor} type="link" onClick={() => this.showUserData(res.taker)}>
+						<span>{res.taker.first_name + " " + res.taker.last_name}</span>
+					</Button>
+				),
 			},
 			{
-				title: "Currency of the request",
-				dataIndex: "currency_request",
+				title: "Currency",
+				dataIndex: "asset",
+				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Request amount",
-				dataIndex: "request_amount",
+				title: "Amount",
+				dataIndex: "amount",
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Date and time of request creation",
-				dataIndex: "date_request_creation",
+				dataIndex: "created_at",
+				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
 				title: "Action",
@@ -74,13 +123,28 @@ class ComplaintsList extends Component {
 				dataIndex: "",
 				render: res => (
 					<>
-						<Button type="danger" onClick={() => this.handleBlockAsset(res.symbol, res.key)} block>
+						<Button
+							type="primary"
+							onClick={() => this.handleStartCheckComplaint()}
+							style={styles.btn}
+							block
+						>
 							Start checking complaint
 						</Button>
-						<Button onClick={() => this.handleCheckAssetBlocked(res.symbol, res.key)} block>
+						<Button
+							type="primary"
+							onClick={() => this.HandleComplainedRequest(res.request_id, res.maker_addr)}
+							style={styles.btn}
+							block
+						>
 							Solve a complaint in favor of the initiator
 						</Button>
-						<Button onClick={() => this.handleCheckAssetBlocked(res.symbol, res.key)} block>
+						<Button
+							type="primary"
+							onClick={() => this.HandleComplainedRequest(res.request_id, res.taker_addr)}
+							style={styles.btn}
+							block
+						>
 							Solve a complaint in favor of the performer
 						</Button>
 					</>
@@ -90,9 +154,26 @@ class ComplaintsList extends Component {
 
 		return (
 			<>
-				<Table columns={columns} rowKey={data => data.id_request} dataSource={data} />
+				<Table
+					columns={columns}
+					loading={this.state.loadingRequestData}
+					rowKey={data => data.id}
+					dataSource={this.state.data}
+				/>
+				{this.state.visible ? (
+					<ShowUserData
+						visible={this.state.visible}
+						hideModal={this.hideModal}
+						data={[this.state.dataUser]}
+					/>
+				) : null}
 			</>
 		);
 	}
 }
-export default ComplaintsList;
+export default connect(
+	null,
+	{
+		getRequestsComplaint,
+	}
+)(ComplaintsList);

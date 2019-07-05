@@ -31,6 +31,7 @@ let Complaints = Loadable({
 let ResolvedComplaints = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints/ResolvedComplaints"),
+	loading: Loader,
 });
 
 let Assets = Loadable({
