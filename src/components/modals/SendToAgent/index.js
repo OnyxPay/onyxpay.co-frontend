@@ -131,7 +131,13 @@ class SendToAgent extends Component {
 	};
 
 	render() {
-		const { isModalVisible, user, operationMessages, isSendingMessage } = this.props;
+		const {
+			isModalVisible,
+			user,
+			operationMessages,
+			isSendingMessage,
+			showUserSettlementsModal,
+		} = this.props;
 		const { loading, users, selectedRowKeys } = this.state;
 
 		return (
@@ -199,6 +205,7 @@ class SendToAgent extends Component {
 										pagination={this.state.pagination}
 										onChange={this.handleTableChange}
 										isSendingMessage={isSendingMessage}
+										showUserSettlementsModal={showUserSettlementsModal}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>

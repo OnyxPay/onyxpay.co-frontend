@@ -20,9 +20,11 @@ import { convertAmountToStr } from "../../utils/number";
 import Countdown from "./Countdown";
 import { getPerformerName } from "../../utils";
 import { PageTitle } from "../../components/styled";
+import UserSettlementsModal from "../../components/modals/UserSettlementsModal";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
+	USER_SETTLEMENT_ACCOUNTS: "USER_SETTLEMENT_ACCOUNTS",
 };
 
 const style = {
@@ -42,7 +44,8 @@ class ActiveRequests extends Component {
 			data: [],
 			pagination: { current: 1, pageSize: 20 },
 			loading: false,
-			SEND_REQ_TO_AGENT: false,
+			[modals.SEND_REQ_TO_AGENT]: false,
+			[modals.USER_SETTLEMENT_ACCOUNTS]: false,
 			requestId: null,
 			isSendingMessage: false,
 			operationMessages: [],
@@ -82,8 +85,13 @@ class ActiveRequests extends Component {
 		this.setState({ [type]: false });
 	};
 
-	showModal = (type, requestId, isSendingMessage = false, operationMessages = []) => () => {
-		this.setState({ [type]: true, requestId, isSendingMessage, operationMessages });
+	showModal = (type, options) => () => {
+		if (options) {
+			const { requestId, isSendingMessage = false, operationMessages = [] } = options;
+			this.setState({ [type]: true, requestId, isSendingMessage, operationMessages });
+		} else {
+			this.setState({ [type]: true });
+		}
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
@@ -375,7 +383,10 @@ class ActiveRequests extends Component {
 							{record.status === "opened" && !record.operation_messages.length && (
 								<Button
 									style={style.btn}
-									onClick={this.showModal(modals.SEND_REQ_TO_AGENT, record.id, true)}
+									onClick={this.showModal(modals.SEND_REQ_TO_AGENT, {
+										requestId: record.id,
+										isSendingMessage: true,
+									})}
 								>
 									Send to agents
 								</Button>
@@ -392,12 +403,11 @@ class ActiveRequests extends Component {
 							{this.isAgentAccepted(record.operation_messages) && record.status === "opened" && (
 								<Button
 									style={style.btn}
-									onClick={this.showModal(
-										modals.SEND_REQ_TO_AGENT,
-										record.request_id,
-										false,
-										record.operation_messages
-									)}
+									onClick={this.showModal(modals.SEND_REQ_TO_AGENT, {
+										requestId: record.request_id,
+										isSendingMessage: false,
+										operationMessages: record.operation_messages,
+									})}
 								>
 									Choose agent
 								</Button>
@@ -565,6 +575,11 @@ class ActiveRequests extends Component {
 					isSendingMessage={this.state.isSendingMessage}
 					operationMessages={this.state.operationMessages}
 					fetchRequests={this.fetch}
+					showUserSettlementsModal={this.showModal(modals.USER_SETTLEMENT_ACCOUNTS)}
+				/>
+				<UserSettlementsModal
+					isModalVisible={this.state.USER_SETTLEMENT_ACCOUNTS}
+					hideModal={this.hideModal(modals.USER_SETTLEMENT_ACCOUNTS)}
 				/>
 			</>
 		);

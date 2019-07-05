@@ -1,6 +1,7 @@
 import React from "react";
 import { Table } from "antd";
 import { getLocalTime } from "../../../utils";
+import { Button, Tooltip } from "antd";
 
 function AgentsTable({
 	data,
@@ -10,6 +11,7 @@ function AgentsTable({
 	pagination,
 	onChange,
 	isSendingMessage,
+	showUserSettlementsModal,
 }) {
 	let columns = [];
 	if (isSendingMessage) {
@@ -39,6 +41,16 @@ function AgentsTable({
 				},
 			},
 			{ title: "Wallet address", dataIndex: "receiver.wallet_addr" },
+			{
+				title: "Actions",
+				render: (text, record, index) => {
+					return (
+						<Tooltip title="See settlement accounts">
+							<Button shape="round" icon="account-book" onClick={showUserSettlementsModal} />
+						</Tooltip>
+					);
+				},
+			},
 		];
 	}
 
@@ -49,17 +61,19 @@ function AgentsTable({
 	};
 
 	return (
-		<Table
-			columns={columns}
-			dataSource={isSendingMessage ? data && data.items : data}
-			rowKey={record => (isSendingMessage ? record.user_id : record.id)}
-			bordered
-			pagination={isSendingMessage ? { ...pagination, size: "small" } : false}
-			className="ovf-auto"
-			loading={loading}
-			rowSelection={rowSelection}
-			onChange={onChange}
-		/>
+		<>
+			<Table
+				columns={columns}
+				dataSource={isSendingMessage ? data && data.items : data}
+				rowKey={record => (isSendingMessage ? record.user_id : record.id)}
+				bordered
+				pagination={isSendingMessage ? { ...pagination, size: "small" } : false}
+				className="ovf-auto"
+				loading={loading}
+				rowSelection={rowSelection}
+				onChange={onChange}
+			/>
+		</>
 	);
 }
 
