@@ -44,3 +44,17 @@ export const requestStatus = {
 	completed: 6,
 	closed: 7, //  not set at back-end now
 };
+
+export const userStatus = {
+	wait: 0,
+	active: 1,
+	blocked: 2,
+	deleted: 3,
+};
+
+export const userStatusNames = {
+	[userStatus.wait]: "wait",
+	[userStatus.active]: "active",
+	[userStatus.blocked]: "blocked",
+	[userStatus.deleted]: "deleted",
+};

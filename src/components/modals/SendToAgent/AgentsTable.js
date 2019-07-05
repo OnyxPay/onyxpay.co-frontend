@@ -1,5 +1,6 @@
 import React from "react";
 import { Table } from "antd";
+import { getLocalTime } from "../../../utils";
 
 function AgentsTable({
 	data,
@@ -15,8 +16,12 @@ function AgentsTable({
 		columns = [
 			{ title: "First name", dataIndex: "first_name" },
 			{ title: "Last name", dataIndex: "last_name" },
-			{ title: "Email", dataIndex: "email" },
-			{ title: "Phone", dataIndex: "phone_number" },
+			{
+				title: "Registered",
+				render: (text, record, index) => {
+					return <span>{getLocalTime(record.created_at)}</span>;
+				},
+			},
 			{ title: "Wallet address", dataIndex: "wallet_addr" },
 		];
 	} else {
@@ -27,8 +32,12 @@ function AgentsTable({
 					return <span>{record.receiver.first_name + " " + record.receiver.last_name}</span>;
 				},
 			},
-			{ title: "Email", dataIndex: "receiver.email" },
-			{ title: "Phone", dataIndex: "receiver.phone_number" },
+			{
+				title: "Registered",
+				render: (text, record, index) => {
+					return <span>{getLocalTime(record.receiver.created_at)}</span>;
+				},
+			},
 			{ title: "Wallet address", dataIndex: "receiver.wallet_addr" },
 		];
 	}

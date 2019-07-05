@@ -41,3 +41,7 @@ export function getPerformerName({ taker_addr: addr, operation_messages: message
 		return addr;
 	}
 }
+
+export function getLocalTime(date) {
+	return new Date(date).toLocaleString();
+}
