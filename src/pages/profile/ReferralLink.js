@@ -16,6 +16,7 @@ export function ReferralLink() {
 					addonBefore="Referral link:"
 					value={link}
 					style={{ border: "none" }}
+					className="referral-link-input"
 					suffix={
 						<CopyToClipboard
 							text={link}

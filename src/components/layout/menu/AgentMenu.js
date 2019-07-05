@@ -27,26 +27,34 @@ class AgentMenu extends Component {
 					}
 				>
 					<Menu.Item key="/deposit:agent">
-						<Link to="/deposit:agent">Deposit / buy OnyxCash</Link>
+						<Link to="/deposit:agent">Deposit</Link>
+					</Menu.Item>
+					<Menu.Item key="/test-link">
+						<Link to="/test-link">Requests</Link>
 					</Menu.Item>
 				</SubMenu>
+
 				<SubMenu
 					key="active-requests"
 					title={
 						<span className="ant-menu-item-content">
 							<Icon type="team" />
-							<span>Active requests</span>
+							<span>Customer requests</span>
 						</span>
 					}
 				>
-					<Menu.Item key="/active-requests:deposit">
-						<Link to="/active-requests:deposit">Active deposit requests</Link>
+					<Menu.Item key="/active-requests/deposit">
+						<Link to="/active-requests/deposit">Active deposit requests</Link>
 					</Menu.Item>
-					<Menu.Item key="/active-requests:withdraw">
-						<Link to="/active-requests:withdraw">Active withdraw requests</Link>
+					<Menu.Item key="/active-requests/withdraw">
+						<Link to="/active-requests/withdraw">Active withdraw requests</Link>
 					</Menu.Item>
-					<Menu.Item key="/closed-requests">
-						<Link to="/closed-requests">Closed requests</Link>
+
+					<Menu.Item key="/closed-requests/deposit">
+						<Link to="/closed-requests/deposit">Closed deposit requests</Link>
+					</Menu.Item>
+					<Menu.Item key="/closed-requests/withdraw">
+						<Link to="/closed-requests/withdraw">Closed withdraw requests</Link>
 					</Menu.Item>
 				</SubMenu>
 
@@ -57,8 +65,8 @@ class AgentMenu extends Component {
 					</Link>
 				</Menu.Item>
 
-				<Menu.Item key="/settlement accounts">
-					<Link to="/settlement accounts" className="ant-menu-item-content">
+				<Menu.Item key="/settlement-accounts">
+					<Link to="/settlement-accounts" className="ant-menu-item-content">
 						<Icon type="pay-circle" />
 						<span>Settlement accounts</span>
 					</Link>

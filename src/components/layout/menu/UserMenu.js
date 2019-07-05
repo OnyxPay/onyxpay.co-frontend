@@ -45,14 +45,18 @@ class UserMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="/active-requests:deposit">
-						<Link to="/active-requests:deposit">Active deposit requests</Link>
+					<Menu.Item key="/active-requests/deposit">
+						<Link to="/active-requests/deposit">Active deposit requests</Link>
 					</Menu.Item>
-					<Menu.Item key="/active-requests:withdraw">
-						<Link to="/active-requests:withdraw">Active withdraw requests</Link>
+					<Menu.Item key="/active-requests/withdraw">
+						<Link to="/active-requests/withdraw">Active withdraw requests</Link>
 					</Menu.Item>
-					<Menu.Item key="/closed-requests">
-						<Link to="/closed-requests">Closed requests</Link>
+
+					<Menu.Item key="/closed-requests/deposit">
+						<Link to="/closed-requests/deposit">Closed deposit requests</Link>
+					</Menu.Item>
+					<Menu.Item key="/closed-requests/withdraw">
+						<Link to="/closed-requests/withdraw">Closed withdraw requests</Link>
 					</Menu.Item>
 				</SubMenu>
 				<Menu.Item key="/exchange">
@@ -65,12 +69,6 @@ class UserMenu extends Component {
 					<Link to="/settlement-accounts" className="ant-menu-item-content">
 						<Icon type="pay-circle" />
 						<span>Settlement accounts</span>
-					</Link>
-				</Menu.Item>
-				<Menu.Item key="/messages">
-					<Link to="/messages" className="ant-menu-item-content">
-						<Icon type="mail" />
-						<span>Messages</span>
 					</Link>
 				</Menu.Item>
 			</Menu>
