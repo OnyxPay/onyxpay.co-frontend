@@ -30,3 +30,14 @@ export function generateTokenTimeStamp() {
 	const tokenLifeSpan = 1000 * 60 * 60 * 12; // 12 hours in ms
 	return Math.floor(new Date().getTime() / tokenLifeSpan).toString(16);
 }
+
+export function getPerformerName({ taker_addr: addr, operation_messages: messages } = {}) {
+	const msg = messages.filter(msg => msg.receiver.wallet_addr === addr);
+
+	const { first_name, last_name } = msg[0].receiver;
+	if (first_name || last_name) {
+		return `${first_name} ${last_name}`;
+	} else {
+		return addr;
+	}
+}

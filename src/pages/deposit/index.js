@@ -20,6 +20,7 @@ import { push } from "connected-react-router";
 import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
 import { isAssetBlocked } from "../../api/assets";
+import { countDecimals } from "../../utils/validate";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -55,10 +56,9 @@ class Deposit extends Component {
 				const res = await createRequest(values, "deposit");
 				if (!res.error) {
 					notification.success({
-						message: "Done",
-						description: "Deposit request is successfully created",
+						message: "Deposit request is successfully created",
 					});
-					push("/active-requests:deposit");
+					push("/active-requests/deposit");
 				} else if (res.error.data) {
 					formActions.setErrors(res.error.data);
 				}
@@ -71,6 +71,7 @@ class Deposit extends Component {
 						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
 				});
 			} else {
+				console.dir(e);
 				message.error(e.message);
 			}
 		}
@@ -102,7 +103,10 @@ class Deposit extends Component {
 							}
 							if (!values.amount) {
 								errors.amount = "required";
+							} else if (countDecimals(values.amount) > 8) {
+								errors.amount = "max number of decimal places is 8";
 							}
+
 							return errors;
 						}}
 					>

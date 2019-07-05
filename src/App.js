@@ -23,6 +23,11 @@ let Investments = Loadable({
 	loading: Loader,
 });
 
+let Assets = Loadable({
+	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/assets"),
+	loading: Loader,
+});
+
 const Login = Loadable({
 	loader: () => import(/* webpackChunkName: "Login" */ "./pages/login"),
 	loading: Loader,
@@ -42,7 +47,6 @@ let Settlement = Loadable({
 	loader: () => import(/* webpackChunkName: "Settlement" */ "./pages/settlements"),
 	loading: Loader,
 });
-
 
 let UpgradeUser = Loadable({
 	loader: () => import(/* webpackChunkName: "UpgradeUser" */ "./pages/upgrade-user"),
@@ -79,10 +83,9 @@ let Users = Loadable({
 	loading: Loader,
 });
 
-
 let Profile = Loadable({
 	loader: () => import(/* webpackChunkName: "Profile" */ "./pages/profile"),
-  	loading: Loader,
+	loading: Loader,
 });
 
 let UserUpgradeRequests = Loadable({
@@ -114,6 +117,7 @@ Users = AdminAndSuperAdmin(Users);
 ActiveRequests = All(ActiveRequests);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
+Assets = AdminAndSuperAdmin(Assets);
 
 class App extends Component {
 	componentDidMount() {
@@ -128,14 +132,15 @@ class App extends Component {
 					<Route path="/" exact component={Dashboard} />
 					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
+					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/active-requests:type" exact component={ActiveRequests} />
+					<Route path="/active-requests/:type" exact component={ActiveRequests} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					<Route path="/closed-requests" exact component={ClosedRequests} />
+					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
 					<Route path="/withdraw" exact component={Withdraw} />
