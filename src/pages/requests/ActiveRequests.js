@@ -9,18 +9,18 @@ import {
 	performRequest,
 	cancelAcceptedRequest,
 	complain,
-} from "../../api/requests";
-import { getMessages, hideMessage } from "../../api/operation-messages";
+} from "api/requests";
+import { getMessages, hideMessage } from "api/operation-messages";
 import CancelRequest from "./CancelRequest";
-import SendToAgentModal from "../../components/modals/SendToAgent";
-import { roles, operationMessageStatus } from "../../api/constants";
+import SendToAgentModal from "components/modals/SendToAgent";
+import { roles, operationMessageStatus } from "api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
-import { convertAmountToStr } from "../../utils/number";
+import { convertAmountToStr } from "utils/number";
 import Countdown from "./Countdown";
-import { getPerformerName } from "../../utils";
-import { PageTitle } from "../../components/styled";
-import UserSettlementsModal from "../../components/modals/UserSettlementsModal";
+import { getPerformerName } from "utils";
+import { PageTitle } from "components/styled";
+import UserSettlementsModal from "components/modals/UserSettlementsModal";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
