@@ -9,7 +9,6 @@ import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
 import { getPerformerName } from "../../utils";
-import { PageTitle } from "../../components/styled";
 import { parseRequestType, renderPageTitle } from "./common";
 
 class ClosedRequests extends Component {

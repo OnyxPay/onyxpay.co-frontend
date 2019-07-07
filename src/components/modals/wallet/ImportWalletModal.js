@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Modal, Typography, Select, Form, Input, Upload, Button, Icon, message } from "antd";
+import { Modal, Typography, Select, Form, Input, Upload, Button, Icon } from "antd";
 import { get } from "lodash";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { SelectContainer, ImportTitle, FormButtons } from "./styled";
 import { importMnemonics, importPrivateKey, getWallet, decryptWallet } from "../../../api/wallet";
 import { isMnemonicsValid, isPkValid, samePassword } from "../../../utils/validate";
 import Actions from "../../../redux/actions";
+import { showNotification } from "components/notification";
 
 /* 
 	TODO:
@@ -48,7 +49,10 @@ class ImportWalletModal extends Component {
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
 			hideModal();
-			message.success("You successfully imported your wallet", 5);
+			showNotification({
+				type: "success",
+				msg: "You successfully imported your wallet",
+			});
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -64,7 +68,10 @@ class ImportWalletModal extends Component {
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
 			hideModal();
-			message.success("You successfully imported your wallet", 5);
+			showNotification({
+				type: "success",
+				msg: "You successfully imported your wallet",
+			});
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -81,12 +88,14 @@ class ImportWalletModal extends Component {
 
 		try {
 			const { wallet } = await decryptWallet(uploadedWallet, password);
-			console.log("handleUnlockWithFile", wallet);
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
 			hideModal();
-			message.success("You successfully imported your wallet", 5);
+			showNotification({
+				type: "success",
+				msg: "You successfully imported your wallet",
+			});
 		} catch (error) {
 			if (error === 53000) {
 				formActions.setFieldError("password", "account's password is not correct");

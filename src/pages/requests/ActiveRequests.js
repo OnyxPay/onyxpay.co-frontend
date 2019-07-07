@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Table, message, notification } from "antd";
+import { Table } from "antd";
 import {
 	getActiveRequests,
 	acceptRequest,
@@ -19,6 +19,7 @@ import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
 import { parseRequestType, renderPageTitle } from "./common";
+import { showNotification, showTimeoutNotification } from "components/notification";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -126,21 +127,20 @@ class ActiveRequests extends Component {
 		// agent accepts deposit or withdraw request
 		try {
 			this.setState({ requestId, activeAction: "accept" });
-			// await wait(10000);
 			await acceptRequest(requestId);
-			notification.success({
-				message: "You have accepted the request",
+			showNotification({
+				type: "success",
+				msg: "You have accepted the request",
 			});
-			this.fetch(); // update data in table
+			this.fetch();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
@@ -148,12 +148,15 @@ class ActiveRequests extends Component {
 	};
 
 	hideRequest = async requestId => {
-		// agent can hide request
+		// agent hides request
 		try {
 			await hideMessage(requestId);
-			this.fetch(); // update data in table
+			this.fetch();
 		} catch (e) {
-			message.error(e.message);
+			showNotification({
+				type: "error",
+				msg: e.message,
+			});
 		}
 	};
 
@@ -161,21 +164,20 @@ class ActiveRequests extends Component {
 		// agent performs request
 		try {
 			this.setState({ requestId, activeAction: "perform" });
-			// await wait(10000);
 			await performRequest(requestId);
-			notification.success({
-				message: "You have performed the request",
+			showNotification({
+				type: "success",
+				msg: "You have performed the request",
 			});
 			this.fetch();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
@@ -183,23 +185,23 @@ class ActiveRequests extends Component {
 	};
 
 	cancelAcceptedRequest = async requestId => {
-		// agent performs request
+		// agent cancels request
 		try {
 			this.setState({ requestId, activeAction: "cancel_accepted_request" });
 			await cancelAcceptedRequest(requestId);
-			notification.success({
-				message: "You have canceled the request",
+			showNotification({
+				type: "success",
+				msg: "You have canceled the request",
 			});
 			this.fetch();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
@@ -207,22 +209,28 @@ class ActiveRequests extends Component {
 	};
 
 	handleComplain = async (requestId, canComplain = false) => {
+		// client complains
 		if (canComplain) {
 			try {
 				this.setState({ requestId, activeAction: "complain" });
 				await complain(requestId);
-				notification.success({
-					message: "You have complained on the request",
+				showNotification({
+					type: "success",
+					msg: "You have complained on the request",
 				});
 				this.fetch();
 			} catch (e) {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			} finally {
 				this.setState({ requestId: null, activeAction: "" });
 			}
 		} else {
-			notification.info({
-				message: "A complaint can only be filed 12 hours after the selection of the performer",
+			showNotification({
+				type: "info",
+				msg: "A complaint can only be filed 12 hours after the selection of the performer",
 			});
 		}
 	};
