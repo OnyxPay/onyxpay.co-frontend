@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ES6",
-		"baseUrl": "./src" // It tells VS Code to resolve non-relative paths relative to the ./src folder
+		"baseUrl": "./src"
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", "**/node_modules/*"]
