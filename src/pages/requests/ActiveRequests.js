@@ -15,10 +15,10 @@ import SendToAgentModal from "components/modals/SendToAgent";
 import { roles } from "api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
-import { PageTitle } from "components/styled";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
+import { parseRequestType, renderPageTitle } from "./common";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -57,18 +57,6 @@ class ActiveRequests extends Component {
 		}
 	}
 
-	parseRequestType() {
-		const { match, push } = this.props;
-		if (match.params.type === "withdraw") {
-			return "withdraw";
-		} else if (match.params.type === "deposit") {
-			return "deposit";
-		} else {
-			push("/active-requests");
-			return null;
-		}
-	}
-
 	hideModal = type => () => {
 		this.setState({ [type]: false });
 	};
@@ -102,7 +90,7 @@ class ActiveRequests extends Component {
 	fetch = async (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user } = this.props;
+			const { user, match, push } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
@@ -113,11 +101,11 @@ class ActiveRequests extends Component {
 				this.setState({ loading: true });
 				let data;
 				if (user.role === roles.c) {
-					params.type = this.parseRequestType();
+					params.type = parseRequestType({ match, push });
 					params.status = "pending,opened,choose,complained";
 					data = await getActiveRequests(params);
 				} else if (user.role === roles.a) {
-					params.requestType = this.parseRequestType();
+					params.requestType = parseRequestType({ match, push });
 					params.requestStatus = "opened,choose,completed,complained";
 					// params.isTaker = 0;
 					data = await getMessages(params);
@@ -239,18 +227,8 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	renderTitle() {
-		const { user } = this.props;
-		const requestType = this.parseRequestType();
-		if (user.role === roles.c) {
-			return <PageTitle>Active {requestType} requests</PageTitle>;
-		} else if (user.role === roles.a) {
-			return <PageTitle>Customer active {requestType} requests</PageTitle>;
-		}
-	}
-
 	render() {
-		const { user, walletAddress } = this.props;
+		const { user, walletAddress, match, push } = this.props;
 		const { requestId, activeAction } = this.state;
 		let columns = [];
 
@@ -277,7 +255,11 @@ class ActiveRequests extends Component {
 
 		return (
 			<>
-				{this.renderTitle()}
+				{renderPageTitle({
+					userRole: user.role,
+					requestType: parseRequestType({ match, push }),
+					isRequestClosed: false,
+				})}
 				<Table
 					columns={columns}
 					rowKey={record => record.id}

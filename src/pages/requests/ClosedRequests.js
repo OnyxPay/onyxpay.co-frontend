@@ -10,6 +10,7 @@ import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
 import { getPerformerName } from "../../utils";
 import { PageTitle } from "../../components/styled";
+import { parseRequestType, renderPageTitle } from "./common";
 
 class ClosedRequests extends Component {
 	constructor(props) {
@@ -42,18 +43,6 @@ class ClosedRequests extends Component {
 		}
 	}
 
-	parseRequestType() {
-		const { match, push } = this.props;
-		if (match.params.type === "withdraw") {
-			return "withdraw";
-		} else if (match.params.type === "deposit") {
-			return "deposit";
-		} else {
-			push("/active-requests");
-			return null;
-		}
-	}
-
 	handleTableChange = (pagination, filters, sorter) => {
 		this.setState(
 			{
@@ -74,7 +63,7 @@ class ClosedRequests extends Component {
 	fetch = async (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user } = this.props;
+			const { user, match, push } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
@@ -85,11 +74,11 @@ class ClosedRequests extends Component {
 				this.setState({ loading: true });
 				let data;
 				if (user.role === roles.c) {
-					params.type = this.parseRequestType();
+					params.type = parseRequestType({ match, push });
 					params.status = "rejected,completed";
 					data = await getActiveRequests(params);
 				} else if (user.role === roles.a) {
-					// params.requestType = this.parseRequestType();
+					// params.requestType = parseRequestType({ match, push });
 					// params.requestStatus = "completed";
 					// params.messageStatus = "canceled";
 					data = await getMessagesForClosedRequests(params);
@@ -106,18 +95,8 @@ class ClosedRequests extends Component {
 		}
 	};
 
-	renderTitle() {
-		const { user } = this.props;
-		const requestType = this.parseRequestType();
-		if (user.role === roles.c) {
-			return <PageTitle>Active customer {requestType} requests</PageTitle>;
-		} else if (user.role === roles.a) {
-			return <PageTitle>Closed customer {requestType} requests</PageTitle>;
-		}
-	}
-
 	render() {
-		const { user } = this.props;
+		const { user, match, push } = this.props;
 
 		const columnsForClient = [
 			{
@@ -188,7 +167,11 @@ class ClosedRequests extends Component {
 
 		return (
 			<>
-				{this.renderTitle()}
+				{renderPageTitle({
+					userRole: user.role,
+					requestType: parseRequestType({ match, push }),
+					isRequestClosed: true,
+				})}
 				<Table
 					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
 					rowKey={record => record.id}
