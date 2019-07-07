@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Table, Button, Popconfirm, message, notification } from "antd";
+import { Table, message, notification } from "antd";
 import {
 	getActiveRequests,
 	acceptRequest,
@@ -11,32 +11,20 @@ import {
 	complain,
 } from "api/requests";
 import { getMessages, hideMessage } from "api/operation-messages";
-import CancelRequest from "./CancelRequest";
 import SendToAgentModal from "components/modals/SendToAgent";
-import { roles, operationMessageStatus } from "api/constants";
+import { roles } from "api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
-import { convertAmountToStr } from "utils/number";
-import Countdown from "./Countdown";
-import { getPerformerName } from "utils";
 import { PageTitle } from "components/styled";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
+import renderClientColumns from "./table-columns/renderClientColumns";
+import renderAgentColumns from "./table-columns/renderAgentColumns";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
 	USER_SETTLEMENT_ACCOUNTS: "USER_SETTLEMENT_ACCOUNTS",
 };
 
-const style = {
-	btn: {
-		marginRight: 8,
-	},
-};
-
-const h12Mc = 12 * 60 * 60 * 1000;
-const h24Mc = 24 * 60 * 60 * 1000;
-
-// TODO: extract buttons render to separate funcs
 class ActiveRequests extends Component {
 	constructor(props) {
 		super(props);
@@ -112,7 +100,6 @@ class ActiveRequests extends Component {
 	};
 
 	fetch = async (opts = {}) => {
-		// TODO: use status from constants
 		if (this._isMounted) {
 			const { pagination } = this.state;
 			const { user } = this.props;
@@ -132,7 +119,7 @@ class ActiveRequests extends Component {
 				} else if (user.role === roles.a) {
 					params.requestType = this.parseRequestType();
 					params.requestStatus = "opened,choose,completed,complained";
-					params.isTaker = 0;
+					// params.isTaker = 0;
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };
@@ -181,11 +168,6 @@ class ActiveRequests extends Component {
 			message.error(e.message);
 		}
 	};
-
-	isAgentAccepted(operationMessages) {
-		// check if at least one agent is accepted the request
-		return operationMessages.some(mg => mg.status_code === operationMessageStatus.accepted);
-	}
 
 	performRequest = async requestId => {
 		// agent performs request
@@ -236,22 +218,6 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	calcTimeDiff(timestamp) {
-		const trxCreatedMs = new Date(timestamp).getTime();
-		const nowMs = new Date().getTime();
-		return nowMs - trxCreatedMs;
-	}
-
-	is24hOver(timestamp) {
-		const diff = this.calcTimeDiff(timestamp);
-		return diff > h24Mc;
-	}
-
-	is12hOver(timestamp) {
-		const diff = this.calcTimeDiff(timestamp);
-		return diff > h12Mc;
-	}
-
 	handleComplain = async (requestId, canComplain = false) => {
 		if (canComplain) {
 			try {
@@ -273,51 +239,6 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	renderComplainButton = (record, isComplainActive) => {
-		let button;
-		if (!this.is12hOver(record.choose_timestamp)) {
-			button = (
-				<Button
-					style={style.btn}
-					type="danger"
-					onClick={() => this.handleComplain(record.request_id, false)} // can't complain
-				>
-					Complain
-				</Button>
-			);
-		} else {
-			if (isComplainActive) {
-				button = (
-					<Button
-						type="danger"
-						style={style.btn}
-						loading={isComplainActive}
-						disabled={isComplainActive}
-					>
-						Complain
-					</Button>
-				);
-			} else {
-				button = (
-					<Popconfirm
-						title="Sure to complain?"
-						cancelText="No"
-						onConfirm={() => this.handleComplain(record.request_id, true)}
-					>
-						<Button
-							type="danger"
-							style={style.btn}
-							loading={isComplainActive}
-							disabled={isComplainActive}
-						>
-							Complain
-						</Button>
-					</Popconfirm>
-				);
-			}
-		}
-		return button;
-	};
 	renderTitle() {
 		const { user } = this.props;
 		const requestType = this.parseRequestType();
@@ -330,237 +251,35 @@ class ActiveRequests extends Component {
 
 	render() {
 		const { user, walletAddress } = this.props;
+		const { requestId, activeAction } = this.state;
+		let columns = [];
 
-		const columnsForClient = [
-			{
-				title: "Id",
-				dataIndex: "id",
-			},
-			{
-				title: "Asset",
-				dataIndex: "asset",
-			},
-			{
-				title: "Amount",
-				render: (text, record, index) => {
-					return convertAmountToStr(record.amount, 8);
-				},
-			},
-			{
-				title: "Status",
-				dataIndex: "status",
-			},
-			{
-				title: "Created",
-				render: (text, record, index) => {
-					return new Date(record.trx_timestamp).toLocaleString();
-				},
-			},
-			{
-				title: "Performer",
-				render: (text, record, index) => {
-					return record.taker_addr ? getPerformerName(record) : "n/a";
-				},
-			},
-			{
-				title: "Countdown",
-				render: (text, record, index) => {
-					return record.taker_addr && record.choose_timestamp ? (
-						<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
-					) : (
-						"n/a"
-					);
-				},
-			},
-			{
-				title: "Actions",
-				render: (text, record, index) => {
-					const isComplainActive =
-						record.request_id === this.state.requestId && this.state.activeAction === "complain";
-
-					return (
-						<>
-							{record.status === "opened" && !record.operation_messages.length && (
-								<Button
-									style={style.btn}
-									onClick={this.showModal(modals.SEND_REQ_TO_AGENT, {
-										requestId: record.id,
-										isSendingMessage: true,
-									})}
-								>
-									Send to agents
-								</Button>
-							)}
-
-							{(record.status === "opened" || record.status === "choose") && (
-								<CancelRequest
-									btnStyle={style.btn}
-									requestId={record.request_id}
-									fetchRequests={this.fetch}
-									disabled={isComplainActive}
-								/>
-							)}
-							{this.isAgentAccepted(record.operation_messages) && record.status === "opened" && (
-								<Button
-									style={style.btn}
-									onClick={this.showModal(modals.SEND_REQ_TO_AGENT, {
-										requestId: record.request_id,
-										isSendingMessage: false,
-										operationMessages: record.operation_messages,
-									})}
-								>
-									Choose agent
-								</Button>
-							)}
-							{record.taker_addr &&
-								record.choose_timestamp &&
-								record.status !== "complained" &&
-								!this.is24hOver(record.choose_timestamp) &&
-								this.renderComplainButton(record, isComplainActive)}
-						</>
-					);
-				},
-			},
-		];
-
-		const columnsForAgent = [
-			{
-				title: "Id",
-				dataIndex: "request.id",
-			},
-			{
-				title: "Asset",
-				dataIndex: "request.asset",
-			},
-			{
-				title: "Amount",
-				render: (text, record, index) => {
-					return convertAmountToStr(record.request.amount, 8);
-				},
-			},
-			{
-				title: "Status",
-				dataIndex: "request.status",
-			},
-			{
-				title: "Created",
-				render: (text, record, index) => {
-					return new Date(record.request.trx_timestamp).toLocaleString();
-				},
-			},
-			{
-				title: "Client",
-				dataIndex: "sender.addr",
-				render: (text, record, index) => {
-					return `${record.sender.first_name} ${record.sender.last_name}`;
-				},
-			},
-			{
-				title: "Countdown",
-				render: (text, record, index) => {
-					return record.request.taker_addr &&
-						record.request.taker_addr === walletAddress &&
-						record.request.choose_timestamp ? (
-						<Countdown date={new Date(record.request.choose_timestamp).getTime() + h24Mc} />
-					) : (
-						"n/a"
-					);
-				},
-			},
-			{
-				title: "Actions",
-				render: (text, record, index) => {
-					const isAcceptActive =
-						record.request.request_id === this.state.requestId &&
-						this.state.activeAction === "accept";
-
-					const isPerformActive =
-						record.request.request_id === this.state.requestId &&
-						this.state.activeAction === "perform";
-
-					const isCancelAcceptedRequestActive =
-						record.request.request_id === this.state.requestId &&
-						this.state.activeAction === "cancel_accepted_request";
-
-					return (
-						<>
-							{record.status !== "accepted" &&
-								(isAcceptActive ? (
-									<Button type="primary" style={style.btn} loading={true} disabled={true}>
-										Accept
-									</Button>
-								) : (
-									<Popconfirm
-										title="Sure to accept?"
-										onConfirm={() => this.acceptRequest(record.request.request_id)}
-									>
-										<Button type="primary" style={style.btn}>
-											Accept
-										</Button>
-									</Popconfirm>
-								))}
-
-							{record.status !== "accepted" &&
-								(isAcceptActive || isCancelAcceptedRequestActive ? (
-									<Button type="danger" style={style.btn} disabled={true}>
-										Hide
-									</Button>
-								) : (
-									<Popconfirm
-										title="Sure to hide?"
-										onConfirm={() => this.hideRequest(record.id)} // messageId
-									>
-										<Button type="danger" style={style.btn}>
-											Hide
-										</Button>
-									</Popconfirm>
-								))}
-
-							{record.request.taker_addr === walletAddress &&
-								record.request.status !== "completed" &&
-								(isPerformActive ? (
-									<Button type="primary" style={style.btn} loading={true} disabled={true}>
-										Perform
-									</Button>
-								) : (
-									<Popconfirm
-										title="Sure to perform?"
-										onConfirm={() => this.performRequest(record.request.request_id)}
-									>
-										<Button type="primary" style={style.btn}>
-											Perform
-										</Button>
-									</Popconfirm>
-								))}
-
-							{record.status === "accepted" &&
-								record.request.taker_addr !== walletAddress &&
-								(isCancelAcceptedRequestActive ? (
-									<Button type="danger" style={style.btn} loading={true} disabled={true}>
-										Cancel acceptation
-									</Button>
-								) : (
-									<Popconfirm
-										title="Sure to cancel acceptation?"
-										cancelText="No"
-										onConfirm={() => this.cancelAcceptedRequest(record.request.request_id)}
-									>
-										<Button type="danger" style={style.btn}>
-											Cancel acceptation
-										</Button>
-									</Popconfirm>
-								))}
-						</>
-					);
-				},
-			},
-		];
+		if (user.role === roles.c) {
+			columns = renderClientColumns({
+				activeRequestId: requestId,
+				activeAction,
+				modals,
+				fetchData: this.fetch,
+				showModal: this.showModal,
+				handleComplain: this.handleComplain,
+			});
+		} else if (user.role === roles.a) {
+			columns = renderAgentColumns({
+				activeRequestId: requestId,
+				activeAction,
+				walletAddress,
+				hideRequest: this.hideRequest,
+				acceptRequest: this.acceptRequest,
+				cancelAcceptedRequest: this.cancelAcceptedRequest,
+				performRequest: this.performRequest,
+			});
+		}
 
 		return (
 			<>
 				{this.renderTitle()}
 				<Table
-					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
+					columns={columns}
 					rowKey={record => record.id}
 					dataSource={this.state.data}
 					pagination={this.state.pagination}
