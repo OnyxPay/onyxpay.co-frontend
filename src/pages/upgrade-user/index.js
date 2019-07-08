@@ -52,7 +52,7 @@ class UpgradeUser extends Component {
 
 		getUpgradeRequest().then(
 			data => {
-				if (data.data.items && data.data.items.length) {
+				if (data.data) {
 					this.setState({ currentStep: steps.waitForApprovement });
 				}
 				this.setState({ showSpin: false });

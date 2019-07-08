@@ -156,6 +156,7 @@ function ProfileEditor(props) {
 					confirmEmail({ token: emailConfirmationInputRef.state.value }).then(
 						() => {
 							message.info("Email was changed successfully", 5);
+							props.getUserData();
 						},
 						err => {
 							console.error(err.response.data.errors);
