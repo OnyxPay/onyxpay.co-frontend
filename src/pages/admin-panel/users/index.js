@@ -224,9 +224,6 @@ class Users extends Component {
 				render: res => {
 					let balances = "";
 					for (let asset in res) {
-						if (!res.hasOwnProperty(asset)) {
-							continue;
-						}
 						balances += asset + ": " + res[asset] + "\n";
 					}
 
