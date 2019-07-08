@@ -178,10 +178,12 @@ class AssetsExchange extends Component {
 	}
 
 	setAssetToBuyValues = async (assetName, amount) => {
+		if (isNaN(amount)) amount = 0;
 		await this.setStateAsync({ assetToBuy: { name: assetName, amount: amount } });
 	};
 
 	setAssetToSellValues = async (assetName, amount) => {
+		if (isNaN(amount)) amount = 0;
 		await this.setStateAsync({ assetToSell: { name: assetName, amount: amount } });
 	};
 
@@ -332,21 +334,18 @@ class AssetsExchange extends Component {
 					tokenId: assetToBuy.name,
 					amount: assetToBuy.amount,
 					operationType: "buy",
-					wallet: wallet,
 				});
 			} else if (assetToBuy.name === onyxCashSymbol) {
 				result = await exchangeAssetsForOnyxCash({
 					tokenId: assetToSell.name,
 					amount: assetToSell.amount,
 					operationType: "sell",
-					wallet: wallet,
 				});
 			} else {
 				result = await exchangeAssets({
 					assetToSellName: assetToSell.name,
 					assetToBuyName: assetToBuy.name,
 					amountToBuy: assetToBuy.amount,
-					wallet: wallet,
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");

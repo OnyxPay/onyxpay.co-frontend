@@ -4,9 +4,7 @@ import { addSignAndSendTrx, createAndSignTrxViaGasCompensator } from "./bc";
 import { getWallet, getAccount } from "../api/wallet";
 
 export async function exchangeAssets(values) {
-	const { pk } = await unlockWalletAccount();
-	const walletDecoded = getWallet(values.wallet);
-	const account = getAccount(walletDecoded);
+	const { pk, accountAddress } = await unlockWalletAccount();
 
 	//make transaction
 	const params = [
@@ -28,7 +26,7 @@ export async function exchangeAssets(values) {
 		{
 			label: "acct",
 			type: ParameterType.ByteArray,
-			value: utils.reverseHex(account.address.toHexString()),
+			value: utils.reverseHex(accountAddress.toHexString()),
 		},
 	];
 	console.log(params);
@@ -43,9 +41,7 @@ export async function exchangeAssets(values) {
 }
 
 export async function exchangeAssetsForOnyxCash(values) {
-	const { pk } = await unlockWalletAccount();
-	const walletDecoded = getWallet(values.wallet);
-	const account = getAccount(walletDecoded);
+	const { pk, accountAddress } = await unlockWalletAccount();
 
 	//make transaction
 	const params = [
@@ -62,7 +58,7 @@ export async function exchangeAssetsForOnyxCash(values) {
 		{
 			label: "agent",
 			type: ParameterType.ByteArray,
-			value: utils.reverseHex(account.address.toHexString()),
+			value: utils.reverseHex(accountAddress.toHexString()),
 		},
 	];
 	console.log(params);
