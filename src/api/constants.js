@@ -44,3 +44,5 @@ export const requestStatus = {
 	completed: 6,
 	closed: 7, //  not set at back-end now
 };
+
+export const onyxCashSymbol = "oCASH";
