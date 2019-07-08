@@ -1,22 +1,32 @@
-import { Modal, Table } from "antd";
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import Actions from "../../redux/actions";
+import { Modal, Table } from "antd";
+import { getSettlementsByUserId } from "api/settlement-accounts";
 
-// TODO: extract loading to separate reducer
-// get data by id
 class UserSettlement extends Component {
 	state = {
 		loading: false,
+		data: [],
 	};
 
-	componentDidMount = async () => {
-		const { getUserSettlements } = this.props;
-		getUserSettlements(this.props.userId);
-	};
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps.userId !== this.props.userId) {
+			this.fetchData(this.props.userId);
+		}
+	}
+
+	async fetchData(userId) {
+		this.setState({ loading: true });
+		try {
+			const data = await getSettlementsByUserId(userId);
+			this.setState({ loading: false, data: data.items });
+		} catch (e) {
+		} finally {
+			this.setState({ loading: false });
+		}
+	}
 
 	render() {
-		const { userSettlements, loading } = this.props;
+		const { loading, data } = this.state;
 		const columns = [
 			{
 				title: "Account name",
@@ -62,7 +72,7 @@ class UserSettlement extends Component {
 					<Table
 						columns={columns}
 						rowKey={data => data.id}
-						dataSource={userSettlements}
+						dataSource={data}
 						className="ovf-auto"
 						pagination={false}
 						loading={loading}
@@ -73,14 +83,4 @@ class UserSettlement extends Component {
 	}
 }
 
-const mapStateToProps = state => ({
-	userSettlements: state.settlements,
-	loading: state.loading,
-});
-
-export default connect(
-	mapStateToProps,
-	{
-		getUserSettlements: Actions.settlements.getSettlementsList,
-	}
-)(UserSettlement);
+export default UserSettlement;

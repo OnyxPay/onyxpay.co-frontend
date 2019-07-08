@@ -205,7 +205,9 @@ class SendToAgent extends Component {
 										pagination={this.state.pagination}
 										onChange={this.handleTableChange}
 										isSendingMessage={isSendingMessage}
-										showUserSettlementsModal={showUserSettlementsModal}
+										showUserSettlementsModal={userId => {
+											return showUserSettlementsModal(userId);
+										}}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>

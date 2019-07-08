@@ -64,8 +64,7 @@ class ActiveRequests extends Component {
 
 	showModal = (type, options) => () => {
 		if (options) {
-			const { requestId, isSendingMessage = false, operationMessages = [] } = options;
-			this.setState({ [type]: true, requestId, isSendingMessage, operationMessages });
+			this.setState({ [type]: true, ...options });
 		} else {
 			this.setState({ [type]: true });
 		}
@@ -108,7 +107,7 @@ class ActiveRequests extends Component {
 				} else if (user.role === roles.a) {
 					params.requestType = parseRequestType({ match, push });
 					params.requestStatus = "opened,choose,completed,complained";
-					// params.isTaker = 0;
+					params.isTaker = 0;
 					data = await getMessages(params);
 				}
 				const pagination = { ...this.state.pagination };
@@ -284,11 +283,16 @@ class ActiveRequests extends Component {
 					isSendingMessage={this.state.isSendingMessage}
 					operationMessages={this.state.operationMessages}
 					fetchRequests={this.fetch}
-					showUserSettlementsModal={this.showModal(modals.USER_SETTLEMENT_ACCOUNTS)}
+					showUserSettlementsModal={settlementsId =>
+						this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
+							settlementsId,
+						})()
+					}
 				/>
 				<UserSettlementsModal
 					isModalVisible={this.state.USER_SETTLEMENT_ACCOUNTS}
 					hideModal={this.hideModal(modals.USER_SETTLEMENT_ACCOUNTS)}
+					userId={this.state.settlementsId}
 				/>
 			</>
 		);

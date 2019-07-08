@@ -51,7 +51,7 @@ export async function getMessages(params) {
 export async function getMessagesForClosedRequests(params) {
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("operation-messages/close-request", {
+		const { data } = await client.get("operation-messages/close-requests", {
 			headers: {
 				...authHeaders,
 			},

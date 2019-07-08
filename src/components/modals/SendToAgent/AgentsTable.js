@@ -30,7 +30,11 @@ function AgentsTable({
 				render: (text, record, index) => {
 					return (
 						<Tooltip title="See settlement accounts">
-							<Button shape="round" icon="account-book" onClick={showUserSettlementsModal} />
+							<Button
+								shape="round"
+								icon="account-book"
+								onClick={e => showUserSettlementsModal(record.user_id)}
+							/>
 						</Tooltip>
 					);
 				},
@@ -56,7 +60,11 @@ function AgentsTable({
 				render: (text, record, index) => {
 					return (
 						<Tooltip title="See settlement accounts">
-							<Button shape="round" icon="account-book" onClick={showUserSettlementsModal} />
+							<Button
+								shape="round"
+								icon="account-book"
+								onClick={e => showUserSettlementsModal(record.receiver.user_id)}
+							/>
 						</Tooltip>
 					);
 				},
