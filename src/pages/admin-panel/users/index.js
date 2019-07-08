@@ -266,8 +266,8 @@ class Users extends Component {
 				render: res => {
 					console.log(res);
 					if (
-						res.operations_successful !== undefined &&
-						res.operations_unsuccessful !== undefined
+						res.hasOwnProperty("operations_successful") &&
+						res.hasOwnProperty("operations_unsuccessful")
 					) {
 						return (
 							"Number of successful/unsuccessful operations: " +
