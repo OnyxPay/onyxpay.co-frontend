@@ -5,7 +5,6 @@ import {
 	Col,
 	Card,
 	Form,
-	Icon,
 	Input,
 	InputNumber,
 	Button,
@@ -82,6 +81,12 @@ class AssetsExchange extends Component {
 		dataLoaded: false,
 	};
 
+	setStateAsync(state) {
+		return new Promise(resolve => {
+			this.setState(state, resolve);
+		});
+	}
+
 	fillAssetsForBuyData = async () => {
 		const { exchangeRates, user } = this.props;
 
@@ -100,7 +105,7 @@ class AssetsExchange extends Component {
 				buyPrice: convertAmountToStr(record.buy, 8),
 			});
 		}
-		await this.setState({
+		await this.setStateAsync({
 			assetsForBuyData: assetsForBuyData,
 		});
 	};
@@ -129,7 +134,7 @@ class AssetsExchange extends Component {
 			});
 		}
 
-		await this.setState({
+		await this.setStateAsync({
 			assetsForSellData: assetsForSellData,
 		});
 	};
@@ -172,12 +177,12 @@ class AssetsExchange extends Component {
 		}
 	}
 
-	setAssetToBuyValues = (assetName, amount) => {
-		this.setState({ assetToBuy: { name: assetName, amount: amount } });
+	setAssetToBuyValues = async (assetName, amount) => {
+		await this.setStateAsync({ assetToBuy: { name: assetName, amount: amount } });
 	};
 
-	setAssetToSellValues = (assetName, amount) => {
-		this.setState({ assetToSell: { name: assetName, amount: amount } });
+	setAssetToSellValues = async (assetName, amount) => {
+		await this.setStateAsync({ assetToSell: { name: assetName, amount: amount } });
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
@@ -211,7 +216,7 @@ class AssetsExchange extends Component {
 			error = value + " asset is blocked at the moment";
 		}
 
-		await this.setState({
+		await this.setStateAsync({
 			assetToSellNameError: assetType === "sell" ? error : this.state.assetToSellNameError,
 			assetToBuyNameError: assetType === "buy" ? error : this.state.assetToBuyNameError,
 		});
@@ -232,7 +237,7 @@ class AssetsExchange extends Component {
 		} else if (Number(assetToSell.amount) > Number(asset.balance)) {
 			error = "Not enough " + asset.name + " to perform operation";
 		}
-		await this.setState({ assetToSellAmountError: error });
+		await this.setStateAsync({ assetToSellAmountError: error });
 	};
 
 	validateForm = async () => {
@@ -240,7 +245,7 @@ class AssetsExchange extends Component {
 		await this.validateAssetName("sell");
 		await this.validateToSellAmount();
 
-		this.setState({ formDataIsValid: this.inputIsValid() });
+		this.setStateAsync({ formDataIsValid: this.inputIsValid() });
 	};
 
 	inputIsValid = () => {
@@ -314,7 +319,7 @@ class AssetsExchange extends Component {
 		e.preventDefault();
 		e.stopPropagation();
 
-		await this.setState({ transactionInProcess: true });
+		await this.setStateAsync({ transactionInProcess: true });
 
 		const { assetToBuy, assetToSell } = this.state;
 		const { wallet } = this.props;
