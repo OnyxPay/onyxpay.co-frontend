@@ -79,6 +79,14 @@ class SendToAgent extends Component {
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
+		let sorOrder;
+
+		if (sorter.order === "ascend") {
+			sorOrder = "asc";
+		} else if (sorter.order === "descend") {
+			sorOrder = "desc";
+		}
+
 		this.setState(
 			{
 				pagination: {
@@ -90,6 +98,8 @@ class SendToAgent extends Component {
 			() => {
 				this.fetchUsers({
 					...filters,
+					sort_field: sorter.field,
+					sort: sorOrder,
 				});
 			}
 		);

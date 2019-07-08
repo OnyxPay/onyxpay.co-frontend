@@ -3,6 +3,16 @@ import { Table } from "antd";
 import { getLocalTime } from "../../../utils";
 import { Button, Tooltip } from "antd";
 
+function sortValues(valA, valB) {
+	if (valA < valB) {
+		return -1;
+	}
+	if (valA > valB) {
+		return 1;
+	}
+	return 0;
+}
+
 function AgentsTable({
 	data,
 	loading,
@@ -16,10 +26,12 @@ function AgentsTable({
 	let columns = [];
 	if (isSendingMessage) {
 		columns = [
-			{ title: "First name", dataIndex: "first_name" },
-			{ title: "Last name", dataIndex: "last_name" },
+			{ title: "First name", dataIndex: "first_name", sorter: true },
+			{ title: "Last name", dataIndex: "last_name", sorter: true },
 			{
 				title: "Registered",
+				dataIndex: "created_at",
+				sorter: true,
 				render: (text, record, index) => {
 					return <span>{getLocalTime(record.created_at)}</span>;
 				},
@@ -43,13 +55,34 @@ function AgentsTable({
 	} else {
 		columns = [
 			{
-				title: "Name",
-				render: (text, record, index) => {
-					return <span>{record.receiver.first_name + " " + record.receiver.last_name}</span>;
+				title: "First name",
+				dataIndex: "receiver.first_name",
+				sorter: (a, b) => {
+					const nameA = a.receiver.first_name.toLowerCase();
+					const nameB = b.receiver.first_name.toLowerCase();
+					return sortValues(nameA, nameB);
 				},
+				sortDirections: ["descend", "ascend"],
+			},
+			{
+				title: "Last name",
+				dataIndex: "receiver.last_name",
+				sorter: (a, b) => {
+					const nameA = a.receiver.last_name.toLowerCase();
+					const nameB = b.receiver.last_name.toLowerCase();
+					return sortValues(nameA, nameB);
+				},
+				sortDirections: ["descend", "ascend"],
 			},
 			{
 				title: "Registered",
+				dataIndex: "created_at",
+				sorter: (a, b) => {
+					const dateA = new Date(a.receiver.created_at).getTime();
+					const dateB = new Date(b.receiver.created_at).getTime();
+					return sortValues(dateA, dateB);
+				},
+				sortDirections: ["descend", "ascend"],
 				render: (text, record, index) => {
 					return <span>{getLocalTime(record.receiver.created_at)}</span>;
 				},
@@ -89,7 +122,7 @@ function AgentsTable({
 				className="ovf-auto"
 				loading={loading}
 				rowSelection={rowSelection}
-				onChange={onChange}
+				onChange={isSendingMessage ? onChange : null} // server or local sorting
 			/>
 		</>
 	);
