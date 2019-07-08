@@ -8,11 +8,15 @@ const userData = localStorage.getItem("user");
 const initialState = (userData && JSON.parse(userData)) || null;
 
 const SAVE_USER = "SAVE_USER";
+const UPGRADE_USER = "UPGRADE_USER";
 
 export const userReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SAVE_USER:
 			localStorage.setItem("user", JSON.stringify(action.payload));
+			return action.payload;
+		case UPGRADE_USER:
+			localStorage.setItem("role", JSON.stringify(action.payload));
 			return action.payload;
 		case LOG_OUT:
 			localStorage.removeItem("user");
