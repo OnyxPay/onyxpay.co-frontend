@@ -48,6 +48,21 @@ export async function getMessages(params) {
 	}
 }
 
+export async function getMessagesForActiveRequests(params) {
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("operation-messages/deposit/active-requests", {
+			headers: {
+				...authHeaders,
+			},
+			params,
+		});
+		return data;
+	} catch (error) {
+		return handleReqError(error);
+	}
+}
+
 export async function getMessagesForClosedRequests(params) {
 	try {
 		const authHeaders = getAuthHeaders();

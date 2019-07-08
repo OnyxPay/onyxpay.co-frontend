@@ -10,7 +10,7 @@ import {
 	cancelAcceptedRequest,
 	complain,
 } from "api/requests";
-import { getMessages, hideMessage } from "api/operation-messages";
+import { getMessagesForActiveRequests, hideMessage } from "api/operation-messages";
 import SendToAgentModal from "components/modals/SendToAgent";
 import { roles } from "api/constants";
 import { push } from "connected-react-router";
@@ -105,10 +105,10 @@ class ActiveRequests extends Component {
 					params.status = "pending,opened,choose,complained";
 					data = await getActiveRequests(params);
 				} else if (user.role === roles.a) {
-					params.requestType = parseRequestType({ match, push });
-					params.requestStatus = "opened,choose,completed,complained";
-					params.isTaker = 0;
-					data = await getMessages(params);
+					// params.requestType = parseRequestType({ match, push });
+					// params.requestStatus = "opened,choose,completed,complained";
+					// params.isTaker = 0;
+					data = await getMessagesForActiveRequests(params);
 				}
 				const pagination = { ...this.state.pagination };
 				pagination.total = data.total;
