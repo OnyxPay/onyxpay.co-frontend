@@ -583,6 +583,7 @@ class AssetsExchange extends Component {
 								dataSource={this.state.assetsForSellData}
 								pagination={false}
 								scroll={{ y: "16em" }}
+								locale={{ emptyText: "You have no assets at the moment. Please, make a deposit." }}
 							/>
 						</Col>
 
@@ -596,6 +597,7 @@ class AssetsExchange extends Component {
 								dataSource={this.state.assetsForBuyData}
 								pagination={false}
 								scroll={{ y: "16em" }}
+								locale={{ emptyText: "No assets available in the system at the moment." }}
 							/>
 						</Col>
 					</Row>
