@@ -27,3 +27,7 @@ export function convertAsset(asset, rate) {
 export function addAmounts(a, b) {
 	return new BigNumber(a).plus(new BigNumber(b)).toString();
 }
+
+export function minus(a, b) {
+	return new BigNumber(a).minus(new BigNumber(b)).toNumber();
+}

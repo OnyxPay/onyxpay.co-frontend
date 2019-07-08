@@ -1,21 +1,10 @@
 import { ParameterType, utils } from "ontology-ts-sdk";
 import { unlockWalletAccount } from "./wallet";
-import { getStore } from "../store";
-import { resolveContractAddress } from "../redux/contracts";
-import { createTrx, signTrx, sendTrx } from "./bc";
-import { timeout } from "promise-timeout";
-import { notifyTimeout } from "./constants";
-import { getWallet, getAccount } from "../api/wallet";
+import { addSignAndSendTrx, createAndSignTrxViaGasCompensator } from "./bc";
+import { convertAmountFromStr } from "../utils/number";
 
 export async function exchangeAssets(values) {
-	const store = getStore();
-	const address = await store.dispatch(resolveContractAddress("Exchange"));
-	if (!address) {
-		throw new Error("Unable to get address of Exchange smart-contract");
-	}
 	const { pk, accountAddress } = await unlockWalletAccount();
-	const walletDecoded = getWallet(values.wallet);
-	const account = getAccount(walletDecoded);
 
 	//make transaction
 	const params = [
@@ -32,23 +21,53 @@ export async function exchangeAssets(values) {
 		{
 			label: "amountToBuy",
 			type: ParameterType.Integer,
-			value: Math.round(values.amountToBuy * 10 ** 8),
+			value: convertAmountFromStr(values.amountToBuy.toString()),
 		},
 		{
 			label: "acct",
 			type: ParameterType.ByteArray,
-			value: utils.reverseHex(account.address.toHexString()),
+			value: utils.reverseHex(accountAddress.toHexString()),
 		},
 	];
 	console.log(params);
-	const trx = createTrx({
-		funcName: "ExchangeAssets",
-		params: params,
-		contractAddress: address,
-		accountAddress,
-	});
 
-	signTrx(trx, pk);
-	const res = await timeout(sendTrx(trx, false, true), notifyTimeout);
-	return res;
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"Exchange",
+		"ExchangeAssets",
+		params
+	);
+
+	return await addSignAndSendTrx(serializedTrx, pk);
+}
+
+export async function exchangeAssetsForOnyxCash(values) {
+	const { pk, accountAddress } = await unlockWalletAccount();
+
+	//make transaction
+	const params = [
+		{
+			label: "tokenId",
+			type: ParameterType.String,
+			value: values.tokenId,
+		},
+		{
+			label: "amount",
+			type: ParameterType.Integer,
+			value: convertAmountFromStr(values.amount.toString()),
+		},
+		{
+			label: "agent",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(accountAddress.toHexString()),
+		},
+	];
+	console.log(params);
+
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"Exchange",
+		values.operationType === "buy" ? "Buy" : "Sell",
+		params
+	);
+
+	return await addSignAndSendTrx(serializedTrx, pk);
 }
