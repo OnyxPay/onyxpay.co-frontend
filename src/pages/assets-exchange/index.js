@@ -324,7 +324,6 @@ class AssetsExchange extends Component {
 		await this.setStateAsync({ transactionInProcess: true });
 
 		const { assetToBuy, assetToSell } = this.state;
-		const { wallet } = this.props;
 		console.log("asset to buy", assetToBuy);
 		console.log("asset to sell", assetToSell);
 		try {
@@ -612,7 +611,6 @@ class AssetsExchange extends Component {
 export default connect(
 	state => {
 		return {
-			wallet: state.wallet,
 			balance: state.balance,
 			exchangeRates: state.assets.rates,
 			user: state.user,
