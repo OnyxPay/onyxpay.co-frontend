@@ -57,3 +57,41 @@ export async function isAssetBlocked(tokenId) {
 	const response = await sendTrx(trx, true, false);
 	return !!parseInt(get(response, "Result.Result", "0"), 16);
 }
+
+export async function getFee(tokenId, amount, operationName) {
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("InternalRevenueService"));
+	if (!address) {
+		throw new ContractAddressError(
+			"Unable to get address of InternalRevenueService smart-contract"
+		);
+	}
+
+	const params = [
+		{
+			label: "tokenId",
+			type: ParameterType.String,
+			value: tokenId,
+		},
+		{
+			label: "amount",
+			type: ParameterType.Integer,
+			value: convertAmountFromStr(amount),
+		},
+		{
+			label: "operationName",
+			type: ParameterType.String,
+			value: operationName, // Withdraw, deposit, send
+		},
+	];
+
+	const trx = createTrx({
+		funcName: "GetFee",
+		params,
+		contractAddress: address,
+	});
+
+	const res = await sendTrx(trx, true, false);
+
+	return parseInt(utils.reverseHex(res.Result.Result), 16);
+}

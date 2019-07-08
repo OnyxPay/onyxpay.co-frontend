@@ -50,20 +50,22 @@ class UpgradeUser extends Component {
 		});
 		this.checkSettlements();
 
-		const role = props.match.params.role.substr(1).replace("_", "");
-		getUpgradeRequest(role).then(
+		getUpgradeRequest().then(
 			data => {
-				if (data.data.items && data.data.items.length) {
+				if (data.data) {
 					this.setState({ currentStep: steps.waitForApprovement });
 				}
 				this.setState({ showSpin: false });
 			},
 			err => {
-				console.error(err.errors);
-				message.error(
-					"There is an error occurred while receiving upgrade requests. Details:" +
-						JSON.stringify(err.errors)
-				);
+				if (err.response.status !== 404) {
+					console.error(err.errors);
+					message.error(
+						"There is an error occurred while receiving upgrade requests. Details:" +
+							JSON.stringify(err.errors)
+					);
+				}
+				this.setState({ showSpin: false });
 			}
 		);
 

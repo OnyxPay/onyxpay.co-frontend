@@ -182,6 +182,20 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
+				title: "Registration date",
+				dataIndex: "created_at",
+				key: "created_at",
+				...this.getColumnSearchProps("created_at"),
+				render: res => (res ? new Date(res).toDateString() : "n/a"),
+			},
+			{
+				title: "Role",
+				dataIndex: "role",
+				key: "role",
+				...this.getColumnSearchProps("role"),
+				render: res => (res ? res : "n/a"),
+			},
+			{
 				title: "Country",
 				dataIndex: "country",
 				key: "country",
@@ -201,6 +215,20 @@ class Users extends Component {
 				key: "phone_number",
 				...this.getColumnSearchProps("phone_number"),
 				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Balances",
+				dataIndex: "assets_balances",
+				key: "assets_balances",
+				...this.getColumnSearchProps("assets_balances"),
+				render: res => {
+					let balances = "";
+					for (let asset in res) {
+						balances += asset + ": " + res[asset] + "\n";
+					}
+
+					return balances;
+				},
 			},
 			{
 				title: "Chat id",
@@ -226,6 +254,37 @@ class Users extends Component {
 				key: "status",
 				...this.getColumnSearchProps("status"),
 				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Total remuneration",
+				dataIndex: "remuneration",
+				key: "remuneration",
+				...this.getColumnSearchProps("remuneration"),
+				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Other data",
+				dataIndex: "count",
+				key: "count",
+				undefined,
+				render: res => {
+					console.log(res);
+					if (
+						res.hasOwnProperty("operations_successful") &&
+						res.hasOwnProperty("operations_unsuccessful")
+					) {
+						return (
+							"Number of successful/unsuccessful operations: " +
+							res.operations_successful +
+							"/" +
+							res.operations_unsuccessful
+						);
+					}
+					if (res.requests_canceled !== undefined) {
+						return "Number of canceled customer requests: " + res.requests_canceled;
+					}
+					return "";
+				},
 			},
 			{
 				title: "Actions",
