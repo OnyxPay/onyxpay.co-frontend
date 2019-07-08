@@ -396,7 +396,6 @@ class AssetsExchange extends Component {
 													className="asset-exchange-amount-input-group-form-item"
 												>
 													<InputNumber
-														prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
 														min={0}
 														precision={8}
 														placeholder="You send"
@@ -489,7 +488,6 @@ class AssetsExchange extends Component {
 													className="asset-exchange-amount-input-group-form-item"
 												>
 													<InputNumber
-														prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
 														min={0}
 														precision={8}
 														placeholder="You get"
