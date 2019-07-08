@@ -25,6 +25,16 @@ function AgentsTable({
 				},
 			},
 			{ title: "Wallet address", dataIndex: "wallet_addr" },
+			{
+				title: "Actions",
+				render: (text, record, index) => {
+					return (
+						<Tooltip title="See settlement accounts">
+							<Button shape="round" icon="account-book" onClick={showUserSettlementsModal} />
+						</Tooltip>
+					);
+				},
+			},
 		];
 	} else {
 		columns = [
