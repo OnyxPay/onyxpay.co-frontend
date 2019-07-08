@@ -332,20 +332,20 @@ class AssetsExchange extends Component {
 			if (assetToSell.name === onyxCashSymbol) {
 				result = await exchangeAssetsForOnyxCash({
 					tokenId: assetToBuy.name,
-					amount: assetToBuy.amount,
+					amount: assetToBuy.amount.toFixed(8),
 					operationType: "buy",
 				});
 			} else if (assetToBuy.name === onyxCashSymbol) {
 				result = await exchangeAssetsForOnyxCash({
 					tokenId: assetToSell.name,
-					amount: assetToSell.amount,
+					amount: assetToSell.amount.toFixed(8),
 					operationType: "sell",
 				});
 			} else {
 				result = await exchangeAssets({
 					assetToSellName: assetToSell.name,
 					assetToBuyName: assetToBuy.name,
-					amountToBuy: assetToBuy.amount,
+					amountToBuy: assetToBuy.amount.toFixed(8),
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");

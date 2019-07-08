@@ -1,7 +1,7 @@
 import { ParameterType, utils } from "ontology-ts-sdk";
 import { unlockWalletAccount } from "./wallet";
 import { addSignAndSendTrx, createAndSignTrxViaGasCompensator } from "./bc";
-import { getWallet, getAccount } from "../api/wallet";
+import { convertAmountFromStr } from "../utils/number";
 
 export async function exchangeAssets(values) {
 	const { pk, accountAddress } = await unlockWalletAccount();
@@ -21,7 +21,7 @@ export async function exchangeAssets(values) {
 		{
 			label: "amountToBuy",
 			type: ParameterType.Integer,
-			value: Math.round(values.amountToBuy * 10 ** 8),
+			value: convertAmountFromStr(values.amountToBuy.toString()),
 		},
 		{
 			label: "acct",
@@ -53,7 +53,7 @@ export async function exchangeAssetsForOnyxCash(values) {
 		{
 			label: "amount",
 			type: ParameterType.Integer,
-			value: Math.round(values.amount * 10 ** 8),
+			value: convertAmountFromStr(values.amount.toString()),
 		},
 		{
 			label: "agent",
