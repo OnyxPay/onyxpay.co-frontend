@@ -35,6 +35,7 @@ class UserSettlement extends Component {
 				dataIndex: "account_number",
 				key: "account_number",
 				width: "10%",
+				className: "nowrap-col",
 			},
 			{
 				title: "Brief notes",
