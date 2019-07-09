@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { Popover, Button, message, notification, Spin } from "antd";
+import { Popover, Button, Spin } from "antd";
 import { TextAligner } from "../../components/styled";
 import { cancelRequest, getRejectionCounter } from "../../api/requests";
-// import { ContractAddressError, SendRawTrxError } from "../../utils/custom-error";
 import { TimeoutError } from "promise-timeout";
+import { showNotification, showTimeoutNotification } from "components/notification";
 
 class CancelRequest extends Component {
 	state = {
@@ -20,7 +20,10 @@ class CancelRequest extends Component {
 				const counter = await getRejectionCounter();
 				this.setState({ loading: false, counter });
 			} catch (e) {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		}
 	}
@@ -44,18 +47,18 @@ class CancelRequest extends Component {
 			this.setState({ actionIsOn: true });
 			await cancelRequest(requestId, "deposit");
 			fetchRequests();
-			notification.success({
-				message: "You have canceled the request",
+			showNotification({
+				type: "success",
+				msg: "You have canceled the request",
 			});
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		} finally {
 			this.setState({ actionIsOn: false });

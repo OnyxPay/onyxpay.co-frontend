@@ -79,6 +79,14 @@ class SendToAgent extends Component {
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
+		let sorOrder;
+
+		if (sorter.order === "ascend") {
+			sorOrder = "asc";
+		} else if (sorter.order === "descend") {
+			sorOrder = "desc";
+		}
+
 		this.setState(
 			{
 				pagination: {
@@ -90,6 +98,8 @@ class SendToAgent extends Component {
 			() => {
 				this.fetchUsers({
 					...filters,
+					sort_field: sorter.field,
+					sort: sorOrder,
 				});
 			}
 		);
@@ -131,7 +141,13 @@ class SendToAgent extends Component {
 	};
 
 	render() {
-		const { isModalVisible, user, operationMessages, isSendingMessage } = this.props;
+		const {
+			isModalVisible,
+			user,
+			operationMessages,
+			isSendingMessage,
+			showUserSettlementsModal,
+		} = this.props;
 		const { loading, users, selectedRowKeys } = this.state;
 
 		return (
@@ -199,6 +215,9 @@ class SendToAgent extends Component {
 										pagination={this.state.pagination}
 										onChange={this.handleTableChange}
 										isSendingMessage={isSendingMessage}
+										showUserSettlementsModal={userId => {
+											return showUserSettlementsModal(userId);
+										}}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>
