@@ -39,6 +39,10 @@
 	width: 900px !important;
 }
 
+.ant-table-tbody td.nowrap-col {
+	white-space: nowrap;
+}
+
 @media (max-width: 991px) {
 	.ant-modal {
 		top: 30px !important;
