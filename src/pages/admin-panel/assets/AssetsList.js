@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Table, Icon, message, notification } from "antd";
+import { Card, Button, Table, Icon, message, notification, Input } from "antd";
 import Actions from "../../../redux/actions";
 import { blockAsset } from "../../../api/admin/assets";
 import { isAssetBlocked } from "../../../api/assets";
@@ -17,6 +17,16 @@ const style = {
 	},
 };
 
+function sortValues(valA, valB) {
+	if (valA < valB) {
+		return -1;
+	}
+	if (valA > valB) {
+		return 1;
+	}
+	return 0;
+}
+
 class AssetsList extends Component {
 	constructor(props) {
 		super(props);
@@ -30,6 +40,58 @@ class AssetsList extends Component {
 			symbolKey: null,
 		};
 	}
+
+	getColumnSearchProps = dataIndex => ({
+		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+			<div style={{ padding: 8 }}>
+				<Input
+					ref={node => {
+						this.searchInput = node;
+					}}
+					placeholder={`Search ${dataIndex}`}
+					value={selectedKeys[0]}
+					onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+					onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
+					style={{ width: 188, marginBottom: 8, display: "block" }}
+				/>
+				<Button
+					type="primary"
+					onClick={() => this.handleSearch(selectedKeys, confirm)}
+					icon="search"
+					size="small"
+					style={{ width: 90, marginRight: 8 }}
+				>
+					Search
+				</Button>
+				<Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+					Reset
+				</Button>
+			</div>
+		),
+		filterIcon: filtered => (
+			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
+		),
+		onFilter: (value, record) =>
+			record[dataIndex]
+				.toString()
+				.toLowerCase()
+				.includes(value.toLowerCase()),
+		onFilterDropdownVisibleChange: visible => {
+			if (visible) {
+				setTimeout(() => this.searchInput.select());
+			}
+		},
+	});
+
+	handleSearch = (selectedKeys, confirm) => {
+		confirm();
+		this.setState({ searchText: selectedKeys[0] });
+	};
+
+	handleReset = clearFilters => {
+		clearFilters();
+		this.setState({ searchText: "" });
+	};
 
 	async componentDidMount() {
 		const { getAssetsList } = this.props;
@@ -104,9 +166,16 @@ class AssetsList extends Component {
 		const columns = [
 			{
 				title: "Asset name",
-				key: "asset-name",
+				key: "symbol",
 				width: "80%",
 				dataIndex: "symbol",
+				sorter: (a, b) => {
+					const nameA = a.symbol.toLowerCase();
+					const nameB = b.symbol.toLowerCase();
+					return sortValues(nameA, nameB);
+				},
+				sortDirections: ["ascend", "descend"],
+				...this.getColumnSearchProps("symbol"),
 			},
 			{
 				title: "Action",
