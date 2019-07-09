@@ -370,6 +370,7 @@ class AssetsExchange extends Component {
 			this.setState({ transactionInProcess: false });
 			console.log(result);
 		} catch (e) {
+			console.log(e, typeof e);
 			if (e instanceof TimeoutError) {
 				this.openNotification(
 					"error",
@@ -378,7 +379,9 @@ class AssetsExchange extends Component {
 			} else if (e instanceof SendRawTrxError) {
 				this.openNotification("error", "Contract execution error");
 			} else {
-				this.openNotification("error", "Unknown error");
+				if (!e.message.includes("You should unlock your wallet to make transactions")) {
+					this.openNotification("error", "Unknown error");
+				}
 			}
 			console.log("error: ", e);
 			this.setState({ transactionInProcess: false });
@@ -470,13 +473,13 @@ class AssetsExchange extends Component {
 									{this.state.assetToSellNameError.length !== 0 ? (
 										<Tag color="red">{this.state.assetToSellNameError}</Tag>
 									) : (
-										""
-									)}
+											""
+										)}
 									{this.state.assetToSellAmountError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToSellAmountError}</Tag>
 									) : (
-										""
-									)}
+											""
+										)}
 								</Col>
 							</Col>
 
@@ -569,13 +572,13 @@ class AssetsExchange extends Component {
 									{this.state.assetToBuyNameError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
 									) : (
-										""
-									)}
+											""
+										)}
 									{this.state.assetToBuyAmountError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToBuyAmountError} </Tag>
 									) : (
-										""
-									)}
+											""
+										)}
 								</Col>
 							</Col>
 
