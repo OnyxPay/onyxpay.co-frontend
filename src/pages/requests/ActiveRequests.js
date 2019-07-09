@@ -212,7 +212,9 @@ class ActiveRequests extends Component {
 		if (canComplain) {
 			try {
 				this.setState({ requestId, activeAction: "complain" });
-				await complain(requestId);
+				const res = await complain(requestId);
+				console.log("complained", res);
+
 				showNotification({
 					type: "success",
 					msg: "You have complained on the request",

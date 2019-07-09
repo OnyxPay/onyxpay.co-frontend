@@ -100,7 +100,7 @@ export default function renderClientColumns({
 		{
 			title: "Countdown",
 			render: (text, record, index) => {
-				return record.taker_addr && record.choose_timestamp ? (
+				return record.taker_addr && record.choose_timestamp && record.status !== "complained" ? (
 					<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
 				) : (
 					"n/a"
