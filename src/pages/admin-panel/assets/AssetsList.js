@@ -6,6 +6,7 @@ import { blockAsset } from "../../../api/admin/assets";
 import { isAssetBlocked } from "../../../api/assets";
 import AddNewAsset from "../../../components/modals/admin/AddNewAsset";
 import { TimeoutError } from "promise-timeout";
+import { convertAmountToStr } from "../../../utils/number";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
@@ -94,7 +95,8 @@ class AssetsList extends Component {
 	};
 
 	async componentDidMount() {
-		const { getAssetsList } = this.props;
+		const { getAssetsList, getExchangeRates } = this.props;
+		await getExchangeRates();
 		await getAssetsList();
 		this.setState({
 			loadingAssetsData: false,
@@ -159,15 +161,15 @@ class AssetsList extends Component {
 			loadingBlockedAsset,
 			loadingAssetsData,
 		} = this.state;
-		const { data } = this.props;
-		if (!data.length) {
-			return false;
+		const { data, exchangeRates } = this.props;
+		if (!data && !exchangeRates) {
+			return null;
 		}
 		const columns = [
 			{
 				title: "Asset name",
 				key: "symbol",
-				width: "80%",
+				width: "40%",
 				dataIndex: "symbol",
 				sorter: (a, b) => {
 					const nameA = a.symbol.toLowerCase();
@@ -176,6 +178,44 @@ class AssetsList extends Component {
 				},
 				sortDirections: ["ascend", "descend"],
 				...this.getColumnSearchProps("symbol"),
+			},
+			{
+				title: "Buy price",
+				dataIndex: "",
+				key: "buyPrice",
+				width: "20%",
+				render: record => {
+					let res;
+					for (let i = 0; i < exchangeRates.length; i++) {
+						if (exchangeRates[i].symbol === record.symbol) {
+							res = convertAmountToStr(exchangeRates[i].buy, 8);
+							break;
+						}
+					}
+					if (!res) {
+						return "n/a";
+					}
+					return res;
+				},
+			},
+			{
+				title: "Sell price",
+				dataIndex: "",
+				key: "sell",
+				width: "20%",
+				render: record => {
+					let res;
+					for (let i = 0; i < exchangeRates.length; i++) {
+						if (exchangeRates[i].symbol === record.symbol) {
+							res = convertAmountToStr(exchangeRates[i].sell, 8);
+							break;
+						}
+					}
+					if (!res) {
+						return "n/a";
+					}
+					return res;
+				},
 			},
 			{
 				title: "Action",
@@ -236,9 +276,11 @@ export default connect(
 	state => {
 		return {
 			data: state.assets.list.map((item, i) => ({ key: i, symbol: item })),
+			exchangeRates: state.assets.rates,
 		};
 	},
 	{
 		getAssetsList: Actions.assets.getAssetsList,
+		getExchangeRates: Actions.assets.getExchangeRates,
 	}
 )(AssetsList);
