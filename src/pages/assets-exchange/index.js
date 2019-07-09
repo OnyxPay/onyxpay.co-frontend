@@ -224,28 +224,47 @@ class AssetsExchange extends Component {
 		});
 	};
 
+	getUsdBasedRate = assetName => {
+		const { exchangeRates } = this.props;
+
+		if (assetName === "oUSD" || assetName === onyxCashSymbol) return 1;
+		const asset = exchangeRates.find(ratesRecord => ratesRecord.symbol === assetName);
+		const usdAsset = exchangeRates.find(ratesRecord => ratesRecord.symbol === "oUSD");
+		return asset.sell / usdAsset.sell;
+	};
+
+	getUsdAmount = (assetName, amount) => {
+		let usdBasedRate = this.getUsdBasedRate(assetName);
+		return amount * usdBasedRate;
+	};
+
 	validateToSellAmount = async () => {
 		const { assetToSell, assetsForSellData } = this.state;
 		let error = "";
 
 		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
-		const { sellPrice } = assetsForSellData.find(
-			ratesRecord => ratesRecord.name === assetToSell.name
-		);
-		const amountToSellInUsd = assetToSell.amount * sellPrice;
-
-		if (Number(amountToSellInUsd) < 1) {
-			error = "Amount to sell must be greater than 1 oUSD";
-		} else if (Number(assetToSell.amount) > Number(asset.balance)) {
+		if (Number(assetToSell.amount) > Number(asset.balance)) {
 			error = "Not enough " + asset.name + " to perform operation";
 		}
 		await this.setStateAsync({ assetToSellAmountError: error });
+	};
+
+	validateToBuyAmount = async () => {
+		const { assetToBuy } = this.state;
+		let error = "";
+
+		const amountToBuyInUsd = this.getUsdAmount(assetToBuy.name, assetToBuy.amount);
+		if (amountToBuyInUsd < 1) {
+			error = "Amount to buy must be greater than 1 oUSD";
+		}
+		await this.setStateAsync({ assetToBuyAmountError: error });
 	};
 
 	validateForm = async () => {
 		await this.validateAssetName("buy");
 		await this.validateAssetName("sell");
 		await this.validateToSellAmount();
+		await this.validateToBuyAmount();
 
 		this.setStateAsync({ formDataIsValid: this.inputIsValid() });
 	};
@@ -549,6 +568,11 @@ class AssetsExchange extends Component {
 								<Col span={24}>
 									{this.state.assetToBuyNameError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
+									) : (
+										""
+									)}
+									{this.state.assetToBuyAmountError.length !== 0 ? (
+										<Tag color="red"> {this.state.assetToBuyAmountError} </Tag>
 									) : (
 										""
 									)}
