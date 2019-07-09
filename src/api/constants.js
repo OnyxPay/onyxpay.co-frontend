@@ -30,9 +30,16 @@ export const notifyTimeout = 30000;
 
 export const operationMessageStatus = {
 	opened: 1,
-	hidden: 2,
+	hided: 2,
 	accepted: 3,
-	canceled: 4, // agent canceled a request
+	canceled: 4,
+};
+
+export const operationMessageStatusNames = {
+	[operationMessageStatus.opened]: "opened",
+	[operationMessageStatus.hided]: "hided",
+	[operationMessageStatus.accepted]: "accepted",
+	[operationMessageStatus.canceled]: "canceled",
 };
 
 export const requestStatus = {
