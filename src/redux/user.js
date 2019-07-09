@@ -16,8 +16,13 @@ export const userReducer = (state = initialState, action) => {
 			localStorage.setItem("user", JSON.stringify(action.payload));
 			return action.payload;
 		case UPGRADE_USER:
-			localStorage.setItem("role", JSON.stringify(action.payload));
-			return action.payload;
+			let storageState = localStorage.getItem("user");
+			if (storageState) {
+				let newState = { ...JSON.parse(storageState), ...action.payload };
+				localStorage.setItem("user", JSON.stringify(newState));
+				return newState;
+			}
+			return null;
 		case LOG_OUT:
 			localStorage.removeItem("user");
 			return null;

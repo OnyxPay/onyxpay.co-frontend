@@ -28,6 +28,13 @@ export const roles = {
 	adm: "admin",
 	sadm: "super_admin",
 };
+export const roleCodes = {
+	user: 1,
+	agent: 2,
+	superagent: 3,
+	adm: 4,
+	super_admin: 100,
+};
 
 export const notifyTimeout = 30000;
 

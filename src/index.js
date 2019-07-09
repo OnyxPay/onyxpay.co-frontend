@@ -7,7 +7,7 @@ import "./assets/styles/index.scss";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { init } from "./websock/client";
-init();
+init(getStore());
 ReactDOM.render(
 	<Provider store={getStore()}>
 		<ConnectedRouter history={history}>
