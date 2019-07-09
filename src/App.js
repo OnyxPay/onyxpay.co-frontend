@@ -24,7 +24,8 @@ let Investments = Loadable({
 });
 
 let Complaints = Loadable({
-	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints"),
+	loader: () =>
+		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints/ComplaintsList"),
 	loading: Loader,
 });
 

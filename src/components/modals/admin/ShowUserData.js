@@ -2,14 +2,8 @@ import { Modal, Table } from "antd";
 import React, { Component } from "react";
 
 class ShowUserData extends Component {
-	state = {
-		loading: false,
-	};
-
-	componentDidMount = async () => {};
-
 	render() {
-		console.log(this.props);
+		const { data, visible, hideModal } = this.props;
 		const columns = [
 			{
 				title: "Country",
@@ -37,18 +31,17 @@ class ShowUserData extends Component {
 			<>
 				<Modal
 					title="User data"
-					visible={this.props.visible}
-					onOk={() => this.props.hideModal(false)}
-					onCancel={() => this.props.hideModal(false)}
+					visible={visible}
+					onOk={() => hideModal(false)}
+					onCancel={() => hideModal(false)}
 					className="large-modal"
 				>
 					<Table
 						columns={columns}
 						rowKey={data => data.id}
-						dataSource={this.props.data}
+						dataSource={data}
 						className="ovf-auto"
 						pagination={false}
-						loading={this.state.loading}
 					/>
 				</Modal>
 			</>

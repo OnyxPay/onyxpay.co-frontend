@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Button, Table } from "antd";
 import ShowUserData from "../../../components/modals/admin/ShowUserData";
 import { connect } from "react-redux";
-import { getRequestsComplaint, HandleComplainedRequest } from "../../../api/admin/complaints";
+import { getRequestsComplaint, handleComplainedRequest } from "../../../api/admin/complaints";
+import { PageTitle } from "../../../components";
 
 const styles = {
 	btn: {
@@ -10,22 +11,26 @@ const styles = {
 	},
 	btnColor: {
 		color: "rgba(0, 0, 0, 0.65)",
+		padding: 0,
 	},
 };
 
 class ComplaintsList extends Component {
 	state = {
 		visible: false,
-		dataUser: [],
-		data: [],
+		dataUser: null,
+		data: null,
 		pagination: { current: 1, pageSize: 20 },
-		loadingRequestData: true,
+		loadingRequestComplaintsData: true,
+		loadingSolve: false,
+		userId: null,
+		requestId: null,
 	};
 
 	componentDidMount = async () => {
-		await this.fetchRequestComplain({ status: "complained" });
+		await this.fetchRequestComplaint({ status: "complained" });
 		this.setState({
-			loadingRequestData: false,
+			loadingRequestComplaintsData: false,
 		});
 	};
 
@@ -42,20 +47,26 @@ class ComplaintsList extends Component {
 		});
 	};
 
-	handleStartCheckComplaint = () => {
-		alert("Start checking complaint");
-	};
-
-	HandleComplainedRequest = async (requestId, winnerAddress) => {
+	handleComplainedRequests = async (requestId, winner, resId) => {
 		try {
-			const res = await HandleComplainedRequest(requestId, winnerAddress);
+			this.setState({
+				loadingSolve: true,
+				userId: resId,
+				requestId: requestId,
+			});
+			const res = await handleComplainedRequest(requestId, winner);
 			console.log(res);
+			this.fetchRequestComplaint({ status: "complained" });
 		} catch (error) {
 			console.log(error);
+		} finally {
+			this.setState({
+				loadingSolve: false,
+			});
 		}
 	};
 
-	async fetchRequestComplain(opts = {}) {
+	async fetchRequestComplaint(opts = {}) {
 		try {
 			const { pagination } = this.state;
 			const params = {
@@ -75,6 +86,18 @@ class ComplaintsList extends Component {
 	}
 
 	render() {
+		const {
+			data,
+			visible,
+			dataUser,
+			loadingRequestComplaintsData,
+			requestId,
+			loadingSolve,
+			userId,
+		} = this.state;
+		if (!data) {
+			return null;
+		}
 		const columns = [
 			{
 				title: "Type request",
@@ -86,7 +109,7 @@ class ComplaintsList extends Component {
 				dataIndex: "having_complained",
 			},*/
 			{
-				title: "Name initiator of the request",
+				title: "Name initiator",
 				render: res => (
 					<Button style={styles.btnColor} type="link" onClick={() => this.showUserData(res.maker)}>
 						<span>{res.maker.first_name + " " + res.maker.last_name}</span>
@@ -94,7 +117,7 @@ class ComplaintsList extends Component {
 				),
 			},
 			{
-				title: "Name performer of the request",
+				title: "Name performer",
 				render: res => (
 					<Button style={styles.btnColor} type="link" onClick={() => this.showUserData(res.taker)}>
 						<span>{res.taker.first_name + " " + res.taker.last_name}</span>
@@ -102,7 +125,7 @@ class ComplaintsList extends Component {
 				),
 			},
 			{
-				title: "Currency",
+				title: "Asset",
 				dataIndex: "asset",
 				render: res => (res ? res : "n/a"),
 			},
@@ -112,7 +135,7 @@ class ComplaintsList extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Date and time of request creation",
+				title: "Created",
 				dataIndex: "created_at",
 				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
@@ -125,23 +148,21 @@ class ComplaintsList extends Component {
 					<>
 						<Button
 							type="primary"
-							onClick={() => this.handleStartCheckComplaint()}
+							onClick={() =>
+								this.handleComplainedRequests(res.request_id, "winnerClient", res.maker.id)
+							}
 							style={styles.btn}
 							block
-						>
-							Start checking complaint
-						</Button>
-						<Button
-							type="primary"
-							onClick={() => this.HandleComplainedRequest(res.request_id, res.maker_addr)}
-							style={styles.btn}
-							block
+							loading={res.maker.id === userId && res.request_id === requestId && loadingSolve}
 						>
 							Solve a complaint in favor of the initiator
 						</Button>
 						<Button
 							type="primary"
-							onClick={() => this.HandleComplainedRequest(res.request_id, res.taker_addr)}
+							loading={res.taker.id === userId && res.request_id === requestId && loadingSolve}
+							onClick={() =>
+								this.handleComplainedRequests(res.request_id, "winnerAgent", res.taker.id)
+							}
 							style={styles.btn}
 							block
 						>
@@ -154,18 +175,15 @@ class ComplaintsList extends Component {
 
 		return (
 			<>
+				<PageTitle>Complaints</PageTitle>
 				<Table
 					columns={columns}
-					loading={this.state.loadingRequestData}
+					loading={loadingRequestComplaintsData}
 					rowKey={data => data.id}
-					dataSource={this.state.data}
+					dataSource={data}
 				/>
-				{this.state.visible ? (
-					<ShowUserData
-						visible={this.state.visible}
-						hideModal={this.hideModal}
-						data={[this.state.dataUser]}
-					/>
+				{visible ? (
+					<ShowUserData visible={visible} hideModal={this.hideModal} data={[dataUser]} />
 				) : null}
 			</>
 		);

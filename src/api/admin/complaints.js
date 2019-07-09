@@ -1,8 +1,7 @@
-import { ParameterType, utils } from "ontology-ts-sdk";
+import { ParameterType } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "../network";
 import { unlockWalletAccount } from "../wallet";
 import { createAndSignTrxViaGasCompensator, addSignAndSendTrx } from "../bc";
-import { cryptoAddress } from "../../utils/blockchain";
 
 export const getRequestsComplaint = async params => {
 	const client = getRestClient();
@@ -24,18 +23,14 @@ export const getRequestsComplaint = async params => {
 	}
 };
 
-export async function HandleComplainedRequest(requestId, winnerAddress) {
+export async function handleComplainedRequest(requestId, winner) {
 	const { pk, accountAddress } = await unlockWalletAccount();
 	debugger;
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
-		{ label: "requestId", type: ParameterType.String, value: requestId },
-		{
-			label: "userAddress",
-			type: ParameterType.ByteArray,
-			value: utils.reverseHex(cryptoAddress(winnerAddress).toHexString()),
-		},
+		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
+		{ label: "winner", type: ParameterType.String, value: winner },
 	];
 
 	const serializedTrx = await createAndSignTrxViaGasCompensator(
