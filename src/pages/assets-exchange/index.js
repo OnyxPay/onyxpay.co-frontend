@@ -350,20 +350,20 @@ class AssetsExchange extends Component {
 			if (assetToSell.name === onyxCashSymbol) {
 				result = await exchangeAssetsForOnyxCash({
 					tokenId: assetToBuy.name,
-					amount: assetToBuy.amount.toFixed(8),
+					amount: Number(assetToBuy.amount).toFixed(8),
 					operationType: "buy",
 				});
 			} else if (assetToBuy.name === onyxCashSymbol) {
 				result = await exchangeAssetsForOnyxCash({
 					tokenId: assetToSell.name,
-					amount: assetToSell.amount.toFixed(8),
+					amount: Number(assetToSell.amount).toFixed(8),
 					operationType: "sell",
 				});
 			} else {
 				result = await exchangeAssets({
 					assetToSellName: assetToSell.name,
 					assetToBuyName: assetToBuy.name,
-					amountToBuy: assetToBuy.amount.toFixed(8),
+					amountToBuy: Number(assetToBuy.amount).toFixed(8),
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
@@ -473,13 +473,13 @@ class AssetsExchange extends Component {
 									{this.state.assetToSellNameError.length !== 0 ? (
 										<Tag color="red">{this.state.assetToSellNameError}</Tag>
 									) : (
-											""
-										)}
+										""
+									)}
 									{this.state.assetToSellAmountError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToSellAmountError}</Tag>
 									) : (
-											""
-										)}
+										""
+									)}
 								</Col>
 							</Col>
 
@@ -572,13 +572,13 @@ class AssetsExchange extends Component {
 									{this.state.assetToBuyNameError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
 									) : (
-											""
-										)}
+										""
+									)}
 									{this.state.assetToBuyAmountError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToBuyAmountError} </Tag>
 									) : (
-											""
-										)}
+										""
+									)}
 								</Col>
 							</Col>
 
