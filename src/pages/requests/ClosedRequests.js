@@ -10,6 +10,7 @@ import { push } from "connected-react-router";
 import { convertAmountToStr } from "../../utils/number";
 import { getPerformerName } from "../../utils";
 import { parseRequestType, renderPageTitle } from "./common";
+import { operationMessageStatus } from "api/constants";
 
 class ClosedRequests extends Component {
 	constructor(props) {
@@ -148,6 +149,12 @@ class ClosedRequests extends Component {
 			{
 				title: "Status",
 				dataIndex: "request.status",
+				render: (text, record, index) => {
+					if (record.status_code === operationMessageStatus.canceled) {
+						return "assets returned";
+					}
+					return record.request.status;
+				},
 			},
 			{
 				title: "Created",

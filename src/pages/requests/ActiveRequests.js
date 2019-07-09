@@ -190,7 +190,7 @@ class ActiveRequests extends Component {
 			await cancelAcceptedRequest(requestId);
 			showNotification({
 				type: "success",
-				msg: "You have canceled the request",
+				msg: "You have cancelled the request, the assets will be sent back on your address.",
 			});
 			this.fetch();
 		} catch (e) {
