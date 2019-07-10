@@ -11,6 +11,7 @@ import {
 	Col,
 	message,
 	Typography,
+	InputNumber,
 } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
@@ -21,6 +22,7 @@ import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr, minus } from "../../utils/number";
 import { showNotification, showBcError } from "components/notification";
+import { debounce } from "lodash";
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -29,9 +31,13 @@ isEnteredEnoughAmount
 isMinAllowedToSendAmountAvailable
 */
 class SendAsset extends Component {
-	state = {
-		fee: null,
-	};
+	constructor(props) {
+		super(props);
+		this.debouncedGetFee = debounce(this.debouncedGetFee.bind(this), 500);
+		this.state = {
+			fee: null,
+		};
+	}
 
 	componentDidMount() {
 		const { getExchangeRates } = this.props;
@@ -111,18 +117,19 @@ class SendAsset extends Component {
 		formActions.setSubmitting(false);
 	};
 
+	debouncedGetFee(assetSymbol, amount) {
+		getFee(assetSymbol, amount, "send").then(fee => {
+			this.setState({ fee: fee / 10 ** 8 });
+		});
+	}
+
 	handleAssetChange = setFieldValue => async (value, option) => {
 		setFieldValue("asset_symbol", value);
 	};
 
-	handleAmountChange = (values, formActions) => async (event, option) => {
-		console.log(values, formActions);
-		const value = event.target.value;
-		// if min 1USD else show Error
+	handleAmountChange = (values, formActions) => async value => {
 		if (value > 1) {
-			getFee(values.asset_symbol, value, "send").then(fee => {
-				this.setState({ fee: fee / 10 ** 8 });
-			});
+			this.debouncedGetFee(values.asset_symbol, value);
 		}
 		formActions.setFieldValue("amount", value);
 	};
@@ -264,7 +271,7 @@ class SendAsset extends Component {
 												help={errors.amount && touched.amount ? errors.amount : ""}
 											>
 												<Input.Group compact style={{ display: "flex" }}>
-													<Input
+													{/* <Input
 														name="amount"
 														type="number"
 														placeholder="Enter an amount"
@@ -274,14 +281,32 @@ class SendAsset extends Component {
 															setFieldValue,
 														})}
 														onBlur={handleBlur}
-														disabled={!availableAssetsToSend.length || isSubmitting}
+														disabled={
+															!availableAssetsToSend.length || !values.asset_symbol || isSubmitting
+														}
 														min={0.1}
 														step="any"
+													/> */}
+													<InputNumber
+														name="amount"
+														placeholder="Enter an amount"
+														value={values.amount}
+														min={1 / 10 ** 8}
+														step={1}
+														// precision={8}
+														onChange={this.handleAmountChange(values, {
+															setFieldError,
+															setFieldValue,
+														})}
+														disabled={
+															!availableAssetsToSend.length || !values.asset_symbol || isSubmitting
+														}
+														style={{ width: "100%" }}
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
 														disabled={
-															!availableAssetsToSend.length || isSubmitting || !values.asset_symbol
+															!availableAssetsToSend.length || !values.asset_symbol || isSubmitting
 														}
 													>
 														max
