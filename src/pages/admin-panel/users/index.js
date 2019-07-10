@@ -245,10 +245,6 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Role",
-				dataIndex: "role",
-			},
-			{
 				title: "Status",
 				dataIndex: "status",
 				key: "status",
