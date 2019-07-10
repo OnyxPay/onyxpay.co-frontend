@@ -2,7 +2,7 @@ import { setWallet, clearWallet } from "./wallet";
 import { resolveContractAddress } from "./contracts";
 import { setAssetsBalance, setOnyxCashBalance } from "./balance";
 import { saveUser, getUserData } from "./user";
-import { getUsersData, getUserSettlementData } from "./admin-panel/users";
+import { getUsersData, getUserSettlementData, updateUserStatus } from "./admin-panel/users";
 import {
 	showWalletUnlockModal,
 	hideWalletUnlockModal,
@@ -19,7 +19,7 @@ export default {
 	wallet: { clearWallet, setWallet },
 	contracts: { resolveContractAddress },
 	balance: { setAssetsBalance, setOnyxCashBalance },
-	user: { saveUser, getUserData },
+	user: { saveUser, getUserData, updateUserStatus },
 	adminUsers: { getUsersData },
 	userSettlementAccountData: { getUserSettlementData },
 	walletUnlock: {

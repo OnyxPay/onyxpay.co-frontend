@@ -1,18 +1,33 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, notification, Row, Col, message } from "antd";
+import {
+	Card,
+	Button,
+	Input,
+	Form,
+	Select,
+	notification,
+	Row,
+	Col,
+	message,
+	Typography,
+} from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
-import { sendAsset } from "../../api/assets";
+import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
-import { convertAmountToStr } from "../../utils/number";
-
+import { convertAmountToStr, minus } from "../../utils/number";
 const { Option } = Select;
+const { Text } = Typography;
 
 class SendAsset extends Component {
+	state = {
+		fee: null,
+	};
+
 	componentDidMount() {
 		const { getExchangeRates } = this.props;
 		getExchangeRates();
@@ -26,32 +41,38 @@ class SendAsset extends Component {
 		return isEnough;
 	}
 
-	calcMaxAmount(assetSymbol) {
+	async calcMaxAmount(assetSymbol) {
 		const { assets } = this.props;
-		const asset = assets.find(asset => asset.symbol === assetSymbol);
-		return convertAmountToStr(asset.amount, 8);
+		if (assets.length) {
+			const asset = assets.find(asset => asset.symbol === assetSymbol);
+			const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
+			console.log("fee", fee);
+			console.log("amount", asset.amount);
+			console.log("max", minus(asset.amount, fee));
+			return convertAmountToStr(minus(asset.amount, fee), 8);
+		}
 	}
 
-	isAmountNotOverMax = (amount, assetSymbol) => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
+	isAmountNotOverMax = async (amount, assetSymbol) => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol);
 		return amount <= maxAmount;
 	};
 
-	handleMaxAmount = (assetSymbol, setFieldValue) => e => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
+	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol);
 		setFieldValue("amount", maxAmount);
 	};
 
 	handleFormSubmit = async (values, formActions) => {
 		try {
 			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
-			const isAmountNotOverMax = this.isAmountNotOverMax(values.amount, values.asset_symbol);
+			const isAmountNotOverMax = await this.isAmountNotOverMax(values.amount, values.asset_symbol);
 			if (!isEnoughAmount) {
 				formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
 
 			if (!isAmountNotOverMax) {
-				const maxAmount = this.calcMaxAmount(values.asset_symbol);
+				const maxAmount = await this.calcMaxAmount(values.asset_symbol);
 				formActions.setFieldError("amount", `max ${maxAmount}`);
 			}
 
@@ -86,6 +107,8 @@ class SendAsset extends Component {
 
 	render() {
 		const { assets } = this.props;
+		const { fee } = this.state;
+
 		return (
 			<>
 				<PageTitle>Send assets</PageTitle>
@@ -109,6 +132,8 @@ class SendAsset extends Component {
 							}
 							if (!values.amount) {
 								errors.amount = "required";
+							} else if (values.amount < 0) {
+								errors.amount = "only positive values are allowed";
 							} else if (countDecimals(values.amount) > 8) {
 								errors.amount = "max number of decimal places is 8";
 							}
@@ -126,6 +151,7 @@ class SendAsset extends Component {
 							setFieldValue,
 							touched,
 							setFieldError,
+							validateField,
 						}) => {
 							return (
 								<form onSubmit={handleSubmit}>
@@ -205,6 +231,8 @@ class SendAsset extends Component {
 														onChange={handleChange}
 														onBlur={handleBlur}
 														disabled={isSubmitting}
+														min={0.1}
+														step="any"
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
@@ -214,6 +242,14 @@ class SendAsset extends Component {
 													</Button>
 												</Input.Group>
 											</Form.Item>
+											{fee && values.amount && (
+												<Text
+													type="secondary"
+													style={{ display: "block", margin: "-12px 0 12px 0" }}
+												>
+													fee will be {fee}
+												</Text>
+											)}
 										</Col>
 									</Row>
 									<TextAligner align="right" mobile="left">

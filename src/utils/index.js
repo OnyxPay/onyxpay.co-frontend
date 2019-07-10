@@ -1,3 +1,5 @@
+import { h24Mc, h12Mc } from "api/constants";
+
 export function isCookieAvailable(name) {
 	return document.cookie.split(";").filter(item => {
 		return item.includes(name);
@@ -40,4 +42,24 @@ export function getPerformerName({ taker_addr: addr, operation_messages: message
 	} else {
 		return addr;
 	}
+}
+
+export function getLocalTime(date) {
+	return new Date(date).toLocaleString();
+}
+
+export function calcTimeDiff(timestamp) {
+	const trxCreatedMs = new Date(timestamp).getTime();
+	const nowMs = new Date().getTime();
+	return nowMs - trxCreatedMs;
+}
+
+export function is24hOver(timestamp) {
+	const diff = calcTimeDiff(timestamp);
+	return diff > h24Mc;
+}
+
+export function is12hOver(timestamp) {
+	const diff = calcTimeDiff(timestamp);
+	return diff > h12Mc;
 }
