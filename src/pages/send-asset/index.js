@@ -24,6 +24,10 @@ import { showNotification, showBcError } from "components/notification";
 const { Option } = Select;
 const { Text } = Typography;
 
+/* 
+isEnteredEnoughAmount
+isMinAllowedToSendAmountAvailable
+*/
 class SendAsset extends Component {
 	state = {
 		fee: null,
@@ -34,7 +38,7 @@ class SendAsset extends Component {
 		getExchangeRates();
 	}
 
-	isEnoughAmount(amount, assetSymbol) {
+	isEnteredEnoughAmount(amount, assetSymbol) {
 		const { exchangeRates } = this.props;
 		const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
 		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
@@ -48,9 +52,6 @@ class SendAsset extends Component {
 			try {
 				const asset = assets.find(asset => asset.symbol === assetSymbol);
 				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
-				console.log("fee", fee);
-				console.log("amount", asset.amount);
-				console.log("max", minus(asset.amount, fee));
 				return convertAmountToStr(minus(asset.amount, fee), 8);
 			} catch (e) {
 				showBcError(e.message);
@@ -71,18 +72,21 @@ class SendAsset extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		try {
-			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
-			const isAmountNotOverMax = await this.isAmountNotOverMax(values.amount, values.asset_symbol);
-			if (!isEnoughAmount) {
-				formActions.setFieldError("amount", "min amount is 1 oUSD");
+			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
+			if (!isEnteredEnoughAmount) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
+
+			const isAmountNotOverMax = await this.isAmountNotOverMax(values.amount, values.asset_symbol);
 
 			if (!isAmountNotOverMax) {
 				const maxAmount = await this.calcMaxAmount(values.asset_symbol);
+				console.log("maxAmount", maxAmount);
 				formActions.setFieldError("amount", `max ${maxAmount}`);
 			}
 
-			if (isEnoughAmount && isAmountNotOverMax) {
+			if (isEnteredEnoughAmount && isAmountNotOverMax) {
 				await sendAsset(values);
 				formActions.resetForm();
 				notification.success({
@@ -111,10 +115,37 @@ class SendAsset extends Component {
 		setFieldValue("asset_symbol", value);
 	};
 
-	render() {
-		const { assets } = this.props;
-		const { fee } = this.state;
+	handleAmountChange = (values, formActions) => async (event, option) => {
+		console.log(values, formActions);
+		const value = event.target.value;
+		// if min 1USD else show Error
+		if (value > 1) {
+			getFee(values.asset_symbol, value, "send").then(fee => {
+				this.setState({ fee: fee / 10 ** 8 });
+			});
+		}
+		formActions.setFieldValue("amount", value);
+	};
 
+	filterAssets(assets, exchangeRates) {
+		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
+		return assets.filter(asset => {
+			const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
+			if (rate) {
+				return rateUSD.sell <= rate.sell * (asset.amount / 10 ** 8);
+			} else {
+				return false;
+			}
+		});
+	}
+
+	render() {
+		const { assets, exchangeRates } = this.props;
+		const { fee } = this.state;
+		let availableAssetsToSend = [];
+		if (exchangeRates.length && assets.length) {
+			availableAssetsToSend = this.filterAssets(assets, exchangeRates);
+		}
 		return (
 			<>
 				<PageTitle>Send assets</PageTitle>
@@ -122,8 +153,8 @@ class SendAsset extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							receiver_address: "",
-							asset_symbol: "oUSD",
+							receiver_address: "AZPrhqNeRzC6UsDf8vfZueSTYAiB5W71gz",
+							asset_symbol: "",
 							amount: "",
 						}}
 						validate={values => {
@@ -184,7 +215,7 @@ class SendAsset extends Component {
 													value={values.receiver_address}
 													onChange={handleChange}
 													onBlur={handleBlur}
-													disabled={isSubmitting}
+													disabled={!availableAssetsToSend.length || isSubmitting}
 												/>
 											</Form.Item>
 										</Col>
@@ -202,22 +233,24 @@ class SendAsset extends Component {
 												<Select
 													showSearch
 													name="asset_symbol"
-													placeholder="Select an asset"
+													placeholder="Select asset"
 													optionFilterProp="children"
-													value={values.asset_symbol}
+													value={values.asset_symbol ? values.asset_symbol : undefined}
 													onChange={this.handleAssetChange(setFieldValue)}
 													filterOption={(input, option) =>
 														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 													}
-													disabled={isSubmitting}
+													disabled={!availableAssetsToSend.length || isSubmitting}
 												>
-													{assets.map((asset, index) => {
-														return (
-															<Option key={index} value={asset.symbol}>
-																{asset.symbol}
-															</Option>
-														);
-													})}
+													{availableAssetsToSend.length
+														? this.filterAssets(assets, exchangeRates).map((asset, index) => {
+																return (
+																	<Option key={index} value={asset.symbol}>
+																		{asset.symbol}
+																	</Option>
+																);
+														  })
+														: null}
 												</Select>
 											</Form.Item>
 										</Col>
@@ -236,15 +269,20 @@ class SendAsset extends Component {
 														type="number"
 														placeholder="Enter an amount"
 														value={values.amount}
-														onChange={handleChange}
+														onChange={this.handleAmountChange(values, {
+															setFieldError,
+															setFieldValue,
+														})}
 														onBlur={handleBlur}
-														disabled={isSubmitting}
+														disabled={!availableAssetsToSend.length || isSubmitting}
 														min={0.1}
 														step="any"
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
-														disabled={isSubmitting}
+														disabled={
+															!availableAssetsToSend.length || isSubmitting || !values.asset_symbol
+														}
 													>
 														max
 													</Button>
@@ -259,6 +297,11 @@ class SendAsset extends Component {
 												</Text>
 											)}
 										</Col>
+									</Row>
+									<Row>
+										<Text type="secondary">
+											Min available amount to send is equivalent of 1 USD
+										</Text>
 									</Row>
 									<TextAligner align="right" mobile="left">
 										<Button

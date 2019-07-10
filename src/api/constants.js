@@ -3,9 +3,11 @@ export const bcEndpoints = {
 	rest: "https://cepheus5.onyxpay.co:20334",
 };
 
-export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
+export const backEndRestEndpoint = "https://10.100.3.189/api/v1/";
+// export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 
+// export const addressOfHead = "87fd9b3718308de50fd639c9b9a411835936766a";
 export const addressOfHead = "9459005e778d990b7edd4447be277e3dd61785be";
 
 // TODO: get address from Head
