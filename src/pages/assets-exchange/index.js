@@ -224,28 +224,47 @@ class AssetsExchange extends Component {
 		});
 	};
 
+	getUsdBasedRate = assetName => {
+		const { exchangeRates } = this.props;
+
+		if (assetName === "oUSD" || assetName === onyxCashSymbol) return 1;
+		const asset = exchangeRates.find(ratesRecord => ratesRecord.symbol === assetName);
+		const usdAsset = exchangeRates.find(ratesRecord => ratesRecord.symbol === "oUSD");
+		return asset.sell / usdAsset.sell;
+	};
+
+	getUsdAmount = (assetName, amount) => {
+		let usdBasedRate = this.getUsdBasedRate(assetName);
+		return amount * usdBasedRate;
+	};
+
 	validateToSellAmount = async () => {
 		const { assetToSell, assetsForSellData } = this.state;
 		let error = "";
 
 		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
-		const { sellPrice } = assetsForSellData.find(
-			ratesRecord => ratesRecord.name === assetToSell.name
-		);
-		const amountToSellInUsd = assetToSell.amount * sellPrice;
-
-		if (Number(amountToSellInUsd) < 1) {
-			error = "Amount to sell must be greater than 1 oUSD";
-		} else if (Number(assetToSell.amount) > Number(asset.balance)) {
+		if (Number(assetToSell.amount) > Number(asset.balance)) {
 			error = "Not enough " + asset.name + " to perform operation";
 		}
 		await this.setStateAsync({ assetToSellAmountError: error });
+	};
+
+	validateToBuyAmount = async () => {
+		const { assetToBuy } = this.state;
+		let error = "";
+
+		const amountToBuyInUsd = this.getUsdAmount(assetToBuy.name, assetToBuy.amount);
+		if (amountToBuyInUsd < 1) {
+			error = "Amount to buy must be greater than 1 oUSD";
+		}
+		await this.setStateAsync({ assetToBuyAmountError: error });
 	};
 
 	validateForm = async () => {
 		await this.validateAssetName("buy");
 		await this.validateAssetName("sell");
 		await this.validateToSellAmount();
+		await this.validateToBuyAmount();
 
 		this.setStateAsync({ formDataIsValid: this.inputIsValid() });
 	};
@@ -324,7 +343,6 @@ class AssetsExchange extends Component {
 		await this.setStateAsync({ transactionInProcess: true });
 
 		const { assetToBuy, assetToSell } = this.state;
-		const { wallet } = this.props;
 		console.log("asset to buy", assetToBuy);
 		console.log("asset to sell", assetToSell);
 		try {
@@ -352,6 +370,7 @@ class AssetsExchange extends Component {
 			this.setState({ transactionInProcess: false });
 			console.log(result);
 		} catch (e) {
+			console.log(e, typeof e);
 			if (e instanceof TimeoutError) {
 				this.openNotification(
 					"error",
@@ -360,7 +379,9 @@ class AssetsExchange extends Component {
 			} else if (e instanceof SendRawTrxError) {
 				this.openNotification("error", "Contract execution error");
 			} else {
-				this.openNotification("error", "Unknown error");
+				if (!e.message.includes("You should unlock your wallet to make transactions")) {
+					this.openNotification("error", "Unknown error");
+				}
 			}
 			console.log("error: ", e);
 			this.setState({ transactionInProcess: false });
@@ -553,6 +574,11 @@ class AssetsExchange extends Component {
 									) : (
 										""
 									)}
+									{this.state.assetToBuyAmountError.length !== 0 ? (
+										<Tag color="red"> {this.state.assetToBuyAmountError} </Tag>
+									) : (
+										""
+									)}
 								</Col>
 							</Col>
 
@@ -612,7 +638,6 @@ class AssetsExchange extends Component {
 export default connect(
 	state => {
 		return {
-			wallet: state.wallet,
 			balance: state.balance,
 			exchangeRates: state.assets.rates,
 			user: state.user,

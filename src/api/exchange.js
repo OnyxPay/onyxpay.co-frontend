@@ -21,7 +21,7 @@ export async function exchangeAssets(values) {
 		{
 			label: "amountToBuy",
 			type: ParameterType.Integer,
-			value: convertAmountFromStr(values.amountToBuy.toString()),
+			value: convertAmountFromStr(values.amountToBuy),
 		},
 		{
 			label: "acct",
@@ -53,7 +53,7 @@ export async function exchangeAssetsForOnyxCash(values) {
 		{
 			label: "amount",
 			type: ParameterType.Integer,
-			value: convertAmountFromStr(values.amount.toString()),
+			value: convertAmountFromStr(values.amount),
 		},
 		{
 			label: "agent",
