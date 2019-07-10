@@ -1,19 +1,24 @@
-import io from "socket.io-client";
 import { wssBackEnd, wsMessages, roleCodes } from "../api/constants";
-
-const socket = io(wssBackEnd, {
-	path: "/wsapp/",
-	query: { walletAddress: "AQpqWQMS2E7XYh4PP6m5Jb369KSuV7jxtK" },
-});
-export const init = store => {
+import io from "socket.io-client";
+import { getStore } from "../store";
+let socket;
+export const wsClientConnect = walletAddress => {
+	io.connect(wssBackEnd, {
+		path: "/wsapp/",
+		query: { walletAddress: walletAddress },
+	});
 	wsMessages.forEach(type =>
 		socket.on(type, payload =>
-			//console.info("websok msg ", payload);
-			store.dispatch({
+			getStore().dispatch({
 				type: type,
 				payload: { role: payload.role, roleCode: roleCodes[payload.role] },
 			})
 		)
 	);
 };
-export const emit = (type, payload) => socket.emit(type, payload);
+export const wsClientDisconnect = () => {
+	if (socket) {
+		socket.close();
+	}
+};
+//export const emit = (type, payload) => socket.emit(type, payload);

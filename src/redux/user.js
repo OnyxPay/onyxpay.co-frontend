@@ -8,14 +8,14 @@ const userData = localStorage.getItem("user");
 const initialState = (userData && JSON.parse(userData)) || null;
 
 const SAVE_USER = "SAVE_USER";
-const UPGRADE_USER = "UPGRADE_USER";
+const UPDATE_USER = "UPDATE_USER";
 
 export const userReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SAVE_USER:
 			localStorage.setItem("user", JSON.stringify(action.payload));
 			return action.payload;
-		case UPGRADE_USER:
+		case UPDATE_USER:
 			let storageState = localStorage.getItem("user");
 			if (storageState) {
 				let newState = { ...JSON.parse(storageState), ...action.payload };

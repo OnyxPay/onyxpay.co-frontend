@@ -7,7 +7,7 @@ export const bcEndpoints = {
 export const backEndRestEndpoint = "https://localhost:8443/api/v1/";
 //export const backEndRestEndpoint = "https://10.100.3.189/api/v1/";
 export const wssBackEnd = "wss://localhost:8443/";
-export const wsMessages = ["UPGRADE_USER"];
+export const wsMessages = ["UPDATE_UPGRADE_REQUEST", "UPDATE_USER"];
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 
 export const addressOfHead = "9459005e778d990b7edd4447be277e3dd61785be";
@@ -54,4 +54,19 @@ export const requestStatus = {
 	complained: 5,
 	completed: 6,
 	closed: 7, //  not set at back-end now
+};
+
+export const UpgradeRequestStatus = {
+	Opened: 1,
+	Completed: 2,
+	Refused: 3,
+	Closed: 4,
+	Deleted: 5,
+};
+export const UpgradeRequestStatusNames = {
+	[UpgradeRequestStatus.Opened]: "opened",
+	[UpgradeRequestStatus.Completed]: "completed",
+	[UpgradeRequestStatus.Refused]: "refused",
+	[UpgradeRequestStatus.Closed]: "closed",
+	[UpgradeRequestStatus.Deleted]: "deleted",
 };

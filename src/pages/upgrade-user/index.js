@@ -6,7 +6,8 @@ import Actions from "../../redux/actions";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
-import { sendUpgradeRequest, getUpgradeRequest } from "../../api/upgrade";
+import { sendUpgradeRequest } from "../../api/upgrade";
+import { UpgradeRequestStatusNames } from "../../api/constants";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -46,13 +47,16 @@ class UpgradeUser extends Component {
 	constructor(props) {
 		super(props);
 		this.updateUserDataState().then(data => {
-			this.userRoleCode = data.roleCode;
+			if (data) {
+				this.userRoleCode = data.roleCode;
+			}
 		});
 		this.checkSettlements();
 
-		getUpgradeRequest().then(
+		props.getUserUpgradeRequest().then(
 			data => {
-				if (data.data.items && data.data.items.length) {
+				console.info(data);
+				if (data.upgradeRequest) {
 					this.setState({ currentStep: steps.waitForApprovement });
 				}
 				this.setState({ showSpin: false });
@@ -179,7 +183,11 @@ class UpgradeUser extends Component {
 					<IPayForm amount={paymentAmount} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
-		} else if (this.state.currentStep === steps.waitForApprovement) {
+		} else if (
+			this.state.currentStep === steps.waitForApprovement &&
+			(!this.props.upgradeRequest ||
+				(this.props.upgradeRequest && this.props.upgradeRequest.status === 1))
+		) {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
@@ -198,11 +206,12 @@ class UpgradeUser extends Component {
 					>
 						Back to payment page
 					</Button>
-					<Button onClick={this.checkPaymentHandler} style={{ marginTop: 10, width: 170 }}>
-						Check payment status
-					</Button>
 					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
 				</div>
+			);
+		} else if (this.props.upgradeRequest && this.props.upgradeRequest.status !== 1) {
+			message.warning(
+				"You upgrade request was " + UpgradeRequestStatusNames[this.props.upgradeRequest.status]
 			);
 		}
 	}
@@ -253,11 +262,13 @@ export default connect(
 		return {
 			settlements: state.settlements,
 			loading: state.loading,
+			upgradeRequest: state.upgradeRequest,
 		};
 	},
 	{
 		getSettlementsList: Actions.settlements.getSettlementsList,
 		getUserData: Actions.user.getUserData,
+		getUserUpgradeRequest: Actions.upgradeRequest.getUserUpgradeRequest,
 		logOut: Actions.auth.logOut,
 	}
 )(UpgradeUser);

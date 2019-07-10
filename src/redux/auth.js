@@ -1,5 +1,6 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { push } from "connected-react-router";
+import { wsClientConnect, wsClientDisconnect } from "../websock/client";
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
@@ -16,16 +17,19 @@ export const authReducer = (state = initialState, action) => {
 		case SIGN_UP:
 			localStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
 			localStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
+			wsClientConnect(action.payload.OnyxAddr);
 			return action.payload;
 		case LOG_IN:
 			localStorage.setItem("OnyxAuth", action.payload.OnyxAuth);
 			localStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
 			localStorage.setItem("logged_in", true);
+			wsClientConnect(action.payload.OnyxAddr);
 			return action.payload;
 		case LOG_OUT:
 			localStorage.removeItem("OnyxAuth");
 			localStorage.removeItem("OnyxAddr");
 			localStorage.removeItem("logged_in");
+			wsClientDisconnect();
 			return null;
 		default:
 			return state;
