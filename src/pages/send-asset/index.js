@@ -153,6 +153,9 @@ class SendAsset extends Component {
 							setFieldError,
 							validateField,
 						}) => {
+							const allowToSubmitForm =
+								values.receiver_address && values.asset_symbol && values.amount ? true : false;
+							console.log(allowToSubmitForm);
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
@@ -256,7 +259,7 @@ class SendAsset extends Component {
 										<Button
 											type="primary"
 											htmlType="submit"
-											disabled={isSubmitting}
+											disabled={!allowToSubmitForm || isSubmitting}
 											loading={isSubmitting}
 										>
 											Send
