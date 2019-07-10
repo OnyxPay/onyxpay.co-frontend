@@ -8,6 +8,12 @@
 	}
 }
 
+.exchange-tables {
+	.ant-table-fixed-header .ant-table-scroll .ant-table-header {
+    overflow-y: hidden; 
+	}
+}
+
 @media (max-width: 1200px) {
 	.exchange-form {
 		.form-divider {
