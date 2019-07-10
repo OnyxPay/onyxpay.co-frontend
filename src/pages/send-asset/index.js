@@ -20,6 +20,7 @@ import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr, minus } from "../../utils/number";
+import { showNotification, showBcError } from "components/notification";
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -44,12 +45,17 @@ class SendAsset extends Component {
 	async calcMaxAmount(assetSymbol) {
 		const { assets } = this.props;
 		if (assets.length) {
-			const asset = assets.find(asset => asset.symbol === assetSymbol);
-			const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
-			console.log("fee", fee);
-			console.log("amount", asset.amount);
-			console.log("max", minus(asset.amount, fee));
-			return convertAmountToStr(minus(asset.amount, fee), 8);
+			try {
+				const asset = assets.find(asset => asset.symbol === assetSymbol);
+				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
+				console.log("fee", fee);
+				console.log("amount", asset.amount);
+				console.log("max", minus(asset.amount, fee));
+				return convertAmountToStr(minus(asset.amount, fee), 8);
+			} catch (e) {
+				showBcError(e.message);
+				return 0;
+			}
 		}
 	}
 
@@ -155,7 +161,6 @@ class SendAsset extends Component {
 						}) => {
 							const allowToSubmitForm =
 								values.receiver_address && values.asset_symbol && values.amount ? true : false;
-							console.log(allowToSubmitForm);
 							return (
 								<form onSubmit={handleSubmit}>
 									<Row gutter={16}>
