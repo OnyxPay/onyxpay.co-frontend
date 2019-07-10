@@ -75,3 +75,7 @@ export function hexToBytes(hex) {
 export function signWithPk(msg, pk, schema) {
 	return pk.sign(msg, schema);
 }
+
+export function prepareInt(num) {
+	return Math.round(num * 100000000);
+}

@@ -7,6 +7,7 @@ import { isAssetBlocked } from "../../../api/assets";
 import AddNewAsset from "../../../components/modals/admin/AddNewAsset";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../../utils/number";
+import { setAssetExchangeRates } from "../../../api/assets";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
@@ -15,6 +16,7 @@ const modals = {
 const style = {
 	button: {
 		marginRight: 8,
+		marginBottom: 5,
 	},
 };
 
@@ -28,13 +30,30 @@ function sortValues(valA, valB) {
 	return 0;
 }
 
+function renderExchangeRate(record, exchangeRates, name) {
+	let res;
+	for (let i = 0; i < exchangeRates.length; i++) {
+		if (exchangeRates[i].symbol === record.symbol) {
+			if (name === "buy") {
+				res = convertAmountToStr(exchangeRates[i].buy, 8);
+			} else if (name === "sell") {
+				res = convertAmountToStr(exchangeRates[i].sell, 8);
+			}
+			break;
+		}
+	}
+	if (!res) {
+		return "n/a";
+	}
+	return res;
+}
+
 class AssetsList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			loadingBlockedAsset: false,
 			loadingIsBlockedAsset: false,
-			loadingAssetsData: true,
 			ADD_ASSETS_MODAL: false,
 			data: null,
 			pagination: { pageSize: 20 },
@@ -94,13 +113,10 @@ class AssetsList extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	async componentDidMount() {
+	componentDidMount() {
 		const { getAssetsList, getExchangeRates } = this.props;
-		await getExchangeRates();
-		await getAssetsList();
-		this.setState({
-			loadingAssetsData: false,
-		});
+		getExchangeRates();
+		getAssetsList();
 	}
 
 	showModal = type => () => {
@@ -154,6 +170,25 @@ class AssetsList extends Component {
 		}
 	};
 
+	handleSetExchangeRates = async (symbol, sell_rate, buy_rate) => {
+		try {
+			const res = await setAssetExchangeRates(symbol, sell_rate, buy_rate);
+			if (res.Error === 0) {
+				message.success("Asset was successfully blocked");
+			}
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				message.error(e.message);
+			}
+		}
+	};
+
 	render() {
 		const {
 			loadingIsBlockedAsset,
@@ -184,38 +219,14 @@ class AssetsList extends Component {
 				dataIndex: "",
 				key: "buyPrice",
 				width: "20%",
-				render: record => {
-					let res;
-					for (let i = 0; i < exchangeRates.length; i++) {
-						if (exchangeRates[i].symbol === record.symbol) {
-							res = convertAmountToStr(exchangeRates[i].buy, 8);
-							break;
-						}
-					}
-					if (!res) {
-						return "n/a";
-					}
-					return res;
-				},
+				render: record => renderExchangeRate(record, exchangeRates, "buy"),
 			},
 			{
 				title: "Sell price",
 				dataIndex: "",
 				key: "sell",
 				width: "20%",
-				render: record => {
-					let res;
-					for (let i = 0; i < exchangeRates.length; i++) {
-						if (exchangeRates[i].symbol === record.symbol) {
-							res = convertAmountToStr(exchangeRates[i].sell, 8);
-							break;
-						}
-					}
-					if (!res) {
-						return "n/a";
-					}
-					return res;
-				},
+				render: record => renderExchangeRate(record, exchangeRates, "sell"),
 			},
 			{
 				title: "Action",
@@ -231,6 +242,14 @@ class AssetsList extends Component {
 							style={style.button}
 						>
 							Block asset
+						</Button>
+						<Button
+							type="primary"
+							//loading={res.key === this.state.symbolKey && loadingBlockedAsset}
+							onClick={() => this.handleSetExchangeRates(res.symbol, "0.99", "1")}
+							style={style.button}
+						>
+							Set exchange rates
 						</Button>
 						<Button
 							loading={res.key === this.state.symbolKey && loadingIsBlockedAsset}

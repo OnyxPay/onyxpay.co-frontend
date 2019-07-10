@@ -1,10 +1,17 @@
 import { ParameterType, utils, Crypto } from "ontology-ts-sdk";
 import { unlockWalletAccount } from "./wallet";
 import { getStore } from "../store";
+import { prepareInt } from "../utils/blockchain";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
 import { ContractAddressError /* SendRawTrxError */ } from "../utils/custom-error";
-import { createTrx, signTrx, sendTrx, createAndSignTrxViaGasCompensator } from "./bc";
+import {
+	createTrx,
+	signTrx,
+	sendTrx,
+	createAndSignTrxViaGasCompensator,
+	addSignAndSendTrx,
+} from "./bc";
 import { timeout /* TimeoutError */ } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
@@ -94,4 +101,34 @@ export async function getFee(tokenId, amount, operationName) {
 	const res = await sendTrx(trx, true, false);
 
 	return parseInt(utils.reverseHex(res.Result.Result), 16);
+}
+
+export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
+	const { pk, accountAddress } = await unlockWalletAccount();
+	debugger;
+	const params = [
+		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
+		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
+		{
+			label: "tokenId",
+			type: ParameterType.String,
+			value: tokenId,
+		},
+		{
+			label: "sellRate",
+			type: ParameterType.Integer,
+			value: prepareInt(sell_rate),
+		},
+		{ label: "buyRate", type: ParameterType.Integer, value: prepareInt(buy_rate) },
+	];
+
+	console.log(params);
+
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"Exchange",
+		"SetExchangeRate",
+		params
+	);
+
+	return addSignAndSendTrx(serializedTrx, pk);
 }
