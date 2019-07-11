@@ -6,7 +6,6 @@ import {
 	Input,
 	Form,
 	Select,
-	notification,
 	Row,
 	Col,
 	message,
@@ -205,7 +204,7 @@ class SendAsset extends Component {
 							const allowToSubmitForm =
 								values.receiver_address && values.asset_symbol && values.amount ? true : false;
 							return (
-								<form onSubmit={handleSubmit}>
+								<form onSubmit={handleSubmit} className="send-assets__form">
 									<Row gutter={16}>
 										<Col lg={8} md={24}>
 											<Form.Item
@@ -317,12 +316,13 @@ class SendAsset extends Component {
 											Min available amount to send is equivalent of 1 USD
 										</Text>
 									</Row>
-									<TextAligner align="right" mobile="left">
+									<TextAligner align="right" mobile="left" className="send-assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"
 											disabled={!allowToSubmitForm || isSubmitting}
 											loading={isSubmitting}
+											className
 										>
 											Send
 										</Button>
