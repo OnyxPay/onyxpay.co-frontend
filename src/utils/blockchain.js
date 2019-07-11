@@ -76,6 +76,16 @@ export function signWithPk(msg, pk, schema) {
 	return pk.sign(msg, schema);
 }
 
+
 export function prepareInt(num) {
 	return Math.round(num * 100000000);
+}
+
+export function parseBcError(er) {
+	try {
+		const errorObj = JSON.parse(er);
+		return errorObj.Result;
+	} catch (e) {
+		return "Something went wrong at the block-chain network";
+	}
 }
