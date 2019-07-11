@@ -2,23 +2,23 @@ import React, { Component } from "react";
 import { Formik } from "formik";
 import { Modal, Button, Input, Form } from "antd";
 import { TextAligner } from "./../../styled";
-import { addNewAsset } from "api/admin/assets";
+import { setAssetExchangeRates } from "api/assets";
 import { TimeoutError } from "promise-timeout";
 import { showNotification, showTimeoutNotification } from "components/notification";
 
-class AddNewAsset extends Component {
+class SetExchangeRates extends Component {
 	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
-		const { hideModal, getAssetsList } = this.props;
-		const { assets_symbol, asset_name } = values;
+		const { hideModal, getExchangeRates, tokenId } = this.props;
+		const { assets_buy, asset_sell } = values;
 		try {
-			const res = await addNewAsset(assets_symbol, asset_name);
+			const res = await setAssetExchangeRates(tokenId, asset_sell, assets_buy);
 			if (res.Error === 0) {
 				showNotification({
 					type: "success",
-					msg: "Asset was successfully added",
+					msg: "Successfully set exchange rate",
 				});
 			}
-			getAssetsList();
+			getExchangeRates();
 			resetForm();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -39,18 +39,34 @@ class AddNewAsset extends Component {
 		const { isModalVisible, hideModal } = this.props;
 		return (
 			<>
-				<Modal title="Add asset" visible={isModalVisible} onCancel={hideModal} footer={null}>
+				<Modal
+					title="Set exchange rates"
+					visible={isModalVisible}
+					onCancel={hideModal}
+					footer={null}
+				>
 					<Formik
 						onSubmit={this.handleFormSubmit}
-						initialValues={{ assets_symbol: "", asset_name: "" }}
-						validate={({ assets_symbol, asset_name }) => {
+						initialValues={{ assets_buy: "", asset_sell: "" }}
+						validate={({ assets_buy, asset_sell }) => {
 							let errors = {};
-							if (!assets_symbol) {
-								errors.assets_symbol = "required";
+							if (!assets_buy) {
+								errors.assets_buy = "required";
+							} else if (!+assets_buy) {
+								errors.assets_buy = "only positive numbers allowed";
+							} else if (assets_buy <= 0) {
+								errors.assets_buy = "only positive numbers allowed";
 							}
-							if (!asset_name) {
-								errors.asset_name = "required";
+							if (!asset_sell) {
+								errors.asset_sell = "required";
+							} else if (!+asset_sell) {
+								errors.asset_sell = "only positive numbers allowed";
+							} else if (asset_sell >= assets_buy) {
+								errors.asset_sell = "sell can't be bigger than buy";
+							} else if (asset_sell <= 0) {
+								errors.asset_sell = "only positive numbers allowed";
 							}
+
 							return errors;
 						}}
 					>
@@ -67,32 +83,32 @@ class AddNewAsset extends Component {
 							return (
 								<form onSubmit={handleSubmit}>
 									<Form.Item
-										label="Assets symbol"
+										label="Buy rate"
 										required
-										validateStatus={errors.assets_symbol && touched.assets_symbol ? "error" : ""}
-										help={errors.assets_symbol && touched.assets_symbol ? errors.assets_symbol : ""}
+										validateStatus={errors.assets_buy && touched.assets_buy ? "error" : ""}
+										help={errors.assets_buy && touched.assets_buy ? errors.assets_buy : ""}
 									>
 										<Input
-											name="assets_symbol"
-											placeholder="enter assets symbol"
+											name="assets_buy"
+											placeholder="enter buy rate"
 											disabled={isSubmitting}
-											value={values.assets_symbol}
+											value={values.assets_buy}
 											onChange={handleChange}
 											onBlur={handleBlur}
 										/>
 									</Form.Item>
 
 									<Form.Item
-										label="Asset name"
+										label="Sell rate"
 										required
-										validateStatus={errors.asset_name && touched.asset_name ? "error" : ""}
-										help={errors.asset_name && touched.asset_name ? errors.asset_name : ""}
+										validateStatus={errors.asset_sell && touched.asset_sell ? "error" : ""}
+										help={errors.asset_sell && touched.asset_sell ? errors.asset_sell : ""}
 									>
 										<Input
-											name="asset_name"
-											placeholder="enter asset name"
+											name="asset_sell"
+											placeholder="enter sell rate"
 											disabled={isSubmitting}
-											value={values.asset_name}
+											value={values.asset_sell}
 											onChange={handleChange}
 											onBlur={handleBlur}
 										/>
@@ -104,7 +120,7 @@ class AddNewAsset extends Component {
 											disabled={isSubmitting}
 											loading={isSubmitting}
 										>
-											Add asset
+											Set exchange rates
 										</Button>
 									</TextAligner>
 								</form>
@@ -117,4 +133,4 @@ class AddNewAsset extends Component {
 	}
 }
 
-export default AddNewAsset;
+export default SetExchangeRates;
