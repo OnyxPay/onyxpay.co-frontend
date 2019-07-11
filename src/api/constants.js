@@ -6,15 +6,11 @@ export const bcEndpoints = {
 // export const backEndRestEndpoint = "https://10.100.3.189/api/v1/";
 export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
-
 export const addressOfHead = "87fd9b3718308de50fd639c9b9a411835936766a";
-// export const addressOfHead = "9459005e778d990b7edd4447be277e3dd61785be";
-
-// TODO: get address from Head
-export const OnyxCashDecimals = 8;
-export const OnyxCashSymbol = "OCH";
-
 export const BackendUrl = "https://preprod.onyxpay.co";
+
+export const OnyxCashDecimals = 8;
+export const onyxCashSymbol = "oCASH";
 
 export const tempWalletPassword = {};
 
@@ -62,5 +58,3 @@ export const userStatusNames = {
 
 export const h12Mc = 12 * 60 * 60 * 1000;
 export const h24Mc = 24 * 60 * 60 * 1000;
-
-export const onyxCashSymbol = "oCASH";
