@@ -100,6 +100,7 @@ export default function renderAgentColumns({
 			render: (text, record, index) => {
 				return record.request.taker_addr &&
 					record.request.taker_addr === walletAddress &&
+					record.request.status !== requestStatus.complained &&
 					record.request.choose_timestamp ? (
 					<Countdown date={new Date(record.request.choose_timestamp).getTime() + h24Mc} />
 				) : (
@@ -155,7 +156,8 @@ export default function renderAgentColumns({
 							))}
 
 						{record.request.taker_addr === walletAddress &&
-							record.request.status !== "completed" &&
+							record.request.status_code !== requestStatus.completed &&
+							record.request.status_code !== requestStatus.complained &&
 							(isPerformActive ? (
 								<Button type="primary" style={styles.btn} loading={true} disabled={true}>
 									Perform
