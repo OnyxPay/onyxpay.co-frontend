@@ -9,7 +9,7 @@ export function ReferralLink() {
 	return (
 		<div>
 			<h3>
-				<b>Referral settings</b>
+				<b>Referral info</b>
 			</h3>
 			<p>
 				<Input
