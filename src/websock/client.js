@@ -13,7 +13,7 @@ const wsClientConnect = walletAddress => {
 		socket.on(type, payload =>
 			getStore().dispatch({
 				type: type,
-				payload: { role: payload.role, roleCode: roleCodes[payload.role] },
+				payload: payload,
 			})
 		)
 	);

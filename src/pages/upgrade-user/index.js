@@ -7,7 +7,7 @@ import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
 import { sendUpgradeRequest } from "../../api/upgrade";
-import { UpgradeRequestStatusNames } from "../../api/constants";
+import { UpgradeRequestStatusNames, UpgradeRequestStatus } from "../../api/constants";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -16,6 +16,7 @@ const steps = {
 	settlements: 0,
 	buyCache: 1,
 	waitForApprovement: 2,
+	finished: 3,
 };
 
 const StepTitleCss = { textAlign: "left", borderBottom: "1px solid rgba(167, 180, 201, 0.3)" };
@@ -52,26 +53,7 @@ class UpgradeUser extends Component {
 			}
 		});
 		this.checkSettlements();
-
-		props.getUserUpgradeRequest().then(
-			data => {
-				console.info(data);
-				if (data.upgradeRequest) {
-					this.setState({ currentStep: steps.waitForApprovement });
-				}
-				this.setState({ showSpin: false });
-			},
-			err => {
-				if (err.response.status !== 404) {
-					console.error(err.errors);
-					message.error(
-						"There is an error occurred while receiving upgrade requests. Details:" +
-							JSON.stringify(err.errors)
-					);
-				}
-				this.setState({ showSpin: false });
-			}
-		);
+		this.checkUpgradeRequests();
 
 		window.matchMedia("(max-width: 570px)").addListener(() => {
 			this.setState({ direction: "horizontal" });
@@ -88,6 +70,32 @@ class UpgradeUser extends Component {
 			value: props.value,
 			role: role,
 		};
+	}
+
+	checkUpgradeRequests() {
+		this.props.getUserUpgradeRequest().then(
+			data => {
+				if (data.upgradeRequest) {
+					if (
+						data.upgradeRequest.status === UpgradeRequestStatus.Completed ||
+						data.upgradeRequest.status === UpgradeRequestStatus.Refused
+					) {
+						this.setState({ currentStep: steps.finished });
+					} else if (data.upgradeRequest.status === UpgradeRequestStatus.Opened) {
+						this.setState({ currentStep: steps.waitForApprovement });
+					}
+				}
+				this.setState({ showSpin: false });
+			},
+			err => {
+				console.error(err.errors);
+				message.error(
+					"There is an error occurred while receiving upgrade requests. Details:" +
+						JSON.stringify(err.errors)
+				);
+				this.setState({ showSpin: false });
+			}
+		);
 	}
 
 	checkSettlements() {
@@ -117,6 +125,7 @@ class UpgradeUser extends Component {
 		this.setState({ currentStep: ++currentStep });
 		if (currentStep === steps.waitForApprovement) {
 			sendUpgradeRequest(this.state.role);
+			this.checkUpgradeRequests();
 		}
 	};
 
@@ -183,11 +192,7 @@ class UpgradeUser extends Component {
 					<IPayForm amount={paymentAmount} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
-		} else if (
-			this.state.currentStep === steps.waitForApprovement &&
-			(!this.props.upgradeRequest ||
-				(this.props.upgradeRequest && this.props.upgradeRequest.status === 1))
-		) {
+		} else if (this.state.currentStep === steps.waitForApprovement) {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
@@ -209,9 +214,58 @@ class UpgradeUser extends Component {
 					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
 				</div>
 			);
-		} else if (this.props.upgradeRequest && this.props.upgradeRequest.status !== 1) {
-			message.warning(
-				"You upgrade request was " + UpgradeRequestStatusNames[this.props.upgradeRequest.status]
+		} else if (
+			this.state.currentStep === steps.finished &&
+			this.props.upgradeRequest &&
+			this.props.upgradeRequest.status === UpgradeRequestStatus.Completed
+		) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Upgrade result
+					</Title>
+					<p>
+						You was upgraded successfully. Please, click "Ok" button to start working in the new
+						role.
+					</p>
+					<Button
+						type="primary"
+						onClick={() => {
+							this.context.router.history.push(`/`);
+						}}
+						style={{ marginRight: 10, width: 170 }}
+					>
+						Ok
+					</Button>
+					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
+				</div>
+			);
+		} else if (
+			this.state.currentStep === steps.finished &&
+			this.props.upgradeRequest &&
+			this.props.upgradeRequest.status === UpgradeRequestStatus.Refused
+		) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Upgrade result
+					</Title>
+					<p>
+						You request was refused by the administrator with reason:
+						{this.props.upgradeRequest.reason}. &nbsp; To receive more information{" "}
+						<a href="mailto:support@onyxpay.co">contact the support</a>.
+					</p>
+					<Button
+						type="primary"
+						onClick={() => {
+							this.context.router.history.push(`/`);
+						}}
+						style={{ marginRight: 10, width: 170 }}
+					>
+						Ok
+					</Button>
+					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
+				</div>
 			);
 		}
 	}
