@@ -1,9 +1,11 @@
 import { wssBackEnd, wsMessages, roleCodes } from "../api/constants";
 import io from "socket.io-client";
 import { getStore } from "../store";
+
 let socket;
-export const wsClientConnect = walletAddress => {
-	io.connect(wssBackEnd, {
+const wsClientConnect = walletAddress => {
+	console.log("wsClientConnect");
+	socket = io.connect(wssBackEnd, {
 		path: "/wsapp/",
 		query: { walletAddress: walletAddress },
 	});
@@ -16,9 +18,21 @@ export const wsClientConnect = walletAddress => {
 		)
 	);
 };
-export const wsClientDisconnect = () => {
+const wsClientDisconnect = () => {
 	if (socket) {
 		socket.close();
 	}
 };
-//export const emit = (type, payload) => socket.emit(type, payload);
+let currentWalletAddr;
+export const wsClientRun = () => {
+	getStore().subscribe(() => {
+		let state = getStore().getState();
+		if (state.auth && state.auth.OnyxAddr !== currentWalletAddr) {
+			currentWalletAddr = state.auth.OnyxAddr;
+			wsClientConnect(currentWalletAddr);
+		} else if (!state.auth && currentWalletAddr) {
+			wsClientDisconnect();
+			currentWalletAddr = undefined;
+		}
+	});
+};

@@ -10,6 +10,7 @@ import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
+import { wsClientRun } from "./websock/client";
 
 const Deposit2 = props => <div>Agent's deposit...</div>;
 
@@ -123,6 +124,7 @@ class App extends Component {
 	componentDidMount() {
 		initBalanceProvider();
 		syncLoginState();
+		wsClientRun();
 	}
 
 	render() {
