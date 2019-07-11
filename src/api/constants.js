@@ -5,6 +5,8 @@ export const bcEndpoints = {
 
 // export const backEndRestEndpoint = "https://10.100.3.189/api/v1/";
 export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
+// export const backEndRestEndpoint = "https://10.100.3.189/api/v1/";
+
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 export const addressOfHead = "87fd9b3718308de50fd639c9b9a411835936766a";
 export const BackendUrl = "https://preprod.onyxpay.co";
@@ -26,9 +28,16 @@ export const notifyTimeout = 30000;
 
 export const operationMessageStatus = {
 	opened: 1,
-	hidden: 2,
+	hided: 2,
 	accepted: 3,
-	canceled: 4, // agent canceled a request
+	canceled: 4,
+};
+
+export const operationMessageStatusNames = {
+	[operationMessageStatus.opened]: "opened",
+	[operationMessageStatus.hided]: "hided",
+	[operationMessageStatus.accepted]: "accepted",
+	[operationMessageStatus.canceled]: "canceled",
 };
 
 export const requestStatus = {

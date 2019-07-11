@@ -5,6 +5,48 @@ import { getLocalTime } from "utils";
 import Countdown from "../Countdown";
 import { h24Mc } from "api/constants";
 import { styles } from "../styles";
+import { requestStatus } from "api/constants";
+
+function isAnotherPerformerSelected(record, walletAddress) {
+	if (
+		(record.request.status_code === requestStatus.choose ||
+			record.request.status_code === requestStatus.completed) &&
+		record.request.taker_addr !== walletAddress
+	) {
+		return true;
+	}
+	return false;
+}
+
+function renderCancelBtn(record, handleCancel, walletAddress, isCancelAcceptedRequestActive) {
+	const isAnotherSelected = isAnotherPerformerSelected(record, walletAddress);
+
+	let btn;
+	if (record.status === "accepted" && record.request.taker_addr !== walletAddress) {
+		if (isCancelAcceptedRequestActive) {
+			btn = (
+				<Button type="danger" style={styles.btn} loading={true} disabled={true}>
+					{isAnotherSelected ? "Return assets" : "Cancel acceptation"}
+				</Button>
+			);
+		} else {
+			btn = (
+				<Popconfirm
+					title={isAnotherSelected ? "Sure to return assets?" : "Sure to cancel acceptation?"}
+					cancelText="No"
+					onConfirm={() => handleCancel(record.request.request_id)}
+				>
+					<Button type="danger" style={styles.btn}>
+						{isAnotherSelected ? "Return assets" : "Cancel acceptation"}
+					</Button>
+				</Popconfirm>
+			);
+		}
+	} else {
+		btn = null;
+	}
+	return btn;
+}
 
 export default function renderAgentColumns({
 	activeRequestId,
@@ -33,6 +75,12 @@ export default function renderAgentColumns({
 		{
 			title: "Status",
 			dataIndex: "request.status",
+			render: (text, record, index) => {
+				if (isAnotherPerformerSelected(record, walletAddress)) {
+					return "request wasn't selected";
+				}
+				return record.request.status;
+			},
 		},
 		{
 			title: "Created",
@@ -123,23 +171,12 @@ export default function renderAgentColumns({
 								</Popconfirm>
 							))}
 
-						{record.status === "accepted" &&
-							record.request.taker_addr !== walletAddress &&
-							(isCancelAcceptedRequestActive ? (
-								<Button type="danger" style={styles.btn} loading={true} disabled={true}>
-									Cancel acceptation
-								</Button>
-							) : (
-								<Popconfirm
-									title="Sure to cancel acceptation?"
-									cancelText="No"
-									onConfirm={() => cancelAcceptedRequest(record.request.request_id)}
-								>
-									<Button type="danger" style={styles.btn}>
-										Cancel acceptation
-									</Button>
-								</Popconfirm>
-							))}
+						{renderCancelBtn(
+							record,
+							cancelAcceptedRequest,
+							walletAddress,
+							isCancelAcceptedRequestActive
+						)}
 					</>
 				);
 			},

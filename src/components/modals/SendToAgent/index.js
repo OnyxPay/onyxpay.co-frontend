@@ -20,7 +20,7 @@ class SendToAgent extends Component {
 			users: null,
 			selectedRows: [],
 			selectedRowKeys: [],
-			pagination: { current: 1, pageSize: 2 },
+			pagination: { current: 1, pageSize: 20 },
 		};
 	}
 
