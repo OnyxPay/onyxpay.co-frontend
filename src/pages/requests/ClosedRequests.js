@@ -75,6 +75,7 @@ class ClosedRequests extends Component {
 				if (user.role === roles.c) {
 					params.type = parseRequestType({ match, push });
 					params.status = "rejected,completed";
+					params.user = "maker";
 					data = await getActiveRequests(params);
 				} else if (user.role === roles.a) {
 					// params.requestType = parseRequestType({ match, push });
