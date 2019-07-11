@@ -46,7 +46,9 @@ class UpgradeUser extends Component {
 	constructor(props) {
 		super(props);
 		this.updateUserDataState().then(data => {
-			this.userRoleCode = data.roleCode;
+			if (data) {
+				this.userRoleCode = data.roleCode;
+			}
 		});
 		this.checkSettlements();
 
