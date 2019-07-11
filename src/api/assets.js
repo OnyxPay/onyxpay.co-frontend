@@ -65,6 +65,8 @@ export async function isAssetBlocked(tokenId) {
 }
 
 export async function getFee(tokenId, amount, operationName) {
+	console.log({ tokenId, amount, operationName });
+
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("InternalRevenueService"));
 	if (!address) {
@@ -90,6 +92,7 @@ export async function getFee(tokenId, amount, operationName) {
 			value: operationName, // Withdraw, deposit, send
 		},
 	];
+	console.log(params);
 
 	const trx = createTrx({
 		funcName: "GetFee",

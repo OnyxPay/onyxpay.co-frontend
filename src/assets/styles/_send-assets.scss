@@ -1,0 +1,10 @@
+.send-assets__form {
+	@media (max-width: 575px) {
+		.send-assets__button-wrapper {
+			margin-top: 40px;
+		}
+		button[type="submit"] {
+			width: 100%;
+		}
+	}
+}
