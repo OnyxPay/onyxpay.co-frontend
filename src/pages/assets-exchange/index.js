@@ -98,12 +98,14 @@ class AssetsExchange extends Component {
 				buyPrice: 1,
 			});
 		}
-		for (let record of exchangeRates) {
-			assetsForBuyData.push({
-				key: record.symbol,
-				name: record.symbol,
-				buyPrice: convertAmountToStr(record.buy, 8),
-			});
+		if (user.role !== roles.sa) {
+			for (let record of exchangeRates) {
+				assetsForBuyData.push({
+					key: record.symbol,
+					name: record.symbol,
+					buyPrice: convertAmountToStr(record.buy, 8),
+				});
+			}
 		}
 		await this.setStateAsync({
 			assetsForBuyData: assetsForBuyData,
@@ -141,14 +143,35 @@ class AssetsExchange extends Component {
 
 	setDefaultAssets = () => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
+		const { user } = this.props;
 
-		const defaultAssetToSell = assetsForSellData[0];
-		const defaultAssetToBuy = assetsForBuyData.find(
-			record => record.name !== defaultAssetToSell.name
-		);
+		let defaultAssetToSellName = "";
+		let defaultAssetToBuyName = "";
+		let selectedCorrectDefaultAssets = false;
 
-		this.setAssetToSellValues(defaultAssetToSell.name, 0);
-		this.setAssetToBuyValues(defaultAssetToBuy.name, 0);
+		if (assetsForSellData.length !== 0 && assetsForBuyData.length >= 2) {
+			const defaultAssetToSell = assetsForSellData[0];
+			const defaultAssetToBuy = assetsForBuyData.find(
+				record => record.name !== defaultAssetToSell.name
+			);
+			defaultAssetToSellName = defaultAssetToSell.name;
+			defaultAssetToBuyName = defaultAssetToBuy.name;
+			selectedCorrectDefaultAssets = true;
+		} else if (user.role === roles.sa) {
+			if (assetsForSellData.length >= 2) {
+				const defaultAssetToBuy = assetsForBuyData[0];
+				const defaultAssetToSell = assetsForSellData.find(
+					record => record.name !== defaultAssetToBuy.name
+				);
+				defaultAssetToSellName = defaultAssetToSell.name;
+				defaultAssetToBuyName = defaultAssetToBuy.name;
+				selectedCorrectDefaultAssets = true;
+			}
+		}
+
+		this.setAssetToSellValues(defaultAssetToSellName, 0);
+		this.setAssetToBuyValues(defaultAssetToBuyName, 0);
+		return selectedCorrectDefaultAssets;
 	};
 
 	async componentDidMount() {
@@ -160,8 +183,9 @@ class AssetsExchange extends Component {
 
 		const { assetsForSellData } = this.state;
 		if (assetsForSellData.length !== 0) {
-			await this.setDefaultAssets();
-			this.setState({ dataLoaded: true });
+			if (await this.setDefaultAssets()) {
+				this.setState({ dataLoaded: true });
+			}
 		}
 	}
 
@@ -170,9 +194,11 @@ class AssetsExchange extends Component {
 			const { dataLoaded } = this.state;
 
 			await this.fillAssetsForSellData();
-			if (!dataLoaded) {
-				await this.setDefaultAssets();
-				this.setState({ dataLoaded: true });
+			const { assetsForSellData } = this.state;
+			if (!dataLoaded && assetsForSellData.length !== 0) {
+				if (await this.setDefaultAssets()) {
+					this.setState({ dataLoaded: true });
+				}
 			}
 		}
 	}
@@ -437,7 +463,7 @@ class AssetsExchange extends Component {
 															let asset = assetsForSellData.find(
 																record => record.name === assetToSell.name
 															);
-															this.handleAssetToSellAmountChange(asset.balance);
+															this.handleAssetToSellAmountChange(Number(asset.balance));
 														}}
 														className="asset-exchange-amount-input-group-button"
 														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
