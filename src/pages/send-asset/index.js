@@ -26,10 +26,6 @@ import { debounce } from "lodash";
 const { Option } = Select;
 const { Text } = Typography;
 
-/* 
-isEnteredEnoughAmount
-isMinAllowedToSendAmountAvailable
-*/
 class SendAsset extends Component {
 	constructor(props) {
 		super(props);
@@ -44,6 +40,33 @@ class SendAsset extends Component {
 		getExchangeRates();
 	}
 
+	async calcMaxAmount(assetSymbol, updateFee) {
+		const { assets } = this.props;
+		if (assets.length) {
+			try {
+				const asset = assets.find(asset => asset.symbol === assetSymbol);
+				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
+				if (updateFee) {
+					this.setState({ fee: fee / 10 ** 8 });
+				}
+				return minus(asset.amount, fee) / 10 ** 8;
+			} catch (e) {
+				showBcError(e.message);
+				return 0;
+			}
+		}
+	}
+
+	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol, true);
+		setFieldValue("amount", maxAmount);
+	};
+
+	isEnteredAmountOverBalance = async (amount, assetSymbol) => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol);
+		return amount > maxAmount;
+	};
+
 	isEnteredEnoughAmount(amount, assetSymbol) {
 		const { exchangeRates } = this.props;
 		const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
@@ -52,30 +75,6 @@ class SendAsset extends Component {
 		return isEnough;
 	}
 
-	async calcMaxAmount(assetSymbol) {
-		const { assets } = this.props;
-		if (assets.length) {
-			try {
-				const asset = assets.find(asset => asset.symbol === assetSymbol);
-				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
-				return convertAmountToStr(minus(asset.amount, fee), 8);
-			} catch (e) {
-				showBcError(e.message);
-				return 0;
-			}
-		}
-	}
-
-	isAmountNotOverMax = async (amount, assetSymbol) => {
-		const maxAmount = await this.calcMaxAmount(assetSymbol);
-		return amount <= maxAmount;
-	};
-
-	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
-		const maxAmount = await this.calcMaxAmount(assetSymbol);
-		setFieldValue("amount", maxAmount);
-	};
-
 	handleFormSubmit = async (values, formActions) => {
 		try {
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
@@ -83,16 +82,16 @@ class SendAsset extends Component {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
-
-			const isAmountNotOverMax = await this.isAmountNotOverMax(values.amount, values.asset_symbol);
-
-			if (!isAmountNotOverMax) {
+			const isEnteredAmountOverBalance = await this.isEnteredAmountOverBalance(
+				values.amount,
+				values.asset_symbol
+			);
+			if (isEnteredAmountOverBalance) {
 				const maxAmount = await this.calcMaxAmount(values.asset_symbol);
-				console.log("maxAmount", maxAmount);
-				formActions.setFieldError("amount", `max ${maxAmount}`);
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", `max ${maxAmount}`);
 			}
-
-			if (isEnteredEnoughAmount && isAmountNotOverMax) {
+			if (isEnteredEnoughAmount && !isEnteredAmountOverBalance) {
 				await sendAsset(values);
 				formActions.resetForm();
 				notification.success({
@@ -128,8 +127,11 @@ class SendAsset extends Component {
 	};
 
 	handleAmountChange = (values, formActions) => async value => {
+		// fix
 		if (value > 1) {
 			this.debouncedGetFee(values.asset_symbol, value);
+		} else {
+			this.setState({ fee: null });
 		}
 		formActions.setFieldValue("amount", value);
 	};
@@ -160,8 +162,8 @@ class SendAsset extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							receiver_address: "AZPrhqNeRzC6UsDf8vfZueSTYAiB5W71gz",
-							asset_symbol: "",
+							receiver_address: "AeqjwiDETiKaMEDxpA2RTYXqN2S6xxor2R",
+							asset_symbol: "oEUR",
 							amount: "",
 						}}
 						validate={values => {
@@ -174,9 +176,9 @@ class SendAsset extends Component {
 							if (!values.asset_symbol) {
 								errors.asset_symbol = "required";
 							}
-							if (!values.amount) {
+							if (values.amount === null || values.amount === "") {
 								errors.amount = "required";
-							} else if (values.amount < 0) {
+							} else if (values.amount <= 0) {
 								errors.amount = "only positive values are allowed";
 							} else if (countDecimals(values.amount) > 8) {
 								errors.amount = "max number of decimal places is 8";
@@ -271,33 +273,17 @@ class SendAsset extends Component {
 												help={errors.amount && touched.amount ? errors.amount : ""}
 											>
 												<Input.Group compact style={{ display: "flex" }}>
-													{/* <Input
+													<InputNumber
 														name="amount"
-														type="number"
 														placeholder="Enter an amount"
 														value={values.amount}
+														min={0}
+														step={1}
 														onChange={this.handleAmountChange(values, {
 															setFieldError,
 															setFieldValue,
 														})}
 														onBlur={handleBlur}
-														disabled={
-															!availableAssetsToSend.length || !values.asset_symbol || isSubmitting
-														}
-														min={0.1}
-														step="any"
-													/> */}
-													<InputNumber
-														name="amount"
-														placeholder="Enter an amount"
-														value={values.amount}
-														min={1 / 10 ** 8}
-														step={1}
-														// precision={8}
-														onChange={this.handleAmountChange(values, {
-															setFieldError,
-															setFieldValue,
-														})}
 														disabled={
 															!availableAssetsToSend.length || !values.asset_symbol || isSubmitting
 														}
