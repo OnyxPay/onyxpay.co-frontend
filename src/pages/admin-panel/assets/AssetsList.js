@@ -5,12 +5,13 @@ import Actions from "../../../redux/actions";
 import { blockAsset } from "../../../api/admin/assets";
 import { isAssetBlocked } from "../../../api/assets";
 import AddNewAsset from "../../../components/modals/admin/AddNewAsset";
+import SetExchangeRates from "../../../components/modals/admin/SetExchangeRates";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../../utils/number";
-import { setAssetExchangeRates } from "../../../api/assets";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
+	ADD_SET_EXCHANGE_RATES: "ADD_SET_EXCHANGE_RATES",
 };
 
 const style = {
@@ -55,9 +56,11 @@ class AssetsList extends Component {
 			loadingBlockedAsset: false,
 			loadingIsBlockedAsset: false,
 			ADD_ASSETS_MODAL: false,
+			ADD_SET_EXCHANGE_RATES: false,
 			data: null,
 			pagination: { pageSize: 20 },
 			symbolKey: null,
+			tokenId: null,
 		};
 	}
 
@@ -113,18 +116,26 @@ class AssetsList extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	componentDidMount() {
+	async componentDidMount() {
 		const { getAssetsList, getExchangeRates } = this.props;
 		getExchangeRates();
 		getAssetsList();
 	}
 
-	showModal = type => () => {
+	showModalAddAsset = type => () => {
 		this.setState({ ADD_ASSETS_MODAL: true });
 	};
 
-	hideModal = type => () => {
+	hideModalAddAsset = type => () => {
 		this.setState({ ADD_ASSETS_MODAL: false });
+	};
+
+	showModalSetExchangeRates = (type, symbol) => () => {
+		this.setState({ tokenId: symbol, ADD_SET_EXCHANGE_RATES: true });
+	};
+
+	hideModalSetExchangeRates = type => () => {
+		this.setState({ ADD_SET_EXCHANGE_RATES: false });
 	};
 
 	handleBlockAsset = async (asset_symbol, key) => {
@@ -170,34 +181,18 @@ class AssetsList extends Component {
 		}
 	};
 
-	handleSetExchangeRates = async (symbol, sell_rate, buy_rate) => {
-		try {
-			const res = await setAssetExchangeRates(symbol, sell_rate, buy_rate);
-			if (res.Error === 0) {
-				message.success("Asset was successfully blocked");
-			}
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
-			}
-		}
-	};
-
 	render() {
 		const {
 			loadingIsBlockedAsset,
 			pagination,
 			loadingBlockedAsset,
-			loadingAssetsData,
+			symbolKey,
+			ADD_ASSETS_MODAL,
+			ADD_SET_EXCHANGE_RATES,
+			tokenId,
 		} = this.state;
-		const { data, exchangeRates } = this.props;
-		if (!data && !exchangeRates) {
+		const { data, exchangeRates, loadingAssetsList, loadingExchangeRates } = this.props;
+		if (!data.length && !exchangeRates.length) {
 			return null;
 		}
 		const columns = [
@@ -237,7 +232,7 @@ class AssetsList extends Component {
 					<>
 						<Button
 							type="danger"
-							loading={res.key === this.state.symbolKey && loadingBlockedAsset}
+							loading={res.key === symbolKey && loadingBlockedAsset}
 							onClick={() => this.handleBlockAsset(res.symbol, res.key)}
 							style={style.button}
 						>
@@ -245,14 +240,13 @@ class AssetsList extends Component {
 						</Button>
 						<Button
 							type="primary"
-							//loading={res.key === this.state.symbolKey && loadingBlockedAsset}
-							onClick={() => this.handleSetExchangeRates(res.symbol, "0.99", "1")}
+							onClick={this.showModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES, res.symbol)}
 							style={style.button}
 						>
 							Set exchange rates
 						</Button>
 						<Button
-							loading={res.key === this.state.symbolKey && loadingIsBlockedAsset}
+							loading={res.key === symbolKey && loadingIsBlockedAsset}
 							onClick={() => this.handleCheckAssetBlocked(res.symbol, res.key)}
 							style={style.button}
 						>
@@ -267,7 +261,7 @@ class AssetsList extends Component {
 			<>
 				<Card>
 					<div style={{ marginBottom: 30 }}>
-						<Button type="primary" onClick={this.showModal(modals.ADD_ASSETS_MODAL)}>
+						<Button type="primary" onClick={this.showModalAddAsset(modals.ADD_ASSETS_MODAL)}>
 							<Icon type="plus" /> Add new asset
 						</Button>
 					</div>
@@ -278,13 +272,19 @@ class AssetsList extends Component {
 						dataSource={data}
 						style={{ overflowX: "auto" }}
 						pagination={pagination}
-						loading={loadingAssetsData}
+						loading={loadingAssetsList || loadingExchangeRates}
 					/>
 				</Card>
 
 				<AddNewAsset
-					isModalVisible={this.state.ADD_ASSETS_MODAL}
-					hideModal={this.hideModal(modals.ADD_ASSETS_MODAL)}
+					isModalVisible={ADD_ASSETS_MODAL}
+					hideModal={this.hideModalAddAsset(modals.ADD_ASSETS_MODAL)}
+				/>
+
+				<SetExchangeRates
+					isModalVisible={ADD_SET_EXCHANGE_RATES}
+					hideModal={this.hideModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES)}
+					tokenId={tokenId}
 				/>
 			</>
 		);
@@ -296,6 +296,8 @@ export default connect(
 		return {
 			data: state.assets.list.map((item, i) => ({ key: i, symbol: item })),
 			exchangeRates: state.assets.rates,
+			loadingAssetsList: state.assets.loadingAssetsList,
+			loadingExchangeRates: state.assets.loadingExchangeRates,
 		};
 	},
 	{

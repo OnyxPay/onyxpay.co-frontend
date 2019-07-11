@@ -8,23 +8,28 @@ import { hexArrToArr, parseExchangeRates } from "../utils/blockchain";
 export const GET_ASSETS_LIST_REQUEST = "GET_ASSETS_LIST_REQUEST";
 export const GET_ASSETS_LIST_SUCCESS = "GET_ASSETS_LIST_SUCCESS";
 export const GET_ASSETS_LIST_FAILURE = "GET_ASSETS_LIST_FAILURE";
-export const LOADING_ASSETS_LIST = "LOADING_ASSETS_LIST";
 
 export const GET_ASSETS_EXCHANGE_RATES_REQUEST = "GET_ASSETS_EXCHANGE_RATES_REQUEST";
 export const GET_ASSETS_EXCHANGE_RATES_SUCCESS = "GET_ASSETS_EXCHANGE_RATES_SUCCESS";
 export const GET_ASSETS_EXCHANGE_RATES_FAILURE = "GET_ASSETS_EXCHANGE_RATES_FAILURE";
-export const LOADING_ASSETS_EXCHANGE_RATES = "LOADING_ASSETS_EXCHANGE_RATES";
 
-const initState = { list: [], rates: [] };
+const initState = {
+	list: [],
+	rates: [],
+	loadingAssetsList: true,
+	loadingExchangeRates: true,
+};
 
 export const assetsReducer = (state = initState, action) => {
 	switch (action.type) {
 		case GET_ASSETS_LIST_SUCCESS:
-			return { ...state, list: action.payload };
+			return { ...state, list: action.payload, loadingAssetsList: false };
 		case GET_ASSETS_EXCHANGE_RATES_SUCCESS:
-			return { ...state, rates: action.payload };
-		case LOADING_ASSETS_LIST:
-			return action.payload;
+			return { ...state, rates: action.payload, loadingExchangeRates: false };
+		case GET_ASSETS_LIST_FAILURE:
+			return { ...state, loadingAssetsList: false };
+		case GET_ASSETS_EXCHANGE_RATES_FAILURE:
+			return { ...state, loadingExchangeRates: false };
 		default:
 			return state;
 	}

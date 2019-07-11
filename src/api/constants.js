@@ -3,7 +3,6 @@ export const bcEndpoints = {
 	rest: "https://cepheus5.onyxpay.co:20334",
 };
 
-//export const backEndRestEndpoint = "https://preprod.onyxpay.co/api/v1/";
 export const backEndRestEndpoint = "https://10.100.3.189/api/v1/";
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 

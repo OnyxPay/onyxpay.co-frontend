@@ -105,7 +105,7 @@ export async function getFee(tokenId, amount, operationName) {
 
 export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
 	const { pk, accountAddress } = await unlockWalletAccount();
-	debugger;
+
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
@@ -121,8 +121,6 @@ export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
 		},
 		{ label: "buyRate", type: ParameterType.Integer, value: prepareInt(buy_rate) },
 	];
-
-	console.log(params);
 
 	const serializedTrx = await createAndSignTrxViaGasCompensator(
 		"Exchange",
