@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import { Formik } from "formik";
-import { Modal, Button, Input, Form, notification, message } from "antd";
-import { TextAligner } from "../../styled";
-import { addNewAsset } from "../../../api/admin/assets";
-import Actions from "../../../redux/actions";
+import { Modal, Button, Input, Form } from "antd";
+import { TextAligner } from "./../../styled";
+import { addNewAsset } from "api/admin/assets";
 import { TimeoutError } from "promise-timeout";
+import { showNotification, showTimeoutNotification } from "components/notification";
 
 class AddNewAsset extends Component {
 	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -14,19 +13,21 @@ class AddNewAsset extends Component {
 		try {
 			const res = await addNewAsset(assets_symbol, asset_name);
 			if (res.Error === 0) {
-				message.success("Asset was successfully added");
+				showNotification({
+					type: "success",
+					msg: "Asset was successfully added",
+				});
 			}
 			getAssetsList();
 			resetForm();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 				setSubmitting(false);
 			}
 		} finally {
@@ -116,7 +117,4 @@ class AddNewAsset extends Component {
 	}
 }
 
-export default connect(
-	null,
-	{ getAssetsList: Actions.assets.getAssetsList }
-)(AddNewAsset);
+export default AddNewAsset;

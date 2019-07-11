@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Table, Icon, message, notification, Input } from "antd";
-import Actions from "../../../redux/actions";
-import { blockAsset } from "../../../api/admin/assets";
-import { isAssetBlocked } from "../../../api/assets";
-import AddNewAsset from "../../../components/modals/admin/AddNewAsset";
-import SetExchangeRates from "../../../components/modals/admin/SetExchangeRates";
+import { Card, Button, Table, Icon, Input } from "antd";
+import Actions from "redux/actions";
+import { blockAsset } from "api/admin/assets";
+import { isAssetBlocked } from "api/assets";
+import AddNewAsset from "components/modals/admin/AddNewAsset";
+import SetExchangeRates from "components/modals/admin/SetExchangeRates";
 import { TimeoutError } from "promise-timeout";
-import { convertAmountToStr } from "../../../utils/number";
+import { showNotification, showTimeoutNotification } from "components/notification";
+import { convertAmountToStr } from "utils/number";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
@@ -146,17 +147,19 @@ class AssetsList extends Component {
 		try {
 			const res = await blockAsset(asset_symbol);
 			if (res.Error === 0) {
-				message.success("Asset was successfully blocked");
+				showNotification({
+					type: "success",
+					msg: "Asset was successfully blocked",
+				});
 			}
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		} finally {
 			this.setState({
@@ -175,9 +178,15 @@ class AssetsList extends Component {
 			loadingIsBlockedAsset: false,
 		});
 		if (res) {
-			message.success("Asset is blocked");
+			showNotification({
+				type: "success",
+				msg: "Asset is blocked",
+			});
 		} else {
-			message.success("Asset isn't blocked");
+			showNotification({
+				type: "success",
+				msg: "Asset isn't blocked",
+			});
 		}
 	};
 
@@ -191,7 +200,14 @@ class AssetsList extends Component {
 			ADD_SET_EXCHANGE_RATES,
 			tokenId,
 		} = this.state;
-		const { data, exchangeRates, loadingAssetsList, loadingExchangeRates } = this.props;
+		const {
+			data,
+			exchangeRates,
+			loadingAssetsList,
+			loadingExchangeRates,
+			getExchangeRates,
+			getAssetsList,
+		} = this.props;
 		if (!data.length && !exchangeRates.length) {
 			return null;
 		}
@@ -279,12 +295,14 @@ class AssetsList extends Component {
 				<AddNewAsset
 					isModalVisible={ADD_ASSETS_MODAL}
 					hideModal={this.hideModalAddAsset(modals.ADD_ASSETS_MODAL)}
+					getAssetsList={getAssetsList}
 				/>
 
 				<SetExchangeRates
 					isModalVisible={ADD_SET_EXCHANGE_RATES}
 					hideModal={this.hideModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES)}
 					tokenId={tokenId}
+					getExchangeRates={getExchangeRates}
 				/>
 			</>
 		);

@@ -1,7 +1,6 @@
 import { ParameterType, utils, Crypto } from "ontology-ts-sdk";
 import { unlockWalletAccount } from "./wallet";
 import { getStore } from "../store";
-import { prepareInt } from "../utils/blockchain";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
 import { ContractAddressError /* SendRawTrxError */ } from "../utils/custom-error";
@@ -117,9 +116,9 @@ export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
 		{
 			label: "sellRate",
 			type: ParameterType.Integer,
-			value: prepareInt(sell_rate),
+			value: convertAmountFromStr(sell_rate),
 		},
-		{ label: "buyRate", type: ParameterType.Integer, value: prepareInt(buy_rate) },
+		{ label: "buyRate", type: ParameterType.Integer, value: convertAmountFromStr(buy_rate) },
 	];
 
 	const serializedTrx = await createAndSignTrxViaGasCompensator(
