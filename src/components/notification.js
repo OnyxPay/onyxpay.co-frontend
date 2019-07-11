@@ -1,4 +1,5 @@
 import { notification } from "antd";
+import { parseBcError } from "utils/blockchain";
 
 /* 
 type:
@@ -26,5 +27,14 @@ export function showTimeoutNotification() {
 		type: "info",
 		msg:
 			"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+	});
+}
+
+export function showBcError(er) {
+	// er should be er.message property of Error
+	return showNotification({
+		type: "error",
+		msg: "Block-chain error",
+		desc: parseBcError(er),
 	});
 }
