@@ -21,8 +21,9 @@ import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr, minus } from "../../utils/number";
-import { showNotification, showBcError } from "components/notification";
+import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
+import { refreshBalance } from "providers/balanceProvider";
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -94,20 +95,19 @@ class SendAsset extends Component {
 			if (isEnteredEnoughAmount && !isEnteredAmountOverBalance) {
 				await sendAsset(values);
 				formActions.resetForm();
-				notification.success({
-					message: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
+				showNotification({
+					type: "success",
+					msg: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
 						values.receiver_address
 					} address`,
 				});
+				refreshBalance();
 			}
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				formActions.resetForm();
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check results later",
-				});
+				showTimeoutNotification();
+				refreshBalance();
 			} else {
 				message.error(e.message);
 			}
@@ -127,11 +127,14 @@ class SendAsset extends Component {
 	};
 
 	handleAmountChange = (values, formActions) => async value => {
+		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
 		// fix
-		if (value > 1) {
+		if (isEnteredEnoughAmount) {
 			this.debouncedGetFee(values.asset_symbol, value);
 		} else {
-			this.setState({ fee: null });
+			if (this.state.fee) {
+				this.setState({ fee: null });
+			}
 		}
 		formActions.setFieldValue("amount", value);
 	};
@@ -162,8 +165,8 @@ class SendAsset extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							receiver_address: "AeqjwiDETiKaMEDxpA2RTYXqN2S6xxor2R",
-							asset_symbol: "oEUR",
+							receiver_address: "",
+							asset_symbol: "",
 							amount: "",
 						}}
 						validate={values => {
