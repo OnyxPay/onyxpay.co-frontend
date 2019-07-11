@@ -39,7 +39,13 @@ class AddNewAsset extends Component {
 		const { isModalVisible, hideModal } = this.props;
 		return (
 			<>
-				<Modal title="Add asset" visible={isModalVisible} onCancel={hideModal} footer={null}>
+				<Modal
+					title="Add asset"
+					className="assets"
+					visible={isModalVisible}
+					onCancel={hideModal}
+					footer={null}
+				>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{ assets_symbol: "", asset_name: "" }}
