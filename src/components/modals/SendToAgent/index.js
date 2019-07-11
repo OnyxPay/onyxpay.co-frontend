@@ -109,6 +109,8 @@ class SendToAgent extends Component {
 		await this.fetchUsers({
 			country: countryId,
 		});
+		// reset selected users
+		this.setState({ selectedRowKeys: [], selectedRows: [] });
 		setFieldValue("country", countryId);
 	};
 

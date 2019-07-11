@@ -322,7 +322,6 @@ class SendAsset extends Component {
 											htmlType="submit"
 											disabled={!allowToSubmitForm || isSubmitting}
 											loading={isSubmitting}
-											className
 										>
 											Send
 										</Button>
