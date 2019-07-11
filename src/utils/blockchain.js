@@ -75,3 +75,12 @@ export function hexToBytes(hex) {
 export function signWithPk(msg, pk, schema) {
 	return pk.sign(msg, schema);
 }
+
+export function parseBcError(er) {
+	try {
+		const errorObj = JSON.parse(er);
+		return errorObj.Result;
+	} catch (e) {
+		return "Something went wrong at the block-chain network";
+	}
+}
