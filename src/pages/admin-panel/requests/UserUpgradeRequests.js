@@ -9,6 +9,7 @@ import {
 	rejectRequest,
 } from "../../../api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
+import { roles } from "api/constants";
 
 const style = {
 	button: {
@@ -226,6 +227,7 @@ class UserUpgradeRequests extends Component {
 								this.handleDowngrade(res.user.wallet_addr, res.expected_position, res.id)
 							}
 							style={style.button}
+							disabled={res.user.role === roles.c}
 							loading={res.id === request_id && loadingDowngradeUser}
 						>
 							Downgrade
