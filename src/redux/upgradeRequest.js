@@ -2,19 +2,25 @@ import { handleReqError } from "../api/network";
 import { finishLoading, startLoading } from "./loading";
 import { LOG_OUT } from "./auth";
 import { getUpgradeRequest } from "../api/upgrade";
+import { APPROVE_UPGRADE_REQUEST, REJECT_UPGRADE_REQUEST } from "../api/constants";
+import { Message } from "antd";
 
 const upgradeRequest = localStorage.getItem("upgradeRequest");
 const initialState = (upgradeRequest && JSON.parse(upgradeRequest)) || null;
 
 const SET_UPGRADE_REQUEST = "SET_UPGRADE_REQUEST";
-const UPDATE_UPGRADE_REQUEST = "UPDATE_UPGRADE_REQUEST";
 
 export const upgradeReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SET_UPGRADE_REQUEST:
 			localStorage.setItem("upgradeRequest", JSON.stringify(action.payload));
 			return action.payload;
-		case UPDATE_UPGRADE_REQUEST:
+		case REJECT_UPGRADE_REQUEST:
+			Message.warning(
+				"Your upgrade request was rejected with the reason: " + action.payload.reason,
+				5
+			);
+		case APPROVE_UPGRADE_REQUEST:
 			let storageState = localStorage.getItem("upgradeRequest");
 			if (storageState) {
 				let newState = { ...JSON.parse(storageState), ...action.payload };
@@ -32,10 +38,6 @@ export const upgradeReducer = (state = initialState, action) => {
 
 export const setUpgradeRequest = request => {
 	return { type: SET_UPGRADE_REQUEST, payload: request };
-};
-
-export const updateUpgradeRequest = request => {
-	return { type: UPDATE_UPGRADE_REQUEST, payload: request };
 };
 
 export const getUserUpgradeRequest = () => async (dispatch, getState) => {

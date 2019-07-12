@@ -1,10 +1,9 @@
-import { wssBackEnd, wsMessages, roleCodes } from "../api/constants";
+import { wssBackEnd, wsMessages } from "../api/constants";
 import io from "socket.io-client";
 import { getStore } from "../store";
 
 let socket;
 const wsClientConnect = walletAddress => {
-	console.log("wsClientConnect");
 	socket = io.connect(wssBackEnd, {
 		path: "/wsapp/",
 		query: { walletAddress: walletAddress },
