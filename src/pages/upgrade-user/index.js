@@ -7,7 +7,7 @@ import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
 import { sendUpgradeRequest } from "../../api/upgrade";
-import { UpgradeRequestStatusNames, UpgradeRequestStatus } from "../../api/constants";
+import { UpgradeRequestStatus } from "../../api/constants";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -16,7 +16,8 @@ const steps = {
 	settlements: 0,
 	buyCache: 1,
 	waitForApprovement: 2,
-	finished: 3,
+	refused: 3,
+	success: 4,
 };
 
 const StepTitleCss = { textAlign: "left", borderBottom: "1px solid rgba(167, 180, 201, 0.3)" };
@@ -30,6 +31,7 @@ function getStepTitle(item, step) {
 		return "Finished";
 	}
 }
+
 function getTitleRoleByRole(role) {
 	if (role === "agent") {
 		return "Agent";
@@ -158,7 +160,15 @@ class UpgradeUser extends Component {
 	};
 
 	getStepComponent(role) {
+		console.info(this);
 		const paymentAmount = role === "agent" ? 500 : 100000;
+		if (this.props.upgradeRequest && this.state.currentStep === steps.waitForApprovement) {
+			if (this.props.upgradeRequest.status === UpgradeRequestStatus.Completed) {
+				this.setState({ currentStep: steps.success });
+			} else if (this.props.upgradeRequest.status === UpgradeRequestStatus.Refused) {
+				this.setState({ currentStep: steps.refused });
+			}
+		}
 		if (this.state.currentStep === steps.settlements) {
 			return (
 				<div style={{ marginBottom: 30 }}>
@@ -192,7 +202,52 @@ class UpgradeUser extends Component {
 					<IPayForm amount={paymentAmount} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
-		} else if (this.state.currentStep === steps.waitForApprovement) {
+		} else if (this.state.currentStep === steps.success) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Upgrade result
+					</Title>
+					<p>
+						You was upgraded successfully. Please, click "Ok" button to start working in the new
+						role.
+					</p>
+					<Button
+						type="primary"
+						onClick={() => {
+							this.props.histor.push(`/`);
+						}}
+						style={{ marginRight: 10, width: 170 }}
+					>
+						Ok
+					</Button>
+					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
+				</div>
+			);
+		} else if (this.state.currentStep === steps.refused) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Upgrade failed
+					</Title>
+					<p>
+						You request was refused by the administrator with reason:&nbsp;
+						<b>{this.props.upgradeRequest.reason}.</b>&nbsp;To receive more information{" "}
+						<a href="mailto:support@onyxpay.co">contact the support</a>.
+					</p>
+					<Button
+						type="primary"
+						onClick={() => {
+							this.props.history.push(`/`);
+						}}
+						style={{ marginRight: 10, width: 170 }}
+					>
+						Ok
+					</Button>
+					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
+				</div>
+			);
+		} else {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
@@ -209,66 +264,14 @@ class UpgradeUser extends Component {
 						onClick={this.movePrevStep()}
 						style={{ marginRight: 10, width: 170 }}
 					>
-						Back to payment page
-					</Button>
-					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
-				</div>
-			);
-		} else if (
-			this.state.currentStep === steps.finished &&
-			this.props.upgradeRequest &&
-			this.props.upgradeRequest.status === UpgradeRequestStatus.Completed
-		) {
-			return (
-				<div>
-					<Title level={4} style={StepTitleCss}>
-						Upgrade result
-					</Title>
-					<p>
-						You was upgraded successfully. Please, click "Ok" button to start working in the new
-						role.
-					</p>
-					<Button
-						type="primary"
-						onClick={() => {
-							this.context.router.history.push(`/`);
-						}}
-						style={{ marginRight: 10, width: 170 }}
-					>
-						Ok
-					</Button>
-					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
-				</div>
-			);
-		} else if (
-			this.state.currentStep === steps.finished &&
-			this.props.upgradeRequest &&
-			this.props.upgradeRequest.status === UpgradeRequestStatus.Refused
-		) {
-			return (
-				<div>
-					<Title level={4} style={StepTitleCss}>
-						Upgrade result
-					</Title>
-					<p>
-						You request was refused by the administrator with reason:
-						{this.props.upgradeRequest.reason}. &nbsp; To receive more information{" "}
-						<a href="mailto:support@onyxpay.co">contact the support</a>.
-					</p>
-					<Button
-						type="primary"
-						onClick={() => {
-							this.context.router.history.push(`/`);
-						}}
-						style={{ marginRight: 10, width: 170 }}
-					>
-						Ok
+						Back to the payment
 					</Button>
 					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
 				</div>
 			);
 		}
 	}
+
 	getCardContent() {
 		if (this.state.showSpin) {
 			return (
@@ -297,6 +300,7 @@ class UpgradeUser extends Component {
 			);
 		}
 	}
+
 	render() {
 		return (
 			<>
