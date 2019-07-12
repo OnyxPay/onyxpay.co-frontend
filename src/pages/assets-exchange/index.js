@@ -79,6 +79,7 @@ class AssetsExchange extends Component {
 		formDataIsValid: true,
 		transactionInProcess: false,
 		dataLoaded: false,
+		formTouched: false,
 	};
 
 	setStateAsync(state) {
@@ -183,7 +184,7 @@ class AssetsExchange extends Component {
 
 		const { assetsForSellData } = this.state;
 		if (assetsForSellData.length !== 0) {
-			if (await this.setDefaultAssets()) {
+			if (this.setDefaultAssets()) {
 				this.setState({ dataLoaded: true });
 			}
 		}
@@ -196,7 +197,7 @@ class AssetsExchange extends Component {
 			await this.fillAssetsForSellData();
 			const { assetsForSellData } = this.state;
 			if (!dataLoaded && assetsForSellData.length !== 0) {
-				if (await this.setDefaultAssets()) {
+				if (this.setDefaultAssets()) {
 					this.setState({ dataLoaded: true });
 				}
 			}
@@ -287,11 +288,14 @@ class AssetsExchange extends Component {
 	};
 
 	validateForm = async () => {
+		const { formTouched } = this.state;
+
 		await this.validateAssetName("buy");
 		await this.validateAssetName("sell");
 		await this.validateToSellAmount();
 		await this.validateToBuyAmount();
 
+		if (!formTouched) this.setStateAsync({ formTouched: true });
 		this.setStateAsync({ formDataIsValid: this.inputIsValid() });
 	};
 
@@ -619,7 +623,11 @@ class AssetsExchange extends Component {
 									<Button
 										type="primary"
 										htmlType="submit"
-										disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
+										disabled={
+											!this.state.dataLoaded ||
+											!this.state.formDataIsValid ||
+											!this.state.formTouched
+										}
 										loading={this.state.transactionInProcess}
 										className="exchange-submit-button"
 									>
