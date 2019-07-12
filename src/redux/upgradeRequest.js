@@ -15,11 +15,12 @@ export const upgradeReducer = (state = initialState, action) => {
 		case SET_UPGRADE_REQUEST:
 			localStorage.setItem("upgradeRequest", JSON.stringify(action.payload));
 			return action.payload;
-		case wsEvents.rejectpgradeRequest:
+		case wsEvents.rejectUpgradeRequest:
 			Message.warning(
 				"Your upgrade request was rejected with the reason: " + action.payload.reason,
 				5
 			);
+		// eslint-disable-next-line no-fallthrough
 		case wsEvents.approveUpgradeRequest:
 			let storageState = localStorage.getItem("upgradeRequest");
 			if (storageState) {

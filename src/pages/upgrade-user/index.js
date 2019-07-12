@@ -77,7 +77,7 @@ class UpgradeUser extends Component {
 	checkUpgradeRequests() {
 		this.props.getUserUpgradeRequest().then(
 			data => {
-				if (data.upgradeRequest) {
+				if (data && data.upgradeRequest) {
 					if (
 						data.upgradeRequest.status === UpgradeRequestStatus.Completed ||
 						data.upgradeRequest.status === UpgradeRequestStatus.Refused
@@ -160,7 +160,6 @@ class UpgradeUser extends Component {
 	};
 
 	getStepComponent(role) {
-		console.info(this);
 		const paymentAmount = role === "agent" ? 500 : 100000;
 		if (this.props.upgradeRequest && this.state.currentStep === steps.waitForApprovement) {
 			if (this.props.upgradeRequest.status === UpgradeRequestStatus.Completed) {
