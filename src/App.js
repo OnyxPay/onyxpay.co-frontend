@@ -109,7 +109,6 @@ let UserUpgradeRequests = Loadable({
 // permissions
 const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
-const UserOrAgent = Authorization([roles.c, roles.a]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
 
@@ -117,7 +116,7 @@ const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
 Dashboard = All(Dashboard);
 const UserDeposit = User(Deposit);
 const AgentDeposit = Agent(Deposit2);
-AssetsExchange = UserOrAgent(AssetsExchange);
+AssetsExchange = All(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
 UpgradeUser = All(UpgradeUser);

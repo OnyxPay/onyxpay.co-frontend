@@ -13,20 +13,34 @@ export const GET_ASSETS_EXCHANGE_RATES_REQUEST = "GET_ASSETS_EXCHANGE_RATES_REQU
 export const GET_ASSETS_EXCHANGE_RATES_SUCCESS = "GET_ASSETS_EXCHANGE_RATES_SUCCESS";
 export const GET_ASSETS_EXCHANGE_RATES_FAILURE = "GET_ASSETS_EXCHANGE_RATES_FAILURE";
 
-const initState = { list: [], rates: [] };
+const initState = {
+	list: [],
+	rates: [],
+	loadingAssetsList: false,
+	loadingExchangeRates: false,
+};
 
 export const assetsReducer = (state = initState, action) => {
 	switch (action.type) {
+		case GET_ASSETS_LIST_REQUEST:
+			return { ...state, loadingAssetsList: true };
 		case GET_ASSETS_LIST_SUCCESS:
-			return { ...state, list: action.payload };
+			return { ...state, list: action.payload, loadingAssetsList: false };
+		case GET_ASSETS_LIST_FAILURE:
+			return { ...state, loadingAssetsList: false };
+		case GET_ASSETS_EXCHANGE_RATES_REQUEST:
+			return { ...state, loadingExchangeRates: true };
 		case GET_ASSETS_EXCHANGE_RATES_SUCCESS:
-			return { ...state, rates: action.payload };
+			return { ...state, rates: action.payload, loadingExchangeRates: false };
+		case GET_ASSETS_EXCHANGE_RATES_FAILURE:
+			return { ...state, loadingExchangeRates: false };
 		default:
 			return state;
 	}
 };
 
 export const getAssetsList = () => async dispatch => {
+	dispatch({ type: GET_ASSETS_LIST_REQUEST });
 	const client = getBcClient();
 	const funcName = "AssetsList";
 
@@ -57,6 +71,7 @@ export const getAssetsList = () => async dispatch => {
 };
 
 export const getExchangeRates = () => async dispatch => {
+	dispatch({ type: GET_ASSETS_EXCHANGE_RATES_REQUEST });
 	const client = getBcClient();
 	const funcName = "GetExchangeRates";
 	const address = await dispatch(resolveContractAddress("Exchange"));

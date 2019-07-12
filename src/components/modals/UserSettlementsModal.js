@@ -1,28 +1,32 @@
-import { Modal, Table } from "antd";
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import { getUserSettlementData } from "../../../redux/admin-panel/users";
+import { Modal, Table } from "antd";
+import { getSettlementsByUserId } from "api/settlement-accounts";
 
 class UserSettlement extends Component {
 	state = {
 		loading: false,
+		data: [],
 	};
 
-	componentDidMount = async () => {
-		this.setState({
-			loading: true,
-		});
-		const { getUserSettlementData } = this.props;
-		await getUserSettlementData(this.props.userId);
-		const { userSettlement } = this.props;
-		this.setState({
-			data: userSettlement,
-			loading: false,
-		});
-	};
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps.userId !== this.props.userId) {
+			this.fetchData(this.props.userId);
+		}
+	}
+
+	async fetchData(userId) {
+		this.setState({ loading: true });
+		try {
+			const data = await getSettlementsByUserId(userId);
+			this.setState({ loading: false, data: data.items });
+		} catch (e) {
+		} finally {
+			this.setState({ loading: false });
+		}
+	}
 
 	render() {
-		const { userSettlement } = this.props;
+		const { loading, data } = this.state;
 		const columns = [
 			{
 				title: "Account name",
@@ -35,7 +39,6 @@ class UserSettlement extends Component {
 				dataIndex: "account_number",
 				key: "account_number",
 				width: "10%",
-				className: "nowrap-col",
 			},
 			{
 				title: "Brief notes",
@@ -61,7 +64,7 @@ class UserSettlement extends Component {
 			<>
 				<Modal
 					title="Settlement accounts"
-					visible={this.props.visible}
+					visible={this.props.isModalVisible}
 					onOk={() => this.props.hideModal(false)}
 					onCancel={() => this.props.hideModal(false)}
 					className="large-modal"
@@ -69,10 +72,10 @@ class UserSettlement extends Component {
 					<Table
 						columns={columns}
 						rowKey={data => data.id}
-						dataSource={userSettlement}
+						dataSource={data}
 						className="ovf-auto"
 						pagination={false}
-						loading={this.state.loading}
+						loading={loading}
 					/>
 				</Modal>
 			</>
@@ -80,13 +83,4 @@ class UserSettlement extends Component {
 	}
 }
 
-const mapStateToProps = state => ({
-	userSettlement: state.userSettlement,
-});
-
-export default connect(
-	mapStateToProps,
-	{
-		getUserSettlementData,
-	}
-)(UserSettlement);
+export default UserSettlement;

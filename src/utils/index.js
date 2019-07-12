@@ -1,3 +1,5 @@
+import { h24Mc, h12Mc } from "api/constants";
+
 export function isCookieAvailable(name) {
 	return document.cookie.split(";").filter(item => {
 		return item.includes(name);
@@ -29,4 +31,35 @@ export const wait = (ms = 300, resolveWith = null) => {
 export function generateTokenTimeStamp() {
 	const tokenLifeSpan = 1000 * 60 * 60 * 12; // 12 hours in ms
 	return Math.floor(new Date().getTime() / tokenLifeSpan).toString(16);
+}
+
+export function getPerformerName({ taker_addr: addr, operation_messages: messages } = {}) {
+	const msg = messages.filter(msg => msg.receiver.wallet_addr === addr);
+
+	const { first_name, last_name } = msg[0].receiver;
+	if (first_name || last_name) {
+		return `${first_name} ${last_name}`;
+	} else {
+		return addr;
+	}
+}
+
+export function getLocalTime(date) {
+	return new Date(date).toLocaleString();
+}
+
+export function calcTimeDiff(timestamp) {
+	const trxCreatedMs = new Date(timestamp).getTime();
+	const nowMs = new Date().getTime();
+	return nowMs - trxCreatedMs;
+}
+
+export function is24hOver(timestamp) {
+	const diff = calcTimeDiff(timestamp);
+	return diff > h24Mc;
+}
+
+export function is12hOver(timestamp) {
+	const diff = calcTimeDiff(timestamp);
+	return diff > h12Mc;
 }

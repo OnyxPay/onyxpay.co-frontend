@@ -9,13 +9,14 @@ export function ReferralLink() {
 	return (
 		<div>
 			<h3>
-				<b>Referral settings</b>
+				<b>Referral info</b>
 			</h3>
 			<p>
 				<Input
 					addonBefore="Referral link:"
 					value={link}
 					style={{ border: "none" }}
+					className="referral-link-input"
 					suffix={
 						<CopyToClipboard
 							text={link}

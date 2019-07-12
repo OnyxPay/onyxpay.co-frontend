@@ -5,10 +5,10 @@ import {
 	getRequests,
 	upgradeUser,
 	downgradeUser,
-	checkUserRole,
 	rejectRequest,
 } from "../../../api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
+import { roles } from "api/constants";
 
 const style = {
 	button: {
@@ -30,11 +30,6 @@ class UserUpgradeRequests extends Component {
 		this.fetchRequests();
 		// for testing purposes
 		// createRequest();
-	};
-
-	handleCheckUserRole = async (wallet_addr, role) => {
-		const res = await checkUserRole(wallet_addr, role);
-		alert(`${role} ${res}`);
 	};
 
 	handleUpgrade = async (wallet_addr, role, id) => {
@@ -226,15 +221,10 @@ class UserUpgradeRequests extends Component {
 								this.handleDowngrade(res.user.wallet_addr, res.expected_position, res.id)
 							}
 							style={style.button}
+							disabled={res.user.role === roles.c}
 							loading={res.id === request_id && loadingDowngradeUser}
 						>
 							Downgrade
-						</Button>
-						<Button
-							onClick={() => this.handleCheckUserRole(res.user.wallet_addr, res.expected_position)}
-							style={style.button}
-						>
-							Check role in bc
 						</Button>
 					</>
 				),

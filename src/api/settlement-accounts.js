@@ -1,16 +1,12 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
+const client = getRestClient();
 
-export async function searchUsers(params) {
-	const client = getRestClient();
-
+export async function getSettlementsByUserId(userId) {
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("users", {
+		const { data } = await client.get(`user/${userId}/settlements`, {
 			headers: {
 				...authHeaders,
-			},
-			params: {
-				...params,
 			},
 		});
 		return data;

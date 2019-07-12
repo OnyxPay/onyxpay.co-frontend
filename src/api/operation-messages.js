@@ -1,8 +1,7 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
+const client = getRestClient();
 
 export async function sendMessage(requestId, receivers = []) {
-	const client = getRestClient();
-
 	try {
 		const authHeaders = getAuthHeaders();
 		const { data } = await client.post(
@@ -16,14 +15,11 @@ export async function sendMessage(requestId, receivers = []) {
 		);
 		return data;
 	} catch (error) {
-		console.log(error);
 		return handleReqError(error);
 	}
 }
 
 export async function hideMessage(requestId) {
-	const client = getRestClient();
-
 	try {
 		const authHeaders = getAuthHeaders();
 		const { data } = await client.put(`operation-message/${requestId}/hide`, null, {
@@ -33,14 +29,11 @@ export async function hideMessage(requestId) {
 		});
 		return data;
 	} catch (error) {
-		console.log(error);
 		return handleReqError(error);
 	}
 }
 
 export async function getMessages(params) {
-	const client = getRestClient();
-
 	try {
 		const authHeaders = getAuthHeaders();
 		const { data } = await client.get("operation-messages", {
@@ -51,7 +44,36 @@ export async function getMessages(params) {
 		});
 		return data;
 	} catch (error) {
-		console.log(error);
+		return handleReqError(error);
+	}
+}
+
+export async function getMessagesForActiveRequests(params) {
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("operation-messages/deposit/active-requests", {
+			headers: {
+				...authHeaders,
+			},
+			params,
+		});
+		return data;
+	} catch (error) {
+		return handleReqError(error);
+	}
+}
+
+export async function getMessagesForClosedRequests(params) {
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("operation-messages/close-requests", {
+			headers: {
+				...authHeaders,
+			},
+			params,
+		});
+		return data;
+	} catch (error) {
 		return handleReqError(error);
 	}
 }

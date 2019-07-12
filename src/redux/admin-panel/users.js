@@ -10,11 +10,23 @@ import { unlockWalletAccount } from "../../api/wallet";
 const client = getRestClient();
 const SAVE_ADMIN_USERS_DATA = "SAVE_ADMIN_USERS_DATA";
 const SAVE_USER_SETTLEMENT_DATA = "USER_SETTLEMENT_DATA";
+const UPDATE_ADMIN_USER_STATUS = "UPDATE_ADMIN_USER_STATUS";
 
 export const adminUsersReducer = (state = [], action) => {
 	switch (action.type) {
 		case SAVE_ADMIN_USERS_DATA:
 			return action.payload;
+		case UPDATE_ADMIN_USER_STATUS:
+			return state.map(user => {
+				if (user.user_id === action.payload.userId) {
+					return {
+						...user,
+						status_code: action.payload.status,
+						status: action.payload.status === 1 ? "active" : "blocked",
+					};
+				}
+				return user;
+			});
 		default:
 			return state;
 	}
@@ -49,6 +61,10 @@ export const getUsersData = params => async dispatch => {
 	} catch (er) {
 		return handleReqError(er);
 	}
+};
+
+export const updateUserStatus = (userId, status) => {
+	return { type: UPDATE_ADMIN_USER_STATUS, payload: { userId, status } };
 };
 
 export const saveUserSettlementData = userSettlements => {
@@ -101,7 +117,6 @@ export const blockUser = (userAccountAddress, reason, duration) => {
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("User was successfully blocked");
 					return true;
 				}
 			} catch (error) {

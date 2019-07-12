@@ -12,15 +12,9 @@ export async function sendUpgradeRequest(role) {
 	return form;
 }
 
-export async function getUpgradeRequest(role) {
+export async function getUpgradeRequest() {
 	const authHeaders = getAuthHeaders();
-	const form = await restClient.get(
-		"/admin/upgrade-requests?status=opened&maker=" +
-			authHeaders.OnyxAddr +
-			"&role=" +
-			role.toLowerCase(),
-		{ headers: { ...authHeaders } }
-	);
+	const form = await restClient.get("/upgrade-request", { headers: { ...authHeaders } });
 	return form;
 }
 
