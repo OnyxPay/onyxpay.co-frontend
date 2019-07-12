@@ -33,7 +33,7 @@ export async function refreshBalance() {
 				Actions.contracts.resolveContractAddress("OnyxCash")
 			);
 
-			let [assetsContractAddress, onyxCashContractAddress] = await Promise.all([
+			const [assetsContractAddress, onyxCashContractAddress] = await Promise.all([
 				assetsContractAddressPromise,
 				onyxCashContractAddressPromise,
 			]);
@@ -56,10 +56,14 @@ export async function refreshBalance() {
 let currentUserState = null;
 let intervalId;
 export function initBalanceProvider() {
-	store.subscribe(() => {
+	const storeUnsubscribe = store.subscribe(() => {
 		const { user, wallet } = store.getState();
 		let previousUserState = currentUserState;
 		currentUserState = user;
+
+		if (intervalId) {
+			storeUnsubscribe();
+		}
 
 		if (
 			wallet &&
