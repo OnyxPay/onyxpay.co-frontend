@@ -4,7 +4,13 @@ import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
 import { ContractAddressError /* SendRawTrxError */ } from "../utils/custom-error";
-import { createTrx, signTrx, sendTrx, createAndSignTrxViaGasCompensator } from "./bc";
+import {
+	createTrx,
+	signTrx,
+	sendTrx,
+	createAndSignTrxViaGasCompensator,
+	addSignAndSendTrx,
+} from "./bc";
 import { timeout /* TimeoutError */ } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
@@ -56,4 +62,73 @@ export async function isAssetBlocked(tokenId) {
 
 	const response = await sendTrx(trx, true, false);
 	return !!parseInt(get(response, "Result.Result", "0"), 16);
+}
+
+export async function getFee(tokenId, amount, operationName) {
+	console.log({ tokenId, amount, operationName });
+
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("InternalRevenueService"));
+	if (!address) {
+		throw new ContractAddressError(
+			"Unable to get address of InternalRevenueService smart-contract"
+		);
+	}
+
+	const params = [
+		{
+			label: "tokenId",
+			type: ParameterType.String,
+			value: tokenId,
+		},
+		{
+			label: "amount",
+			type: ParameterType.Integer,
+			value: convertAmountFromStr(amount),
+		},
+		{
+			label: "operationName",
+			type: ParameterType.String,
+			value: operationName, // Withdraw, deposit, send
+		},
+	];
+	console.log(params);
+
+	const trx = createTrx({
+		funcName: "GetFee",
+		params,
+		contractAddress: address,
+	});
+
+	const res = await sendTrx(trx, true, false);
+
+	return parseInt(utils.reverseHex(res.Result.Result), 16);
+}
+
+export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
+	const { pk, accountAddress } = await unlockWalletAccount();
+
+	const params = [
+		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
+		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
+		{
+			label: "tokenId",
+			type: ParameterType.String,
+			value: tokenId,
+		},
+		{
+			label: "sellRate",
+			type: ParameterType.Integer,
+			value: convertAmountFromStr(sell_rate),
+		},
+		{ label: "buyRate", type: ParameterType.Integer, value: convertAmountFromStr(buy_rate) },
+	];
+
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"Exchange",
+		"SetExchangeRate",
+		params
+	);
+
+	return addSignAndSendTrx(serializedTrx, pk);
 }

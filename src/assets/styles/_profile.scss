@@ -2,7 +2,9 @@
 	text-align: left;
 	border: none;
 }
-
+.profile-editor-item .ant-form-item-control {
+	line-height: inherit;
+}
 .profile-editor-input input {
 	text-overflow: ellipsis;
 }

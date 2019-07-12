@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { Typography, Button, message } from "antd";
+import { Typography, Button } from "antd";
 import { push } from "connected-react-router";
 import styled from "styled-components";
 import Actions from "../../redux/actions";
@@ -15,6 +15,7 @@ import RegistrationModal from "../../components/modals/Registration";
 import { generateTokenTimeStamp } from "../../utils";
 import { signWithPk } from "../../utils/blockchain";
 import { refreshBalance } from "../../providers/balanceProvider";
+import { showNotification } from "components/notification";
 
 const { Title } = Typography;
 
@@ -84,7 +85,10 @@ class Login extends Component {
 		const { clearWallet, logOut } = this.props;
 		clearWallet();
 		logOut(true);
-		message.success("You successfully closed your wallet", 5);
+		showNotification({
+			type: "success",
+			msg: "You successfully closed your wallet",
+		});
 	};
 
 	handleLogin = async () => {
@@ -103,10 +107,11 @@ class Login extends Component {
 
 			if (res && res.error) {
 				if (res.error.data) {
-					message.error(
-						"Invalid password was entered. Or maybe your wallet is not associated with any account. Create account first.",
-						5
-					);
+					showNotification({
+						type: "error",
+						msg:
+							"Invalid password was entered. Or maybe your wallet is not associated with any account. Create account first.",
+					});
 				}
 			} else {
 				await getUserData();

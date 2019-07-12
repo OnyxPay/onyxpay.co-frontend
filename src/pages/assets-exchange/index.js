@@ -5,8 +5,8 @@ import {
 	Col,
 	Card,
 	Form,
-	Icon,
 	Input,
+	InputNumber,
 	Button,
 	Select,
 	Table,
@@ -19,7 +19,9 @@ import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";
 import { TimeoutError } from "promise-timeout";
 import { SendRawTrxError } from "../../utils/custom-error";
-import { exchangeAssets } from "../../api/exchange";
+import { exchangeAssets, exchangeAssetsForOnyxCash } from "../../api/exchange";
+import { isAssetBlocked } from "../../api/assets";
+import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 const { Option } = Select;
 
 const assetsForBuyColumns = [
@@ -27,13 +29,13 @@ const assetsForBuyColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: 80,
+		width: "9em",
 	},
 	{
 		title: "Buy price",
 		dataIndex: "buyPrice",
 		key: "buyPrice",
-		width: 80,
+		width: "9em",
 	},
 ];
 
@@ -42,33 +44,21 @@ const assetsForSellColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: 80,
+		width: "9em",
 	},
 	{
 		title: "Sell price",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
-		width: 80,
+		width: "9em",
 	},
 	{
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
-		width: 80,
+		width: "9em",
 	},
 ];
-
-function countDecimals(value) {
-	if (Math.floor(value) === value) return 0;
-	if (value.toString().split(".").length !== 2) return 0;
-	return value.toString().split(".")[1].length || 0;
-}
-
-function trimFloat(value, digits) {
-	if (String(Number(value)) === String(value) && countDecimals(value) > digits)
-		return Number(value).toFixed(digits);
-	return value;
-}
 
 class AssetsExchange extends Component {
 	state = {
@@ -91,10 +81,23 @@ class AssetsExchange extends Component {
 		dataLoaded: false,
 	};
 
+	setStateAsync(state) {
+		return new Promise(resolve => {
+			this.setState(state, resolve);
+		});
+	}
+
 	fillAssetsForBuyData = async () => {
-		const { exchangeRates } = this.props;
+		const { exchangeRates, user } = this.props;
 
 		let assetsForBuyData = [];
+		if (user.role === roles.a || user.role === roles.sa) {
+			assetsForBuyData.push({
+				key: onyxCashSymbol,
+				name: onyxCashSymbol,
+				buyPrice: 1,
+			});
+		}
 		for (let record of exchangeRates) {
 			assetsForBuyData.push({
 				key: record.symbol,
@@ -102,17 +105,25 @@ class AssetsExchange extends Component {
 				buyPrice: convertAmountToStr(record.buy, 8),
 			});
 		}
-		await this.setState({
+		await this.setStateAsync({
 			assetsForBuyData: assetsForBuyData,
 		});
 	};
 
 	fillAssetsForSellData = async () => {
-		const { assets } = this.props.balance;
-		const { exchangeRates } = this.props;
+		const { assets, onyxCash } = this.props.balance;
+		const { exchangeRates, user } = this.props;
 
 		// get all assets, in which user's balance is greater than 0
 		let assetsForSellData = [];
+		if (user.role === roles.a || user.role === roles.sa) {
+			assetsForSellData.push({
+				key: onyxCashSymbol,
+				name: onyxCashSymbol,
+				balance: convertAmountToStr(onyxCash, OnyxCashDecimals),
+				sellPrice: 1,
+			});
+		}
 		for (let record of assets) {
 			let assetRatesData = exchangeRates.find(ratesRecord => ratesRecord.symbol === record.symbol);
 			assetsForSellData.push({
@@ -123,7 +134,7 @@ class AssetsExchange extends Component {
 			});
 		}
 
-		await this.setState({
+		await this.setStateAsync({
 			assetsForSellData: assetsForSellData,
 		});
 	};
@@ -155,46 +166,48 @@ class AssetsExchange extends Component {
 	}
 
 	async componentDidUpdate(prevProps, prevState) {
-		// should asset prices also update on change?
 		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
+			const { dataLoaded } = this.state;
+
 			await this.fillAssetsForSellData();
-			await this.setDefaultAssets();
-			this.setState({ dataLoaded: true });
+			if (!dataLoaded) {
+				await this.setDefaultAssets();
+				this.setState({ dataLoaded: true });
+			}
 		}
 	}
 
-	setAssetToBuyValues = (assetName, amount) => {
-		this.setState({ assetToBuy: { name: assetName, amount: trimFloat(amount, 9) } });
+	setAssetToBuyValues = async (assetName, amount) => {
+		if (isNaN(amount)) amount = 0;
+		await this.setStateAsync({ assetToBuy: { name: assetName, amount: amount } });
 	};
 
-	setAssetToSellValues = (assetName, amount) => {
-		this.setState({ assetToSell: { name: assetName, amount: trimFloat(amount, 9) } });
+	setAssetToSellValues = async (assetName, amount) => {
+		if (isNaN(amount)) amount = 0;
+		await this.setStateAsync({ assetToSell: { name: assetName, amount: amount } });
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const amountToBuyInUsd = amountToBuy * buyPrice;
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToSell = amountToBuyInUsd / sellPrice;
+		const amountToSell = (amountToBuy * buyPrice) / sellPrice; // amountToBuyInUsd / sellPrice
 		return amountToSell;
 	};
 
 	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
 		const { assetsForBuyData, assetsForSellData } = this.state;
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const amountToSellInUsd = amountToSell / buyPrice;
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToBuy = amountToSellInUsd * sellPrice;
+		const amountToBuy = (amountToSell * sellPrice) / buyPrice; // amountToSellInUsd * sellPrice
 		return amountToBuy;
 	};
 
 	validateAssetName = async assetType => {
-		const { isAssetBlocked } = this.props;
 		const { assetToSell, assetToBuy } = this.state;
 
 		let value = assetType === "sell" ? assetToSell.name : assetToBuy.name;
@@ -205,10 +218,24 @@ class AssetsExchange extends Component {
 			error = value + " asset is blocked at the moment";
 		}
 
-		await this.setState({
+		await this.setStateAsync({
 			assetToSellNameError: assetType === "sell" ? error : this.state.assetToSellNameError,
 			assetToBuyNameError: assetType === "buy" ? error : this.state.assetToBuyNameError,
 		});
+	};
+
+	getUsdBasedRate = assetName => {
+		const { exchangeRates } = this.props;
+
+		if (assetName === "oUSD" || assetName === onyxCashSymbol) return 1;
+		const asset = exchangeRates.find(ratesRecord => ratesRecord.symbol === assetName);
+		const usdAsset = exchangeRates.find(ratesRecord => ratesRecord.symbol === "oUSD");
+		return asset.sell / usdAsset.sell;
+	};
+
+	getUsdAmount = (assetName, amount) => {
+		let usdBasedRate = this.getUsdBasedRate(assetName);
+		return amount * usdBasedRate;
 	};
 
 	validateToSellAmount = async () => {
@@ -216,25 +243,30 @@ class AssetsExchange extends Component {
 		let error = "";
 
 		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
-		const { sellPrice } = assetsForSellData.find(
-			ratesRecord => ratesRecord.name === assetToSell.name
-		);
-		const amountToSellInUsd = assetToSell.amount * sellPrice;
-
-		if (Number(amountToSellInUsd) < 1) {
-			error = "Amount to sell must be greater than 1 oUSD";
-		} else if (Number(assetToSell.amount) > Number(asset.balance)) {
+		if (Number(assetToSell.amount) > Number(asset.balance)) {
 			error = "Not enough " + asset.name + " to perform operation";
 		}
-		await this.setState({ assetToSellAmountError: error });
+		await this.setStateAsync({ assetToSellAmountError: error });
+	};
+
+	validateToBuyAmount = async () => {
+		const { assetToBuy } = this.state;
+		let error = "";
+
+		const amountToBuyInUsd = this.getUsdAmount(assetToBuy.name, assetToBuy.amount);
+		if (amountToBuyInUsd < 1) {
+			error = "Amount to buy must be greater than 1 oUSD";
+		}
+		await this.setStateAsync({ assetToBuyAmountError: error });
 	};
 
 	validateForm = async () => {
 		await this.validateAssetName("buy");
 		await this.validateAssetName("sell");
 		await this.validateToSellAmount();
+		await this.validateToBuyAmount();
 
-		this.setState({ formDataIsValid: this.inputIsValid() });
+		this.setStateAsync({ formDataIsValid: this.inputIsValid() });
 	};
 
 	inputIsValid = () => {
@@ -252,8 +284,7 @@ class AssetsExchange extends Component {
 		);
 	};
 
-	handleAssetToBuyAmountChange = async event => {
-		const { value } = event.target;
+	handleAssetToBuyAmountChange = async value => {
 		const { assetToSell, assetToBuy } = this.state;
 
 		await this.setAssetToBuyValues(assetToBuy.name, value);
@@ -264,8 +295,7 @@ class AssetsExchange extends Component {
 		this.validateForm();
 	};
 
-	handleAssetToSellAmountChange = async event => {
-		const { value } = event.target;
+	handleAssetToSellAmountChange = async value => {
 		const { assetToSell, assetToBuy } = this.state;
 
 		await this.setAssetToSellValues(assetToSell.name, value);
@@ -310,23 +340,37 @@ class AssetsExchange extends Component {
 		e.preventDefault();
 		e.stopPropagation();
 
-		await this.setState({ transactionInProcess: true });
+		await this.setStateAsync({ transactionInProcess: true });
 
 		const { assetToBuy, assetToSell } = this.state;
-		const { wallet } = this.props;
 		console.log("asset to buy", assetToBuy);
 		console.log("asset to sell", assetToSell);
 		try {
-			let result = await exchangeAssets({
-				assetToSellName: assetToSell.name,
-				assetToBuyName: assetToBuy.name,
-				amountToBuy: assetToBuy.amount,
-				wallet: wallet,
-			});
+			let result = {};
+			if (assetToSell.name === onyxCashSymbol) {
+				result = await exchangeAssetsForOnyxCash({
+					tokenId: assetToBuy.name,
+					amount: assetToBuy.amount.toFixed(8),
+					operationType: "buy",
+				});
+			} else if (assetToBuy.name === onyxCashSymbol) {
+				result = await exchangeAssetsForOnyxCash({
+					tokenId: assetToSell.name,
+					amount: assetToSell.amount.toFixed(8),
+					operationType: "sell",
+				});
+			} else {
+				result = await exchangeAssets({
+					assetToSellName: assetToSell.name,
+					assetToBuyName: assetToBuy.name,
+					amountToBuy: assetToBuy.amount.toFixed(8),
+				});
+			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
 			this.setState({ transactionInProcess: false });
 			console.log(result);
 		} catch (e) {
+			console.log(e, typeof e);
 			if (e instanceof TimeoutError) {
 				this.openNotification(
 					"error",
@@ -335,7 +379,9 @@ class AssetsExchange extends Component {
 			} else if (e instanceof SendRawTrxError) {
 				this.openNotification("error", "Contract execution error");
 			} else {
-				this.openNotification("error", "Unknown error");
+				if (!e.message.includes("You should unlock your wallet to make transactions")) {
+					this.openNotification("error", "Unknown error");
+				}
 			}
 			console.log("error: ", e);
 			this.setState({ transactionInProcess: false });
@@ -346,50 +392,84 @@ class AssetsExchange extends Component {
 		return (
 			<>
 				<PageTitle>Assets Exchange</PageTitle>
-				<Card>
-					<Row gutter={16}>
+				<Card className="exchange-card-wrapper">
+					<Row>
 						<Form
 							layout="inline"
 							onSubmit={e => {
 								this.handleSubmit(e);
 							}}
+							className="exchange-form"
 						>
-							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Col lg={{ span: 24 }}>Asset to sell:</Col>
-								<Col lg={{ span: 24 }}>
-									<Form.Item
-										validateStatus={
-											this.state.assetToSellAmountError.length === 0 ? "success" : "error"
-										}
-									>
-										<Input
-											prefix={<Icon type="logout" style={{ color: "rgba(0,0,0,.25)" }} />}
-											type="number"
-											step={10 ** -9}
-											min={0}
-											placeholder="You send"
-											value={this.state.assetToSell.amount}
-											onChange={this.handleAssetToSellAmountChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-										/>
-									</Form.Item>
-									<Form.Item
-										validateStatus={
-											this.state.assetToSellNameError.length === 0 ? "success" : "error"
-										}
-									>
-										<Select
-											value={this.state.assetToSell.name}
-											onChange={this.handleAssetToSellChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
+								<Col span={24}>Asset to sell:</Col>
+								<Col span={24}>
+									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
+										<Form.Item
+											style={{ display: "inline-block" }}
+											className="asset-exchange-form-input-parent"
 										>
-											{this.state.assetsForSellData.map(asset => (
-												<Option key={asset.key}>{asset.key}</Option>
-											))}
-										</Select>
-									</Form.Item>
+											<Input.Group
+												compact
+												style={{ display: "flex" }}
+												className="asset-exchange-amount-input-group"
+											>
+												<Form.Item
+													validateStatus={
+														this.state.assetToSellAmountError.length === 0 ? "success" : "error"
+													}
+													className="asset-exchange-amount-input-group-form-item"
+												>
+													<InputNumber
+														min={0}
+														precision={8}
+														placeholder="You send"
+														value={this.state.assetToSell.amount}
+														onChange={this.handleAssetToSellAmountChange}
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+														style={{ width: "100%" }}
+													/>
+												</Form.Item>
+												<Form.Item>
+													<Button
+														onClick={() => {
+															const { assetsForSellData, assetToSell } = this.state;
+															let asset = assetsForSellData.find(
+																record => record.name === assetToSell.name
+															);
+															this.handleAssetToSellAmountChange(asset.balance);
+														}}
+														className="asset-exchange-amount-input-group-button"
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+													>
+														Max
+													</Button>
+												</Form.Item>
+											</Input.Group>
+										</Form.Item>
+									</Col>
+									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 2 }} xl={{ span: 8 }}>
+										<Form.Item
+											validateStatus={
+												this.state.assetToSellNameError.length === 0 ? "success" : "error"
+											}
+											style={{ display: "inline-block" }}
+											className="asset-exchange-form-select-parent"
+										>
+											<Select
+												value={this.state.assetToSell.name}
+												onChange={this.handleAssetToSellChange}
+												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+												className="asset-exchange-select"
+											>
+												{this.state.assetsForSellData.map(asset => (
+													<Option key={asset.key}>{asset.key}</Option>
+												))}
+											</Select>
+										</Form.Item>
+									</Col>
 								</Col>
-								<Col lg={{ span: 24 }}>
+								<Col span={24}>
 									{this.state.assetToSellNameError.length !== 0 ? (
 										<Tag color="red">{this.state.assetToSellNameError}</Tag>
 									) : (
@@ -403,57 +483,119 @@ class AssetsExchange extends Component {
 								</Col>
 							</Col>
 
-							<Col md={{ span: 24 }} lg={{ span: 10 }}>
-								<Col lg={{ span: 24 }}>Asset to buy:</Col>
-								<Col lg={{ span: 24 }}>
-									<Form.Item
-										validateStatus={
-											this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
-										}
-									>
-										<Input
-											prefix={<Icon type="login" style={{ color: "rgba(0,0,0,.25)" }} />}
-											type="number"
-											step={10 ** -9}
-											min={0}
-											placeholder="You get"
-											value={this.state.assetToBuy.amount}
-											onChange={this.handleAssetToBuyAmountChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-										/>
-									</Form.Item>
-									<Form.Item
-										validateStatus={
-											this.state.assetToBuyNameError.length === 0 ? "success" : "error"
-										}
-									>
-										<Select
-											value={this.state.assetToBuy.name}
-											onChange={this.handleAssetToBuyChange}
-											disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+							<Col
+								xs={{ span: 24 }}
+								sm={{ span: 24 }}
+								md={{ span: 24 }}
+								lg={{ span: 24 }}
+								xl={{ span: 0 }}
+							>
+								<div className="form-divider" />
+							</Col>
+
+							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
+								<Col span={24}>Asset to buy:</Col>
+								<Col span={24}>
+									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
+										<Form.Item
+											style={{ display: "inline-block" }}
+											className="asset-exchange-form-input-parent"
 										>
-											{this.state.assetsForBuyData.map(asset => (
-												<Option key={asset.key}>{asset.key}</Option>
-											))}
-										</Select>
-									</Form.Item>
+											<Input.Group
+												compact
+												style={{ display: "flex" }}
+												className="asset-exchange-amount-input-group"
+											>
+												<Form.Item
+													validateStatus={
+														this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
+													}
+													className="asset-exchange-amount-input-group-form-item"
+												>
+													<InputNumber
+														min={0}
+														precision={8}
+														placeholder="You get"
+														value={this.state.assetToBuy.amount}
+														onChange={this.handleAssetToBuyAmountChange}
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+														style={{ width: "100%" }}
+													/>
+												</Form.Item>
+												<Form.Item>
+													<Button
+														onClick={() => {
+															const { assetsForSellData, assetToSell, assetToBuy } = this.state;
+															let asset = assetsForSellData.find(
+																record => record.name === assetToSell.name
+															);
+															this.handleAssetToBuyAmountChange(
+																this.recountAssetToBuyAmount(
+																	assetToSell.name,
+																	assetToBuy.name,
+																	asset.balance
+																)
+															);
+														}}
+														className="asset-exchange-amount-input-group-button"
+														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+													>
+														Max
+													</Button>
+												</Form.Item>
+											</Input.Group>
+										</Form.Item>
+									</Col>
+
+									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 2 }} xl={{ span: 8 }}>
+										<Form.Item
+											validateStatus={
+												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
+											}
+											style={{ display: "inline-block" }}
+											className="asset-exchange-form-select-parent"
+										>
+											<Select
+												value={this.state.assetToBuy.name}
+												onChange={this.handleAssetToBuyChange}
+												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+												className="asset-exchange-select"
+											>
+												{this.state.assetsForBuyData.map(asset => (
+													<Option key={asset.key}>{asset.key}</Option>
+												))}
+											</Select>
+										</Form.Item>
+									</Col>
 								</Col>
-								<Col lg={{ span: 24 }}>
+								<Col span={24}>
 									{this.state.assetToBuyNameError.length !== 0 ? (
 										<Tag color="red"> {this.state.assetToBuyNameError} </Tag>
+									) : (
+										""
+									)}
+									{this.state.assetToBuyAmountError.length !== 0 ? (
+										<Tag color="red"> {this.state.assetToBuyAmountError} </Tag>
 									) : (
 										""
 									)}
 								</Col>
 							</Col>
 
-							<Col md={{ span: 24 }} lg={{ span: 2 }}>
+							<Col
+								xs={{ span: 24 }}
+								sm={{ span: 24 }}
+								md={{ span: 24 }}
+								lg={{ span: 24 }}
+								xl={{ span: 2 }}
+							>
 								<Form.Item>
 									<Button
 										type="primary"
 										htmlType="submit"
 										disabled={!this.state.dataLoaded || !this.state.formDataIsValid}
 										loading={this.state.transactionInProcess}
+										className="exchange-submit-button"
 									>
 										Exchange
 									</Button>
@@ -462,21 +604,28 @@ class AssetsExchange extends Component {
 						</Form>
 					</Row>
 					<Divider />
-					<Row gutter={48}>
-						<Col md={24} lg={11}>
+					<Row gutter={48} className="exchange-tables">
+						<Col md={24} lg={12}>
 							<Table
 								columns={assetsForSellColumns}
 								dataSource={this.state.assetsForSellData}
 								pagination={false}
-								scroll={{ y: 240 }}
+								scroll={{ y: "16em" }}
+								locale={{ emptyText: "You have no assets at the moment. Please, make a deposit." }}
 							/>
 						</Col>
-						<Col md={24} lg={11}>
+
+						<Col md={{ span: 24 }} lg={{ span: 0 }}>
+							<div className="table-divider" />
+						</Col>
+
+						<Col md={24} lg={12}>
 							<Table
 								columns={assetsForBuyColumns}
 								dataSource={this.state.assetsForBuyData}
 								pagination={false}
-								scroll={{ y: 240 }}
+								scroll={{ y: "16em" }}
+								locale={{ emptyText: "No assets available in the system at the moment." }}
 							/>
 						</Col>
 					</Row>
@@ -489,13 +638,12 @@ class AssetsExchange extends Component {
 export default connect(
 	state => {
 		return {
-			wallet: state.wallet,
 			balance: state.balance,
 			exchangeRates: state.assets.rates,
+			user: state.user,
 		};
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
-		isAssetBlocked: Actions.assets.isAssetBlocked,
 	}
 )(AssetsExchange);

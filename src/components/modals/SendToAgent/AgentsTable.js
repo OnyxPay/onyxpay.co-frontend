@@ -1,5 +1,17 @@
 import React from "react";
 import { Table } from "antd";
+import { getLocalTime } from "../../../utils";
+import { Button, Tooltip } from "antd";
+
+function sortValues(valA, valB) {
+	if (valA < valB) {
+		return -1;
+	}
+	if (valA > valB) {
+		return 1;
+	}
+	return 0;
+}
 
 function AgentsTable({
 	data,
@@ -9,27 +21,87 @@ function AgentsTable({
 	pagination,
 	onChange,
 	isSendingMessage,
+	showUserSettlementsModal,
 }) {
 	let columns = [];
 	if (isSendingMessage) {
 		columns = [
-			{ title: "First name", dataIndex: "first_name" },
-			{ title: "Last name", dataIndex: "last_name" },
-			{ title: "Email", dataIndex: "email" },
-			{ title: "Phone", dataIndex: "phone_number" },
+			{ title: "First name", dataIndex: "first_name", sorter: true },
+			{ title: "Last name", dataIndex: "last_name", sorter: true },
+			{
+				title: "Registered",
+				dataIndex: "created_at",
+				sorter: true,
+				render: (text, record, index) => {
+					return <span>{getLocalTime(record.created_at)}</span>;
+				},
+			},
 			{ title: "Wallet address", dataIndex: "wallet_addr" },
+			{
+				title: "Actions",
+				render: (text, record, index) => {
+					return (
+						<Tooltip title="See settlement accounts">
+							<Button
+								shape="round"
+								icon="account-book"
+								onClick={e => showUserSettlementsModal(record.user_id)}
+							/>
+						</Tooltip>
+					);
+				},
+			},
 		];
 	} else {
 		columns = [
 			{
-				title: "Name",
+				title: "First name",
+				dataIndex: "receiver.first_name",
+				sorter: (a, b) => {
+					const nameA = a.receiver.first_name.toLowerCase();
+					const nameB = b.receiver.first_name.toLowerCase();
+					return sortValues(nameA, nameB);
+				},
+				sortDirections: ["descend", "ascend"],
+			},
+			{
+				title: "Last name",
+				dataIndex: "receiver.last_name",
+				sorter: (a, b) => {
+					const nameA = a.receiver.last_name.toLowerCase();
+					const nameB = b.receiver.last_name.toLowerCase();
+					return sortValues(nameA, nameB);
+				},
+				sortDirections: ["descend", "ascend"],
+			},
+			{
+				title: "Registered",
+				dataIndex: "created_at",
+				sorter: (a, b) => {
+					const dateA = new Date(a.receiver.created_at).getTime();
+					const dateB = new Date(b.receiver.created_at).getTime();
+					return sortValues(dateA, dateB);
+				},
+				sortDirections: ["descend", "ascend"],
 				render: (text, record, index) => {
-					return <span>{record.receiver.first_name + " " + record.receiver.last_name}</span>;
+					return <span>{getLocalTime(record.receiver.created_at)}</span>;
 				},
 			},
-			{ title: "Email", dataIndex: "receiver.email" },
-			{ title: "Phone", dataIndex: "receiver.phone_number" },
 			{ title: "Wallet address", dataIndex: "receiver.wallet_addr" },
+			{
+				title: "Actions",
+				render: (text, record, index) => {
+					return (
+						<Tooltip title="See settlement accounts">
+							<Button
+								shape="round"
+								icon="account-book"
+								onClick={e => showUserSettlementsModal(record.receiver.user_id)}
+							/>
+						</Tooltip>
+					);
+				},
+			},
 		];
 	}
 
@@ -40,17 +112,19 @@ function AgentsTable({
 	};
 
 	return (
-		<Table
-			columns={columns}
-			dataSource={isSendingMessage ? data && data.items : data}
-			rowKey={record => (isSendingMessage ? record.user_id : record.id)}
-			bordered
-			pagination={isSendingMessage ? { ...pagination, size: "small" } : false}
-			className="ovf-auto"
-			loading={loading}
-			rowSelection={rowSelection}
-			onChange={onChange}
-		/>
+		<>
+			<Table
+				columns={columns}
+				dataSource={isSendingMessage ? data && data.items : data}
+				rowKey={record => (isSendingMessage ? record.user_id : record.id)}
+				bordered
+				pagination={isSendingMessage ? { ...pagination, size: "small" } : false}
+				className="ovf-auto"
+				loading={loading}
+				rowSelection={rowSelection}
+				onChange={isSendingMessage ? onChange : null} // server or local sorting
+			/>
+		</>
 	);
 }
 
