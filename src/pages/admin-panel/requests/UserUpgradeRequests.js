@@ -8,7 +8,6 @@ import {
 	rejectRequest,
 } from "../../../api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
-import { roles } from "api/constants";
 
 const style = {
 	button: {
@@ -24,6 +23,7 @@ class UserUpgradeRequests extends Component {
 		fetchingRequests: false,
 		loadingUpgradeUser: false,
 		loadingDowngradeUser: false,
+		requestsData: null,
 	};
 
 	componentDidMount = () => {
@@ -209,10 +209,16 @@ class UserUpgradeRequests extends Component {
 							}
 							style={style.button}
 							loading={res.id === request_id && loadingUpgradeUser}
+							disabled={res.user.role === res.expected_position}
 						>
 							Confirm
 						</Button>
-						<Button type="danger" onClick={() => this.showModal(res.id)} style={style.button}>
+						<Button
+							type="danger"
+							onClick={() => this.showModal(res.id)}
+							style={style.button}
+							disabled={res.user.role === res.expected_position}
+						>
 							Reject
 						</Button>
 						<Button
@@ -221,7 +227,7 @@ class UserUpgradeRequests extends Component {
 								this.handleDowngrade(res.user.wallet_addr, res.expected_position, res.id)
 							}
 							style={style.button}
-							disabled={res.user.role === roles.c}
+							disabled={res.user.role !== res.expected_position}
 							loading={res.id === request_id && loadingDowngradeUser}
 						>
 							Downgrade
