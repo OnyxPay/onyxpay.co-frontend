@@ -4,42 +4,76 @@ import { cryptoAddress } from "../utils/blockchain";
 import { utils } from "ontology-ts-sdk";
 import { getStore } from "../store";
 import Actions from "../redux/actions";
+import { roles, refreshBalanceEveryMsec } from "api/constants";
+
 const store = getStore();
+const dispatch = store.dispatch;
 
 export async function refreshBalance() {
-	const { wallet } = store.getState();
+	const { wallet, user } = store.getState();
+	const walletDecoded = getWallet(wallet);
+	const account = getAccount(walletDecoded);
 
-	if (wallet) {
-		const walletDecoded = getWallet(wallet);
-		const account = getAccount(walletDecoded);
-
-		// TODO: make parallel requests
-		// handle if none contracts
-		const AssetsAddress = await store.dispatch(Actions.contracts.resolveContractAddress("Assets"));
-		const OnyxCashAddress = await store.dispatch(
-			Actions.contracts.resolveContractAddress("OnyxCash")
-		);
-
-		try {
+	try {
+		if (user.role === roles.c) {
+			const assetsContractAddress = await dispatch(
+				Actions.contracts.resolveContractAddress("Assets")
+			);
 			const assetsBalance = await getAssetsBalance(
-				cryptoAddress(AssetsAddress),
+				cryptoAddress(assetsContractAddress),
 				utils.reverseHex(account.address.toHexString())
 			);
+			dispatch(Actions.balance.setAssetsBalance(assetsBalance));
+		} else {
+			const assetsContractAddressPromise = dispatch(
+				Actions.contracts.resolveContractAddress("Assets")
+			);
 
+			const onyxCashContractAddressPromise = dispatch(
+				Actions.contracts.resolveContractAddress("OnyxCash")
+			);
+
+			let [assetsContractAddress, onyxCashContractAddress] = await Promise.all([
+				assetsContractAddressPromise,
+				onyxCashContractAddressPromise,
+			]);
+
+			const assetsBalance = await getAssetsBalance(
+				cryptoAddress(assetsContractAddress),
+				utils.reverseHex(account.address.toHexString())
+			);
 			const onyxCashBalance = await getTokenBalance(
-				cryptoAddress(OnyxCashAddress),
+				cryptoAddress(onyxCashContractAddress),
 				account.address
 			);
-			store.dispatch(Actions.balance.setAssetsBalance(assetsBalance));
-			store.dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalance));
-		} catch (e) {}
-	}
+
+			dispatch(Actions.balance.setAssetsBalance(assetsBalance));
+			dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalance));
+		}
+	} catch (e) {}
 }
 
-// TODO: on logout  remove event listener
+let currentUserState = null;
+let intervalId;
 export function initBalanceProvider() {
-	refreshBalance();
-	window.setInterval(async () => {
-		refreshBalance();
-	}, 30000);
+	store.subscribe(() => {
+		const { user, wallet } = store.getState();
+		let previousUserState = currentUserState;
+		currentUserState = user;
+
+		if (
+			wallet &&
+			!intervalId &&
+			currentUserState &&
+			previousUserState !== currentUserState &&
+			(currentUserState.role === roles.c ||
+				currentUserState.role === roles.a ||
+				currentUserState.role === roles.sa)
+		) {
+			refreshBalance();
+			intervalId = window.setInterval(() => {
+				refreshBalance();
+			}, refreshBalanceEveryMsec);
+		}
+	});
 }
