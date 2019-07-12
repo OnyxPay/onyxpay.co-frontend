@@ -1,6 +1,7 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { finishLoading, startLoading } from "./loading";
 import { LOG_OUT } from "./auth";
+import { wsEvents } from "../api/constants";
 
 const client = getRestClient();
 
@@ -14,6 +15,14 @@ export const userReducer = (state = initialState, action) => {
 		case SAVE_USER:
 			localStorage.setItem("user", JSON.stringify(action.payload));
 			return action.payload;
+		case wsEvents.upgradeUser:
+			let storageState = localStorage.getItem("user");
+			if (storageState) {
+				let newState = { ...JSON.parse(storageState), ...action.payload };
+				localStorage.setItem("user", JSON.stringify(newState));
+				return newState;
+			}
+			return null;
 		case LOG_OUT:
 			localStorage.removeItem("user");
 			return null;

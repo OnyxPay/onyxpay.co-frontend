@@ -4,6 +4,7 @@ import { walletReducer } from "./wallet";
 import { contractsReducer } from "./contracts";
 import { balanceReducer } from "./balance";
 import { userReducer } from "./user";
+import { upgradeReducer } from "./upgradeRequest";
 import { walletUnlockReducer } from "./walletUnlock";
 import { authReducer } from "./auth";
 import { settlementsReducer } from "./settlements";
@@ -16,6 +17,7 @@ export default history =>
 	combineReducers({
 		router: connectRouter(history),
 		user: userReducer,
+		upgradeRequest: upgradeReducer,
 		wallet: walletReducer,
 		walletUnlock: walletUnlockReducer,
 		contracts: contractsReducer,
