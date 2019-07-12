@@ -25,7 +25,7 @@ export const getRequestsComplaint = async params => {
 
 export async function handleComplainedRequest(requestId, winner) {
 	const { pk, accountAddress } = await unlockWalletAccount();
-	debugger;
+
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },

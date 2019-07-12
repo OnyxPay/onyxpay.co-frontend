@@ -25,13 +25,13 @@ let Investments = Loadable({
 
 let Complaints = Loadable({
 	loader: () =>
-		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints/ComplaintsList"),
+		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/requests/ComplaintsList"),
 	loading: Loader,
 });
 
 let ResolvedComplaints = Loadable({
 	loader: () =>
-		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/complaints/ResolvedComplaints"),
+		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/requests/ResolvedComplaints"),
 	loading: Loader,
 });
 
@@ -114,18 +114,20 @@ const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
-const UserDeposit = User(Deposit);
-const AgentDeposit = Agent(Deposit2);
 AssetsExchange = All(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
 UpgradeUser = All(UpgradeUser);
-SendAsset = User(SendAsset);
-
-Withdraw = User(Withdraw);
 Profile = All(Profile);
-Users = AdminAndSuperAdmin(Users);
 ActiveRequests = All(ActiveRequests);
+
+const UserDeposit = User(Deposit);
+SendAsset = User(SendAsset);
+Withdraw = User(Withdraw);
+
+const AgentDeposit = Agent(Deposit2);
+
+Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdmin(Complaints);
@@ -147,8 +149,8 @@ class App extends Component {
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
-					<Route path="/admin/complaints/creat" exact component={Complaints} />
-					<Route path="/admin/complaints/resolve" exact component={ResolvedComplaints} />
+					<Route path="/admin/requests/complaints" exact component={Complaints} />
+					<Route path="/admin/requests/complaints/resolve" exact component={ResolvedComplaints} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/deposit" component={UserDeposit} />
 					<Route path="/deposit:agent" exact component={AgentDeposit} />

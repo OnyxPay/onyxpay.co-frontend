@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { Table } from "antd";
-import { PageTitle } from "../../../components";
+import { PageTitle } from "components";
 import { connect } from "react-redux";
-import { getRequestsComplaint } from "../../../api/admin/complaints";
+import { getRequestsComplaint } from "api/admin/complaints";
 
 export class ResolvedComplaint extends Component {
 	state = {

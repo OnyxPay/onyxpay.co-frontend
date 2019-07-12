@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Button, Table } from "antd";
-import ShowUserData from "../../../components/modals/admin/ShowUserData";
+import ShowUserData from "components/modals/admin/ShowUserData";
 import { connect } from "react-redux";
-import { getRequestsComplaint, handleComplainedRequest } from "../../../api/admin/complaints";
-import { PageTitle } from "../../../components";
+import { getRequestsComplaint, handleComplainedRequest } from "api/admin/complaints";
+import { PageTitle } from "components";
 
 const styles = {
 	btn: {
@@ -21,13 +21,16 @@ class ComplaintsList extends Component {
 		dataUser: null,
 		data: null,
 		pagination: { current: 1, pageSize: 20 },
-		loadingRequestComplaintsData: true,
+		loadingRequestComplaintsData: false,
 		loadingSolve: false,
 		userId: null,
 		requestId: null,
 	};
 
 	componentDidMount = async () => {
+		this.setState({
+			loadingRequestComplaintsData: true,
+		});
 		await this.fetchRequestComplaint({ status: "complained" });
 		this.setState({
 			loadingRequestComplaintsData: false,
@@ -155,7 +158,7 @@ class ComplaintsList extends Component {
 							block
 							loading={res.maker.id === userId && res.request_id === requestId && loadingSolve}
 						>
-							Solve a complaint in favor of the initiator
+							Winner client
 						</Button>
 						<Button
 							type="primary"
@@ -166,7 +169,7 @@ class ComplaintsList extends Component {
 							style={styles.btn}
 							block
 						>
-							Solve a complaint in favor of the performer
+							Winner agent
 						</Button>
 					</>
 				),

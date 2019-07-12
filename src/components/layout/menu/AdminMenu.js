@@ -43,23 +43,13 @@ class AdminMenu extends Component {
 							<span>Account upgrade</span>
 						</Link>
 					</Menu.Item>
-				</SubMenu>
-				<SubMenu
-					key="complaints"
-					title={
-						<span className="ant-menu-item-content">
-							<Icon type="highlight" />
-							<span>Complaints</span>
-						</span>
-					}
-				>
-					<Menu.Item key="/admin/complaints/creat">
-						<Link to="/admin/complaints/creat" className="ant-menu-item-content">
+					<Menu.Item key="/admin/requests/complaints">
+						<Link to="/admin/requests/complaints" className="ant-menu-item-content">
 							<span>Complaints</span>
 						</Link>
 					</Menu.Item>
-					<Menu.Item key="/admin/complaints/resolve">
-						<Link to="/admin/complaints/resolve" className="ant-menu-item-content">
+					<Menu.Item key="/admin/requests/complaints/resolve">
+						<Link to="/admin/requests/complaints/resolve" className="ant-menu-item-content">
 							<span>Resolved Complaints</span>
 						</Link>
 					</Menu.Item>

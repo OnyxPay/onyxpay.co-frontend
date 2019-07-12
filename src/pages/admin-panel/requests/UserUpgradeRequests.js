@@ -1,14 +1,11 @@
 import React, { Component } from "react";
-import { Table, Button, notification, message } from "antd";
-import ReasonToRejectUpgradeModal from "../../../components/modals/admin/ReasonToRejectUpgrade";
-import {
-	getRequests,
-	upgradeUser,
-	downgradeUser,
-	rejectRequest,
-} from "../../../api/admin/user-upgrade";
+import { Table, Button } from "antd";
+import ReasonToRejectUpgradeModal from "components/modals/admin/ReasonToRejectUpgrade";
+import { getRequests, upgradeUser, downgradeUser, rejectRequest } from "api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
 import { roles } from "api/constants";
+import { PageTitle } from "components";
+import { showNotification, showTimeoutNotification } from "components/notification";
 
 const style = {
 	button: {
@@ -40,18 +37,20 @@ class UserUpgradeRequests extends Component {
 			});
 			const res = await upgradeUser(wallet_addr, role);
 			if (res.Error === 0) {
-				message.success("User was successfully upgrade");
+				showNotification({
+					type: "success",
+					msg: "User was successfully upgrade",
+				});
 			}
 			this.fetchRequests();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		}
 		this.setState({
@@ -67,18 +66,20 @@ class UserUpgradeRequests extends Component {
 			});
 			const res = await downgradeUser(wallet_addr, role);
 			if (res.Error === 0) {
-				message.success("User was successfully downgrade");
+				showNotification({
+					type: "success",
+					msg: "User was successfully downgrade",
+				});
 			}
 			this.fetchRequests();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
+				showTimeoutNotification();
 			} else {
-				message.error(e.message);
+				showNotification({
+					type: "error",
+					msg: e.message,
+				});
 			}
 		}
 		this.setState({
@@ -90,9 +91,9 @@ class UserUpgradeRequests extends Component {
 		const { request_id } = this.state;
 		const res = await rejectRequest(request_id, reason);
 		if (!res.error) {
-			notification.success({
-				message: "Done",
-				description: `You rejected request with id ${request_id}`,
+			showNotification({
+				type: "success",
+				msg: `You rejected request with id ${request_id}`,
 			});
 			this.hideModal();
 			this.fetchRequests();
@@ -233,6 +234,7 @@ class UserUpgradeRequests extends Component {
 
 		return (
 			<>
+				<PageTitle>Account upgrade</PageTitle>
 				<Table
 					columns={columns}
 					rowKey={requests => requests.id}
