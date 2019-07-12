@@ -1,4 +1,4 @@
-import { wssBackEnd, wsMessages } from "../api/constants";
+import { wssBackEnd, wsEvents } from "../api/constants";
 import io from "socket.io-client";
 import { getStore } from "../store";
 
@@ -8,7 +8,7 @@ const wsClientConnect = walletAddress => {
 		path: "/wsapp/",
 		query: { walletAddress: walletAddress },
 	});
-	wsMessages.forEach(type =>
+	Object.values(wsEvents).forEach(type =>
 		socket.on(type, payload =>
 			getStore().dispatch({
 				type: type,

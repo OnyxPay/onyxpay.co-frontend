@@ -2,7 +2,7 @@ import { handleReqError } from "../api/network";
 import { finishLoading, startLoading } from "./loading";
 import { LOG_OUT } from "./auth";
 import { getUpgradeRequest } from "../api/upgrade";
-import { APPROVE_UPGRADE_REQUEST, REJECT_UPGRADE_REQUEST } from "../api/constants";
+import { wsEvents } from "../api/constants";
 import { Message } from "antd";
 
 const upgradeRequest = localStorage.getItem("upgradeRequest");
@@ -15,12 +15,12 @@ export const upgradeReducer = (state = initialState, action) => {
 		case SET_UPGRADE_REQUEST:
 			localStorage.setItem("upgradeRequest", JSON.stringify(action.payload));
 			return action.payload;
-		case REJECT_UPGRADE_REQUEST:
+		case wsEvents.rejectpgradeRequest:
 			Message.warning(
 				"Your upgrade request was rejected with the reason: " + action.payload.reason,
 				5
 			);
-		case APPROVE_UPGRADE_REQUEST:
+		case wsEvents.approveUpgradeRequest:
 			let storageState = localStorage.getItem("upgradeRequest");
 			if (storageState) {
 				let newState = { ...JSON.parse(storageState), ...action.payload };
