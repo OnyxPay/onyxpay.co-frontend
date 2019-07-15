@@ -14,9 +14,16 @@ import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
 import { parseRequestType, renderPageTitle } from "./common";
 import { showNotification, showTimeoutNotification } from "components/notification";
-import Actions from "redux/actions";
-import { GET_ACTIVE_DEPOSIT_REQUESTS } from "redux/requests/assets/activeDeposit";
+import {
+	GET_ACTIVE_DEPOSIT_REQUESTS,
+	getActiveDepositRequests,
+} from "redux/requests/assets/activeDeposit";
+import {
+	getActiveWithdrawRequests,
+	GET_ACTIVE_WITHDRAW_REQUESTS,
+} from "redux/requests/assets/activeWithdraw";
 import { createLoadingSelector } from "selectors/loading";
+import { createRequestsDataSelector } from "selectors/requests";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -27,9 +34,7 @@ class ActiveRequests extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			data: [],
 			pagination: { current: 1, pageSize: 20 },
-			loading: false,
 			[modals.SEND_REQ_TO_AGENT]: false,
 			[modals.USER_SETTLEMENT_ACCOUNTS]: false,
 			requestId: null,
@@ -87,20 +92,29 @@ class ActiveRequests extends Component {
 	fetch = async (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, match, push, getActiveDepositRequests } = this.props;
+			const { user, match, push, getActiveDepositRequests, getActiveWithdrawRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
+			const requestType = parseRequestType({ match, push });
 
 			if (user.role === roles.c) {
-				params.type = parseRequestType({ match, push });
+				params.type = requestType;
 				params.status = "pending,opened,choose,complained";
 				params.user = "maker";
-				getActiveDepositRequests(params, false);
+				if (requestType === "deposit") {
+					getActiveDepositRequests(params, false);
+				} else if (requestType === "withdraw") {
+					getActiveWithdrawRequests(params, false);
+				}
 			} else if (user.role === roles.a) {
-				getActiveDepositRequests(params, true);
+				if (requestType === "deposit") {
+					getActiveDepositRequests(params, true);
+				} else if (requestType === "withdraw") {
+					getActiveWithdrawRequests(params, true);
+				}
 			}
 		}
 	};
@@ -284,20 +298,25 @@ class ActiveRequests extends Component {
 	}
 }
 
-const loadingSelector = createLoadingSelector([GET_ACTIVE_DEPOSIT_REQUESTS]);
+const loadingSelector = createLoadingSelector([
+	GET_ACTIVE_DEPOSIT_REQUESTS,
+	GET_ACTIVE_WITHDRAW_REQUESTS,
+]);
+
+function mapStateToProps(state, ownProps) {
+	return {
+		user: state.user,
+		walletAddress: state.wallet.defaultAccountAddress,
+		data: createRequestsDataSelector(state, ownProps.match.params.type),
+		isFetching: loadingSelector(state),
+	};
+}
 
 ActiveRequests = compose(
 	withRouter,
 	connect(
-		state => {
-			return {
-				user: state.user,
-				walletAddress: state.wallet.defaultAccountAddress,
-				data: state.activeDepositRequests,
-				isFetching: loadingSelector(state),
-			};
-		},
-		{ push, getActiveDepositRequests: Actions.requests.getActiveDepositRequests }
+		mapStateToProps,
+		{ push, getActiveDepositRequests, getActiveWithdrawRequests }
 	)
 )(ActiveRequests);
 
