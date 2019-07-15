@@ -78,7 +78,7 @@ export async function createRequest(formValues, requestType) {
 	}
 }
 
-export async function getActiveRequests(params) {
+export async function getRequests(params) {
 	const client = getRestClient();
 
 	try {

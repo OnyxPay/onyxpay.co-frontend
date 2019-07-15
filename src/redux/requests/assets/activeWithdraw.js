@@ -1,9 +1,9 @@
-import { getActiveRequests } from "api/requests";
+import { getRequests } from "api/requests";
 import { getMessagesForActiveRequests } from "api/operation-messages";
 
-export const GET_ACTIVE_WITHDRAW_REQUESTS_REQUEST = "GET_ACTIVE_WITHDRAW_REQUESTS_REQUEST";
-export const GET_ACTIVE_WITHDRAW_REQUESTS_SUCCESS = "GET_ACTIVE_WITHDRAW_REQUESTS_SUCCESS";
-export const GET_ACTIVE_WITHDRAW_REQUESTS_FAILURE = "GET_ACTIVE_WITHDRAW_REQUESTS_FAILURE";
+const GET_ACTIVE_WITHDRAW_REQUESTS_REQUEST = "GET_ACTIVE_WITHDRAW_REQUESTS_REQUEST";
+const GET_ACTIVE_WITHDRAW_REQUESTS_SUCCESS = "GET_ACTIVE_WITHDRAW_REQUESTS_SUCCESS";
+const GET_ACTIVE_WITHDRAW_REQUESTS_FAILURE = "GET_ACTIVE_WITHDRAW_REQUESTS_FAILURE";
 export const GET_ACTIVE_WITHDRAW_REQUESTS = "GET_ACTIVE_WITHDRAW_REQUESTS";
 
 const initState = {
@@ -27,7 +27,7 @@ export const getActiveWithdrawRequests = (params = {}, isAgent = false) => async
 		if (isAgent) {
 			data = await getMessagesForActiveRequests(params);
 		} else {
-			data = await getActiveRequests(params);
+			data = await getRequests(params);
 		}
 		dispatch({ type: GET_ACTIVE_WITHDRAW_REQUESTS_SUCCESS, payload: data });
 	} catch (e) {

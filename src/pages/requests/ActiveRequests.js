@@ -86,7 +86,7 @@ class ActiveRequests extends Component {
 		);
 	};
 
-	fetch = async (opts = {}) => {
+	fetch = (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
 			const { user, match, push, getActiveDepositRequests, getActiveWithdrawRequests } = this.props;
@@ -304,7 +304,7 @@ function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: createRequestsDataSelector(state, ownProps.match.params.type),
+		data: createRequestsDataSelector(state, ownProps.match.params.type, "active"),
 		isFetching: loadingSelector(state),
 	};
 }

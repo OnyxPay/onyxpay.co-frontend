@@ -1,4 +1,4 @@
-import { getActiveRequests } from "api/requests";
+import { getRequests } from "api/requests";
 import { getMessagesForActiveRequests } from "api/operation-messages";
 
 export const GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST = "GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST";
@@ -27,7 +27,7 @@ export const getActiveDepositRequests = (params = {}, isAgent = false) => async 
 		if (isAgent) {
 			data = await getMessagesForActiveRequests(params);
 		} else {
-			data = await getActiveRequests(params);
+			data = await getRequests(params);
 		}
 		dispatch({ type: GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS, payload: data });
 	} catch (e) {

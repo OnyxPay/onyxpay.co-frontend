@@ -14,6 +14,8 @@ import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
 import { activeDepositRequestsReducer } from "./requests/assets/activeDeposit";
 import { activeWithdrawRequestsReducer } from "./requests/assets/activeWithdraw";
+import { closedDepositRequestsReducer } from "./requests/assets/closedDeposit";
+import { closedWithdrawRequestsReducer } from "./requests/assets/closedWithdraw";
 
 export default history =>
 	combineReducers({
@@ -33,4 +35,6 @@ export default history =>
 		globalLoading: loadingReducer,
 		activeDepositRequests: activeDepositRequestsReducer,
 		activeWithdrawRequests: activeWithdrawRequestsReducer,
+		closedDepositRequests: closedDepositRequestsReducer,
+		closedWithdrawRequests: closedWithdrawRequestsReducer,
 	});
