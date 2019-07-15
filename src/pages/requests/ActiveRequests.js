@@ -31,18 +31,15 @@ const modals = {
 };
 
 class ActiveRequests extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			pagination: { current: 1, pageSize: 20 },
-			[modals.SEND_REQ_TO_AGENT]: false,
-			[modals.USER_SETTLEMENT_ACCOUNTS]: false,
-			requestId: null,
-			isSendingMessage: false,
-			operationMessages: [],
-			activeAction: "",
-		};
-	}
+	state = {
+		pagination: { current: 1, pageSize: 20 },
+		[modals.SEND_REQ_TO_AGENT]: false,
+		[modals.USER_SETTLEMENT_ACCOUNTS]: false,
+		requestId: null,
+		isSendingMessage: false,
+		operationMessages: [],
+		activeAction: "",
+	};
 
 	componentDidMount() {
 		this._isMounted = true;

@@ -7,25 +7,14 @@ import { getActiveRequests } from "../../api/requests";
 import { getMessagesForClosedRequests } from "../../api/operation-messages";
 import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
-import { convertAmountToStr } from "../../utils/number";
-import { getPerformerName } from "../../utils";
 import { parseRequestType, renderPageTitle } from "./common";
-import { operationMessageStatus } from "api/constants";
+import renderClientColumns from "./table-columns/renderClientColumns";
+import renderAgentColumns from "./table-columns/renderAgentColumns";
 
 class ClosedRequests extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			data: [],
-			pagination: { current: 1, pageSize: 20 },
-			loading: false,
-			SEND_REQ_TO_AGENT: false,
-			requestId: null,
-			isSendingMessage: false,
-			operationMessages: [],
-			activeAction: "",
-		};
-	}
+	state = {
+		pagination: { current: 1, pageSize: 20 },
+	};
 
 	componentDidMount() {
 		this._isMounted = true;
@@ -99,78 +88,17 @@ class ClosedRequests extends Component {
 	render() {
 		const { user, match, push } = this.props;
 
-		const columnsForClient = [
-			{
-				title: "Id",
-				dataIndex: "id",
-			},
-			{
-				title: "Asset",
-				dataIndex: "asset",
-			},
-			{
-				title: "Amount",
-				render: (text, record, index) => {
-					return convertAmountToStr(record.amount, 8);
-				},
-			},
-			{
-				title: "Status",
-				dataIndex: "status",
-			},
-			{
-				title: "Created",
-				render: (text, record, index) => {
-					return new Date(record.trx_timestamp).toLocaleString();
-				},
-			},
-			{
-				title: "Performer",
-				render: (text, record, index) => {
-					return record.taker_addr ? getPerformerName(record) : "n/a";
-				},
-			},
-		];
+		let columns = [];
 
-		const columnsForAgent = [
-			{
-				title: "Id",
-				dataIndex: "request.id",
-			},
-			{
-				title: "Asset",
-				dataIndex: "request.asset",
-			},
-			{
-				title: "Amount",
-				render: (text, record, index) => {
-					return convertAmountToStr(record.request.amount, 8);
-				},
-			},
-			{
-				title: "Status",
-				dataIndex: "request.status",
-				render: (text, record, index) => {
-					if (record.status_code === operationMessageStatus.canceled) {
-						return "assets returned";
-					}
-					return record.request.status;
-				},
-			},
-			{
-				title: "Created",
-				render: (text, record, index) => {
-					return new Date(record.request.trx_timestamp).toLocaleString();
-				},
-			},
-			{
-				title: "Client",
-				dataIndex: "sender.addr",
-				render: (text, record, index) => {
-					return `${record.sender.first_name} ${record.sender.last_name}`;
-				},
-			},
-		];
+		if (user.role === roles.c) {
+			columns = renderClientColumns({
+				requestsStatus: "closed",
+			});
+		} else if (user.role === roles.a) {
+			columns = renderAgentColumns({
+				requestsStatus: "closed",
+			});
+		}
 
 		return (
 			<>
@@ -180,7 +108,7 @@ class ClosedRequests extends Component {
 					isRequestClosed: true,
 				})}
 				<Table
-					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
+					columns={columns}
 					rowKey={record => record.id}
 					dataSource={this.state.data}
 					pagination={this.state.pagination}
