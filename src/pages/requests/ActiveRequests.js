@@ -3,14 +3,8 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table } from "antd";
-import {
-	getActiveRequests,
-	acceptRequest,
-	performRequest,
-	cancelAcceptedRequest,
-	complain,
-} from "api/requests";
-import { getMessagesForActiveRequests, hideMessage } from "api/operation-messages";
+import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
+import { hideMessage } from "api/operation-messages";
 import SendToAgentModal from "components/modals/SendToAgent";
 import { roles } from "api/constants";
 import { push } from "connected-react-router";
@@ -20,6 +14,7 @@ import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
 import { parseRequestType, renderPageTitle } from "./common";
 import { showNotification, showTimeoutNotification } from "components/notification";
+import Actions from "redux/actions";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -90,36 +85,21 @@ class ActiveRequests extends Component {
 	fetch = async (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, match, push } = this.props;
+			const { user, match, push, getActiveDepositRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
 
-			try {
-				this.setState({ loading: true });
-				let data;
-				if (user.role === roles.c) {
-					params.type = parseRequestType({ match, push });
-					params.status = "pending,opened,choose,complained";
-					params.user = "maker";
-					data = await getActiveRequests(params);
-				} else if (user.role === roles.a) {
-					// params.requestType = parseRequestType({ match, push });
-					// params.requestStatus = "opened,choose,completed,complained";
-					// params.isTaker = 0;
-					data = await getMessagesForActiveRequests(params);
-				}
-				const pagination = { ...this.state.pagination };
-				pagination.total = data.total;
-
-				this.setState({
-					loading: false,
-					data: data.items,
-					pagination,
-				});
-			} catch (error) {}
+			if (user.role === roles.c) {
+				params.type = parseRequestType({ match, push });
+				params.status = "pending,opened,choose,complained";
+				params.user = "maker";
+				getActiveDepositRequests(params, false);
+			} else if (user.role === roles.a) {
+				getActiveDepositRequests(params, true);
+			}
 		}
 	};
 
@@ -238,7 +218,7 @@ class ActiveRequests extends Component {
 	};
 
 	render() {
-		const { user, walletAddress, match, push } = this.props;
+		const { user, walletAddress, match, push, data } = this.props;
 		const { requestId, activeAction } = this.state;
 		let columns = [];
 
@@ -273,8 +253,8 @@ class ActiveRequests extends Component {
 				<Table
 					columns={columns}
 					rowKey={record => record.id}
-					dataSource={this.state.data}
-					pagination={this.state.pagination}
+					dataSource={data.items}
+					pagination={{ ...this.state.pagination, total: data.total }}
 					loading={this.state.loading}
 					onChange={this.handleTableChange}
 					className="ovf-auto tbody-white"
@@ -309,9 +289,10 @@ ActiveRequests = compose(
 			return {
 				user: state.user,
 				walletAddress: state.wallet.defaultAccountAddress,
+				data: state.activeDepositRequests,
 			};
 		},
-		{ push }
+		{ push, getActiveDepositRequests: Actions.requests.getActiveDepositRequests }
 	)
 )(ActiveRequests);
 

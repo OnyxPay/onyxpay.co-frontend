@@ -14,6 +14,7 @@ import { startLoading, finishLoading } from "./loading";
 import { getSettlementsList, add, deleteAccount } from "./settlements";
 import { showSessionExpiredModal } from "./session";
 import { getAssetsList, getExchangeRates } from "./assets";
+import { getActiveDepositRequests } from "./requests/assets/activeDeposit";
 
 export default {
 	wallet: { clearWallet, setWallet },
@@ -44,5 +45,8 @@ export default {
 	assets: {
 		getAssetsList,
 		getExchangeRates,
+	},
+	requests: {
+		getActiveDepositRequests,
 	},
 };
