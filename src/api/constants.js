@@ -4,8 +4,8 @@ export const bcEndpoints = {
 	rest: "https://" + syncNodeUrl + ":20334",
 };
 
-export const backEndRestEndpoint = process.env.REACT_APP_BACKEND_URL + "/api/v1/";
-export const wssBackEnd = "wss://localhost:8443/";
+export const backEndRestEndpoint = "https://" + process.env.REACT_APP_BACKEND_URL + "/api/v1/";
+export const wssBackEnd = "wss://" + process.env.REACT_APP_BACKEND_URL;
 
 export const wsEvents = {
 	approveUpgradeRequest: "APPROVE_UPGRADE_REQUEST",
