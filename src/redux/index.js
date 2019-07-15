@@ -12,6 +12,7 @@ import { sessionReducer } from "./session";
 import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users";
 import { assetsReducer } from "./assets";
 import { activeDepositRequestsReducer } from "./requests/assets/activeDeposit";
+import { loadingReducer } from "./globalLoading";
 
 export default history =>
 	combineReducers({
@@ -29,4 +30,5 @@ export default history =>
 		userSettlement: setUserSettlementDataReducer,
 		assets: assetsReducer,
 		activeDepositRequests: activeDepositRequestsReducer,
+		globalLoading: loadingReducer,
 	});

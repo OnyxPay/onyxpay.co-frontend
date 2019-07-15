@@ -4,6 +4,7 @@ import { getMessagesForActiveRequests } from "api/operation-messages";
 export const GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST = "GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST";
 export const GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS = "GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS";
 export const GET_ACTIVE_DEPOSIT_REQUESTS_FAILURE = "GET_ACTIVE_DEPOSIT_REQUESTS_FAILURE";
+export const GET_ACTIVE_DEPOSIT_REQUESTS = "GET_ACTIVE_DEPOSIT_REQUESTS";
 
 const initState = {
 	items: [],
@@ -19,7 +20,7 @@ export const activeDepositRequestsReducer = (state = initState, action) => {
 	}
 };
 
-export const getActiveDepositRequests = (params, isAgent) => async dispatch => {
+export const getActiveDepositRequests = (params = {}, isAgent = false) => async dispatch => {
 	dispatch({ type: GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST });
 	try {
 		let data;
@@ -28,7 +29,6 @@ export const getActiveDepositRequests = (params, isAgent) => async dispatch => {
 		} else {
 			data = await getActiveRequests(params);
 		}
-		console.log("!!!", data);
 		dispatch({ type: GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS, payload: data });
 	} catch (e) {
 		console.log(e);

@@ -15,6 +15,8 @@ import renderAgentColumns from "./table-columns/renderAgentColumns";
 import { parseRequestType, renderPageTitle } from "./common";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import Actions from "redux/actions";
+import { GET_ACTIVE_DEPOSIT_REQUESTS } from "redux/requests/assets/activeDeposit";
+import { createLoadingSelector } from "selectors/loading";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -218,7 +220,7 @@ class ActiveRequests extends Component {
 	};
 
 	render() {
-		const { user, walletAddress, match, push, data } = this.props;
+		const { user, walletAddress, match, push, data, isFetching } = this.props;
 		const { requestId, activeAction } = this.state;
 		let columns = [];
 
@@ -255,7 +257,7 @@ class ActiveRequests extends Component {
 					rowKey={record => record.id}
 					dataSource={data.items}
 					pagination={{ ...this.state.pagination, total: data.total }}
-					loading={this.state.loading}
+					loading={isFetching}
 					onChange={this.handleTableChange}
 					className="ovf-auto tbody-white"
 				/>
@@ -282,6 +284,8 @@ class ActiveRequests extends Component {
 	}
 }
 
+const loadingSelector = createLoadingSelector([GET_ACTIVE_DEPOSIT_REQUESTS]);
+
 ActiveRequests = compose(
 	withRouter,
 	connect(
@@ -290,6 +294,7 @@ ActiveRequests = compose(
 				user: state.user,
 				walletAddress: state.wallet.defaultAccountAddress,
 				data: state.activeDepositRequests,
+				isFetching: loadingSelector(state),
 			};
 		},
 		{ push, getActiveDepositRequests: Actions.requests.getActiveDepositRequests }
