@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
+import { roles } from "api/constants";
 import {
 	unblockUser,
 	blockedUsersData,
@@ -315,6 +316,17 @@ class Users extends Component {
 								onClick={() => this.showSettlement(res.user_id)}
 							>
 								Settlement accounts
+							</Button>
+						) : null}
+						{res.role_code !== roles.c ? (
+							<Button
+								style={styles.btn}
+								type="danger"
+								onClick={() =>
+									this.handleDowngrade(res.user.wallet_addr, res.expected_position, res.id)
+								}
+							>
+								Downgrade
 							</Button>
 						) : null}
 					</div>
