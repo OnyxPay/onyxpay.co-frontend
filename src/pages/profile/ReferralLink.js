@@ -5,7 +5,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 
 export function ReferralLink() {
 	let referralCode = localStorage.getItem("OnyxAddr");
-	const link = BackendUrl + "?rcode=" + referralCode;
+	const link = BackendUrl + "/login?rcode=" + referralCode;
 	return (
 		<div>
 			<h3>
