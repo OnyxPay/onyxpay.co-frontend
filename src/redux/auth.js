@@ -1,5 +1,6 @@
+import React from "react";
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
-import { push } from "connected-react-router";
+import { showNotification } from "../components/notification";
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
@@ -66,6 +67,25 @@ export const login = values => async (dispatch, getState) => {
 			});
 		}
 	} catch (er) {
+		console.info(er.response.data.errors.user_status);
+		if (
+			er.response.status === 403 &&
+			er.response.data.errors &&
+			er.response.data.errors.user_status
+		) {
+			showNotification({
+				type: "error",
+				desc: (
+					<>
+						{er.response.data.errors.user_status}&nbsp;
+						<br />
+						Please,&nbsp;
+						<a href="mailto:support@onyxpay.co">contact the support</a>
+					</>
+				),
+			});
+			return;
+		}
 		return handleReqError(er);
 	}
 };
