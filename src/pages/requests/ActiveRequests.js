@@ -40,7 +40,7 @@ class ActiveRequests extends Component {
 		isSendingMessage: false,
 		operationMessages: [],
 		activeAction: "",
-		searchText: "",
+		idParsedFromURL: "",
 	};
 
 	componentDidMount() {
@@ -48,7 +48,7 @@ class ActiveRequests extends Component {
 		this._isMounted = true;
 		const values = queryString.parse(location.search);
 		if (values.id) {
-			this.setState({ searchText: values.id });
+			this.setState({ idParsedFromURL: values.id });
 			this.fetch({ id: values.id });
 		} else {
 			this.fetch();
@@ -235,19 +235,23 @@ class ActiveRequests extends Component {
 						onChange={e => {
 							return setSelectedKeys(e.target.value ? [e.target.value] : []);
 						}}
-						onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
+						onPressEnter={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
 						style={{ width: 188, marginBottom: 8, display: "block" }}
 					/>
 					<Button
 						type="primary"
-						onClick={() => this.handleSearch(selectedKeys, confirm)}
+						onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
 						icon="search"
 						size="small"
 						style={{ width: 90, marginRight: 8 }}
 					>
 						Search
 					</Button>
-					<Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+					<Button
+						onClick={() => this.handleReset(clearFilters, dataIndex)}
+						size="small"
+						style={{ width: 90 }}
+					>
 						Reset
 					</Button>
 				</div>
@@ -265,18 +269,22 @@ class ActiveRequests extends Component {
 		},
 	});
 
-	handleSearch = (selectedKeys, confirm) => {
+	handleSearch = (selectedKeys, confirm, dataIndex) => {
 		confirm();
-		setTimeout(() => {
-			this.setState({ searchText: selectedKeys[0] });
-		}, 0);
+		if (dataIndex === "id") {
+			setTimeout(() => {
+				this.setState({ idParsedFromURL: selectedKeys[0] });
+			}, 0);
+		}
 	};
 
-	handleReset = clearFilters => {
+	handleReset = (clearFilters, dataIndex) => {
 		clearFilters();
-		setTimeout(() => {
-			this.setState({ searchText: "" });
-		}, 0);
+		if (dataIndex === "id") {
+			setTimeout(() => {
+				this.setState({ idParsedFromURL: "" });
+			}, 0);
+		}
 	};
 
 	handleTableChange = (pagination, filters, sorter) => {
@@ -302,7 +310,7 @@ class ActiveRequests extends Component {
 
 	render() {
 		const { user, walletAddress, match, push, data, isFetching } = this.props;
-		const { requestId, activeAction, searchText } = this.state;
+		const { requestId, activeAction, idParsedFromURL } = this.state;
 		let columns = [];
 
 		if (user.role === roles.c) {
@@ -324,7 +332,7 @@ class ActiveRequests extends Component {
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
 				getColumnSearchProps: this.getColumnSearchProps,
-				defaultFilterValue: searchText,
+				defaultFilterValue: idParsedFromURL,
 			});
 		}
 
