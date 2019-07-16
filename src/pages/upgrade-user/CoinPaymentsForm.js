@@ -6,7 +6,6 @@ import CoinPaymentsPic from "../../assets/icons/CoinPayments.png";
 export class CoinPaymentsForm extends Component {
 	handleSubmit(event) {
 		event.preventDefault();
-		this.props.handleSubmit();
 		event.target.submit();
 	}
 
@@ -19,6 +18,9 @@ export class CoinPaymentsForm extends Component {
 					target="_blank"
 					onSubmit={event => {
 						this.handleSubmit(event);
+						setTimeout(() => {
+							this.props.handleSubmit();
+						}, 0);
 					}}
 					className="coinpayments-form"
 				>
