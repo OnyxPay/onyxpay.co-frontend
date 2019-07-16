@@ -22,6 +22,11 @@ export const authReducer = (state = initialState, action) => {
 			localStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
 			localStorage.setItem("logged_in", true);
 			return action.payload;
+		case LOG_OUT:
+			localStorage.removeItem("OnyxAuth");
+			localStorage.removeItem("OnyxAddr");
+			localStorage.removeItem("logged_in");
+			return null;
 		default:
 			return state;
 	}
@@ -80,9 +85,4 @@ export const confirmEmail = values => async (dispatch, getState) => {
 
 export const logOut = notReload => (dispatch, getState) => {
 	dispatch({ type: LOG_OUT });
-
-	if (!notReload) {
-		dispatch(push("/login"));
-		window.location.reload();
-	}
 };
