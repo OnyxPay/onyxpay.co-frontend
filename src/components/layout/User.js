@@ -12,19 +12,23 @@ const Wrapper = styled.div`
 `;
 
 export default function User({ firstName, lastName }) {
-	return (
-		<Wrapper>
-			<Avatar
-				size="small"
-				icon="user"
-				style={{ backgroundColor: "#fff", color: "#555", flexShrink: 0 }}
-			/>
-			<Text
-				ellipsis={true}
-				style={{ color: "#fff", fontSize: "18px", fontWeight: 600, marginLeft: "10px" }}
-			>
-				{firstName} {lastName}
-			</Text>
-		</Wrapper>
-	);
+	if (firstName || lastName) {
+		return (
+			<Wrapper>
+				<Avatar
+					size="small"
+					icon="user"
+					style={{ backgroundColor: "#fff", color: "#555", flexShrink: 0 }}
+				/>
+				<Text
+					ellipsis={true}
+					style={{ color: "#fff", fontSize: "18px", fontWeight: 600, marginLeft: "10px" }}
+				>
+					{firstName} {lastName}
+				</Text>
+			</Wrapper>
+		);
+	} else {
+		return null;
+	}
 }
