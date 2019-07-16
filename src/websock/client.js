@@ -1,6 +1,7 @@
 import { wssBackEnd, wsEvents } from "../api/constants";
 import io from "socket.io-client";
 import { getStore } from "../store";
+import { updateUser } from "../redux/user";
 
 let socket;
 const wsClientConnect = walletAddress => {
@@ -9,12 +10,9 @@ const wsClientConnect = walletAddress => {
 		query: { walletAddress: walletAddress },
 	});
 	Object.values(wsEvents).forEach(type =>
-		socket.on(type, payload =>
-			getStore().dispatch({
-				type: type,
-				payload: payload,
-			})
-		)
+		socket.on(type, payload => {
+			updateUser(getStore().dispatch, type, payload);
+		})
 	);
 };
 const wsClientDisconnect = () => {

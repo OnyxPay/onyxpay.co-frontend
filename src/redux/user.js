@@ -1,7 +1,9 @@
+import React from "react";
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { finishLoading, startLoading } from "./loading";
 import { LOG_OUT } from "./auth";
-import { wsEvents } from "../api/constants";
+import { wsEvents, userStatus } from "../api/constants";
+import { showNotification } from "../components/notification";
 
 const client = getRestClient();
 
@@ -53,4 +55,23 @@ export const getUserData = () => async (dispatch, getState) => {
 	} catch (er) {
 		return handleReqError(er);
 	}
+};
+
+export const updateUser = (dispatch, type, payload) => {
+	if (payload && payload.status === userStatus.blocked) {
+		showNotification({
+			desc: (
+				<>
+					Your account has been blocked by administrator. Please&nbsp;
+					<a href="mailto:support@onyxpay.co">contact the support</a>
+				</>
+			),
+		});
+		dispatch({ type: LOG_OUT });
+		return;
+	}
+	dispatch({
+		type: type,
+		payload: payload,
+	});
 };

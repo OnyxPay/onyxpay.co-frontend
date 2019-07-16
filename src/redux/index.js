@@ -13,7 +13,7 @@ import { sessionReducer } from "./session";
 import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users";
 import { assetsReducer } from "./assets";
 
-export default history =>
+const appReducer = history =>
 	combineReducers({
 		router: connectRouter(history),
 		user: userReducer,
@@ -30,3 +30,13 @@ export default history =>
 		userSettlement: setUserSettlementDataReducer,
 		assets: assetsReducer,
 	});
+
+export default history => {
+	const reducer = appReducer(history);
+	return (state, action) => {
+		if (action === "LOG_OUT") {
+			state = undefined;
+		}
+		return reducer(state, action);
+	};
+};

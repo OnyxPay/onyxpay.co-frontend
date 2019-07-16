@@ -22,11 +22,6 @@ export const authReducer = (state = initialState, action) => {
 			localStorage.setItem("OnyxAddr", action.payload.OnyxAddr);
 			localStorage.setItem("logged_in", true);
 			return action.payload;
-		case LOG_OUT:
-			localStorage.removeItem("OnyxAuth");
-			localStorage.removeItem("OnyxAddr");
-			localStorage.removeItem("logged_in");
-			return null;
 		default:
 			return state;
 	}
