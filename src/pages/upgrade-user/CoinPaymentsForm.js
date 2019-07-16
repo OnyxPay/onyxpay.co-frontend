@@ -4,12 +4,6 @@ import { backEndRestEndpoint } from "../../api/constants";
 import CoinPaymentsPic from "../../assets/icons/CoinPayments.png";
 
 export class CoinPaymentsForm extends Component {
-	handleSubmit(event) {
-		event.preventDefault();
-		this.props.handleSubmit();
-		event.target.submit();
-	}
-
 	render() {
 		return (
 			<div>
@@ -17,9 +11,11 @@ export class CoinPaymentsForm extends Component {
 					action="https://www.coinpayments.net/index.php"
 					method="post"
 					target="_blank"
-					onSubmit={event => {
-						this.handleSubmit(event);
-					}}
+					onSubmit={() =>
+						setTimeout(() => {
+							this.props.handleSubmit();
+						}, 0)
+					}
 					className="coinpayments-form"
 				>
 					<Input type="hidden" name="cmd" value="_pay" />
