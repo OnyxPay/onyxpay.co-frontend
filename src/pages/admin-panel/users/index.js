@@ -309,15 +309,6 @@ class Users extends Component {
 								Unblock
 							</Button>
 						) : null}
-						{res.is_settlements_exists ? (
-							<Button
-								style={styles.btn}
-								icon="account-book"
-								onClick={() => this.showSettlement(res.user_id)}
-							>
-								Settlement accounts
-							</Button>
-						) : null}
 						{res.role_code !== roles.c ? (
 							<Button
 								style={styles.btn}
@@ -327,6 +318,15 @@ class Users extends Component {
 								}
 							>
 								Downgrade
+							</Button>
+						) : null}
+						{res.is_settlements_exists ? (
+							<Button
+								style={styles.btn}
+								icon="account-book"
+								onClick={() => this.showSettlement(res.user_id)}
+							>
+								Settlement accounts
 							</Button>
 						) : null}
 					</div>
