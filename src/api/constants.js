@@ -16,7 +16,7 @@ export const wsEvents = {
 
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 export const addressOfHead = "87fd9b3718308de50fd639c9b9a411835936766a";
-export const BackendUrl = process.env.BACKEND_URL;
+export const BackendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export const OnyxCashDecimals = 8;
 export const onyxCashSymbol = "oCASH";

@@ -28,6 +28,21 @@
 	}
 }
 
+.referral-info {
+	display: flex;
+	span {
+		&:first-child {
+			margin-right: 5px;
+		}
+	}
+}
+
+.modal-qrcode {
+	.ant-modal-body {
+		text-align: center;
+	}
+}
+
 .ant-table-wrapper tbody {
 	background: #ffffff;
 }
@@ -95,6 +110,9 @@
 		.ant-modal-body {
 			padding: 40px 30px;
 		}
+	}
+	.btn-show-qrcode {
+		display: none !important;
 	}
 }
 
