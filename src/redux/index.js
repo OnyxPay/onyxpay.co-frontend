@@ -18,7 +18,7 @@ import { activeWithdrawRequestsReducer } from "./requests/assets/activeWithdraw"
 import { closedDepositRequestsReducer } from "./requests/assets/closedDeposit";
 import { closedWithdrawRequestsReducer } from "./requests/assets/closedWithdraw";
 
-export default history =>
+const appReducer = history =>
 	combineReducers({
 		router: connectRouter(history),
 		user: userReducer,
@@ -40,3 +40,13 @@ export default history =>
 		closedDepositRequests: closedDepositRequestsReducer,
 		closedWithdrawRequests: closedWithdrawRequestsReducer,
 	});
+
+export default history => {
+	const reducer = appReducer(history);
+	return (state, action) => {
+		if (action === "LOG_OUT") {
+			state = undefined;
+		}
+		return reducer(state, action);
+	};
+};
