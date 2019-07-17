@@ -77,6 +77,8 @@ class Balance extends Component {
 		const { user } = this.props;
 		const { assets, onyxCash } = this.props.balance;
 		const { isModalVisible } = this.state;
+		const oneOfValidUserRoles =
+			user.role === roles.c || user.role === roles.a || user.role === roles.sa;
 
 		const assetsConverted = this.convertAssets(assets);
 		let assetsTotal = 0;
@@ -91,7 +93,7 @@ class Balance extends Component {
 			if (assetsConverted.length) {
 				assetsTotal = this.calcTotalAmount(assetsConverted, 0);
 			}
-		} else if (user.role === roles.a) {
+		} else if (user.role === roles.a || user.role === roles.sa) {
 			if (assetsConverted.length || onyxCash) {
 				onyxCashTotal = this.calcTotalAmount(assetsConverted, onyxCashStr);
 			}
@@ -104,22 +106,16 @@ class Balance extends Component {
 						<BalanceCard
 							title="Balance"
 							assetLabel={user.role === roles.a || user.role === roles.sa ? "OnyxCash" : "USD"}
-							amount={
-								user.role === roles.c
-									? assetsTotal
-									: user.role === roles.a
-									? onyxCashTotal
-									: onyxCashStr
-							}
+							amount={user.role === roles.c ? assetsTotal : onyxCashTotal}
 							extra={
-								user.role === roles.c || user.role === roles.a ? (
+								oneOfValidUserRoles ? (
 									<Button onClick={this.showModal("main")}>see detailed balance</Button>
 								) : null
 							}
 						/>
 					</Col>
 				</Row>
-				{user.role === roles.c || user.role === roles.a ? (
+				{oneOfValidUserRoles ? (
 					<BalanceModal
 						isModalVisible={isModalVisible}
 						hideModal={this.hideModal}

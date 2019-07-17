@@ -55,7 +55,9 @@ class ConfirmEmailModal extends Component {
 	render() {
 		const { isModalVisible } = this.props;
 		const { viewIndex, loading } = this.state;
-
+		if (this.props.user.status === 1) {
+			this.props.hideModal();
+		}
 		return (
 			<Modal
 				title=""
@@ -141,10 +143,7 @@ class ConfirmEmailModal extends Component {
 				{viewIndex === 1 && (
 					<div>
 						<h1>You are almost there!</h1>
-						<p>
-							Now, please, check your email and follow the instructions, then click on the "Confirm"
-							button
-						</p>
+						<p>Now, please, check your email and follow the instructions</p>
 						<div className="ant-modal-custom-footer">
 							<Button
 								key="back"
@@ -158,14 +157,6 @@ class ConfirmEmailModal extends Component {
 							<Button onClick={this.changeView(0)} disabled={loading} style={{ marginRight: 10 }}>
 								Back
 							</Button>
-							<Button
-								type="primary"
-								disabled={loading}
-								loading={loading}
-								onClick={this.checkUserStatus}
-							>
-								Confirm
-							</Button>
 						</div>
 					</div>
 				)}
@@ -173,9 +164,13 @@ class ConfirmEmailModal extends Component {
 		);
 	}
 }
-
+const mapStateToProps = function(state) {
+	return {
+		user: state.user,
+	};
+};
 export default connect(
-	null,
+	mapStateToProps,
 	{
 		confirmEmail: Actions.auth.confirmEmail,
 		getUserData: Actions.user.getUserData,

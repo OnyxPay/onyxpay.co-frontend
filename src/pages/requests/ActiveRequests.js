@@ -3,14 +3,8 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table } from "antd";
-import {
-	getActiveRequests,
-	acceptRequest,
-	performRequest,
-	cancelAcceptedRequest,
-	complain,
-} from "api/requests";
-import { getMessagesForActiveRequests, hideMessage } from "api/operation-messages";
+import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
+import { hideMessage } from "api/operation-messages";
 import SendToAgentModal from "components/modals/SendToAgent";
 import { roles } from "api/constants";
 import { push } from "connected-react-router";
@@ -20,6 +14,16 @@ import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
 import { parseRequestType, renderPageTitle } from "./common";
 import { showNotification, showTimeoutNotification } from "components/notification";
+import {
+	GET_ACTIVE_DEPOSIT_REQUESTS,
+	getActiveDepositRequests,
+} from "redux/requests/assets/activeDeposit";
+import {
+	getActiveWithdrawRequests,
+	GET_ACTIVE_WITHDRAW_REQUESTS,
+} from "redux/requests/assets/activeWithdraw";
+import { createLoadingSelector } from "selectors/loading";
+import { createRequestsDataSelector } from "selectors/requests";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -27,20 +31,15 @@ const modals = {
 };
 
 class ActiveRequests extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			data: [],
-			pagination: { current: 1, pageSize: 20 },
-			loading: false,
-			[modals.SEND_REQ_TO_AGENT]: false,
-			[modals.USER_SETTLEMENT_ACCOUNTS]: false,
-			requestId: null,
-			isSendingMessage: false,
-			operationMessages: [],
-			activeAction: "",
-		};
-	}
+	state = {
+		pagination: { current: 1, pageSize: 20 },
+		[modals.SEND_REQ_TO_AGENT]: false,
+		[modals.USER_SETTLEMENT_ACCOUNTS]: false,
+		requestId: null,
+		isSendingMessage: false,
+		operationMessages: [],
+		activeAction: "",
+	};
 
 	componentDidMount() {
 		this._isMounted = true;
@@ -87,39 +86,33 @@ class ActiveRequests extends Component {
 		);
 	};
 
-	fetch = async (opts = {}) => {
+	fetch = (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, match, push } = this.props;
+			const { user, match, push, getActiveDepositRequests, getActiveWithdrawRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
+			const requestType = parseRequestType({ match, push });
 
-			try {
-				this.setState({ loading: true });
-				let data;
-				if (user.role === roles.c) {
-					params.type = parseRequestType({ match, push });
-					params.status = "pending,opened,choose,complained";
-					params.user = "maker";
-					data = await getActiveRequests(params);
-				} else if (user.role === roles.a) {
-					// params.requestType = parseRequestType({ match, push });
-					// params.requestStatus = "opened,choose,completed,complained";
-					// params.isTaker = 0;
-					data = await getMessagesForActiveRequests(params);
+			if (user.role === roles.c) {
+				params.type = requestType;
+				params.status = "pending,opened,choose,complained";
+				params.user = "maker";
+				if (requestType === "deposit") {
+					getActiveDepositRequests(params, false);
+				} else if (requestType === "withdraw") {
+					getActiveWithdrawRequests(params, false);
 				}
-				const pagination = { ...this.state.pagination };
-				pagination.total = data.total;
-
-				this.setState({
-					loading: false,
-					data: data.items,
-					pagination,
-				});
-			} catch (error) {}
+			} else if (user.role === roles.a) {
+				if (requestType === "deposit") {
+					getActiveDepositRequests(params, true);
+				} else if (requestType === "withdraw") {
+					getActiveWithdrawRequests(params, true);
+				}
+			}
 		}
 	};
 
@@ -238,7 +231,7 @@ class ActiveRequests extends Component {
 	};
 
 	render() {
-		const { user, walletAddress, match, push } = this.props;
+		const { user, walletAddress, match, push, data, isFetching } = this.props;
 		const { requestId, activeAction } = this.state;
 		let columns = [];
 
@@ -273,9 +266,9 @@ class ActiveRequests extends Component {
 				<Table
 					columns={columns}
 					rowKey={record => record.id}
-					dataSource={this.state.data}
-					pagination={this.state.pagination}
-					loading={this.state.loading}
+					dataSource={data.items}
+					pagination={{ ...this.state.pagination, total: data.total }}
+					loading={isFetching}
 					onChange={this.handleTableChange}
 					className="ovf-auto tbody-white"
 				/>
@@ -302,16 +295,25 @@ class ActiveRequests extends Component {
 	}
 }
 
+const loadingSelector = createLoadingSelector([
+	GET_ACTIVE_DEPOSIT_REQUESTS,
+	GET_ACTIVE_WITHDRAW_REQUESTS,
+]);
+
+function mapStateToProps(state, ownProps) {
+	return {
+		user: state.user,
+		walletAddress: state.wallet.defaultAccountAddress,
+		data: createRequestsDataSelector(state, ownProps.match.params.type, "active"),
+		isFetching: loadingSelector(state),
+	};
+}
+
 ActiveRequests = compose(
 	withRouter,
 	connect(
-		state => {
-			return {
-				user: state.user,
-				walletAddress: state.wallet.defaultAccountAddress,
-			};
-		},
-		{ push }
+		mapStateToProps,
+		{ push, getActiveDepositRequests, getActiveWithdrawRequests }
 	)
 )(ActiveRequests);
 

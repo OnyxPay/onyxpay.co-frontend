@@ -6,7 +6,6 @@ import { history, getStore } from "./store";
 import "./assets/styles/index.scss";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-
 ReactDOM.render(
 	<Provider store={getStore()}>
 		<ConnectedRouter history={history}>

@@ -3,29 +3,26 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table } from "antd";
-import { getActiveRequests } from "../../api/requests";
-import { getMessagesForClosedRequests } from "../../api/operation-messages";
 import { roles } from "../../api/constants";
 import { push } from "connected-react-router";
-import { convertAmountToStr } from "../../utils/number";
-import { getPerformerName } from "../../utils";
 import { parseRequestType, renderPageTitle } from "./common";
-import { operationMessageStatus } from "api/constants";
+import renderClientColumns from "./table-columns/renderClientColumns";
+import renderAgentColumns from "./table-columns/renderAgentColumns";
+import {
+	getClosedDepositRequests,
+	GET_CLOSED_DEPOSIT_REQUESTS,
+} from "redux/requests/assets/closedDeposit";
+import {
+	getClosedWithdrawRequests,
+	GET_CLOSED_WITHDRAW_REQUESTS,
+} from "redux/requests/assets/closedWithdraw";
+import { createLoadingSelector } from "selectors/loading";
+import { createRequestsDataSelector } from "selectors/requests";
 
 class ClosedRequests extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			data: [],
-			pagination: { current: 1, pageSize: 20 },
-			loading: false,
-			SEND_REQ_TO_AGENT: false,
-			requestId: null,
-			isSendingMessage: false,
-			operationMessages: [],
-			activeAction: "",
-		};
-	}
+	state = {
+		pagination: { current: 1, pageSize: 20 },
+	};
 
 	componentDidMount() {
 		this._isMounted = true;
@@ -60,117 +57,50 @@ class ClosedRequests extends Component {
 		);
 	};
 
-	fetch = async (opts = {}) => {
+	fetch = (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, match, push } = this.props;
+			const { user, match, push, getClosedDepositRequests, getClosedWithdrawRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
+			const requestType = parseRequestType({ match, push });
 
-			try {
-				this.setState({ loading: true });
-				let data;
-				if (user.role === roles.c) {
-					params.type = parseRequestType({ match, push });
-					params.status = "rejected,completed";
-					params.user = "maker";
-					data = await getActiveRequests(params);
-				} else if (user.role === roles.a) {
-					// params.requestType = parseRequestType({ match, push });
-					// params.requestStatus = "completed";
-					// params.messageStatus = "canceled";
-					data = await getMessagesForClosedRequests(params);
+			if (user.role === roles.c) {
+				params.type = requestType;
+				params.status = "rejected,completed";
+				params.user = "maker";
+				if (requestType === "deposit") {
+					getClosedDepositRequests(params, false);
+				} else if (requestType === "withdraw") {
+					getClosedWithdrawRequests(params, false);
 				}
-				const pagination = { ...this.state.pagination };
-				pagination.total = data.total;
-
-				this.setState({
-					loading: false,
-					data: data.items,
-					pagination,
-				});
-			} catch (error) {}
+			} else if (user.role === roles.a) {
+				if (requestType === "deposit") {
+					getClosedDepositRequests(params, true);
+				} else if (requestType === "withdraw") {
+					getClosedWithdrawRequests(params, true);
+				}
+			}
 		}
 	};
 
 	render() {
-		const { user, match, push } = this.props;
+		const { user, match, push, data, isFetching } = this.props;
 
-		const columnsForClient = [
-			{
-				title: "Id",
-				dataIndex: "id",
-			},
-			{
-				title: "Asset",
-				dataIndex: "asset",
-			},
-			{
-				title: "Amount",
-				render: (text, record, index) => {
-					return convertAmountToStr(record.amount, 8);
-				},
-			},
-			{
-				title: "Status",
-				dataIndex: "status",
-			},
-			{
-				title: "Created",
-				render: (text, record, index) => {
-					return new Date(record.trx_timestamp).toLocaleString();
-				},
-			},
-			{
-				title: "Performer",
-				render: (text, record, index) => {
-					return record.taker_addr ? getPerformerName(record) : "n/a";
-				},
-			},
-		];
+		let columns = [];
 
-		const columnsForAgent = [
-			{
-				title: "Id",
-				dataIndex: "request.id",
-			},
-			{
-				title: "Asset",
-				dataIndex: "request.asset",
-			},
-			{
-				title: "Amount",
-				render: (text, record, index) => {
-					return convertAmountToStr(record.request.amount, 8);
-				},
-			},
-			{
-				title: "Status",
-				dataIndex: "request.status",
-				render: (text, record, index) => {
-					if (record.status_code === operationMessageStatus.canceled) {
-						return "assets returned";
-					}
-					return record.request.status;
-				},
-			},
-			{
-				title: "Created",
-				render: (text, record, index) => {
-					return new Date(record.request.trx_timestamp).toLocaleString();
-				},
-			},
-			{
-				title: "Client",
-				dataIndex: "sender.addr",
-				render: (text, record, index) => {
-					return `${record.sender.first_name} ${record.sender.last_name}`;
-				},
-			},
-		];
+		if (user.role === roles.c) {
+			columns = renderClientColumns({
+				requestsStatus: "closed",
+			});
+		} else if (user.role === roles.a) {
+			columns = renderAgentColumns({
+				requestsStatus: "closed",
+			});
+		}
 
 		return (
 			<>
@@ -180,11 +110,11 @@ class ClosedRequests extends Component {
 					isRequestClosed: true,
 				})}
 				<Table
-					columns={user.role === roles.c ? columnsForClient : columnsForAgent}
+					columns={columns}
 					rowKey={record => record.id}
-					dataSource={this.state.data}
-					pagination={this.state.pagination}
-					loading={this.state.loading}
+					dataSource={data.items}
+					pagination={{ ...this.state.pagination, total: data.total }}
+					loading={isFetching}
 					onChange={this.handleTableChange}
 					className="ovf-auto tbody-white"
 				/>
@@ -193,16 +123,25 @@ class ClosedRequests extends Component {
 	}
 }
 
+const loadingSelector = createLoadingSelector([
+	GET_CLOSED_DEPOSIT_REQUESTS,
+	GET_CLOSED_WITHDRAW_REQUESTS,
+]);
+
+function mapStateToProps(state, ownProps) {
+	return {
+		user: state.user,
+		walletAddress: state.wallet.defaultAccountAddress,
+		data: createRequestsDataSelector(state, ownProps.match.params.type, "closed"),
+		isFetching: loadingSelector(state),
+	};
+}
+
 ClosedRequests = compose(
 	withRouter,
 	connect(
-		state => {
-			return {
-				user: state.user,
-				walletAddress: state.wallet.defaultAccountAddress,
-			};
-		},
-		{ push }
+		mapStateToProps,
+		{ push, getClosedDepositRequests, getClosedWithdrawRequests }
 	)
 )(ClosedRequests);
 

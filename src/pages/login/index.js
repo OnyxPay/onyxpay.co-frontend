@@ -14,7 +14,6 @@ import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal"
 import RegistrationModal from "../../components/modals/Registration";
 import { generateTokenTimeStamp } from "../../utils";
 import { signWithPk } from "../../utils/blockchain";
-import { refreshBalance } from "../../providers/balanceProvider";
 import { showNotification } from "components/notification";
 
 const { Title } = Typography;
@@ -115,8 +114,6 @@ class Login extends Component {
 				}
 			} else {
 				await getUserData();
-				await refreshBalance();
-				console.log(location);
 
 				if (location.state && location.state.redirectFrom) {
 					push(location.state.redirectFrom);
@@ -125,7 +122,6 @@ class Login extends Component {
 				}
 			}
 		} catch (er) {
-			console.log(er);
 		} finally {
 			if (this._isMounted) {
 				this.setState({ loading: false });

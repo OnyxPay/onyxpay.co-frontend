@@ -2,6 +2,7 @@ import { setWallet, clearWallet } from "./wallet";
 import { resolveContractAddress } from "./contracts";
 import { setAssetsBalance, setOnyxCashBalance } from "./balance";
 import { saveUser, getUserData } from "./user";
+import { getUserUpgradeRequest } from "./upgradeRequest";
 import { getUsersData, getUserSettlementData, updateUserStatus } from "./admin-panel/users";
 import {
 	showWalletUnlockModal,
@@ -20,6 +21,7 @@ export default {
 	contracts: { resolveContractAddress },
 	balance: { setAssetsBalance, setOnyxCashBalance },
 	user: { saveUser, getUserData, updateUserStatus },
+	upgradeRequest: { getUserUpgradeRequest },
 	adminUsers: { getUsersData },
 	userSettlementAccountData: { getUserSettlementData },
 	walletUnlock: {
