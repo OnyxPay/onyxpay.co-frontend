@@ -105,6 +105,8 @@ class Users extends Component {
 				},
 			},
 			() => {
+				console.log(filters);
+
 				for (const filter in filters) {
 					filters[filter] = filters[filter][0];
 				}
@@ -295,7 +297,6 @@ class Users extends Component {
 				key: "count",
 				undefined,
 				render: res => {
-					console.log(res);
 					if (
 						res.hasOwnProperty("operations_successful") &&
 						res.hasOwnProperty("operations_unsuccessful")

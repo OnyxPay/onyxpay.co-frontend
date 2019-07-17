@@ -58,6 +58,8 @@ export default function renderAgentColumns({
 	cancelAcceptedRequest,
 	requestsStatus = "active", // active | closed
 	requestsType = "depositOrWithdraw", // deposit | withdraw | depositOnyxCash
+	getColumnSearchProps,
+	defaultFilterValue,
 }) {
 	if (requestsStatus === "active") {
 		if (requestsType === "depositOrWithdraw") {
@@ -65,10 +67,15 @@ export default function renderAgentColumns({
 				{
 					title: "Id",
 					dataIndex: "request.id",
+					key: "id",
+					...getColumnSearchProps("id"),
+					filteredValue: defaultFilterValue ? [defaultFilterValue] : [],
 				},
 				{
 					title: "Asset",
 					dataIndex: "request.asset",
+					key: "asset",
+					...getColumnSearchProps("asset"),
 				},
 				{
 					title: "Amount",

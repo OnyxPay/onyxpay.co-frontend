@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Table } from "antd";
+import { Table, Input, Button, Icon } from "antd";
 import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
 import { hideMessage } from "api/operation-messages";
 import SendToAgentModal from "components/modals/SendToAgent";
@@ -24,6 +24,7 @@ import {
 } from "redux/requests/assets/activeWithdraw";
 import { createLoadingSelector } from "selectors/loading";
 import { createRequestsDataSelector } from "selectors/requests";
+import queryString from "query-string";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -39,11 +40,19 @@ class ActiveRequests extends Component {
 		isSendingMessage: false,
 		operationMessages: [],
 		activeAction: "",
+		idParsedFromURL: "",
 	};
 
 	componentDidMount() {
+		const { location } = this.props;
 		this._isMounted = true;
-		this.fetch();
+		const values = queryString.parse(location.search);
+		if (values.id) {
+			this.setState({ idParsedFromURL: values.id });
+			this.fetch({ id: values.id });
+		} else {
+			this.fetch();
+		}
 	}
 
 	componentWillUnmount() {
@@ -67,23 +76,6 @@ class ActiveRequests extends Component {
 		} else {
 			this.setState({ [type]: true });
 		}
-	};
-
-	handleTableChange = (pagination, filters, sorter) => {
-		this.setState(
-			{
-				pagination: {
-					...this.state.pagination,
-					current: pagination.current,
-					pageSize: pagination.pageSize,
-				},
-			},
-			() => {
-				this.fetch({
-					...filters,
-				});
-			}
-		);
 	};
 
 	fetch = (opts = {}) => {
@@ -230,9 +222,95 @@ class ActiveRequests extends Component {
 		}
 	};
 
+	getColumnSearchProps = dataIndex => ({
+		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, ...rest }) => {
+			return (
+				<div style={{ padding: 8 }}>
+					<Input
+						ref={node => {
+							this.searchInput = node;
+						}}
+						placeholder={`Search ${dataIndex}`}
+						value={selectedKeys[0]}
+						onChange={e => {
+							return setSelectedKeys(e.target.value ? [e.target.value] : []);
+						}}
+						onPressEnter={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
+						style={{ width: 188, marginBottom: 8, display: "block" }}
+					/>
+					<Button
+						type="primary"
+						onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
+						icon="search"
+						size="small"
+						style={{ width: 90, marginRight: 8 }}
+					>
+						Search
+					</Button>
+					<Button
+						onClick={() => this.handleReset(clearFilters, dataIndex)}
+						size="small"
+						style={{ width: 90 }}
+					>
+						Reset
+					</Button>
+				</div>
+			);
+		},
+
+		filterIcon: filtered => (
+			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
+		),
+
+		onFilterDropdownVisibleChange: visible => {
+			if (visible) {
+				setTimeout(() => this.searchInput.select());
+			}
+		},
+	});
+
+	handleSearch = (selectedKeys, confirm, dataIndex) => {
+		confirm();
+		if (dataIndex === "id") {
+			setTimeout(() => {
+				this.setState({ idParsedFromURL: selectedKeys[0] });
+			}, 0);
+		}
+	};
+
+	handleReset = (clearFilters, dataIndex) => {
+		clearFilters();
+		if (dataIndex === "id") {
+			setTimeout(() => {
+				this.setState({ idParsedFromURL: "" });
+			}, 0);
+		}
+	};
+
+	handleTableChange = (pagination, filters, sorter) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				for (const filter in filters) {
+					filters[filter] = filters[filter][0];
+				}
+				console.log("filters", filters);
+				this.fetch({
+					...filters,
+				});
+			}
+		);
+	};
+
 	render() {
 		const { user, walletAddress, match, push, data, isFetching } = this.props;
-		const { requestId, activeAction } = this.state;
+		const { requestId, activeAction, idParsedFromURL } = this.state;
 		let columns = [];
 
 		if (user.role === roles.c) {
@@ -253,6 +331,8 @@ class ActiveRequests extends Component {
 				acceptRequest: this.acceptRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
+				getColumnSearchProps: this.getColumnSearchProps,
+				defaultFilterValue: idParsedFromURL,
 			});
 		}
 
