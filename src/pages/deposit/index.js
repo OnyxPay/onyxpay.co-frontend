@@ -41,8 +41,9 @@ class Deposit extends Component {
 		return isEnough;
 	}
 
-	handleFormSubmit = async (values, formActions) => {
+	handleFormSubmit = async (formValues, formActions) => {
 		const { push } = this.props;
+		const values = { ...formValues }; // don't mutate formValues
 		const isOnyxCash = values.asset_symbol === onyxCashSymbol;
 		let isEnoughAmount = true;
 		let requestType = "deposit";
@@ -119,6 +120,8 @@ class Deposit extends Component {
 							}
 							if (!values.amount) {
 								errors.amount = "required";
+							} else if (values.amount <= 0) {
+								errors.amount = "only positive values are allowed";
 							} else if ((user.role === roles.a || user.role === roles.sa) && values.amount < 1) {
 								errors.amount = `min amount is 1 ${onyxCashSymbol}`;
 							} else if (countDecimals(values.amount) > 8) {
@@ -201,6 +204,7 @@ class Deposit extends Component {
 													onChange={handleChange}
 													onBlur={handleBlur}
 													disabled={isSubmitting}
+													step="any"
 												/>
 											</Form.Item>
 										</Col>
