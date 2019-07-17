@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Table, Input, Button, Icon, message, notification } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
-import { roles } from "api/constants";
+import { roleCodes } from "api/constants";
 import {
 	unblockUser,
 	blockedUsersData,
@@ -339,7 +339,7 @@ class Users extends Component {
 								Unblock
 							</Button>
 						) : null}
-						{res.role_code !== roles.c ? (
+						{res.role_code !== roleCodes.user ? (
 							<Button
 								style={styles.btn}
 								type="danger"
