@@ -1,6 +1,7 @@
 import React from "react";
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { showNotification } from "../components/notification";
+import { push } from "connected-react-router";
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
@@ -103,6 +104,7 @@ export const confirmEmail = values => async (dispatch, getState) => {
 	}
 };
 
-export const logOut = notReload => (dispatch, getState) => {
+export const logOut = () => (dispatch, getState) => {
 	dispatch({ type: LOG_OUT });
+	dispatch(push("/login"));
 };
