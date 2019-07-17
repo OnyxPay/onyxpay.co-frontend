@@ -14,13 +14,6 @@ import { isLatinChars } from "../../utils/validate";
 
 const { Option } = Select;
 
-const initialValues = {
-	first_name: "",
-	last_name: "",
-	country_id: "",
-	referral_code: "",
-};
-
 function areBcErrors(data) {
 	const keysToCheck = ["public_key", "wallet_addr"];
 	return keysToCheck.some(key => data.hasOwnProperty(key));
@@ -34,6 +27,15 @@ class RegistrationModal extends Component {
 			isBcValidationError: false,
 		};
 	}
+
+	getInitialValues = () => {
+		return {
+			first_name: "",
+			last_name: "",
+			country_id: "",
+			referral_wallet: localStorage.getItem("rcode") || "",
+		};
+	};
 
 	handleFormSubmit = async (values, formActions) => {
 		const { signUp, push, getUserData } = this.props;
@@ -92,7 +94,7 @@ class RegistrationModal extends Component {
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
-					initialValues={initialValues}
+					initialValues={this.getInitialValues()}
 					validate={values => {
 						let errors = {};
 						if (!values.first_name) {
@@ -191,11 +193,11 @@ class RegistrationModal extends Component {
 
 								<Form.Item label="Referral code">
 									<Input
-										name="referralCode"
-										value={values.referralCode}
+										name="referral_wallet"
+										value={values.referral_wallet}
 										onChange={handleChange}
 										onBlur={handleBlur}
-										disabled={isSubmitting}
+										disabled={isSubmitting || values.referral_code !== ""}
 									/>
 								</Form.Item>
 
