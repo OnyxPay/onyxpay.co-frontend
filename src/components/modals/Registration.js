@@ -10,7 +10,7 @@ import text from "../../assets/text.json";
 import { signWithPk } from "../../utils/blockchain";
 import { generateTokenTimeStamp } from "../../utils";
 import { getData as getCountriesData } from "country-list";
-import { isLatinChars } from "../../utils/validate";
+import { isLatinChars, isBase58Address } from "../../utils/validate";
 
 const { Option } = Select;
 
@@ -115,7 +115,9 @@ class RegistrationModal extends Component {
 						if (!values.country_id) {
 							errors.country_id = "required";
 						}
-
+						if (!isBase58Address(values.referral_wallet)) {
+							errors.referral_wallet = "Referral wallet address should be in base58 format";
+						}
 						return errors;
 					}}
 				>
@@ -192,7 +194,13 @@ class RegistrationModal extends Component {
 									</Select>
 								</Form.Item>
 
-								<Form.Item label="Referral code">
+								<Form.Item
+									label="Referral code"
+									validateStatus={errors.referral_wallet && touched.referral_wallet ? "error" : ""}
+									help={
+										errors.referral_wallet && touched.referral_wallet ? errors.referral_wallet : ""
+									}
+								>
 									<Input
 										name="referral_wallet"
 										value={values.referral_wallet}

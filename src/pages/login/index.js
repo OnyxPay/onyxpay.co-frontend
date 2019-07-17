@@ -15,6 +15,7 @@ import RegistrationModal from "../../components/modals/Registration";
 import { generateTokenTimeStamp } from "../../utils";
 import { signWithPk } from "../../utils/blockchain";
 import { showNotification } from "components/notification";
+import { isBase58Address } from "../../utils/validate";
 import queryString from "query-string";
 
 const { Title } = Typography;
@@ -58,7 +59,7 @@ class Login extends Component {
 	componentDidMount() {
 		this._isMounted = true;
 		let params = queryString.parse(this.props.location.search);
-		if (!!params.rcode) {
+		if (!!params.rcode && isBase58Address(params.rcode)) {
 			localStorage.setItem("rcode", params.rcode);
 		}
 	}
