@@ -1,14 +1,8 @@
 import React, { Component } from "react";
 import { Table, Button, notification, message } from "antd";
 import ReasonToRejectUpgradeModal from "../../../components/modals/admin/ReasonToRejectUpgrade";
-import {
-	getRequests,
-	upgradeUser,
-	downgradeUser,
-	rejectRequest,
-} from "../../../api/admin/user-upgrade";
+import { getRequests, upgradeUser, rejectRequest } from "../../../api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
-import { roles } from "api/constants";
 
 const style = {
 	button: {
@@ -56,33 +50,6 @@ class UserUpgradeRequests extends Component {
 		}
 		this.setState({
 			loadingUpgradeUser: false,
-		});
-	};
-
-	handleDowngrade = async (wallet_addr, role, id) => {
-		try {
-			this.setState({
-				loadingDowngradeUser: true,
-				request_id: id,
-			});
-			const res = await downgradeUser(wallet_addr, role);
-			if (res.Error === 0) {
-				message.success("User was successfully downgrade");
-			}
-			this.fetchRequests();
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
-			}
-		}
-		this.setState({
-			loadingDowngradeUser: false,
 		});
 	};
 
@@ -147,6 +114,7 @@ class UserUpgradeRequests extends Component {
 			if (!res.error) {
 				pagination.total = res.total;
 				this.setState({ pagination, fetchingRequests: false, requestsData: res.items });
+				console.log(res.items);
 			}
 		} catch (e) {}
 	}
@@ -157,7 +125,6 @@ class UserUpgradeRequests extends Component {
 			pagination,
 			requestsData,
 			loadingUpgradeUser,
-			loadingDowngradeUser,
 			request_id,
 		} = this.state;
 
@@ -214,17 +181,6 @@ class UserUpgradeRequests extends Component {
 						</Button>
 						<Button type="danger" onClick={() => this.showModal(res.id)} style={style.button}>
 							Reject
-						</Button>
-						<Button
-							type="danger"
-							onClick={() =>
-								this.handleDowngrade(res.user.wallet_addr, res.expected_position, res.id)
-							}
-							style={style.button}
-							disabled={res.user.role === roles.c}
-							loading={res.id === request_id && loadingDowngradeUser}
-						>
-							Downgrade
 						</Button>
 					</>
 				),
