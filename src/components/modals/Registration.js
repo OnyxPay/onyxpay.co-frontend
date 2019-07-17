@@ -28,7 +28,7 @@ class RegistrationModal extends Component {
 		};
 	}
 
-	getInitialValues = () => {
+	getInitialFormValues = () => {
 		return {
 			first_name: "",
 			last_name: "",
@@ -82,6 +82,7 @@ class RegistrationModal extends Component {
 	render() {
 		const { isModalVisible } = this.props;
 		const { isBcValidationError } = this.state;
+		const initialReferralWalletValue = localStorage.getItem("rcode") || "";
 
 		return (
 			<Modal
@@ -94,7 +95,7 @@ class RegistrationModal extends Component {
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
-					initialValues={this.getInitialValues()}
+					initialValues={this.getInitialFormValues()}
 					validate={values => {
 						let errors = {};
 						if (!values.first_name) {
@@ -197,7 +198,7 @@ class RegistrationModal extends Component {
 										value={values.referral_wallet}
 										onChange={handleChange}
 										onBlur={handleBlur}
-										disabled={isSubmitting || values.referral_code !== ""}
+										disabled={isSubmitting || initialReferralWalletValue !== ""}
 									/>
 								</Form.Item>
 
