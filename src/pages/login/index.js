@@ -81,9 +81,13 @@ class Login extends Component {
 	};
 
 	handleClearWallet = () => {
-		const { clearWallet, logOut } = this.props;
+		const { clearWallet, logOut, user } = this.props;
 		clearWallet();
-		logOut();
+		if (user) {
+			logOut();
+		} else {
+			logOut(false);
+		}
 		showNotification({
 			type: "success",
 			msg: "You successfully closed your wallet",
