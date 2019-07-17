@@ -26,11 +26,14 @@ class AgentMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="/deposit:agent">
-						<Link to="/deposit:agent">Deposit</Link>
+					<Menu.Item key="/deposit-onyx-cash">
+						<Link to="/deposit-onyx-cash">Deposit</Link>
 					</Menu.Item>
 					<Menu.Item key="/test-link">
-						<Link to="/test-link">Requests</Link>
+						<Link to="/test-link">Active deposit requests</Link>
+					</Menu.Item>
+					<Menu.Item key="/test-link2">
+						<Link to="/test-link2">Closed deposit requests</Link>
 					</Menu.Item>
 				</SubMenu>
 

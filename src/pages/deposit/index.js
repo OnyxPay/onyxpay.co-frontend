@@ -21,6 +21,7 @@ import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
 import { isAssetBlocked } from "../../api/assets";
 import { countDecimals } from "../../utils/validate";
+import { roles, onyxCashSymbol } from "api/constants";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -42,18 +43,32 @@ class Deposit extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		const { push } = this.props;
+		const isOnyxCash = values.asset_symbol === onyxCashSymbol;
+		let isEnoughAmount = true;
+		let requestType = "deposit";
+
+		if (isOnyxCash) {
+			values.asset_symbol = "OnyxCash";
+			requestType = "buy_onyx_cash";
+		}
+
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
-			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
-
 			if (isBlocked) {
-				formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
 			}
-			if (!isEnoughAmount) {
-				formActions.setFieldError("amount", "min amount is 1 oUSD");
+
+			if (!isOnyxCash) {
+				isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
+				if (!isEnoughAmount) {
+					formActions.setSubmitting(false);
+					return formActions.setFieldError("amount", "min amount is 1 USD");
+				}
 			}
+
 			if (!isBlocked && isEnoughAmount) {
-				const res = await createRequest(values, "deposit");
+				const res = await createRequest(values, requestType);
 				if (!res.error) {
 					notification.success({
 						message: "Deposit request is successfully created",
@@ -84,16 +99,17 @@ class Deposit extends Component {
 	};
 
 	render() {
-		const { assets } = this.props;
+		const { assets, user } = this.props;
 
 		return (
 			<>
 				<PageTitle>Deposit</PageTitle>
+
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							asset_symbol: "oUSD",
+							asset_symbol: user.role === roles.c ? "oUSD" : onyxCashSymbol,
 							amount: "",
 						}}
 						validate={values => {
@@ -103,6 +119,8 @@ class Deposit extends Component {
 							}
 							if (!values.amount) {
 								errors.amount = "required";
+							} else if ((user.role === roles.a || user.role === roles.sa) && values.amount < 1) {
+								errors.amount = `min amount is 1 ${onyxCashSymbol}`;
 							} else if (countDecimals(values.amount) > 8) {
 								errors.amount = "max number of decimal places is 8";
 							}
@@ -133,30 +151,39 @@ class Deposit extends Component {
 													errors.asset_symbol && touched.asset_symbol ? errors.asset_symbol : ""
 												}
 											>
-												<Select
-													showSearch
-													name="asset_symbol"
-													placeholder="Select an asset"
-													optionFilterProp="children"
-													value={values.asset_symbol}
-													onChange={this.handleAssetChange(setFieldValue)}
-													filterOption={(input, option) =>
-														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-													}
-													disabled={isSubmitting}
-												>
-													{assets.map((asset, index) => {
-														return (
-															<Option key={index} value={asset}>
-																{asset}
-															</Option>
-														);
-													})}
-												</Select>
+												{user.role === roles.c ? (
+													<Select
+														showSearch
+														name="asset_symbol"
+														placeholder="Select an asset"
+														optionFilterProp="children"
+														value={values.asset_symbol}
+														onChange={this.handleAssetChange(setFieldValue)}
+														filterOption={(input, option) =>
+															option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+														}
+														disabled={isSubmitting}
+													>
+														{assets.map((asset, index) => {
+															return (
+																<Option key={index} value={asset}>
+																	{asset}
+																</Option>
+															);
+														})}
+													</Select>
+												) : (
+													<Input name="asset_symbol" disabled={true} value={values.asset_symbol} />
+												)}
 											</Form.Item>
-											<Text type="secondary" style={{ display: "block", margin: "-12px 0 12px 0" }}>
-												You will be able to send to the agent only chosen fiat currency
-											</Text>
+											{user.role === roles.c ? (
+												<Text
+													type="secondary"
+													style={{ display: "block", margin: "-12px 0 12px 0" }}
+												>
+													You will be able to send to the agent only chosen fiat currency
+												</Text>
+											) : null}
 										</Col>
 
 										<Col lg={12} md={24}>

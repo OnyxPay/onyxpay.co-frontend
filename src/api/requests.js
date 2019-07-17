@@ -25,7 +25,11 @@ export async function createRequest(formValues, requestType) {
 	const amount = convertAmountFromStr(formValues.amount);
 
 	const params = [
-		{ label: "operationRequested", type: ParameterType.String, value: requestType },
+		{
+			label: "operationRequested",
+			type: ParameterType.String,
+			value: requestType === "buy_onyx_cash" ? "deposit" : requestType,
+		},
 		{
 			label: "initiator",
 			type: ParameterType.ByteArray,

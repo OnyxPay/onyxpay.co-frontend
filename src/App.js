@@ -10,9 +10,7 @@ import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
-import { wsClientRun } from "./websock/client";
-
-const Deposit2 = props => <div>Agent's deposit...</div>;
+// import { wsClientRun } from "./websock/client";
 
 let Dashboard = Loadable({
 	loader: () => import(/* webpackChunkName: "Home" */ "./pages/dashboard"),
@@ -39,7 +37,7 @@ let Page404 = Loadable({
 	loading: Loader,
 });
 
-const Deposit = Loadable({
+let Deposit = Loadable({
 	loader: () => import(/* webpackChunkName: "Deposit" */ "./pages/deposit"),
 	loading: Loader,
 });
@@ -97,14 +95,12 @@ let UserUpgradeRequests = Loadable({
 
 // permissions
 const User = Authorization([roles.c]);
-const Agent = Authorization([roles.a, roles.sa]);
+// const Agent = Authorization([roles.a, roles.sa]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
-const UserDeposit = User(Deposit);
-const AgentDeposit = Agent(Deposit2);
 AssetsExchange = All(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
@@ -123,7 +119,7 @@ class App extends Component {
 	componentDidMount() {
 		initBalanceProvider();
 		syncLoginState();
-		wsClientRun();
+		// wsClientRun();
 	}
 
 	render() {
@@ -136,8 +132,8 @@ class App extends Component {
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/deposit" component={UserDeposit} />
-					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/deposit" component={Deposit} />
+					<Route path="/deposit-onyx-cash" exact component={Deposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/active-requests/:type" exact component={ActiveRequests} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
