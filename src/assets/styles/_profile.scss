@@ -13,6 +13,12 @@
 	text-overflow: ellipsis;
 }
 
+.referral-link-input {
+	.ant-input-group-addon {
+		width: 100px;
+	}
+}
+
 .profile-editor-select {
 	width: 50%;
 }

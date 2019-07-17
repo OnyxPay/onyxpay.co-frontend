@@ -4,6 +4,7 @@ import logoPic from "../../assets/icons/logo.png";
 import { Link } from "react-router-dom";
 import { Icon } from "antd";
 import DropdownMenu from "./DropdownMenu";
+import { UserData } from "./UserData";
 
 const Header = styled.header`
 	height: 58px;
@@ -30,19 +31,34 @@ const Header = styled.header`
 			height: 20px;
 		}
 	}
+	@media (max-width: 480px) {
+		.trigger {
+			padding: 0 5px;
+			margin-left: 5px;
+		}
+	}
 `;
 
 const Logo = styled.img`
 	height: 2.5rem;
 	line-height: 2rem;
+	@media (max-width: 480px) {
+		max-width: 100%;
+		object-fit: contain;
+	}
 `;
 
 const Start = styled.div`
 	display: flex;
 	align-items: center;
+	@media (max-width: 480px) {
+		max-width: 55%;
+	}
 `;
 
-const End = styled.div``;
+const End = styled.div`
+	display: flex;
+`;
 
 // TODO: show dropdown if user is logged in
 
@@ -60,6 +76,7 @@ export const HeaderComponent = ({ toggleSidebar, isSidebarCollapsed }) => {
 				/>
 			</Start>
 			<End>
+				{UserData()}
 				<DropdownMenu />
 			</End>
 		</Header>
