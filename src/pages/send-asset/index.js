@@ -75,12 +75,7 @@ class SendAsset extends Component {
 		return isEnough;
 	}
 
-	handleFormSubmit = async (formValues, formActions) => {
-		let values = {
-			amount: formValues.amount,
-			asset_symbol: formValues.asset_symbol,
-			receiver_address: formValues.receiver_opyxpay_address,
-		};
+	handleFormSubmit = async (values, formActions) => {
 		try {
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnteredEnoughAmount) {
@@ -169,16 +164,16 @@ class SendAsset extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							receiver_opyxpay_address: "",
+							receiver_address: "",
 							asset_symbol: "",
 							amount: "",
 						}}
 						validate={values => {
 							let errors = {};
-							if (!values.receiver_opyxpay_address) {
-								errors.receiver_opyxpay_address = "required";
-							} else if (!isBase58Address(values.receiver_opyxpay_address)) {
-								errors.receiver_opyxpay_address = "Recipient's address should be in base58 format";
+							if (!values.receiver_address) {
+								errors.receiver_address = "required";
+							} else if (!isBase58Address(values.receiver_address)) {
+								errors.receiver_address = "Recipient's address should be in base58 format";
 							}
 							if (!values.asset_symbol) {
 								errors.asset_symbol = "required";
@@ -207,9 +202,7 @@ class SendAsset extends Component {
 							validateField,
 						}) => {
 							const allowToSubmitForm =
-								values.receiver_opyxpay_address && values.asset_symbol && values.amount
-									? true
-									: false;
+								values.receiver_address && values.asset_symbol && values.amount ? true : false;
 							return (
 								<form onSubmit={handleSubmit} className="send-assets__form">
 									<Row gutter={16}>
@@ -219,20 +212,18 @@ class SendAsset extends Component {
 												label="Receiver address"
 												required
 												validateStatus={
-													errors.receiver_opyxpay_address && touched.receiver_opyxpay_address
-														? "error"
-														: ""
+													errors.receiver_address && touched.receiver_address ? "error" : ""
 												}
 												help={
-													errors.receiver_opyxpay_address && touched.receiver_opyxpay_address
-														? errors.receiver_opyxpay_address
+													errors.receiver_address && touched.receiver_address
+														? errors.receiver_address
 														: ""
 												}
 											>
 												<Input
-													name="receiver_opyxpay_address"
+													name="receiver_address"
 													placeholder="Enter address"
-													value={values.receiver_opyxpay_address}
+													value={values.receiver_address}
 													onChange={handleChange}
 													onBlur={handleBlur}
 													disabled={!availableAssetsToSend.length || isSubmitting}
