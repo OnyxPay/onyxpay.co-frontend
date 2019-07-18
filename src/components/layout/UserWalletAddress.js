@@ -3,22 +3,17 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Icon, Tooltip } from "antd";
 import styled from "styled-components";
 
-const UserDataContainer = styled.div`
+const UserWalletContainer = styled.div`
 	margin-right: 30px;
 	p {
 		color: white;
 		margin: 0;
 		text-align: right;
 	}
-	hr {
-		margin: 0;
-	}
-	.role {
-		p {
-			text-transform: capitalize;
-		}
-	}
 	.wallet-address {
+		height: 100%;
+		display: flex;
+		align-items: center;
 		i {
 			margin-left: 5px;
 			width: 16px;
@@ -37,19 +32,23 @@ const UserDataContainer = styled.div`
 	}
 `;
 
-export const UserData = () => {
+export const UserWalletAddress = () => {
 	const walletAddress = localStorage.getItem("OnyxAddr");
-	const user = JSON.parse(localStorage.getItem("user"));
 	const windowWidth = window.screen.width;
 
 	return (
-		<UserDataContainer>
+		<UserWalletContainer>
 			<div className="wallet-address">
 				<p>
 					{windowWidth > 640 ? (
 						walletAddress
 					) : (
-						<Tooltip title={walletAddress} placement="bottomRight" trigger="click">
+						<Tooltip
+							title={walletAddress}
+							placement="bottomRight"
+							overlayClassName="wallet-address-tooltip"
+							trigger="click"
+						>
 							<span>{walletAddress.substring(0, 2)} ...</span>
 						</Tooltip>
 					)}
@@ -58,10 +57,6 @@ export const UserData = () => {
 					</CopyToClipboard>
 				</p>
 			</div>
-			<hr />
-			<div className="role">
-				<p>{user.role}</p>
-			</div>
-		</UserDataContainer>
+		</UserWalletContainer>
 	);
 };

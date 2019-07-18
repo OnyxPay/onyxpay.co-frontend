@@ -22,7 +22,7 @@ export function WalletAddress() {
 							onCopy={() =>
 								showNotification({
 									type: "info",
-									msg: "Wallet address already in the clipboard",
+									msg: "Wallet address has been copied to the clipboard",
 								})
 							}
 						>

@@ -1,0 +1,9 @@
+.wallet-address-tooltip {
+	max-width: 100% !important;
+}
+
+@media (max-width: 480px) {
+	.wallet-address-tooltip {
+		max-width: 250px !important;
+	}
+}
