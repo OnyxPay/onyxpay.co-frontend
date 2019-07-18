@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Table, Input, Button, Icon } from "antd";
+import { Table } from "antd";
 import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
 import { hideMessage } from "api/operation-messages";
 import SendToAgentModal from "components/modals/SendToAgent";
@@ -25,6 +25,7 @@ import {
 import { createLoadingSelector } from "selectors/loading";
 import { createRequestsDataSelector } from "selectors/requests";
 import queryString from "query-string";
+import { handleTableChange, getColumnSearchProps } from "../table";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -32,20 +33,24 @@ const modals = {
 };
 
 class ActiveRequests extends Component {
-	state = {
-		pagination: { current: 1, pageSize: 20 },
-		[modals.SEND_REQ_TO_AGENT]: false,
-		[modals.USER_SETTLEMENT_ACCOUNTS]: false,
-		requestId: null,
-		isSendingMessage: false,
-		operationMessages: [],
-		activeAction: "",
-		idParsedFromURL: "",
-	};
+	constructor(props) {
+		super(props);
+		this.state = {
+			pagination: { current: 1, pageSize: 20 },
+			[modals.SEND_REQ_TO_AGENT]: false,
+			[modals.USER_SETTLEMENT_ACCOUNTS]: false,
+			requestId: null,
+			isSendingMessage: false,
+			operationMessages: [],
+			activeAction: "",
+			idParsedFromURL: "",
+		};
+		this.setState = this.setState.bind(this);
+		this.searchInput = "";
+	}
 
 	componentDidMount() {
 		const { location } = this.props;
-		this._isMounted = true;
 		const values = queryString.parse(location.search);
 		if (values.id) {
 			this.setState({ idParsedFromURL: values.id });
@@ -53,10 +58,6 @@ class ActiveRequests extends Component {
 		} else {
 			this.fetch();
 		}
-	}
-
-	componentWillUnmount() {
-		this._isMounted = false;
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -79,31 +80,29 @@ class ActiveRequests extends Component {
 	};
 
 	fetch = (opts = {}) => {
-		if (this._isMounted) {
-			const { pagination } = this.state;
-			const { user, match, push, getActiveDepositRequests, getActiveWithdrawRequests } = this.props;
-			const params = {
-				pageSize: pagination.pageSize,
-				pageNum: pagination.current,
-				...opts,
-			};
-			const requestType = parseRequestType({ match, push });
+		const { pagination } = this.state;
+		const { user, match, push, getActiveDepositRequests, getActiveWithdrawRequests } = this.props;
+		const params = {
+			pageSize: pagination.pageSize,
+			pageNum: pagination.current,
+			...opts,
+		};
+		const requestType = parseRequestType({ match, push });
 
-			if (user.role === roles.c) {
-				params.type = requestType;
-				params.status = "pending,opened,choose,complained";
-				params.user = "maker";
-				if (requestType === "deposit") {
-					getActiveDepositRequests(params, false);
-				} else if (requestType === "withdraw") {
-					getActiveWithdrawRequests(params, false);
-				}
-			} else if (user.role === roles.a) {
-				if (requestType === "deposit") {
-					getActiveDepositRequests(params, true);
-				} else if (requestType === "withdraw") {
-					getActiveWithdrawRequests(params, true);
-				}
+		if (user.role === roles.c) {
+			params.type = requestType;
+			params.status = "pending,opened,choose,complained";
+			params.user = "maker";
+			if (requestType === "deposit") {
+				getActiveDepositRequests(params, false);
+			} else if (requestType === "withdraw") {
+				getActiveWithdrawRequests(params, false);
+			}
+		} else if (user.role === roles.a) {
+			if (requestType === "deposit") {
+				getActiveDepositRequests(params, true);
+			} else if (requestType === "withdraw") {
+				getActiveWithdrawRequests(params, true);
 			}
 		}
 	};
@@ -222,92 +221,6 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, ...rest }) => {
-			return (
-				<div style={{ padding: 8 }}>
-					<Input
-						ref={node => {
-							this.searchInput = node;
-						}}
-						placeholder={`Search ${dataIndex}`}
-						value={selectedKeys[0]}
-						onChange={e => {
-							return setSelectedKeys(e.target.value ? [e.target.value] : []);
-						}}
-						onPressEnter={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
-						style={{ width: 188, marginBottom: 8, display: "block" }}
-					/>
-					<Button
-						type="primary"
-						onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
-						icon="search"
-						size="small"
-						style={{ width: 90, marginRight: 8 }}
-					>
-						Search
-					</Button>
-					<Button
-						onClick={() => this.handleReset(clearFilters, dataIndex)}
-						size="small"
-						style={{ width: 90 }}
-					>
-						Reset
-					</Button>
-				</div>
-			);
-		},
-
-		filterIcon: filtered => (
-			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
-		),
-
-		onFilterDropdownVisibleChange: visible => {
-			if (visible) {
-				setTimeout(() => this.searchInput.select());
-			}
-		},
-	});
-
-	handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm();
-		if (dataIndex === "id") {
-			setTimeout(() => {
-				this.setState({ idParsedFromURL: selectedKeys[0] });
-			}, 0);
-		}
-	};
-
-	handleReset = (clearFilters, dataIndex) => {
-		clearFilters();
-		if (dataIndex === "id") {
-			setTimeout(() => {
-				this.setState({ idParsedFromURL: "" });
-			}, 0);
-		}
-	};
-
-	handleTableChange = (pagination, filters, sorter) => {
-		this.setState(
-			{
-				pagination: {
-					...this.state.pagination,
-					current: pagination.current,
-					pageSize: pagination.pageSize,
-				},
-			},
-			() => {
-				for (const filter in filters) {
-					filters[filter] = filters[filter][0];
-				}
-				console.log("filters", filters);
-				this.fetch({
-					...filters,
-				});
-			}
-		);
-	};
-
 	render() {
 		const { user, walletAddress, match, push, data, isFetching } = this.props;
 		const { requestId, activeAction, idParsedFromURL } = this.state;
@@ -331,7 +244,7 @@ class ActiveRequests extends Component {
 				acceptRequest: this.acceptRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
-				getColumnSearchProps: this.getColumnSearchProps,
+				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
 				defaultFilterValue: idParsedFromURL,
 			});
 		}
@@ -349,7 +262,11 @@ class ActiveRequests extends Component {
 					dataSource={data.items}
 					pagination={{ ...this.state.pagination, total: data.total }}
 					loading={isFetching}
-					onChange={this.handleTableChange}
+					onChange={handleTableChange({
+						fetchData: this.fetch,
+						paginationState: this.state.pagination,
+						setState: this.setState,
+					})}
 					className="ovf-auto tbody-white"
 				/>
 				<SendToAgentModal
