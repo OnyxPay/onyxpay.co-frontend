@@ -28,6 +28,10 @@
 	}
 }
 
+.assets-modal .ant-form-item-label {
+	line-height: initial;
+}
+
 .create-wallet-modal {
 	width: 600px !important;
 	.ant-modal-body {
