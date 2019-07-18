@@ -6,13 +6,8 @@ import ShowQRCode from "components/modals/ShowQRCode";
 import { showNotification } from "components/notification";
 
 export default function ReferralLink() {
-	const [SHOW_QR_CODE_MODAL, setToggleQRCode] = useState(false);
-	const showModalQRCode = () => {
-		setToggleQRCode(true);
-	};
-	const hideModalQRCode = () => {
-		setToggleQRCode(false);
-	};
+	const [isModalVisible, showModal] = useState(false);
+
 	const referralCode = localStorage.getItem("OnyxAddr");
 	const link = BackendUrl + "?rcode=" + referralCode;
 
@@ -41,11 +36,11 @@ export default function ReferralLink() {
 						</CopyToClipboard>
 					}
 				/>
-				<Button onClick={showModalQRCode} className="btn-show-qrcode" type="primary">
+				<Button onClick={() => showModal(true)} className="btn-show-qrcode" type="primary">
 					QR Code
 				</Button>
 			</div>
-			<ShowQRCode link={link} isModalVisible={SHOW_QR_CODE_MODAL} hideModal={hideModalQRCode} />
+			<ShowQRCode link={link} isModalVisible={isModalVisible} hideModal={() => showModal(false)} />
 		</div>
 	);
 }
