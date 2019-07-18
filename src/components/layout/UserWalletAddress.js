@@ -1,62 +1,77 @@
-import React from "react";
+import React, { Component } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { Icon, Tooltip } from "antd";
-import styled from "styled-components";
+import { Icon, Tooltip, Avatar } from "antd";
+import { debounce } from "lodash";
 
-const UserWalletContainer = styled.div`
-	margin-right: 30px;
-	p {
-		color: white;
-		margin: 0;
-		text-align: right;
+export default class UserWalletAddress extends Component {
+	constructor(props) {
+		super(props);
+		this.checkWindowWidth = debounce(this.checkWindowWidth.bind(this), 200);
+
+		this.state = {
+			xsDevise: this.isXsWidth(),
+		};
 	}
-	.wallet-address {
-		height: 100%;
-		display: flex;
-		align-items: center;
-		i {
-			margin-left: 5px;
-			width: 16px;
-			height: 16px;
+
+	componentDidMount() {
+		this.checkWindowWidth();
+		window.addEventListener("resize", this.checkWindowWidth);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.checkWindowWidth);
+	}
+
+	checkWindowWidth() {
+		const { xsDevise } = this.state;
+		if (window.innerWidth < 640 && !xsDevise) {
+			this.setState({ xsDevise: true });
+		} else if (window.innerWidth > 640 && xsDevise) {
+			this.setState({ xsDevise: false });
 		}
 	}
-	@media (max-width: 640px) {
-		.wallet-address {
-			span {
-				padding: 0 10px;
-			}
-		}
-	}
-	@media (max-width: 380px) {
-		margin-right: 5px;
-	}
-`;
 
-export const UserWalletAddress = () => {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const windowWidth = window.screen.width;
+	isXsWidth() {
+		return window.innerWidth < 640;
+	}
 
-	return (
-		<UserWalletContainer>
-			<div className="wallet-address">
-				<p>
-					{windowWidth > 640 ? (
-						walletAddress
+	walletAddress = localStorage.getItem("OnyxAddr");
+
+	render() {
+		const { xsDevise } = this.state;
+		return (
+			<div className="user-wallet-address-container">
+				<>
+					{!xsDevise ? (
+						<div className="wallet-address">
+							<span>{this.walletAddress}</span>
+							<CopyToClipboard text={this.walletAddress}>
+								<Icon type="copy" />
+							</CopyToClipboard>
+						</div>
 					) : (
 						<Tooltip
-							title={walletAddress}
+							title={
+								<div className="wallet-address">
+									<span>{this.walletAddress}</span>
+									<CopyToClipboard text={this.walletAddress}>
+										<Icon type="copy" />
+									</CopyToClipboard>
+								</div>
+							}
 							placement="bottomRight"
 							overlayClassName="wallet-address-tooltip"
 							trigger="click"
 						>
-							<span>{walletAddress.substring(0, 2)} ...</span>
+							<Avatar
+								icon="wallet"
+								size="large"
+								style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
+							/>
 						</Tooltip>
 					)}
-					<CopyToClipboard text={walletAddress}>
-						<Icon type="copy" />
-					</CopyToClipboard>
-				</p>
+				</>
 			</div>
-		</UserWalletContainer>
-	);
-};
+		);
+	}
+}

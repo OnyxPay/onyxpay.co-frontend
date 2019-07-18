@@ -7,7 +7,7 @@ const Wrapper = styled.div`
 	display: flex;
 	align-items: center;
 	border-bottom: 1px solid rgba(167, 180, 201, 0.1);
-	padding: 10px 25px;
+	padding: 10px 20px;
 	margin-bottom: 15px;
 	.user-role {
 		color: white;
@@ -24,6 +24,14 @@ const Wrapper = styled.div`
 		background-color: #fff;
 		color: #555;
 		flex-shrink: 0;
+	}
+	@media (max-width: 480px) {
+		.ant-avatar {
+			width: 32px;
+			height: 32px;
+			line-height: 32px;
+			font-size: 18px;
+		}
 	}
 `;
 

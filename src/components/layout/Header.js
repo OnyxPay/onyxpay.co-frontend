@@ -4,7 +4,7 @@ import logoPic from "../../assets/icons/logo.png";
 import { Link } from "react-router-dom";
 import { Icon } from "antd";
 import DropdownMenu from "./DropdownMenu";
-import { UserWalletAddress } from "./UserWalletAddress";
+import UserWalletAddress from "./UserWalletAddress";
 
 const Header = styled.header`
 	height: 58px;
@@ -42,22 +42,16 @@ const Header = styled.header`
 const Logo = styled.img`
 	height: 2.5rem;
 	line-height: 2rem;
-	@media (max-width: 480px) {
-		max-width: 100%;
-		object-fit: contain;
-	}
 `;
 
 const Start = styled.div`
 	display: flex;
 	align-items: center;
-	@media (max-width: 480px) {
-		max-width: 55%;
-	}
 `;
 
 const End = styled.div`
 	display: flex;
+	align-items: center;
 `;
 
 // TODO: show dropdown if user is logged in
@@ -76,7 +70,7 @@ export const HeaderComponent = ({ toggleSidebar, isSidebarCollapsed }) => {
 				/>
 			</Start>
 			<End>
-				{UserWalletAddress()}
+				<UserWalletAddress />
 				<DropdownMenu />
 			</End>
 		</Header>
