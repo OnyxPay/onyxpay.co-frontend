@@ -12,8 +12,13 @@ import { loaderReducer } from "./loading";
 import { sessionReducer } from "./session";
 import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users";
 import { assetsReducer } from "./assets";
+import { loadingReducer } from "./globalLoading";
+import { activeDepositRequestsReducer } from "./requests/assets/activeDeposit";
+import { activeWithdrawRequestsReducer } from "./requests/assets/activeWithdraw";
+import { closedDepositRequestsReducer } from "./requests/assets/closedDeposit";
+import { closedWithdrawRequestsReducer } from "./requests/assets/closedWithdraw";
 
-export default history =>
+const appReducer = history =>
 	combineReducers({
 		router: connectRouter(history),
 		user: userReducer,
@@ -29,4 +34,19 @@ export default history =>
 		adminUsers: adminUsersReducer,
 		userSettlement: setUserSettlementDataReducer,
 		assets: assetsReducer,
+		globalLoading: loadingReducer,
+		activeDepositRequests: activeDepositRequestsReducer,
+		activeWithdrawRequests: activeWithdrawRequestsReducer,
+		closedDepositRequests: closedDepositRequestsReducer,
+		closedWithdrawRequests: closedWithdrawRequestsReducer,
 	});
+
+export default history => {
+	const reducer = appReducer(history);
+	return (state, action) => {
+		if (action === "LOG_OUT") {
+			state = undefined;
+		}
+		return reducer(state, action);
+	};
+};

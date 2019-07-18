@@ -9,12 +9,9 @@ const wsClientConnect = walletAddress => {
 		query: { walletAddress: walletAddress },
 	});
 	Object.values(wsEvents).forEach(type =>
-		socket.on(type, payload =>
-			getStore().dispatch({
-				type: type,
-				payload: payload,
-			})
-		)
+		socket.on(type, payload => {
+			getStore().dispatch({ type: type, payload: payload });
+		})
 	);
 };
 const wsClientDisconnect = () => {

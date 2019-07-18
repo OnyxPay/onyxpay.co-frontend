@@ -37,7 +37,13 @@ export const roleCodes = {
 	adm: 4,
 	super_admin: 100,
 };
-
+export const roleByCode = {
+	1: roles.c,
+	2: roles.a,
+	3: roles.sa,
+	4: roles.adm,
+	100: roles.sadm,
+};
 export const notifyTimeout = 30000;
 
 export const operationMessageStatus = {

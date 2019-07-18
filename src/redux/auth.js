@@ -1,4 +1,6 @@
+import React from "react";
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
+import { showNotification } from "../components/notification";
 import { push } from "connected-react-router";
 const client = getRestClient();
 
@@ -66,6 +68,25 @@ export const login = values => async (dispatch, getState) => {
 			});
 		}
 	} catch (er) {
+		console.info(er.response.data.errors.user_status);
+		if (
+			er.response.status === 403 &&
+			er.response.data.errors &&
+			er.response.data.errors.user_status
+		) {
+			showNotification({
+				type: "error",
+				desc: (
+					<>
+						{er.response.data.errors.user_status}&nbsp;
+						<br />
+						Please,&nbsp;
+						<a href="mailto:support@onyxpay.co">contact the support</a>
+					</>
+				),
+			});
+			return;
+		}
 		return handleReqError(er);
 	}
 };
@@ -83,11 +104,7 @@ export const confirmEmail = values => async (dispatch, getState) => {
 	}
 };
 
-export const logOut = notReload => (dispatch, getState) => {
+export const logOut = () => (dispatch, getState) => {
 	dispatch({ type: LOG_OUT });
-
-	if (!notReload) {
-		dispatch(push("/login"));
-		window.location.reload();
-	}
+	dispatch(push("/login"));
 };
