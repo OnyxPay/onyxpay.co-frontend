@@ -75,7 +75,6 @@ export default function renderAgentColumns({
 					title: "Asset",
 					dataIndex: "request.asset",
 					key: "asset",
-					...getColumnSearchProps("asset"),
 				},
 				{
 					title: "Amount",

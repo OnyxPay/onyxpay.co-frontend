@@ -146,7 +146,7 @@ class ActiveRequests extends Component {
 	};
 
 	performRequest = async requestId => {
-		// agent performs request
+		// agent performs deposit and client withdraw request
 		try {
 			this.setState({ requestId, activeAction: "perform" });
 			await performRequest(requestId);
