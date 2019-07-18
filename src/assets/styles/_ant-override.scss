@@ -28,6 +28,15 @@
 	}
 }
 
+.referral-info {
+	display: flex;
+	span {
+		&:first-child {
+			margin-right: 5px;
+		}
+	}
+}
+
 .ant-table-wrapper tbody {
 	background: #ffffff;
 }
@@ -91,6 +100,9 @@
 		.ant-modal-body {
 			padding: 40px 30px;
 		}
+	}
+	.btn-show-qrcode {
+		display: none !important;
 	}
 }
 

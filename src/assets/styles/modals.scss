@@ -43,6 +43,12 @@
 	width: 900px !important;
 }
 
+.modal-qrcode {
+	.ant-modal-body {
+		text-align: center;
+	}
+}
+
 @media (max-width: 991px) {
 	.ant-modal {
 		top: 30px !important;
