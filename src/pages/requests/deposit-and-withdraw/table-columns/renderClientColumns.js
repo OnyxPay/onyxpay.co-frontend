@@ -2,10 +2,10 @@ import React from "react";
 import { Button, Popconfirm } from "antd";
 import { convertAmountToStr } from "utils/number";
 import { getLocalTime, getPerformerName, is24hOver, is12hOver } from "utils";
-import Countdown from "../Countdown";
 import { h24Mc, operationMessageStatus } from "api/constants";
-import { styles } from "../styles";
-import CancelRequest from "../CancelRequest";
+import Countdown from "../../Countdown";
+import { styles } from "../../styles";
+import CancelRequest from "../../CancelRequest";
 
 function isAgentAccepted(operationMessages) {
 	// check if at least one agent is accepted the request

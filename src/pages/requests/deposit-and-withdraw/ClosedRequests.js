@@ -3,9 +3,9 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table } from "antd";
-import { roles } from "../../api/constants";
+import { roles } from "api/constants";
 import { push } from "connected-react-router";
-import { parseRequestType, renderPageTitle } from "./common";
+import { parseRequestType, renderPageTitle } from "../common";
 import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
 import {

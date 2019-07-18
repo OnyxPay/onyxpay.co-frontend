@@ -12,7 +12,7 @@ import { TimeoutError } from "promise-timeout";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
-import { parseRequestType, renderPageTitle } from "./common";
+import { parseRequestType, renderPageTitle } from "../common";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import {
 	GET_ACTIVE_DEPOSIT_REQUESTS,

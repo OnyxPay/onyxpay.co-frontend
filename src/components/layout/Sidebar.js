@@ -25,7 +25,9 @@ function Sidebar({ collapsed, location, user, xsDevise }) {
 			{user ? <User firstName={user.firstName} lastName={user.lastName} /> : null}
 			<div style={{ marginBottom: 15 }}>
 				{user && user.role === roles.c && <UserMenu />}
-				{((user && user.role === roles.a) || (user && user.role === roles.sa)) && <AgentMenu />}
+				{((user && user.role === roles.a) || (user && user.role === roles.sa)) && (
+					<AgentMenu role={user.role} />
+				)}
 				{user && user.role === roles.sadm && <AdminMenu />}
 			</div>
 		</Sider>

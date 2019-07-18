@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Popconfirm } from "antd";
-import { convertAmountToStr } from "utils/number";
 import { getLocalTime } from "utils";
-import Countdown from "../Countdown";
-import { h24Mc } from "api/constants";
-import { styles } from "../styles";
+import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
+import Countdown from "../../Countdown";
+import { h24Mc } from "api/constants";
+import { styles } from "../../styles";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
