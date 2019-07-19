@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Card, Typography, Steps, Button, Icon, Spin, message } from "antd";
-import { PageTitle } from "../../components";
-import Actions from "../../redux/actions";
-import AddSettlementModal from "../../components/modals/AddSettlementModal";
+import { PageTitle } from "components";
+import Actions from "redux/actions";
+import AddSettlementModal from "components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
-import { sendUpgradeRequest, getUpgradeRequest } from "../../api/upgrade";
+import { sendUpgradeRequest } from "api/upgrade";
+import { UpgradeRequestStatus, roleByCode } from "api/constants";
+import { showNotification } from "components/notification";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -15,6 +17,8 @@ const steps = {
 	settlements: 0,
 	buyCache: 1,
 	waitForApprovement: 2,
+	refused: 3,
+	success: 4,
 };
 
 const StepTitleCss = { textAlign: "left", borderBottom: "1px solid rgba(167, 180, 201, 0.3)" };
@@ -28,6 +32,7 @@ function getStepTitle(item, step) {
 		return "Finished";
 	}
 }
+
 function getTitleRoleByRole(role) {
 	if (role === "agent") {
 		return "Agent";
@@ -51,25 +56,7 @@ class UpgradeUser extends Component {
 			}
 		});
 		this.checkSettlements();
-
-		getUpgradeRequest().then(
-			data => {
-				if (data.data) {
-					this.setState({ currentStep: steps.waitForApprovement });
-				}
-				this.setState({ showSpin: false });
-			},
-			err => {
-				if (err.response.status !== 404) {
-					console.error(err.errors);
-					message.error(
-						"There is an error occurred while receiving upgrade requests. Details:" +
-							JSON.stringify(err.errors)
-					);
-				}
-				this.setState({ showSpin: false });
-			}
-		);
+		this.checkUpgradeRequests();
 
 		window.matchMedia("(max-width: 570px)").addListener(() => {
 			this.setState({ direction: "horizontal" });
@@ -86,6 +73,45 @@ class UpgradeUser extends Component {
 			value: props.value,
 			role: role,
 		};
+	}
+
+	checkUpgradeRequests() {
+		this.props.getUserUpgradeRequest().then(
+			data => {
+				if (data && data.upgradeRequest) {
+					if (
+						data.upgradeRequest.status === UpgradeRequestStatus.Completed ||
+						data.upgradeRequest.status === UpgradeRequestStatus.Refused
+					) {
+						this.setState({ currentStep: steps.finished });
+					} else if (data.upgradeRequest.status === UpgradeRequestStatus.Opened) {
+						showNotification({
+							desc: (
+								<>
+									You have openned request to the&nbsp;
+									{roleByCode[data.upgradeRequest.expectedPosition]}
+									&nbsp; position. You can not create several requests. For removing existing
+									request
+									<br />
+									Please,&nbsp;
+									<a href="mailto:support@onyxpay.co">contact the support</a>
+								</>
+							),
+						});
+						this.setState({ currentStep: steps.waitForApprovement });
+					}
+				}
+				this.setState({ showSpin: false });
+			},
+			err => {
+				console.error(err.errors);
+				message.error(
+					"There is an error occurred while receiving upgrade requests. Details:" +
+						JSON.stringify(err.errors)
+				);
+				this.setState({ showSpin: false });
+			}
+		);
 	}
 
 	checkSettlements() {
@@ -115,6 +141,7 @@ class UpgradeUser extends Component {
 		this.setState({ currentStep: ++currentStep });
 		if (currentStep === steps.waitForApprovement) {
 			sendUpgradeRequest(this.state.role);
+			this.checkUpgradeRequests();
 		}
 	};
 
@@ -148,6 +175,13 @@ class UpgradeUser extends Component {
 
 	getStepComponent(role) {
 		const paymentAmount = role === "agent" ? 500 : 100000;
+		if (this.props.upgradeRequest && this.state.currentStep === steps.waitForApprovement) {
+			if (this.props.upgradeRequest.status === UpgradeRequestStatus.Completed) {
+				this.setState({ currentStep: steps.success });
+			} else if (this.props.upgradeRequest.status === UpgradeRequestStatus.Refused) {
+				this.setState({ currentStep: steps.refused });
+			}
+		}
 		if (this.state.currentStep === steps.settlements) {
 			return (
 				<div style={{ marginBottom: 30 }}>
@@ -181,7 +215,52 @@ class UpgradeUser extends Component {
 					<IPayForm amount={paymentAmount} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
-		} else if (this.state.currentStep === steps.waitForApprovement) {
+		} else if (this.state.currentStep === steps.success) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Upgrade result
+					</Title>
+					<p>
+						You was upgraded successfully. Please, click "Ok" button to start working in the new
+						role.
+					</p>
+					<Button
+						type="primary"
+						onClick={() => {
+							this.props.histor.push(`/`);
+						}}
+						style={{ marginRight: 10, width: 170 }}
+					>
+						Ok
+					</Button>
+					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
+				</div>
+			);
+		} else if (this.state.currentStep === steps.refused) {
+			return (
+				<div>
+					<Title level={4} style={StepTitleCss}>
+						Upgrade failed
+					</Title>
+					<p>
+						You request was refused by the administrator with reason:&nbsp;
+						<b>{this.props.upgradeRequest.reason}.</b>&nbsp;To receive more information{" "}
+						<a href="mailto:support@onyxpay.co">contact the support</a>.
+					</p>
+					<Button
+						type="primary"
+						onClick={() => {
+							this.props.history.push(`/`);
+						}}
+						style={{ marginRight: 10, width: 170 }}
+					>
+						Ok
+					</Button>
+					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
+				</div>
+			);
+		} else {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
@@ -198,16 +277,14 @@ class UpgradeUser extends Component {
 						onClick={this.movePrevStep()}
 						style={{ marginRight: 10, width: 170 }}
 					>
-						Back to payment page
-					</Button>
-					<Button onClick={this.checkPaymentHandler} style={{ marginTop: 10, width: 170 }}>
-						Check payment status
+						Back to the payment
 					</Button>
 					<h4 style={{ color: "#1890ff" }}>{this.state.upgradeStatus}</h4>
 				</div>
 			);
 		}
 	}
+
 	getCardContent() {
 		if (this.state.showSpin) {
 			return (
@@ -236,6 +313,7 @@ class UpgradeUser extends Component {
 			);
 		}
 	}
+
 	render() {
 		return (
 			<>
@@ -255,11 +333,13 @@ export default connect(
 		return {
 			settlements: state.settlements,
 			loading: state.loading,
+			upgradeRequest: state.upgradeRequest,
 		};
 	},
 	{
 		getSettlementsList: Actions.settlements.getSettlementsList,
 		getUserData: Actions.user.getUserData,
+		getUserUpgradeRequest: Actions.upgradeRequest.getUserUpgradeRequest,
 		logOut: Actions.auth.logOut,
 	}
 )(UpgradeUser);

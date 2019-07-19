@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { Table, Button } from "antd";
 import ReasonToRejectUpgradeModal from "components/modals/admin/ReasonToRejectUpgrade";
 import { getRequests, upgradeUser, downgradeUser, rejectRequest } from "api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
-import { roles } from "api/constants";
 import { PageTitle } from "components";
 import { showNotification, showTimeoutNotification } from "components/notification";
+import { Table, Button } from "antd";
 
 const style = {
 	button: {
@@ -158,7 +157,6 @@ class UserUpgradeRequests extends Component {
 			pagination,
 			requestsData,
 			loadingUpgradeUser,
-			loadingDowngradeUser,
 			request_id,
 		} = this.state;
 
@@ -215,17 +213,6 @@ class UserUpgradeRequests extends Component {
 						</Button>
 						<Button type="danger" onClick={() => this.showModal(res.id)} style={style.button}>
 							Reject
-						</Button>
-						<Button
-							type="danger"
-							onClick={() =>
-								this.handleDowngrade(res.user.wallet_addr, res.expected_position, res.id)
-							}
-							style={style.button}
-							disabled={res.user.role === roles.c}
-							loading={res.id === request_id && loadingDowngradeUser}
-						>
-							Downgrade
 						</Button>
 					</>
 				),

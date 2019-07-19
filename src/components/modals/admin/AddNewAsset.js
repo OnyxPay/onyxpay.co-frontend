@@ -41,7 +41,7 @@ class AddNewAsset extends Component {
 			<>
 				<Modal
 					title="Add asset"
-					className="assets"
+					className="assets-modal"
 					visible={isModalVisible}
 					onCancel={hideModal}
 					footer={null}

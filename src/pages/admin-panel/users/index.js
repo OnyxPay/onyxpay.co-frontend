@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon } from "antd";
+import { Table, Input, Button, Icon, message, notification } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
+import { roleCodes } from "api/constants";
 import {
 	unblockUser,
 	blockedUsersData,
@@ -9,8 +10,11 @@ import {
 	isBlockedUser,
 	getUsersData,
 	updateUserStatus,
-} from "../../../redux/admin-panel/users";
+} from "redux/admin-panel/users";
 
+import { downgradeUser } from "api/admin/user-upgrade";
+
+import { TimeoutError } from "promise-timeout";
 const styles = {
 	btn: { marginRight: 8 },
 };
@@ -101,6 +105,8 @@ class Users extends Component {
 				},
 			},
 			() => {
+				console.log(filters);
+
 				for (const filter in filters) {
 					filters[filter] = filters[filter][0];
 				}
@@ -159,6 +165,33 @@ class Users extends Component {
 
 		this.setState({
 			loadingUnblockUser: false,
+		});
+	};
+
+	handleDowngrade = async (wallet_addr, role, id) => {
+		try {
+			this.setState({
+				loadingDowngradeUser: true,
+				request_id: id,
+			});
+			const res = await downgradeUser(wallet_addr, role);
+			if (res.Error === 0) {
+				message.success("User was successfully downgrade");
+			}
+			this.fetchUsers();
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				notification.info({
+					message: e.message,
+					description:
+						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				});
+			} else {
+				message.error(e.message);
+			}
+		}
+		this.setState({
+			loadingDowngradeUser: false,
 		});
 	};
 
@@ -264,7 +297,6 @@ class Users extends Component {
 				key: "count",
 				undefined,
 				render: res => {
-					console.log(res);
 					if (
 						res.hasOwnProperty("operations_successful") &&
 						res.hasOwnProperty("operations_unsuccessful")
@@ -306,6 +338,15 @@ class Users extends Component {
 								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
 							>
 								Unblock
+							</Button>
+						) : null}
+						{res.role_code !== roleCodes.user ? (
+							<Button
+								style={styles.btn}
+								type="danger"
+								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
+							>
+								Downgrade
 							</Button>
 						) : null}
 						{res.is_settlements_exists ? (
