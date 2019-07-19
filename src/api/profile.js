@@ -21,3 +21,9 @@ export async function changeProfile(data) {
 	const form = await restClient.put("/profile", data, { headers: { ...authHeaders } });
 	return form;
 }
+
+export async function deleteUserAccount() {
+	const authHeaders = getAuthHeaders();
+	const form = await restClient.delete("/profile", { headers: { ...authHeaders } });
+	return form;
+}

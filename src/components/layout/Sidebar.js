@@ -22,7 +22,7 @@ function Sidebar({ collapsed, location, user, xsDevise }) {
 			width="240"
 			collapsedWidth={xsDevise ? "0" : "80"}
 		>
-			{user ? <User firstName={user.firstName} lastName={user.lastName} /> : null}
+			{user ? <User firstName={user.firstName} lastName={user.lastName} role={user.role} /> : null}
 			<div style={{ marginBottom: 15 }}>
 				{user && user.role === roles.c && <UserMenu />}
 				{((user && user.role === roles.a) || (user && user.role === roles.sa)) && <AgentMenu />}
