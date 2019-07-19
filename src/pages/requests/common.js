@@ -35,3 +35,11 @@ export function renderPageTitle({ userRole, requestType, isRequestClosed }) {
 		);
 	}
 }
+
+export const aa = {
+	// active action
+	accept: "accept",
+	perform: "perform",
+	cancelAccepted: "cancelAccepted",
+	complain: "complain",
+};

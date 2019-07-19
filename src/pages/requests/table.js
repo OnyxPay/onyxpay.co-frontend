@@ -87,8 +87,6 @@ export function getColumnSearchProps(setState, searchInput) {
 				setTimeout(() => searchInput.select());
 			} else {
 				if (searchInput) {
-					console.log(searchInput.props.value);
-
 					setTimeout(() => {
 						setState({ idParsedFromURL: searchInput.props.value });
 					}, 0);

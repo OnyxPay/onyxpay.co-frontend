@@ -6,6 +6,7 @@ import { h24Mc, operationMessageStatus } from "api/constants";
 import Countdown from "../../Countdown";
 import { styles } from "../../styles";
 import CancelRequest from "../../CancelRequest";
+import { aa } from "../../common";
 
 function isAgentAccepted(operationMessages) {
 	// check if at least one agent is accepted the request
@@ -117,7 +118,7 @@ export default function renderClientColumns({
 					title: "Actions",
 					render: (text, record, index) => {
 						const isComplainActive =
-							record.request_id === activeRequestId && activeAction === "complain";
+							record.request_id === activeRequestId && activeAction === aa.complain;
 
 						return (
 							<>

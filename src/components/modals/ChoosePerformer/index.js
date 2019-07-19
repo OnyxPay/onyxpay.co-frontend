@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Modal, Select, Form, Button, notification, message } from "antd";
+import { Modal, Select, Form, Button } from "antd";
 import { getData as getCountriesData } from "country-list";
 import { Formik } from "formik";
-import AgentsTable from "./AgentsTable";
-import { searchUsers } from "../../../api/users";
-import { sendMessage } from "../../../api/operation-messages";
-import { chooseAgent } from "../../../api/requests";
+import PerformersTable from "./PerformersTable";
+import { searchUsers } from "api/users";
+import { sendMessage } from "api/operation-messages";
+import { chooseAgent } from "api/requests";
 import { TimeoutError } from "promise-timeout";
+import { showNotification, showTimeoutNotification, showBcError } from "components/notification";
 
 const { Option } = Select;
 
@@ -44,9 +45,9 @@ class SendToAgent extends Component {
 			const res = await sendMessage(requestId, ids);
 			if (!res.error) {
 				formActions.resetForm();
-				notification.success({
-					message: "Done",
-					description: "Request is successfully sent to agent/agents",
+				showNotification({
+					type: "success",
+					msg: "Request is successfully sent to agent/agents",
 				});
 				fetchRequests();
 				this.handleClose();
@@ -56,21 +57,17 @@ class SendToAgent extends Component {
 				const agentAddress = selectedRows[0].receiver.wallet_addr;
 				await chooseAgent(requestId, agentAddress);
 				formActions.resetForm();
-				notification.success({
-					message: "Done",
-					description: "You successfully chosen an agent",
+				showNotification({
+					type: "success",
+					msg: "You successfully chosen an agent",
 				});
 				fetchRequests();
 				this.handleClose();
 			} catch (e) {
 				if (e instanceof TimeoutError) {
-					notification.info({
-						message: e.message,
-						description:
-							"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-					});
+					showTimeoutNotification();
 				} else {
-					message.error(e.message);
+					showBcError(e.message);
 				}
 			} finally {
 				formActions.setSubmitting(false);
@@ -209,7 +206,7 @@ class SendToAgent extends Component {
 										</Form.Item>
 									)}
 
-									<AgentsTable
+									<PerformersTable
 										loading={loading}
 										data={isSendingMessage ? users : operationMessages}
 										onSelectedRowKeysChange={this.onSelectedRow}

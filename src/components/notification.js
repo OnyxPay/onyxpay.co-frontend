@@ -9,7 +9,7 @@ type:
   warning
 */
 
-export function showNotification({ type = "info", msg, desc, duration = 10, key }) {
+export function showNotification({ type = "info", msg, desc, duration = 7, key }) {
 	return notification[type]({
 		message: msg,
 		description: desc,

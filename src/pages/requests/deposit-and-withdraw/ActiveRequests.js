@@ -5,14 +5,14 @@ import { connect } from "react-redux";
 import { Table } from "antd";
 import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
 import { hideMessage } from "api/operation-messages";
-import SendToAgentModal from "components/modals/SendToAgent";
+import ChoosePerformerModal from "components/modals/ChoosePerformer";
 import { roles } from "api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderClientColumns from "./table-columns/renderClientColumns";
 import renderAgentColumns from "./table-columns/renderAgentColumns";
-import { parseRequestType, renderPageTitle } from "../common";
+import { parseRequestType, renderPageTitle, aa } from "../common";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import {
 	GET_ACTIVE_DEPOSIT_REQUESTS,
@@ -110,7 +110,7 @@ class ActiveRequests extends Component {
 	acceptRequest = async requestId => {
 		// agent accepts deposit or withdraw request
 		try {
-			this.setState({ requestId, activeAction: "accept" });
+			this.setState({ requestId, activeAction: aa.accept });
 			await acceptRequest(requestId);
 			showNotification({
 				type: "success",
@@ -147,7 +147,7 @@ class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs deposit and client withdraw request
 		try {
-			this.setState({ requestId, activeAction: "perform" });
+			this.setState({ requestId, activeAction: aa.perform });
 			await performRequest(requestId);
 			showNotification({
 				type: "success",
@@ -171,7 +171,7 @@ class ActiveRequests extends Component {
 	cancelAcceptedRequest = async requestId => {
 		// agent cancels request
 		try {
-			this.setState({ requestId, activeAction: "cancel_accepted_request" });
+			this.setState({ requestId, activeAction: aa.cancelAccepted });
 			await cancelAcceptedRequest(requestId);
 			showNotification({
 				type: "success",
@@ -196,7 +196,7 @@ class ActiveRequests extends Component {
 		// client complains
 		if (canComplain) {
 			try {
-				this.setState({ requestId, activeAction: "complain" });
+				this.setState({ requestId, activeAction: aa.complain });
 				const res = await complain(requestId);
 				console.log("complained", res);
 
@@ -269,7 +269,7 @@ class ActiveRequests extends Component {
 					})}
 					className="ovf-auto tbody-white"
 				/>
-				<SendToAgentModal
+				<ChoosePerformerModal
 					isModalVisible={this.state.SEND_REQ_TO_AGENT}
 					hideModal={this.hideModal(modals.SEND_REQ_TO_AGENT)}
 					requestId={this.state.requestId}

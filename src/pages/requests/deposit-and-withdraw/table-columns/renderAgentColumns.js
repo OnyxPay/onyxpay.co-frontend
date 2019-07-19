@@ -6,6 +6,7 @@ import { requestStatus, operationMessageStatus } from "api/constants";
 import Countdown from "../../Countdown";
 import { h24Mc } from "api/constants";
 import { styles } from "../../styles";
+import { aa } from "../../common";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
@@ -122,14 +123,13 @@ export default function renderAgentColumns({
 					title: "Actions",
 					render: (text, record, index) => {
 						const isAcceptActive =
-							record.request.request_id === activeRequestId && activeAction === "accept";
+							record.request.request_id === activeRequestId && activeAction === aa.accept;
 
 						const isPerformActive =
-							record.request.request_id === activeRequestId && activeAction === "perform";
+							record.request.request_id === activeRequestId && activeAction === aa.perform;
 
 						const isCancelAcceptedRequestActive =
-							record.request.request_id === activeRequestId &&
-							activeAction === "cancel_accepted_request";
+							record.request.request_id === activeRequestId && activeAction === aa.cancelAccepted;
 
 						return (
 							<>
