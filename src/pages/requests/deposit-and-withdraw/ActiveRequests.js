@@ -10,8 +10,8 @@ import { roles } from "api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
-import renderClientColumns from "./table-columns/renderClientColumns";
-import renderAgentColumns from "./table-columns/renderAgentColumns";
+import renderInitiatorColumns from "../table/columns/renderInitiatorColumns";
+import renderPerformerColumns from "../table/columns/renderPerformerColumns";
 import { parseRequestType, renderPageTitle, aa } from "../common";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import {
@@ -227,16 +227,18 @@ class ActiveRequests extends Component {
 		let columns = [];
 
 		if (user.role === roles.c) {
-			columns = renderClientColumns({
+			columns = renderInitiatorColumns({
 				activeRequestId: requestId,
 				activeAction,
 				modals,
 				fetchData: this.fetch,
 				showModal: this.showModal,
 				handleComplain: this.handleComplain,
+				requestsType: parseRequestType({ match, push }),
+				requestsStatus: "active",
 			});
 		} else if (user.role === roles.a) {
-			columns = renderAgentColumns({
+			columns = renderPerformerColumns({
 				activeRequestId: requestId,
 				activeAction,
 				walletAddress,
@@ -246,6 +248,8 @@ class ActiveRequests extends Component {
 				performRequest: this.performRequest,
 				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
 				defaultFilterValue: idParsedFromURL,
+				requestsType: parseRequestType({ match, push }),
+				requestsStatus: "active",
 			});
 		}
 

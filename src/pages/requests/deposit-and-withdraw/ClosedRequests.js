@@ -6,8 +6,8 @@ import { Table } from "antd";
 import { roles } from "api/constants";
 import { push } from "connected-react-router";
 import { parseRequestType, renderPageTitle } from "../common";
-import renderClientColumns from "./table-columns/renderClientColumns";
-import renderAgentColumns from "./table-columns/renderAgentColumns";
+import renderInitiatorColumns from "../table/columns/renderInitiatorColumns";
+import renderPerformerColumns from "../table/columns/renderPerformerColumns";
 import {
 	getClosedDepositRequests,
 	GET_CLOSED_DEPOSIT_REQUESTS,
@@ -93,12 +93,14 @@ class ClosedRequests extends Component {
 		let columns = [];
 
 		if (user.role === roles.c) {
-			columns = renderClientColumns({
+			columns = renderInitiatorColumns({
 				requestsStatus: "closed",
+				requestsType: parseRequestType({ match, push }),
 			});
 		} else if (user.role === roles.a) {
-			columns = renderAgentColumns({
+			columns = renderPerformerColumns({
 				requestsStatus: "closed",
+				requestsType: parseRequestType({ match, push }),
 			});
 		}
 

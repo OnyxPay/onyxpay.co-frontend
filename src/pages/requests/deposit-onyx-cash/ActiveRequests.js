@@ -10,8 +10,8 @@ import { roles } from "api/constants";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
-import renderInitiatorColumns from "./table-columns/renderInitiatorColumns";
-import renderPerformerColumns from "./table-columns/renderPerformerColumns";
+import renderInitiatorColumns from "../table/columns/renderInitiatorColumns";
+import renderPerformerColumns from "../table/columns/renderPerformerColumns";
 import { renderPageTitle, aa } from "../common";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import {
@@ -102,9 +102,13 @@ class ActiveRequests extends Component {
 			params.type = "buy_onyx_cash";
 			params.user = "maker";
 			params.status = "pending,opened,choose,complained";
+			console.log("@@@@@@ initiator");
+
 			getActiveDepositOcRequests(params, true);
 		} else if (this.isUserPerformer(user.role, location)) {
 			// performer's requests
+			console.log("@@@@@@ performer");
+
 			getActiveDepositOcRequests(params, false);
 		}
 	};
@@ -228,7 +232,7 @@ class ActiveRequests extends Component {
 		const { requestId, activeAction, idParsedFromURL } = this.state;
 		let columns = [];
 
-		if (user.role === roles.a) {
+		if (this.isUserInitiator(user.role, location)) {
 			columns = renderInitiatorColumns({
 				activeRequestId: requestId,
 				activeAction,
@@ -236,8 +240,10 @@ class ActiveRequests extends Component {
 				fetchData: this.fetch,
 				showModal: this.showModal,
 				handleComplain: this.handleComplain,
+				requestsType: "depositOnyxCash",
+				requestsStatus: "active",
 			});
-		} else if (user.role === roles.sa) {
+		} else if (this.isUserPerformer(user.role, location)) {
 			columns = renderPerformerColumns({
 				activeRequestId: requestId,
 				activeAction,
@@ -248,6 +254,8 @@ class ActiveRequests extends Component {
 				performRequest: this.performRequest,
 				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
 				defaultFilterValue: idParsedFromURL,
+				requestsType: "depositOnyxCash",
+				requestsStatus: "active",
 			});
 		}
 

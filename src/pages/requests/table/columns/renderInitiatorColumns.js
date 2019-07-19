@@ -66,11 +66,109 @@ export default function renderInitiatorColumns({
 	fetchData,
 	showModal,
 	handleComplain,
-	requestsStatus = "active", // active | closed
-	requestsType = "depositOrWithdraw", // deposit | withdraw | depositOnyxCash
+	requestsStatus, // active | closed
+	requestsType, // deposit | withdraw | depositOnyxCash
 }) {
+	console.log("renderInitiatorColumns", requestsStatus, requestsType);
+
 	if (requestsStatus === "active") {
-		if (requestsType === "depositOrWithdraw") {
+		if (requestsType === "deposit" || requestsType === "depositOnyxCash") {
+			return [
+				{
+					title: "Id",
+					dataIndex: "id",
+				},
+				{
+					title: "Asset",
+					dataIndex: "asset",
+				},
+				{
+					title: "Amount",
+					render: (text, record, index) => {
+						return convertAmountToStr(record.amount, 8);
+					},
+				},
+				{
+					title: "Status",
+					dataIndex: "status",
+				},
+				{
+					title: "Created",
+					render: (text, record, index) => {
+						return getLocalTime(record.trx_timestamp);
+					},
+				},
+				{
+					title: "Performer",
+					render: (text, record, index) => {
+						return record.taker_addr ? getPerformerName(record) : "n/a";
+					},
+				},
+				{
+					title: "Countdown",
+					render: (text, record, index) => {
+						return record.taker_addr &&
+							record.choose_timestamp &&
+							record.status !== "complained" ? (
+							<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
+						) : (
+							"n/a"
+						);
+					},
+				},
+				{
+					title: "Actions",
+					render: (text, record, index) => {
+						const isComplainActive =
+							record.request_id === activeRequestId && activeAction === aa.complain;
+
+						return (
+							<>
+								{record.status === "opened" && !record.operation_messages.length && (
+									<Button
+										style={styles.btn}
+										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+											requestId: record.id,
+											isSendingMessage: true,
+										})}
+									>
+										Send to agents
+									</Button>
+								)}
+
+								{(record.status === "opened" || record.status === "choose") && (
+									<CancelRequest
+										btnStyle={styles.btn}
+										requestId={record.request_id}
+										fetchRequests={fetchData}
+										disabled={isComplainActive}
+									/>
+								)}
+								{isAgentAccepted(record.operation_messages) && record.status === "opened" && (
+									<Button
+										style={styles.btn}
+										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+											requestId: record.request_id,
+											isSendingMessage: false,
+											operationMessages: record.operation_messages.filter(
+												msg => msg.status_code === operationMessageStatus.accepted
+											),
+										})}
+									>
+										Choose agent
+									</Button>
+								)}
+								{record.taker_addr &&
+									record.choose_timestamp &&
+									record.status !== "complained" &&
+									!is24hOver(record.choose_timestamp) &&
+									renderComplainButton(record, handleComplain, isComplainActive)}
+							</>
+						);
+					},
+				},
+			];
+		} else if (requestsType === "withdraw") {
 			return [
 				{
 					title: "Id",
@@ -168,7 +266,40 @@ export default function renderInitiatorColumns({
 			];
 		}
 	} else {
-		if (requestsType === "depositOrWithdraw") {
+		if (requestsType === "deposit" || requestsType === "depositOnyxCash") {
+			return [
+				{
+					title: "Id",
+					dataIndex: "id",
+				},
+				{
+					title: "Asset",
+					dataIndex: "asset",
+				},
+				{
+					title: "Amount",
+					render: (text, record, index) => {
+						return convertAmountToStr(record.amount, 8);
+					},
+				},
+				{
+					title: "Status",
+					dataIndex: "status",
+				},
+				{
+					title: "Created",
+					render: (text, record, index) => {
+						return new Date(record.trx_timestamp).toLocaleString();
+					},
+				},
+				{
+					title: "Performer",
+					render: (text, record, index) => {
+						return record.taker_addr ? getPerformerName(record) : "n/a";
+					},
+				},
+			];
+		} else if (requestsType === "withdraw") {
 			return [
 				{
 					title: "Id",
