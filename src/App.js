@@ -136,16 +136,16 @@ class App extends Component {
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/deposit" component={UserDeposit} />
-					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/profile" exact component={Profile} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/active-requests/:type" exact component={ActiveRequests} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
+					{/*<Route path="/deposit" component={UserDeposit} />
+					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/active-requests/:type" exact component={ActiveRequests} />
 					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
-					<Route path="/withdraw" exact component={Withdraw} />
-					<Route path="/profile" exact component={Profile} />
+          <Route path="/withdraw" exact component={Withdraw} />*/}
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
