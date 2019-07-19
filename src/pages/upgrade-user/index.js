@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Card, Typography, Steps, Button, Icon, Spin, message } from "antd";
-import { PageTitle } from "../../components";
-import Actions from "../../redux/actions";
-import AddSettlementModal from "../../components/modals/AddSettlementModal";
+import { PageTitle } from "components";
+import Actions from "redux/actions";
+import AddSettlementModal from "components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { IPayForm } from "./IPayForm";
-import { sendUpgradeRequest } from "../../api/upgrade";
-import { UpgradeRequestStatus } from "../../api/constants";
+import { sendUpgradeRequest } from "api/upgrade";
+import { UpgradeRequestStatus, roleByCode } from "api/constants";
+import { showNotification } from "components/notification";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -84,6 +85,19 @@ class UpgradeUser extends Component {
 					) {
 						this.setState({ currentStep: steps.finished });
 					} else if (data.upgradeRequest.status === UpgradeRequestStatus.Opened) {
+						showNotification({
+							desc: (
+								<>
+									You have openned request to the&nbsp;
+									{roleByCode[data.upgradeRequest.expectedPosition]}
+									&nbsp; position. You can not create several requests. For removing existing
+									request
+									<br />
+									Please,&nbsp;
+									<a href="mailto:support@onyxpay.co">contact the support</a>
+								</>
+							),
+						});
 						this.setState({ currentStep: steps.waitForApprovement });
 					}
 				}
