@@ -10,6 +10,22 @@ const UpgradeLink = styled.span`
 	color: #1890ff;
 `;
 
+const AvatarContainer = styled.div`
+	.ant-avatar {
+		background-color: #fff;
+		color: #555;
+		cursor: pointer;
+	}
+	@media (max-width: 480px) {
+		.ant-avatar {
+			width: 32px;
+			height: 32px;
+			line-height: 32px;
+			font-size: 18px;
+		}
+	}
+`;
+
 function getMenuItem(linkRole, title, userRole) {
 	if (userRole === roles.sa) {
 		return;
@@ -48,11 +64,9 @@ const DropdownMenu = ({ logOut, user }) => {
 
 	return (
 		<Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-			<Avatar
-				size="large"
-				icon="user"
-				style={{ backgroundColor: "#fff", color: "#555", cursor: "pointer" }}
-			/>
+			<AvatarContainer>
+				<Avatar size="large" icon="user" />
+			</AvatarContainer>
 		</Dropdown>
 	);
 };
