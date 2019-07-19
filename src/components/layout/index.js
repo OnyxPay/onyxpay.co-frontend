@@ -17,6 +17,8 @@ const MainLayout = styled.section`
 	flex-direction: column;
 `;
 
+export const MyContext = React.createContext(null);
+
 class Layout extends Component {
 	constructor(props) {
 		super(props);
@@ -24,6 +26,7 @@ class Layout extends Component {
 
 		this.state = {
 			xsDevise: this.isXsWidth(),
+			activeBreakPoint: "xs",
 			isSideBarCollapsed: this.isXsWidth(),
 		};
 	}
@@ -43,6 +46,16 @@ class Layout extends Component {
 			this.setState({ xsDevise: true, isSideBarCollapsed: true });
 		} else if (window.innerWidth > 575 && xsDevise) {
 			this.setState({ xsDevise: false });
+		} else if (window.innerWidth < 768 && window.innerWidth >= 576) {
+			this.setState({ activeBreakPoint: "sm" });
+		} else if (window.innerWidth < 992 && window.innerWidth >= 768) {
+			this.setState({ activeBreakPoint: "md" });
+		} else if (window.innerWidth < 1200 && window.innerWidth >= 992) {
+			this.setState({ activeBreakPoint: "lg" });
+		} else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
+			this.setState({ activeBreakPoint: "xl" });
+		} else if (window.innerWidth >= 1600) {
+			this.setState({ activeBreakPoint: "xxl" });
 		}
 	}
 
@@ -58,7 +71,7 @@ class Layout extends Component {
 
 	render() {
 		const { location, simplified, children, user } = this.props;
-		const { xsDevise, isSideBarCollapsed } = this.state;
+		const { xsDevise, isSideBarCollapsed, activeBreakPoint } = this.state;
 		const onlyFooter = simplified.some(route => {
 			return location.pathname === route;
 		});
@@ -70,8 +83,9 @@ class Layout extends Component {
 			</MainLayout>
 		) : (
 			<AntLayout className="main-layout">
-				<Header toggleSidebar={this.toggleSidebar} isSidebarCollapsed={isSideBarCollapsed} />
-
+				<MyContext.Provider value={activeBreakPoint}>
+					<Header toggleSidebar={this.toggleSidebar} isSidebarCollapsed={isSideBarCollapsed} />
+				</MyContext.Provider>
 				<AntLayout className={isSideBarCollapsed ? "content-wrapper collapsed" : "content-wrapper"}>
 					<Sidebar
 						collapsed={isSideBarCollapsed}
