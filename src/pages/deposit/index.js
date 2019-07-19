@@ -1,17 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import {
-	Card,
-	Button,
-	Input,
-	Form,
-	Select,
-	Typography,
-	notification,
-	Row,
-	Col,
-	message,
-} from "antd";
+import { Card, Button, Input, Form, Select, Typography, Row, Col } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -22,6 +11,13 @@ import { TimeoutError } from "promise-timeout";
 import { isAssetBlocked } from "../../api/assets";
 import { countDecimals } from "../../utils/validate";
 import { roles, onyxCashSymbol } from "api/constants";
+import {
+	showNotification,
+	showTimeoutNotification,
+	showGasCompensationError,
+	showBcError,
+} from "components/notification";
+import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -71,24 +67,26 @@ class Deposit extends Component {
 			if (!isBlocked && isEnoughAmount) {
 				const res = await createRequest(values, requestType);
 				if (!res.error) {
-					notification.success({
-						message: "Deposit request is successfully created",
+					showNotification({
+						type: "success",
+						msg: "Deposit request is successfully created",
 					});
-					push("/active-requests/deposit");
+					if (isOnyxCash) {
+						push("/active-requests/deposit-onyx-cash");
+					} else {
+						push("/active-requests/deposit");
+					}
 				} else if (res.error.data) {
 					formActions.setErrors(res.error.data);
 				}
 			}
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				console.dir(e);
-				message.error(e.message);
+			if (e instanceof GasCompensationError) {
+				showGasCompensationError();
+			} else if (e instanceof SendRawTrxError) {
+				showBcError(e.message);
+			} else if (e instanceof TimeoutError) {
+				showTimeoutNotification();
 			}
 		}
 
