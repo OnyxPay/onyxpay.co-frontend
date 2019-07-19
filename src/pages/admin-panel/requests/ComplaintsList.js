@@ -7,6 +7,7 @@ import { PageTitle } from "components";
 
 const styles = {
 	btn: {
+		marginRight: 5,
 		marginBottom: 5,
 	},
 	btnColor: {
@@ -31,7 +32,7 @@ class ComplaintsList extends Component {
 		this.setState({
 			loadingRequestComplaintsData: true,
 		});
-		await this.fetchRequestComplaint({ status: "complained" });
+		await this.fetchRequestComplaint({ is_complain: 1, status: "complained" });
 		this.setState({
 			loadingRequestComplaintsData: false,
 		});
@@ -50,16 +51,16 @@ class ComplaintsList extends Component {
 		});
 	};
 
-	handleComplainedRequests = async (requestId, winner, resId) => {
+	handleComplainedRequests = async (requestId, winner, userId) => {
 		try {
 			this.setState({
 				loadingSolve: true,
-				userId: resId,
+				userId: userId,
 				requestId: requestId,
 			});
 			const res = await handleComplainedRequest(requestId, winner);
 			console.log(res);
-			this.fetchRequestComplaint({ status: "complained" });
+			this.fetchRequestComplaint({ is_complain: 1, status: "complained" });
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -145,7 +146,7 @@ class ComplaintsList extends Component {
 			{
 				title: "Action",
 				key: "action",
-				width: "20%",
+				width: "30%",
 				dataIndex: "",
 				render: res => (
 					<>
@@ -155,10 +156,9 @@ class ComplaintsList extends Component {
 								this.handleComplainedRequests(res.request_id, "winnerClient", res.maker.id)
 							}
 							style={styles.btn}
-							block
 							loading={res.maker.id === userId && res.request_id === requestId && loadingSolve}
 						>
-							Winner client
+							Winner {res.maker.first_name + " " + res.maker.last_name}
 						</Button>
 						<Button
 							type="primary"
@@ -167,9 +167,8 @@ class ComplaintsList extends Component {
 								this.handleComplainedRequests(res.request_id, "winnerAgent", res.taker.id)
 							}
 							style={styles.btn}
-							block
 						>
-							Winner agent
+							Winner {res.taker.first_name + " " + res.taker.last_name}
 						</Button>
 					</>
 				),
@@ -184,6 +183,7 @@ class ComplaintsList extends Component {
 					loading={loadingRequestComplaintsData}
 					rowKey={data => data.id}
 					dataSource={data}
+					className="ovf-auto"
 				/>
 				{visible ? (
 					<ShowUserData visible={visible} hideModal={this.hideModal} data={[dataUser]} />

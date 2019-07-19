@@ -12,7 +12,7 @@ export class ResolvedComplaint extends Component {
 	};
 
 	componentDidMount = async () => {
-		await this.fetchRequestResolvedComplaints({ status: "closed" });
+		await this.fetchRequestResolvedComplaints({ is_complain: 1, status: "completed" });
 		this.setState({
 			loadingRequestData: false,
 		});
@@ -40,12 +40,12 @@ export class ResolvedComplaint extends Component {
 	render() {
 		const columns = [
 			{
-				title: "Request id",
+				title: "Type request",
 				dataIndex: "type",
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Type request",
+				title: "Request id",
 				dataIndex: "request_id",
 				render: res => (res ? res : "n/a"),
 			},
