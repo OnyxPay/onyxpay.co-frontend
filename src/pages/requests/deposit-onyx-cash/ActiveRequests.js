@@ -12,16 +12,12 @@ import { TimeoutError } from "promise-timeout";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderInitiatorColumns from "./table-columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table-columns/renderPerformerColumns";
-import { parseRequestType, renderPageTitle, aa } from "../common";
+import { renderPageTitle, aa } from "../common";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import {
 	GET_ACTIVE_DEPOSIT_OC_REQUESTS,
 	getActiveDepositOcRequests,
 } from "redux/requests/onyxCash/activeDeposit";
-// import {
-// 	getActiveWithdrawRequests,
-// 	GET_ACTIVE_WITHDRAW_REQUESTS,
-// } from "redux/requests/assets/activeWithdraw";
 import { createLoadingSelector } from "selectors/loading";
 import { createRequestsDataSelector } from "selectors/requests";
 import queryString from "query-string";
@@ -60,12 +56,12 @@ class ActiveRequests extends Component {
 		}
 	}
 
-	/* componentDidUpdate(prevProps, prevState) {
+	componentDidUpdate(prevProps, prevState) {
 		const { location } = this.props;
 		if (location.pathname !== prevProps.location.pathname) {
 			this.fetch();
 		}
-	} */
+	}
 
 	hideModal = type => () => {
 		this.setState({ [type]: false });
@@ -79,45 +75,38 @@ class ActiveRequests extends Component {
 		}
 	};
 
+	isUserInitiator(userRole, location) {
+		return (
+			userRole === roles.a ||
+			(userRole === roles.sa && location.pathname === "/active-requests/deposit-onyx-cash")
+		);
+	}
+
+	isUserPerformer(userRole, location) {
+		return (
+			userRole === roles.sa && location.pathname === "/active-customer-requests/deposit-onyx-cash"
+		);
+	}
+
 	fetch = (opts = {}) => {
 		const { pagination } = this.state;
-		const { user, match, push, getActiveDepositOcRequests } = this.props;
+		const { user, location, getActiveDepositOcRequests } = this.props;
 		const params = {
 			pageSize: pagination.pageSize,
 			pageNum: pagination.current,
 			...opts,
 		};
 
-		/* 
-			initiator
-				a, sa
-			performer
-				sa
-		*/
-
-		// const requestType = parseRequestType({ match, push });
-
-		// if (user.role === roles.c) {
-		// 	params.type = requestType;
-		// 	params.status = "pending,opened,choose,complained";
-		// 	params.user = "maker";
-		// 	if (requestType === "deposit") {
-		// 		getActiveDepositRequests(params, false);
-		// 	} else if (requestType === "withdraw") {
-		// 		getActiveWithdrawRequests(params, false);
-		// 	}
-		// } else if (user.role === roles.a) {
-		// 	if (requestType === "deposit") {
-		// 		getActiveDepositRequests(params, true);
-		// 	} else if (requestType === "withdraw") {
-		// 		getActiveWithdrawRequests(params, true);
-		// 	}
-		// }
-		// if (user.role === roles.a || (user.role === roles.sa && )) {
-		// }
-		params.type = "buy_onyx_cash";
-		params.user = "maker";
-		getActiveDepositOcRequests(params, true);
+		if (this.isUserInitiator(user.role, location)) {
+			// initiator's requests
+			params.type = "buy_onyx_cash";
+			params.user = "maker";
+			params.status = "pending,opened,choose,complained";
+			getActiveDepositOcRequests(params, true);
+		} else if (this.isUserPerformer(user.role, location)) {
+			// performer's requests
+			getActiveDepositOcRequests(params, false);
+		}
 	};
 
 	acceptRequest = async requestId => {
@@ -235,7 +224,7 @@ class ActiveRequests extends Component {
 	};
 
 	render() {
-		const { user, walletAddress, match, push, data, isFetching } = this.props;
+		const { user, walletAddress, data, isFetching, location } = this.props;
 		const { requestId, activeAction, idParsedFromURL } = this.state;
 		let columns = [];
 
@@ -264,11 +253,11 @@ class ActiveRequests extends Component {
 
 		return (
 			<>
-				{/* {renderPageTitle({
-					userRole: user.role,
-					requestType: parseRequestType({ match, push }),
+				{renderPageTitle({
+					requestType: "deposit",
 					isRequestClosed: false,
-				})} */}
+					isUserInitiator: this.isUserInitiator(user.role, location),
+				})}
 				<Table
 					columns={columns}
 					rowKey={record => record.id}
@@ -294,6 +283,7 @@ class ActiveRequests extends Component {
 							settlementsId,
 						})()
 					}
+					performer={roles.sa}
 				/>
 				<UserSettlementsModal
 					isModalVisible={this.state.USER_SETTLEMENT_ACCOUNTS}

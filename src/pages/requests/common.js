@@ -1,6 +1,5 @@
 import React from "react";
 import { PageTitle } from "components/styled";
-import { roles } from "api/constants";
 
 export function parseRequestType({ match, push }) {
 	if (match.params.type === "withdraw") {
@@ -13,7 +12,7 @@ export function parseRequestType({ match, push }) {
 	}
 }
 
-export function renderPageTitle({ userRole, requestType, isRequestClosed }) {
+export function renderPageTitle({ requestType, isRequestClosed, isUserInitiator }) {
 	let requestStatus;
 	if (isRequestClosed) {
 		requestStatus = "Closed";
@@ -21,13 +20,13 @@ export function renderPageTitle({ userRole, requestType, isRequestClosed }) {
 		requestStatus = "Active";
 	}
 
-	if (userRole === roles.c) {
+	if (isUserInitiator) {
 		return (
 			<PageTitle>
 				{requestStatus} {requestType} requests
 			</PageTitle>
 		);
-	} else if (userRole === roles.a) {
+	} else {
 		return (
 			<PageTitle>
 				{requestStatus} customer {requestType} requests

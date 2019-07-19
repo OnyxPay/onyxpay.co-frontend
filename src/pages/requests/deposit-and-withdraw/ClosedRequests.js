@@ -105,9 +105,9 @@ class ClosedRequests extends Component {
 		return (
 			<>
 				{renderPageTitle({
-					userRole: user.role,
 					requestType: parseRequestType({ match, push }),
 					isRequestClosed: true,
+					isUserInitiator: user.role === roles.c,
 				})}
 				<Table
 					columns={columns}

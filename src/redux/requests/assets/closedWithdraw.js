@@ -25,7 +25,7 @@ export const getClosedWithdrawRequests = (params = {}, isAgent = false) => async
 	try {
 		let data;
 		if (isAgent) {
-			data = await getMessagesForClosedRequests(params);
+			data = await getMessagesForClosedRequests(params, "withdraw");
 		} else {
 			data = await getRequests(params);
 		}

@@ -6,7 +6,7 @@ import { Formik } from "formik";
 import PerformersTable from "./PerformersTable";
 import { searchUsers } from "api/users";
 import { sendMessage } from "api/operation-messages";
-import { chooseAgent } from "api/requests";
+import { choosePerformer } from "api/requests";
 import { TimeoutError } from "promise-timeout";
 import { showNotification, showTimeoutNotification, showBcError } from "components/notification";
 
@@ -54,8 +54,8 @@ class SendToAgent extends Component {
 			}
 		} else {
 			try {
-				const agentAddress = selectedRows[0].receiver.wallet_addr;
-				await chooseAgent(requestId, agentAddress);
+				const performerAddress = selectedRows[0].receiver.wallet_addr;
+				await choosePerformer(requestId, performerAddress);
 				formActions.resetForm();
 				showNotification({
 					type: "success",
@@ -112,16 +112,18 @@ class SendToAgent extends Component {
 	};
 
 	async fetchUsers(opts = {}) {
+		const { user, performer } = this.props;
+		const { pagination } = this.state;
 		try {
-			const { pagination } = this.state;
-			const { user } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
-				role: "agent",
+				role: performer,
 				country: user.countryId,
 				...opts,
 			};
+
+			console.log(params);
 
 			this.setState({ loading: true });
 			const res = await searchUsers(params);

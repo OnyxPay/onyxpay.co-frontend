@@ -25,7 +25,7 @@ export const getActiveDepositRequests = (params = {}, isAgent = false) => async 
 	try {
 		let data;
 		if (isAgent) {
-			data = await getMessagesForActiveRequests(params);
+			data = await getMessagesForActiveRequests(params, "deposit");
 		} else {
 			data = await getRequests(params);
 		}

@@ -1,5 +1,5 @@
 import { getRequests } from "api/requests";
-// import { getMessagesForActiveRequests } from "api/operation-messages";
+import { getMessagesForActiveRequests } from "api/operation-messages";
 
 export const GET_ACTIVE_DEPOSIT_OC_REQUESTS_REQUEST = "GET_ACTIVE_DEPOSIT_OC_REQUESTS_REQUEST";
 export const GET_ACTIVE_DEPOSIT_OC_REQUESTS_SUCCESS = "GET_ACTIVE_DEPOSIT_OC_REQUESTS_SUCCESS";
@@ -20,10 +20,17 @@ export const activeDepositOcRequestsReducer = (state = initState, action) => {
 	}
 };
 
-export const getActiveDepositOcRequests = (params = {}) => async dispatch => {
+export const getActiveDepositOcRequests = (params = {}, isInitiator) => async dispatch => {
 	dispatch({ type: GET_ACTIVE_DEPOSIT_OC_REQUESTS_REQUEST });
 	try {
-		const data = await getRequests(params);
+		let data;
+		if (isInitiator) {
+			// initiator
+			data = await getRequests(params);
+		} else {
+			// performer
+			data = await getMessagesForActiveRequests(params, "buy_onyx_cash");
+		}
 		dispatch({ type: GET_ACTIVE_DEPOSIT_OC_REQUESTS_SUCCESS, payload: data });
 	} catch (e) {
 		console.log(e);

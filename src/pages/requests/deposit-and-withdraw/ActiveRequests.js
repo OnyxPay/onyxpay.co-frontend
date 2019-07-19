@@ -252,9 +252,9 @@ class ActiveRequests extends Component {
 		return (
 			<>
 				{renderPageTitle({
-					userRole: user.role,
 					requestType: parseRequestType({ match, push }),
 					isRequestClosed: false,
+					isUserInitiator: user.role === roles.c,
 				})}
 				<Table
 					columns={columns}
@@ -281,6 +281,7 @@ class ActiveRequests extends Component {
 							settlementsId,
 						})()
 					}
+					performer={roles.a}
 				/>
 				<UserSettlementsModal
 					isModalVisible={this.state.USER_SETTLEMENT_ACCOUNTS}

@@ -25,7 +25,7 @@ export const getActiveWithdrawRequests = (params = {}, isAgent = false) => async
 	try {
 		let data;
 		if (isAgent) {
-			data = await getMessagesForActiveRequests(params);
+			data = await getMessagesForActiveRequests(params, "withdraw");
 		} else {
 			data = await getRequests(params);
 		}
