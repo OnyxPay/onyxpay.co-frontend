@@ -25,9 +25,8 @@ class Layout extends Component {
 		this.checkWindowWidth = debounce(this.checkWindowWidth.bind(this), 200);
 
 		this.state = {
-			xsDevise: this.isXsWidth(),
-			activeBreakPoint: "xs",
-			isSideBarCollapsed: this.isXsWidth(),
+			activeBreakPoint: this.getActiveBreakPoint(),
+			isSideBarCollapsed: this.getActiveBreakPoint() === "xs",
 		};
 	}
 
@@ -41,26 +40,28 @@ class Layout extends Component {
 	}
 
 	checkWindowWidth() {
-		const { xsDevise } = this.state;
-		if (window.innerWidth <= 575 && !xsDevise) {
-			this.setState({ xsDevise: true, isSideBarCollapsed: true });
-		} else if (window.innerWidth > 575 && xsDevise) {
-			this.setState({ xsDevise: false });
-		} else if (window.innerWidth < 768 && window.innerWidth >= 576) {
-			this.setState({ activeBreakPoint: "sm" });
-		} else if (window.innerWidth < 992 && window.innerWidth >= 768) {
-			this.setState({ activeBreakPoint: "md" });
-		} else if (window.innerWidth < 1200 && window.innerWidth >= 992) {
-			this.setState({ activeBreakPoint: "lg" });
-		} else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
-			this.setState({ activeBreakPoint: "xl" });
-		} else if (window.innerWidth >= 1600) {
-			this.setState({ activeBreakPoint: "xxl" });
+		const bp = this.getActiveBreakPoint();
+		this.setState({ activeBreakPoint: bp });
+		if (bp === "xs") {
+			this.setState({ isSideBarCollapsed: true });
 		}
 	}
 
-	isXsWidth() {
-		return window.innerWidth <= 575;
+	getActiveBreakPoint() {
+		const width = window.innerWidth;
+		if (width <= 575) {
+			return "xs";
+		} else if (width < 768 && width >= 576) {
+			return "sm";
+		} else if (width < 992 && width >= 768) {
+			return "md";
+		} else if (width < 1200 && width >= 992) {
+			return "lg";
+		} else if (width < 1600 && width >= 1200) {
+			return "xl";
+		} else if (width >= 1600) {
+			return "xxl";
+		}
 	}
 
 	toggleSidebar = () => {
@@ -71,7 +72,7 @@ class Layout extends Component {
 
 	render() {
 		const { location, simplified, children, user } = this.props;
-		const { xsDevise, isSideBarCollapsed, activeBreakPoint } = this.state;
+		const { isSideBarCollapsed, activeBreakPoint } = this.state;
 		const onlyFooter = simplified.some(route => {
 			return location.pathname === route;
 		});
@@ -89,7 +90,7 @@ class Layout extends Component {
 				<AntLayout className={isSideBarCollapsed ? "content-wrapper collapsed" : "content-wrapper"}>
 					<Sidebar
 						collapsed={isSideBarCollapsed}
-						xsDevise={xsDevise}
+						xsDevise={activeBreakPoint === "xs"}
 						user={user}
 						location={location}
 					/>

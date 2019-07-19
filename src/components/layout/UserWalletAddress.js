@@ -12,7 +12,7 @@ export default function UserWalletAddress() {
 					return (
 						<div className="user-wallet-address-container">
 							<>
-								{activeBreakPoint !== "sm" ? (
+								{activeBreakPoint !== "sm" && activeBreakPoint !== "xs" ? (
 									<div className="wallet-address">
 										<span>{walletAddress}</span>
 										<CopyToClipboard text={walletAddress}>
