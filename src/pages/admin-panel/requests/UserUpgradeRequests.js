@@ -114,7 +114,6 @@ class UserUpgradeRequests extends Component {
 			if (!res.error) {
 				pagination.total = res.total;
 				this.setState({ pagination, fetchingRequests: false, requestsData: res.items });
-				console.log(res.items);
 			}
 		} catch (e) {}
 	}

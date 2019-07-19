@@ -44,7 +44,7 @@ class SetExchangeRates extends Component {
 					visible={isModalVisible}
 					onCancel={hideModal}
 					footer={null}
-					className="assets"
+					className="assets-modal"
 				>
 					<Formik
 						onSubmit={this.handleFormSubmit}
