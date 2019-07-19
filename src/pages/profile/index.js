@@ -28,3 +28,4 @@ export default connect(
 	null,
 	{ getUserData: Actions.user.getUserData }
 )(Profile);
+
