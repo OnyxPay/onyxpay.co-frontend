@@ -3,7 +3,7 @@ import { Input, Icon } from "antd";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { showNotification } from "components/notification";
 
-export function WalletAddress() {
+export default function WalletAddress() {
 	let walletAddress = localStorage.getItem("OnyxAddr");
 	return (
 		<>
