@@ -14,6 +14,7 @@ import {
 	notification,
 	Tag,
 } from "antd";
+import ExchangeHistory from "./ExchangeHistory";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";
@@ -664,6 +665,8 @@ class AssetsExchange extends Component {
 						</Col>
 					</Row>
 				</Card>
+
+				<ExchangeHistory />
 			</>
 		);
 	}
