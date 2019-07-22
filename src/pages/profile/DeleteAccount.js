@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import { connect } from "react-redux";
 import { Button, Modal } from "antd";
 import styled from "styled-components";
 import { deleteUserAccount } from "api/profile";
+import Actions from "redux/actions";
+import { showNotification } from "components/notification";
 
 const DeleteAccountContainer = styled.div`
 	margin-top: 15px;
@@ -9,8 +12,9 @@ const DeleteAccountContainer = styled.div`
 
 const { confirm } = Modal;
 
-export default function DeleteAccount() {
+function DeleteAccount(props) {
 	const [isLoadingDeleteAccount, toggleBtnLoading] = useState(false);
+	const { logOut } = props;
 	const showMessage = () => {
 		toggleBtnLoading(true);
 		confirm({
@@ -22,12 +26,16 @@ export default function DeleteAccount() {
 			cancelText: "No",
 			async onOk() {
 				const res = await deleteUserAccount();
-				if (res === "OK") {
+				if (res.data === "OK") {
+					await logOut();
+					showNotification({
+						type: "success",
+						msg: "Your account was successfully deleted",
+					});
 				}
 				toggleBtnLoading(false);
 			},
 			onCancel() {
-				console.log("Cancel");
 				toggleBtnLoading(false);
 			},
 		});
@@ -36,7 +44,7 @@ export default function DeleteAccount() {
 		<DeleteAccountContainer>
 			<Button
 				type="danger"
-				delete={isLoadingDeleteAccount}
+				loading={isLoadingDeleteAccount}
 				className="btn-delete-account"
 				onClick={() => showMessage()}
 			>
@@ -45,3 +53,10 @@ export default function DeleteAccount() {
 		</DeleteAccountContainer>
 	);
 }
+
+export default connect(
+	null,
+	{
+		logOut: Actions.auth.logOut,
+	}
+)(DeleteAccount);
