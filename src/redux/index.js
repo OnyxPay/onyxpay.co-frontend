@@ -18,6 +18,7 @@ import { activeWithdrawRequestsReducer } from "./requests/assets/activeWithdraw"
 import { closedDepositRequestsReducer } from "./requests/assets/closedDeposit";
 import { closedWithdrawRequestsReducer } from "./requests/assets/closedWithdraw";
 import { activeDepositOcRequestsReducer } from "./requests/onyxCash/activeDeposit";
+import { closedDepositOcRequestsReducer } from "./requests/onyxCash/closedDeposit";
 
 const appReducer = history =>
 	combineReducers({
@@ -41,6 +42,7 @@ const appReducer = history =>
 		closedDepositRequests: closedDepositRequestsReducer,
 		closedWithdrawRequests: closedWithdrawRequestsReducer,
 		activeDepositOcRequests: activeDepositOcRequestsReducer,
+		closedDepositOcRequests: closedDepositOcRequestsReducer,
 	});
 
 export default history => {

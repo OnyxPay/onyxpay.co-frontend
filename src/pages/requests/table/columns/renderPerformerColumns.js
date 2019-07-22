@@ -351,30 +351,34 @@ export default function renderPerformerColumns({
 				{
 					title: "Amount",
 					render: (text, record, index) => {
-						return convertAmountToStr(record.request.amount, 8);
+						return record.request ? convertAmountToStr(record.request.amount, 8) : null;
 					},
 				},
 				{
 					title: "Status",
 					dataIndex: "request.status",
 					render: (text, record, index) => {
-						if (record.status_code === operationMessageStatus.canceled) {
-							return "assets returned";
+						if (record.request) {
+							if (record.status_code === operationMessageStatus.canceled) {
+								return "assets returned";
+							}
+							return record.request.status;
+						} else {
+							return null;
 						}
-						return record.request.status;
 					},
 				},
 				{
 					title: "Created",
 					render: (text, record, index) => {
-						return new Date(record.request.trx_timestamp).toLocaleString();
+						return record.request ? new Date(record.request.trx_timestamp).toLocaleString() : null;
 					},
 				},
 				{
 					title: "Client",
 					dataIndex: "sender.addr",
 					render: (text, record, index) => {
-						return `${record.sender.first_name} ${record.sender.last_name}`;
+						return record.sender ? `${record.sender.first_name} ${record.sender.last_name}` : null;
 					},
 				},
 			];

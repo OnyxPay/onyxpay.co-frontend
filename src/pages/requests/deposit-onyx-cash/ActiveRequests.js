@@ -98,15 +98,14 @@ class ActiveRequests extends Component {
 			...opts,
 		};
 
+		// initiator's requests
 		if (this.isUserInitiator(user.role, location)) {
-			// initiator's requests
 			params.type = "buy_onyx_cash";
 			params.user = "maker";
 			params.status = "pending,opened,choose,complained";
-
 			getActiveDepositOcRequests(params, true);
-		} else if (this.isUserPerformer(user.role, location)) {
 			// performer's requests
+		} else if (this.isUserPerformer(user.role, location)) {
 			getActiveDepositOcRequests(params, false);
 		}
 	};
