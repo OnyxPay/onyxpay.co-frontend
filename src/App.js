@@ -125,6 +125,21 @@ class App extends Component {
 		syncLoginState();
 		wsClientRun();
 	}
+	getAdditionalRoutes() {
+		if (process.env.DISABLE_ROUTES) {
+			return (
+				<>
+					<Route path="/deposit" component={UserDeposit} />
+					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/active-requests/:type" exact component={ActiveRequests} />
+					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
+					<Route path="/exchange" exact component={AssetsExchange} />
+					<Route path="/send-asset" exact component={SendAsset} />
+					<Route path="/withdraw" exact component={Withdraw} />
+				</>
+			);
+		}
+	}
 
 	render() {
 		return (
@@ -139,13 +154,7 @@ class App extends Component {
 					<Route path="/profile" exact component={Profile} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					{/*<Route path="/deposit" component={UserDeposit} />
-					<Route path="/deposit:agent" exact component={AgentDeposit} />
-					<Route path="/active-requests/:type" exact component={ActiveRequests} />
-					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
-					<Route path="/exchange" exact component={AssetsExchange} />
-					<Route path="/send-asset" exact component={SendAsset} />
-          <Route path="/withdraw" exact component={Withdraw} />*/}
+					{this.getAdditionalRoutes()}
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
