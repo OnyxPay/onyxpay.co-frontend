@@ -51,7 +51,7 @@ class ActiveRequests extends Component {
 		const values = queryString.parse(location.search);
 		if (values.id) {
 			this.setState({ idParsedFromURL: values.id });
-			this.fetch({ id: values.id });
+			this.fetch({ requestId: values.id });
 		} else {
 			this.fetch();
 		}

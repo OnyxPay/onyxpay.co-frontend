@@ -68,8 +68,8 @@ export default function renderPerformerColumns({
 				{
 					title: "Id",
 					dataIndex: "request.id",
-					key: "id",
-					...getColumnSearchProps("id"),
+					key: "requestId",
+					...getColumnSearchProps("requestId"),
 					filteredValue: defaultFilterValue ? [defaultFilterValue] : [],
 				},
 				{
