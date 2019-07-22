@@ -314,9 +314,15 @@ class SendAsset extends Component {
 										</Col>
 									</Row>
 									<Row>
-										<Text type="secondary">
-											Min available amount to send is equivalent of 1 USD
-										</Text>
+										{availableAssetsToSend.length !== 0 ? (
+											<Text type="secondary">
+												Min available amount to send is equivalent of 1 USD
+											</Text>
+										) : (
+											<Text type="danger">
+												You have no assets to send at the moment. Please, make a deposit.
+											</Text>
+										)}
 									</Row>
 									<TextAligner align="right" mobile="left" className="send-assets__button-wrapper">
 										<Button
