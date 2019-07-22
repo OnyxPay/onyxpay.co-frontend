@@ -62,8 +62,6 @@ export default function renderPerformerColumns({
 	getColumnSearchProps,
 	defaultFilterValue,
 }) {
-	console.log("renderPerformerColumns", requestsStatus, requestsType);
-
 	if (requestsStatus === "active") {
 		if (requestsType === "deposit" || requestsType === "depositOnyxCash") {
 			return [
@@ -82,48 +80,59 @@ export default function renderPerformerColumns({
 				{
 					title: "Amount",
 					render: (text, record, index) => {
-						return convertAmountToStr(record.request.amount, 8);
+						return record.request ? convertAmountToStr(record.request.amount, 8) : null;
 					},
 				},
 				{
 					title: "Status",
 					dataIndex: "request.status",
 					render: (text, record, index) => {
-						if (isAnotherPerformerSelected(record, walletAddress)) {
-							return "request wasn't selected";
+						if (record.request) {
+							if (isAnotherPerformerSelected(record, walletAddress)) {
+								return "request wasn't selected";
+							}
+							return record.request.status;
+						} else {
+							return null;
 						}
-						return record.request.status;
 					},
 				},
 				{
 					title: "Created",
 					render: (text, record, index) => {
-						return getLocalTime(record.request.trx_timestamp);
+						return record.request ? getLocalTime(record.request.trx_timestamp) : null;
 					},
 				},
 				{
 					title: "Client",
 					dataIndex: "sender.addr",
 					render: (text, record, index) => {
-						return `${record.sender.first_name} ${record.sender.last_name}`;
+						return record.request ? `${record.sender.first_name} ${record.sender.last_name}` : null;
 					},
 				},
 				{
 					title: "Countdown",
 					render: (text, record, index) => {
-						return record.request.taker_addr &&
-							record.request.taker_addr === walletAddress &&
-							record.request.status !== requestStatus.complained &&
-							record.request.choose_timestamp ? (
-							<Countdown date={new Date(record.request.choose_timestamp).getTime() + h24Mc} />
-						) : (
-							"n/a"
-						);
+						if (record.request) {
+							return record.request.taker_addr &&
+								record.request.taker_addr === walletAddress &&
+								record.request.status !== requestStatus.complained &&
+								record.request.choose_timestamp ? (
+								<Countdown date={new Date(record.request.choose_timestamp).getTime() + h24Mc} />
+							) : (
+								"n/a"
+							);
+						} else {
+							return null;
+						}
 					},
 				},
 				{
 					title: "Actions",
 					render: (text, record, index) => {
+						if (!record.request) {
+							return null;
+						}
 						const isAcceptActive =
 							record.request.request_id === activeRequestId && activeAction === aa.accept;
 

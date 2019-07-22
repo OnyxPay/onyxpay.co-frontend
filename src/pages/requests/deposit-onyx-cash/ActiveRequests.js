@@ -47,6 +47,7 @@ class ActiveRequests extends Component {
 
 	componentDidMount() {
 		const { location } = this.props;
+
 		const values = queryString.parse(location.search);
 		if (values.id) {
 			this.setState({ idParsedFromURL: values.id });
@@ -102,13 +103,10 @@ class ActiveRequests extends Component {
 			params.type = "buy_onyx_cash";
 			params.user = "maker";
 			params.status = "pending,opened,choose,complained";
-			console.log("@@@@@@ initiator");
 
 			getActiveDepositOcRequests(params, true);
 		} else if (this.isUserPerformer(user.role, location)) {
 			// performer's requests
-			console.log("@@@@@@ performer");
-
 			getActiveDepositOcRequests(params, false);
 		}
 	};

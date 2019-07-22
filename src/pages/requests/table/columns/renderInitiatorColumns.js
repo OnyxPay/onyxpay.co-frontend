@@ -69,8 +69,6 @@ export default function renderInitiatorColumns({
 	requestsStatus, // active | closed
 	requestsType, // deposit | withdraw | depositOnyxCash
 }) {
-	console.log("renderInitiatorColumns", requestsStatus, requestsType);
-
 	if (requestsStatus === "active") {
 		if (requestsType === "deposit" || requestsType === "depositOnyxCash") {
 			return [
@@ -124,17 +122,19 @@ export default function renderInitiatorColumns({
 
 						return (
 							<>
-								{record.status === "opened" && !record.operation_messages.length && (
-									<Button
-										style={styles.btn}
-										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-											requestId: record.id,
-											isSendingMessage: true,
-										})}
-									>
-										Send to agents
-									</Button>
-								)}
+								{record.status === "opened" &&
+									record.operation_messages &&
+									!record.operation_messages.length && (
+										<Button
+											style={styles.btn}
+											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+												requestId: record.id,
+												isSendingMessage: true,
+											})}
+										>
+											Send to agents
+										</Button>
+									)}
 
 								{(record.status === "opened" || record.status === "choose") && (
 									<CancelRequest
@@ -144,20 +144,22 @@ export default function renderInitiatorColumns({
 										disabled={isComplainActive}
 									/>
 								)}
-								{isAgentAccepted(record.operation_messages) && record.status === "opened" && (
-									<Button
-										style={styles.btn}
-										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-											requestId: record.request_id,
-											isSendingMessage: false,
-											operationMessages: record.operation_messages.filter(
-												msg => msg.status_code === operationMessageStatus.accepted
-											),
-										})}
-									>
-										Choose agent
-									</Button>
-								)}
+								{record.operation_messages &&
+									isAgentAccepted(record.operation_messages) &&
+									record.status === "opened" && (
+										<Button
+											style={styles.btn}
+											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+												requestId: record.request_id,
+												isSendingMessage: false,
+												operationMessages: record.operation_messages.filter(
+													msg => msg.status_code === operationMessageStatus.accepted
+												),
+											})}
+										>
+											Choose agent
+										</Button>
+									)}
 								{record.taker_addr &&
 									record.choose_timestamp &&
 									record.status !== "complained" &&
@@ -220,17 +222,19 @@ export default function renderInitiatorColumns({
 
 						return (
 							<>
-								{record.status === "opened" && !record.operation_messages.length && (
-									<Button
-										style={styles.btn}
-										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-											requestId: record.id,
-											isSendingMessage: true,
-										})}
-									>
-										Send to agents
-									</Button>
-								)}
+								{record.status === "opened" &&
+									record.operation_messages &&
+									!record.operation_messages.length && (
+										<Button
+											style={styles.btn}
+											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+												requestId: record.id,
+												isSendingMessage: true,
+											})}
+										>
+											Send to agents
+										</Button>
+									)}
 
 								{(record.status === "opened" || record.status === "choose") && (
 									<CancelRequest
@@ -240,20 +244,22 @@ export default function renderInitiatorColumns({
 										disabled={isComplainActive}
 									/>
 								)}
-								{isAgentAccepted(record.operation_messages) && record.status === "opened" && (
-									<Button
-										style={styles.btn}
-										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-											requestId: record.request_id,
-											isSendingMessage: false,
-											operationMessages: record.operation_messages.filter(
-												msg => msg.status_code === operationMessageStatus.accepted
-											),
-										})}
-									>
-										Choose agent
-									</Button>
-								)}
+								{record.operation_messages &&
+									isAgentAccepted(record.operation_messages) &&
+									record.status === "opened" && (
+										<Button
+											style={styles.btn}
+											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+												requestId: record.request_id,
+												isSendingMessage: false,
+												operationMessages: record.operation_messages.filter(
+													msg => msg.status_code === operationMessageStatus.accepted
+												),
+											})}
+										>
+											Choose agent
+										</Button>
+									)}
 								{record.taker_addr &&
 									record.choose_timestamp &&
 									record.status !== "complained" &&
