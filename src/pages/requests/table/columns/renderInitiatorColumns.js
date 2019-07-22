@@ -152,6 +152,7 @@ export default function renderInitiatorColumns({
 											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 												requestId: record.request_id,
 												isSendingMessage: false,
+												openedRequestData: record,
 												operationMessages: record.operation_messages.filter(
 													msg => msg.status_code === operationMessageStatus.accepted
 												),

@@ -44,6 +44,7 @@ class ActiveRequests extends Component {
 			operationMessages: [],
 			activeAction: "",
 			idParsedFromURL: "",
+			openedRequestData: {}, // to choose performer
 		};
 		this.setState = this.setState.bind(this);
 		this.searchInput = "";
@@ -223,7 +224,7 @@ class ActiveRequests extends Component {
 
 	render() {
 		const { user, walletAddress, match, push, data, isFetching } = this.props;
-		const { requestId, activeAction, idParsedFromURL } = this.state;
+		const { requestId, activeAction, idParsedFromURL, openedRequestData } = this.state;
 		let columns = [];
 
 		if (user.role === roles.c) {
@@ -286,6 +287,7 @@ class ActiveRequests extends Component {
 						})()
 					}
 					performer={roles.a}
+					openedRequestData={openedRequestData}
 				/>
 				<UserSettlementsModal
 					isModalVisible={this.state.USER_SETTLEMENT_ACCOUNTS}

@@ -9,7 +9,7 @@ import { sendMessage } from "api/operation-messages";
 import { choosePerformer } from "api/requests";
 import { TimeoutError } from "promise-timeout";
 import { showNotification, showTimeoutNotification, showBcError } from "components/notification";
-
+import { convertAmountToStr } from "utils/number";
 const { Option } = Select;
 
 class SendToAgent extends Component {
@@ -34,7 +34,7 @@ class SendToAgent extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { requestId, isSendingMessage, fetchRequests } = this.props;
+		const { requestId, isSendingMessage, fetchRequests, openedRequestData } = this.props;
 		const { selectedRows } = this.state;
 
 		if (isSendingMessage) {
@@ -54,12 +54,17 @@ class SendToAgent extends Component {
 			}
 		} else {
 			try {
-				const performerAddress = selectedRows[0].receiver.wallet_addr;
-				await choosePerformer(requestId, performerAddress);
+				const performer = selectedRows[0].receiver;
+				await choosePerformer(requestId, performer.wallet_addr);
 				formActions.resetForm();
 				showNotification({
 					type: "success",
 					msg: "You successfully chosen an agent",
+					desc: `Send ${convertAmountToStr(openedRequestData.amount, 8)} FIAT ${
+						openedRequestData.asset
+					} to agent ${performer.first_name} ${
+						performer.last_name
+					} settlement account or hand over the cash by hand`,
 				});
 				fetchRequests();
 				this.handleClose();
