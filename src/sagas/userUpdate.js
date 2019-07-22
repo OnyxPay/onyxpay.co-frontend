@@ -15,8 +15,8 @@ const upgradeUser = function*(action) {
 					</>
 				),
 			});
+			yield put({ type: "LOG_OUT" });
 		}
-		yield put({ type: "LOG_OUT" });
 	} catch (err) {
 		console.error(err);
 	}

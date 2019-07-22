@@ -115,7 +115,7 @@ class RegistrationModal extends Component {
 						if (!values.country_id) {
 							errors.country_id = "required";
 						}
-						if (!isBase58Address(values.referral_wallet)) {
+						if (values.referral_wallet.length !== 0 && !isBase58Address(values.referral_wallet)) {
 							errors.referral_wallet = "Referral wallet address should be in base58 format";
 						}
 						return errors;
