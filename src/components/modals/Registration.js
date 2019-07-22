@@ -92,6 +92,7 @@ class RegistrationModal extends Component {
 				footer={null}
 				className="registration-modal"
 				destroyOnClose={true}
+				maskClosable={false}
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
