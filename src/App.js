@@ -126,7 +126,7 @@ class App extends Component {
 		wsClientRun();
 	}
 	getAdditionalRoutes() {
-		if (process.env.TAG === "prod") {
+		if (process.env.TAG !== "prod") {
 			return (
 				<>
 					<Route path="/deposit" component={UserDeposit} />
