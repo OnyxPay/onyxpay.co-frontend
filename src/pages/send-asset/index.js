@@ -96,7 +96,8 @@ class SendAsset extends Component {
 				formActions.resetForm();
 				showNotification({
 					type: "success",
-					msg: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
+					msg: "Success",
+					desc: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
 						values.receiver_address
 					} address`,
 				});
