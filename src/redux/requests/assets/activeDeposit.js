@@ -1,6 +1,11 @@
 import { getRequests } from "api/requests";
 import { getMessagesForActiveRequests } from "api/operation-messages";
-import { wsEvents, requestStatusNames } from "api/constants";
+import {
+	wsEvents,
+	requestStatusNames,
+	operationMessageStatus,
+	operationMessageStatusNames,
+} from "api/constants";
 
 export const GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST = "GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST";
 export const GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS = "GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS";
@@ -16,6 +21,24 @@ export const activeDepositRequestsReducer = (state = initState, action) => {
 	switch (action.type) {
 		case GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS:
 			return { items: action.payload.items, total: action.payload.total };
+		case wsEvents.acceptRequest:
+			let stateItems = state.items.map(item => {
+				if (item.request_id === action.payload.requestId) {
+					item.operation_messages.forEach(message => {
+						if (message.id === action.payload.messageId) {
+							return {
+								...message,
+								status_code: operationMessageStatus.accepted,
+								status: operationMessageStatusNames[operationMessageStatus.accepted],
+							};
+						}
+						return message;
+					});
+				}
+				return item;
+			});
+			console.info({ ...state, items: stateItems });
+			return { ...state, items: stateItems };
 		case wsEvents.saveRequest:
 			let items = state.items.map(el => {
 				if (el.request_id === action.payload.requestId) {
@@ -28,6 +51,12 @@ export const activeDepositRequestsReducer = (state = initState, action) => {
 				return el;
 			});
 			return { ...state, items: items };
+		case wsEvents.newMessage:
+			console.info(action.payload);
+			action.payload.forEach(item => {
+				state.items = state.items.push(item);
+			});
+			return state;
 		default:
 			return state;
 	}

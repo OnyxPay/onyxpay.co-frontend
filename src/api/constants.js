@@ -15,6 +15,7 @@ export const wsEvents = {
 	saveRequest: "SAVE_REQUEST",
 	chooseAgent: "CHOOSE_AGENT",
 	newMessage: "NEW_MESSAGE",
+	acceptRequest: "ACCEPT_REQUEST",
 };
 
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
