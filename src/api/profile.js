@@ -1,4 +1,4 @@
-import { getRestClient, getAuthHeaders } from "./network";
+import { getRestClient, getAuthHeaders, handleReqError } from "./network";
 
 const restClient = getRestClient();
 
@@ -24,6 +24,15 @@ export async function changeProfile(data) {
 
 export async function deleteUserAccount() {
 	const authHeaders = getAuthHeaders();
-	const form = await restClient.delete("/profile", { headers: { ...authHeaders } });
-	return form;
+	//const res = await restClient.delete("/", { headers: { ...authHeaders } });
+	try {
+		const res = await restClient.delete("profile", {
+			headers: {
+				...authHeaders,
+			},
+		});
+		return res;
+	} catch (error) {
+		return handleReqError(error);
+	}
 }

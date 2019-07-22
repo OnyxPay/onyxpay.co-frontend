@@ -18,19 +18,21 @@ function DeleteAccount(props) {
 	const showMessage = () => {
 		toggleBtnLoading(true);
 		confirm({
-			title: "Are you sure delete your accounts?",
+			title: "Are you sure you want to delete your account?",
 			content:
-				"After deleting an account,  you will lose access to all their assets, and to restore access, you will need to register a new account with the same wallet.",
+				"After deleting an account, you will lose access to all your assets, and to restore access, you will need to register a new account with the same wallet.",
 			okText: "Yes",
 			okType: "danger",
 			cancelText: "No",
 			async onOk() {
 				const res = await deleteUserAccount();
-				if (res.data === "OK") {
+				console.log(res);
+				if (res === "OK") {
 					await logOut();
+				} else {
 					showNotification({
-						type: "success",
-						msg: "Your account was successfully deleted",
+						type: "error",
+						msg: "Your are account didn't was deleted",
 					});
 				}
 				toggleBtnLoading(false);
