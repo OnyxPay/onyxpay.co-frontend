@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Tooltip } from "antd";
 import { convertAmountToStr } from "utils/number";
 import { getLocalTime, getPerformerName, is24hOver, is12hOver } from "utils";
 import { h24Mc, operationMessageStatus } from "api/constants";
@@ -68,6 +68,7 @@ export default function renderInitiatorColumns({
 	handleComplain,
 	requestsStatus, // active | closed
 	requestsType, // deposit | withdraw | depositOnyxCash
+	showUserSettlementsModal,
 }) {
 	if (requestsStatus === "active") {
 		if (requestsType === "deposit" || requestsType === "depositOnyxCash") {
@@ -100,6 +101,22 @@ export default function renderInitiatorColumns({
 					title: "Performer",
 					render: (text, record, index) => {
 						return record.taker_addr ? getPerformerName(record) : "n/a";
+					},
+				},
+				{
+					title: "Settl. acc",
+					render: (text, record, index) => {
+						return record.taker ? (
+							<Tooltip title="See settlement accounts">
+								<Button
+									shape="round"
+									icon="account-book"
+									onClick={e => showUserSettlementsModal(record.taker.id)}
+								/>
+							</Tooltip>
+						) : (
+							"n/a"
+						);
 					},
 				},
 				{

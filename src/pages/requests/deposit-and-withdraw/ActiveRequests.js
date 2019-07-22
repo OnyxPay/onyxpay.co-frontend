@@ -237,6 +237,10 @@ class ActiveRequests extends Component {
 				handleComplain: this.handleComplain,
 				requestsType: parseRequestType({ match, push }),
 				requestsStatus: "active",
+				showUserSettlementsModal: settlementsId =>
+					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
+						settlementsId,
+					})(),
 			});
 		} else if (user.role === roles.a) {
 			columns = renderPerformerColumns({
