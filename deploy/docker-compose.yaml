@@ -6,4 +6,4 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
       args:
-        BRANCH: ${tag}
+        TAG: ${tag}

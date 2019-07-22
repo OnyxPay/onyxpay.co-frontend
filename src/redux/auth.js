@@ -104,7 +104,11 @@ export const confirmEmail = values => async (dispatch, getState) => {
 	}
 };
 
-export const logOut = () => (dispatch, getState) => {
+export const logOut = notReload => (dispatch, getState) => {
 	dispatch({ type: LOG_OUT });
-	dispatch(push("/login"));
+
+	if (!notReload) {
+		dispatch(push("/login"));
+		window.location.reload();
+	}
 };
