@@ -8,10 +8,6 @@ import User from "./User";
 
 const { Sider } = Layout;
 
-// TODO:
-// close sidebar on route change
-// extract menu from sideBar
-
 function Sidebar({ collapsed, location, user, xsDevise }) {
 	return (
 		<Sider
