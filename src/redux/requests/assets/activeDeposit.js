@@ -5,7 +5,6 @@ import {
 	requestStatusNames,
 	operationMessageStatus,
 	operationMessageStatusNames,
-	requestStatus,
 } from "api/constants";
 
 export const GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST = "GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST";
@@ -17,13 +16,25 @@ const initState = {
 	items: [],
 	total: null,
 };
+function enumerateItems(state, pred) {
+	console.info("enumerateItems", state);
+	if (state.items) {
+		let items = state.items.map(el => {
+			return pred(el);
+		});
+		console.info("enumerateItems_end", { ...state, items: items });
+		return { ...state, items: items };
+	}
+	return state;
+}
 
 export const activeDepositRequestsReducer = (state = initState, action) => {
+	let pred;
 	switch (action.type) {
 		case GET_ACTIVE_DEPOSIT_REQUESTS_SUCCESS:
 			return { items: action.payload.items, total: action.payload.total };
 		case wsEvents.acceptRequest:
-			let stateItems = state.items.map(item => {
+			pred = item => {
 				if (item.request_id === action.payload.requestId) {
 					item.operation_messages.forEach(message => {
 						if (message.id === action.payload.messageId) {
@@ -37,43 +48,43 @@ export const activeDepositRequestsReducer = (state = initState, action) => {
 					});
 				}
 				return item;
-			});
-			console.info({ ...state, items: stateItems });
-			return { ...state, items: stateItems };
+			};
+			break;
 		case wsEvents.chooseAgent:
-			let items = state.items.map(el => {
-				if (el.request_id === action.payload.requestId) {
+			pred = item => {
+				if (item.request_id === action.payload.requestId) {
 					return {
-						...el,
+						...item,
 						status_code: action.payload.status,
 						status: requestStatusNames[action.payload.status],
 					};
 				}
-				return el;
-			});
-			return { ...state, items: items };
+				return item;
+			};
+			break;
 		case wsEvents.saveRequest:
-			let savedItems = state.items.map(el => {
-				if (el.trx_hash === action.payload.trxHash) {
+			pred = item => {
+				if (item.trx_hash === action.payload.trxHash) {
 					return {
-						...el,
+						...item,
 						status_code: action.payload.status,
 						status: requestStatusNames[action.payload.status],
 						requestId: action.payload.requestId,
 					};
 				}
-				return el;
-			});
-			return { ...state, items: savedItems };
+				return item;
+			};
+			break;
 		case wsEvents.newMessage:
-			console.info(action.payload);
-			action.payload.forEach(item => {
-				state.items = state.items.push(item);
-			});
+			console.info("newMessage", state);
+			state.items.push(action.payload);
+			state.total += 1;
+			console.info("newMessage_end", state);
 			return state;
 		default:
 			return state;
 	}
+	return enumerateItems(state, pred);
 };
 
 export const getActiveDepositRequests = (params = {}, isAgent = false) => async dispatch => {
