@@ -33,6 +33,16 @@ class Layout extends Component {
 		window.addEventListener("resize", this.checkWindowWidth);
 	}
 
+	componentDidUpdate(prevProps, prevState) {
+		if (
+			prevProps.location.pathname !== this.props.location.pathname &&
+			this.state.xsDevise &&
+			!this.state.isSideBarCollapsed
+		) {
+			this.toggleSidebar(); // hide menu on route change
+		}
+	}
+
 	componentWillUnmount() {
 		window.removeEventListener("resize", this.checkWindowWidth);
 	}
@@ -78,6 +88,7 @@ class Layout extends Component {
 						xsDevise={xsDevise}
 						user={user}
 						location={location}
+						toggleSidebar={this.toggleSidebar}
 					/>
 					<AntLayout>
 						<MainContent>{children}</MainContent>
