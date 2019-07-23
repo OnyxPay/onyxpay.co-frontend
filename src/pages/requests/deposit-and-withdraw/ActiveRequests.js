@@ -14,18 +14,11 @@ import renderInitiatorColumns from "../table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "../table/columns/renderPerformerColumns";
 import { parseRequestType, renderPageTitle, aa } from "../common";
 import { showNotification, showTimeoutNotification } from "components/notification";
-import {
-	GET_ACTIVE_DEPOSIT_REQUESTS,
-	getActiveDepositRequests,
-} from "redux/requests/assets/activeDeposit";
-import {
-	getActiveWithdrawRequests,
-	GET_ACTIVE_WITHDRAW_REQUESTS,
-} from "redux/requests/assets/activeWithdraw";
 import { createLoadingSelector } from "selectors/loading";
-import { createRequestsDataSelector } from "selectors/requests";
 import queryString from "query-string";
 import { handleTableChange, getColumnSearchProps } from "../table";
+
+import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -82,7 +75,7 @@ class ActiveRequests extends Component {
 
 	fetch = (opts = {}) => {
 		const { pagination } = this.state;
-		const { user, match, push, getActiveDepositRequests, getActiveWithdrawRequests } = this.props;
+		const { user, match, push, getOpRequests } = this.props;
 		const params = {
 			pageSize: pagination.pageSize,
 			pageNum: pagination.current,
@@ -95,15 +88,15 @@ class ActiveRequests extends Component {
 			params.status = "pending,opened,choose,complained";
 			params.user = "maker";
 			if (requestType === "deposit") {
-				getActiveDepositRequests(params, false);
+				getOpRequests(params, "deposit", true, true);
 			} else if (requestType === "withdraw") {
-				getActiveWithdrawRequests(params, false);
+				getOpRequests(params, "withdraw", true, true);
 			}
 		} else if (user.role === roles.a) {
 			if (requestType === "deposit") {
-				getActiveDepositRequests(params, true);
+				getOpRequests(params, "deposit", true, false);
 			} else if (requestType === "withdraw") {
-				getActiveWithdrawRequests(params, true);
+				getOpRequests(params, "withdraw", true, false);
 			}
 		}
 	};
@@ -303,16 +296,13 @@ class ActiveRequests extends Component {
 	}
 }
 
-const loadingSelector = createLoadingSelector([
-	GET_ACTIVE_DEPOSIT_REQUESTS,
-	GET_ACTIVE_WITHDRAW_REQUESTS,
-]);
+const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
 
 function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: createRequestsDataSelector(state, ownProps.match.params.type, "active"),
+		data: state.opRequests,
 		isFetching: loadingSelector(state),
 	};
 }
@@ -321,7 +311,7 @@ ActiveRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getActiveDepositRequests, getActiveWithdrawRequests }
+		{ push, getOpRequests }
 	)
 )(ActiveRequests);
 

@@ -8,16 +8,9 @@ import { push } from "connected-react-router";
 import { parseRequestType, renderPageTitle } from "../common";
 import renderInitiatorColumns from "../table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "../table/columns/renderPerformerColumns";
-import {
-	getClosedDepositRequests,
-	GET_CLOSED_DEPOSIT_REQUESTS,
-} from "redux/requests/assets/closedDeposit";
-import {
-	getClosedWithdrawRequests,
-	GET_CLOSED_WITHDRAW_REQUESTS,
-} from "redux/requests/assets/closedWithdraw";
 import { createLoadingSelector } from "selectors/loading";
-import { createRequestsDataSelector } from "selectors/requests";
+
+import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
 class ClosedRequests extends Component {
 	state = {
@@ -60,7 +53,7 @@ class ClosedRequests extends Component {
 	fetch = (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, match, push, getClosedDepositRequests, getClosedWithdrawRequests } = this.props;
+			const { user, match, push, getOpRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
@@ -73,15 +66,15 @@ class ClosedRequests extends Component {
 				params.status = "rejected,completed";
 				params.user = "maker";
 				if (requestType === "deposit") {
-					getClosedDepositRequests(params, false);
+					getOpRequests(params, "deposit", false, true);
 				} else if (requestType === "withdraw") {
-					getClosedWithdrawRequests(params, false);
+					getOpRequests(params, "withdraw", false, true);
 				}
 			} else if (user.role === roles.a) {
 				if (requestType === "deposit") {
-					getClosedDepositRequests(params, true);
+					getOpRequests(params, "deposit", false, false);
 				} else if (requestType === "withdraw") {
-					getClosedWithdrawRequests(params, true);
+					getOpRequests(params, "withdraw", false, false);
 				}
 			}
 		}
@@ -125,16 +118,13 @@ class ClosedRequests extends Component {
 	}
 }
 
-const loadingSelector = createLoadingSelector([
-	GET_CLOSED_DEPOSIT_REQUESTS,
-	GET_CLOSED_WITHDRAW_REQUESTS,
-]);
+const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
 
 function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: createRequestsDataSelector(state, ownProps.match.params.type, "closed"),
+		data: state.opRequests,
 		isFetching: loadingSelector(state),
 	};
 }
@@ -143,7 +133,7 @@ ClosedRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getClosedDepositRequests, getClosedWithdrawRequests }
+		{ push, getOpRequests }
 	)
 )(ClosedRequests);
 

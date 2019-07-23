@@ -33,10 +33,15 @@ export async function hideMessage(requestId) {
 	}
 }
 
-export async function getMessages(params) {
+export async function getMessages(params, requestType, isActive) {
+	let requestStatus = "active-requests";
+	if (!isActive) {
+		requestStatus = "close-requests";
+	}
+
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("operation-messages", {
+		const { data } = await client.get(`operation-messages/${requestType}/${requestStatus}`, {
 			headers: {
 				...authHeaders,
 			},
