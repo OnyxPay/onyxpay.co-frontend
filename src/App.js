@@ -100,6 +100,7 @@ const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
+const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
@@ -112,7 +113,7 @@ UpgradeUser = All(UpgradeUser);
 SendAsset = User(SendAsset);
 
 Withdraw = User(Withdraw);
-Profile = All(Profile);
+Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 ActiveRequests = All(ActiveRequests);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);

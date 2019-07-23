@@ -27,7 +27,7 @@ const AvatarContainer = styled.div`
 `;
 
 function getMenuItem(linkRole, title, userRole) {
-	if (userRole === roles.sa) {
+	if (userRole === roles.sa || userRole === roles.adm || userRole === roles.sadm) {
 		return;
 	} else if (userRole === roles.a && linkRole === roles.a) {
 		return;
@@ -46,7 +46,7 @@ const DropdownMenu = ({ logOut, user }) => {
 	let menu;
 	if (user) {
 		menu = (
-			<Menu>
+			<Menu style={{ minWidth: 160 }}>
 				{getMenuItem("agent", "Upgrade to Agent", user.role)}
 				{getMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
 				<Menu.Item>
