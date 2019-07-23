@@ -9,7 +9,7 @@ import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
 
 function isAgentAccepted(operationMessages) {
-	// check if at least one agent is accepted the request
+	// check if at least one potential performer is accepted the request
 	return operationMessages.some(mg => mg.status_code === operationMessageStatus.accepted);
 }
 
@@ -71,291 +71,152 @@ export default function renderInitiatorColumns({
 	showUserSettlementsModal,
 }) {
 	if (requestsStatus === "active") {
-		if (requestsType === "deposit" || requestsType === "depositOnyxCash") {
-			return [
-				{
-					title: "Id",
-					dataIndex: "id",
+		return [
+			{
+				title: "Id",
+				dataIndex: "id",
+			},
+			{
+				title: "Asset",
+				dataIndex: "asset",
+			},
+			{
+				title: "Amount",
+				render: (text, record, index) => {
+					return convertAmountToStr(record.amount, 8);
 				},
-				{
-					title: "Asset",
-					dataIndex: "asset",
+			},
+			{
+				title: "Status",
+				dataIndex: "status",
+			},
+			{
+				title: "Created",
+				render: (text, record, index) => {
+					return getLocalTime(record.trx_timestamp);
 				},
-				{
-					title: "Amount",
-					render: (text, record, index) => {
-						return convertAmountToStr(record.amount, 8);
-					},
+			},
+			{
+				title: "Performer",
+				render: (text, record, index) => {
+					return record.taker_addr ? getPerformerName(record) : "n/a";
 				},
-				{
-					title: "Status",
-					dataIndex: "status",
+			},
+			{
+				title: "Settl. acc",
+				render: (text, record, index) => {
+					return record.taker ? (
+						<Tooltip title="See settlement accounts">
+							<Button
+								shape="round"
+								icon="account-book"
+								onClick={e => showUserSettlementsModal(record.taker.id)}
+							/>
+						</Tooltip>
+					) : (
+						"n/a"
+					);
 				},
-				{
-					title: "Created",
-					render: (text, record, index) => {
-						return getLocalTime(record.trx_timestamp);
-					},
+			},
+			{
+				title: "Countdown",
+				render: (text, record, index) => {
+					return record.taker_addr && record.choose_timestamp && record.status !== "complained" ? (
+						<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
+					) : (
+						"n/a"
+					);
 				},
-				{
-					title: "Performer",
-					render: (text, record, index) => {
-						return record.taker_addr ? getPerformerName(record) : "n/a";
-					},
-				},
-				{
-					title: "Settl. acc",
-					render: (text, record, index) => {
-						return record.taker ? (
-							<Tooltip title="See settlement accounts">
-								<Button
-									shape="round"
-									icon="account-book"
-									onClick={e => showUserSettlementsModal(record.taker.id)}
+			},
+			{
+				title: "Actions",
+				render: (text, record, index) => {
+					const isComplainActive =
+						record.request_id === activeRequestId && activeAction === aa.complain;
+
+					return (
+						<>
+							{record.status === "opened" &&
+								record.operation_messages &&
+								!record.operation_messages.length && (
+									<Button
+										style={styles.btn}
+										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+											requestId: record.id,
+											isSendingMessage: true,
+										})}
+									>
+										Send to agents
+									</Button>
+								)}
+
+							{(record.status === "opened" || record.status === "choose") && (
+								<CancelRequest
+									btnStyle={styles.btn}
+									requestId={record.request_id}
+									fetchRequests={fetchData}
+									disabled={isComplainActive}
 								/>
-							</Tooltip>
-						) : (
-							"n/a"
-						);
-					},
-				},
-				{
-					title: "Countdown",
-					render: (text, record, index) => {
-						return record.taker_addr &&
-							record.choose_timestamp &&
-							record.status !== "complained" ? (
-							<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
-						) : (
-							"n/a"
-						);
-					},
-				},
-				{
-					title: "Actions",
-					render: (text, record, index) => {
-						const isComplainActive =
-							record.request_id === activeRequestId && activeAction === aa.complain;
-
-						return (
-							<>
-								{record.status === "opened" &&
-									record.operation_messages &&
-									!record.operation_messages.length && (
-										<Button
-											style={styles.btn}
-											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-												requestId: record.id,
-												isSendingMessage: true,
-											})}
-										>
-											Send to agents
-										</Button>
-									)}
-
-								{(record.status === "opened" || record.status === "choose") && (
-									<CancelRequest
-										btnStyle={styles.btn}
-										requestId={record.request_id}
-										fetchRequests={fetchData}
-										disabled={isComplainActive}
-									/>
+							)}
+							{record.operation_messages &&
+								isAgentAccepted(record.operation_messages) &&
+								record.status === "opened" && (
+									<Button
+										style={styles.btn}
+										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+											requestId: record.request_id,
+											isSendingMessage: false,
+											openedRequestData: record,
+											operationMessages: record.operation_messages.filter(
+												msg => msg.status_code === operationMessageStatus.accepted
+											),
+										})}
+									>
+										Choose agent
+									</Button>
 								)}
-								{record.operation_messages &&
-									isAgentAccepted(record.operation_messages) &&
-									record.status === "opened" && (
-										<Button
-											style={styles.btn}
-											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-												requestId: record.request_id,
-												isSendingMessage: false,
-												openedRequestData: record,
-												operationMessages: record.operation_messages.filter(
-													msg => msg.status_code === operationMessageStatus.accepted
-												),
-											})}
-										>
-											Choose agent
-										</Button>
-									)}
-								{record.taker_addr &&
-									record.choose_timestamp &&
-									record.status !== "complained" &&
-									!is24hOver(record.choose_timestamp) &&
-									renderComplainButton(record, handleComplain, isComplainActive)}
-							</>
-						);
-					},
+							{record.taker_addr &&
+								record.choose_timestamp &&
+								record.status !== "complained" &&
+								!is24hOver(record.choose_timestamp) &&
+								renderComplainButton(record, handleComplain, isComplainActive)}
+						</>
+					);
 				},
-			];
-		} else if (requestsType === "withdraw") {
-			return [
-				{
-					title: "Id",
-					dataIndex: "id",
-				},
-				{
-					title: "Asset",
-					dataIndex: "asset",
-				},
-				{
-					title: "Amount",
-					render: (text, record, index) => {
-						return convertAmountToStr(record.amount, 8);
-					},
-				},
-				{
-					title: "Status",
-					dataIndex: "status",
-				},
-				{
-					title: "Created",
-					render: (text, record, index) => {
-						return getLocalTime(record.trx_timestamp);
-					},
-				},
-				{
-					title: "Performer",
-					render: (text, record, index) => {
-						return record.taker_addr ? getPerformerName(record) : "n/a";
-					},
-				},
-				{
-					title: "Countdown",
-					render: (text, record, index) => {
-						return record.taker_addr &&
-							record.choose_timestamp &&
-							record.status !== "complained" ? (
-							<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
-						) : (
-							"n/a"
-						);
-					},
-				},
-				{
-					title: "Actions",
-					render: (text, record, index) => {
-						const isComplainActive =
-							record.request_id === activeRequestId && activeAction === aa.complain;
-
-						return (
-							<>
-								{record.status === "opened" &&
-									record.operation_messages &&
-									!record.operation_messages.length && (
-										<Button
-											style={styles.btn}
-											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-												requestId: record.id,
-												isSendingMessage: true,
-											})}
-										>
-											Send to agents
-										</Button>
-									)}
-
-								{(record.status === "opened" || record.status === "choose") && (
-									<CancelRequest
-										btnStyle={styles.btn}
-										requestId={record.request_id}
-										fetchRequests={fetchData}
-										disabled={isComplainActive}
-									/>
-								)}
-								{record.operation_messages &&
-									isAgentAccepted(record.operation_messages) &&
-									record.status === "opened" && (
-										<Button
-											style={styles.btn}
-											onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-												requestId: record.request_id,
-												isSendingMessage: false,
-												operationMessages: record.operation_messages.filter(
-													msg => msg.status_code === operationMessageStatus.accepted
-												),
-											})}
-										>
-											Choose agent
-										</Button>
-									)}
-								{record.taker_addr &&
-									record.choose_timestamp &&
-									record.status !== "complained" &&
-									!is24hOver(record.choose_timestamp) &&
-									renderComplainButton(record, handleComplain, isComplainActive)}
-							</>
-						);
-					},
-				},
-			];
-		}
+			},
+		];
 	} else {
-		if (requestsType === "deposit" || requestsType === "depositOnyxCash") {
-			return [
-				{
-					title: "Id",
-					dataIndex: "id",
+		return [
+			{
+				title: "Id",
+				dataIndex: "id",
+			},
+			{
+				title: "Asset",
+				dataIndex: "asset",
+			},
+			{
+				title: "Amount",
+				render: (text, record, index) => {
+					return convertAmountToStr(record.amount, 8);
 				},
-				{
-					title: "Asset",
-					dataIndex: "asset",
+			},
+			{
+				title: "Status",
+				dataIndex: "status",
+			},
+			{
+				title: "Created",
+				render: (text, record, index) => {
+					return new Date(record.trx_timestamp).toLocaleString();
 				},
-				{
-					title: "Amount",
-					render: (text, record, index) => {
-						return convertAmountToStr(record.amount, 8);
-					},
+			},
+			{
+				title: "Performer",
+				render: (text, record, index) => {
+					return record.taker_addr ? getPerformerName(record) : "n/a";
 				},
-				{
-					title: "Status",
-					dataIndex: "status",
-				},
-				{
-					title: "Created",
-					render: (text, record, index) => {
-						return new Date(record.trx_timestamp).toLocaleString();
-					},
-				},
-				{
-					title: "Performer",
-					render: (text, record, index) => {
-						return record.taker_addr ? getPerformerName(record) : "n/a";
-					},
-				},
-			];
-		} else if (requestsType === "withdraw") {
-			return [
-				{
-					title: "Id",
-					dataIndex: "id",
-				},
-				{
-					title: "Asset",
-					dataIndex: "asset",
-				},
-				{
-					title: "Amount",
-					render: (text, record, index) => {
-						return convertAmountToStr(record.amount, 8);
-					},
-				},
-				{
-					title: "Status",
-					dataIndex: "status",
-				},
-				{
-					title: "Created",
-					render: (text, record, index) => {
-						return new Date(record.trx_timestamp).toLocaleString();
-					},
-				},
-				{
-					title: "Performer",
-					render: (text, record, index) => {
-						return record.taker_addr ? getPerformerName(record) : "n/a";
-					},
-				},
-			];
-		}
+			},
+		];
 	}
 }
