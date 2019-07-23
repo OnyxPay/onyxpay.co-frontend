@@ -26,14 +26,13 @@ function DeleteAccount(props) {
 			cancelText: "No",
 			async onOk() {
 				const res = await deleteUserAccount();
-				console.log(res);
-				if (res === "OK") {
-					await logOut();
-				} else {
+				if (res !== "OK") {
 					showNotification({
 						type: "error",
-						msg: "Your are account didn't was deleted",
+						msg: "Your account  was not  deleted",
 					});
+				} else {
+					await logOut();
 				}
 				toggleBtnLoading(false);
 			},

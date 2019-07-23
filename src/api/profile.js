@@ -24,14 +24,13 @@ export async function changeProfile(data) {
 
 export async function deleteUserAccount() {
 	const authHeaders = getAuthHeaders();
-	//const res = await restClient.delete("/", { headers: { ...authHeaders } });
 	try {
 		const res = await restClient.delete("profile", {
 			headers: {
 				...authHeaders,
 			},
 		});
-		return res;
+		return res.data;
 	} catch (error) {
 		return handleReqError(error);
 	}
