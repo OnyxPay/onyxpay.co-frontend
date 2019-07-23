@@ -83,36 +83,24 @@ let UserUpgradeRequests = Loadable({
 	loading: Loader,
 });
 
-let ActiveAssetRequests = Loadable({
+let ActiveOpRequests = Loadable({
 	loader: () =>
-		import(/* webpackChunkName: "ActiveAssetRequests" */ "./pages/requests/deposit-and-withdraw/ActiveRequests"),
+		import(/* webpackChunkName: "ActiveOpRequests" */ "./pages/requests/ActiveRequests"),
 	loading: Loader,
 });
 
-let ClosedAssetRequests = Loadable({
+let ClosedOpRequests = Loadable({
 	loader: () =>
-		import(/* webpackChunkName: "ClosedAssetRequests" */ "./pages/requests/deposit-and-withdraw/ClosedRequests"),
-	loading: Loader,
-});
-
-let ActiveOnyxCashRequests = Loadable({
-	loader: () =>
-		import(/* webpackChunkName: "ActiveOnyxCashRequests" */ "./pages/requests/deposit-onyx-cash/ActiveRequests"),
-	loading: Loader,
-});
-
-let ClosedOnyxCashRequests = Loadable({
-	loader: () =>
-		import(/* webpackChunkName: "ClosedOnyxCashRequests" */ "./pages/requests/deposit-onyx-cash/ClosedRequests"),
+		import(/* webpackChunkName: "ClosedOpRequests" */ "./pages/requests/ClosedRequests"),
 	loading: Loader,
 });
 
 // permissions
 const User = Authorization([roles.c]);
-const AgentAndSuperAgent = Authorization([roles.a, roles.sa]);
+// const AgentAndSuperAgent = Authorization([roles.a, roles.sa]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
-const UserAndAgent = Authorization([roles.c, roles.a]);
+// const UserAndAgent = Authorization([roles.c, roles.a]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
@@ -127,10 +115,8 @@ Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
 Assets = AdminAndSuperAdmin(Assets);
-ActiveAssetRequests = UserAndAgent(ActiveAssetRequests);
-ClosedAssetRequests = UserAndAgent(ClosedAssetRequests);
-ActiveOnyxCashRequests = AgentAndSuperAgent(ActiveOnyxCashRequests);
-ClosedOnyxCashRequests = AgentAndSuperAgent(ClosedOnyxCashRequests);
+ActiveOpRequests = All(ActiveOpRequests);
+ClosedOpRequests = All(ClosedOpRequests);
 
 class App extends Component {
 	componentDidMount() {
@@ -153,33 +139,27 @@ class App extends Component {
 					<Route path="/deposit-onyx-cash" exact component={Deposit} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 
-					{/* Agent initiator | Super agent initiator */}
-					<Route
-						path="/active-requests/deposit-onyx-cash"
-						exact
-						component={ActiveOnyxCashRequests}
-					/>
-					<Route
-						path="/closed-requests/deposit-onyx-cash"
-						exact
-						component={ClosedOnyxCashRequests}
-					/>
+					{/* Agent initiator || Super agent initiator */}
+					<Route path="/active-requests/deposit-onyx-cash" exact component={ActiveOpRequests} />
+					<Route path="/closed-requests/deposit-onyx-cash" exact component={ClosedOpRequests} />
 
 					{/* Super agent performer */}
 					<Route
 						path="/active-customer-requests/deposit-onyx-cash"
 						exact
-						component={ActiveOnyxCashRequests}
+						component={ActiveOpRequests}
 					/>
 					<Route
 						path="/closed-customer-requests/deposit-onyx-cash"
 						exact
-						component={ClosedOnyxCashRequests}
+						component={ClosedOpRequests}
 					/>
 
-					{/* Agent performer | client initiator */}
-					<Route path="/active-requests/:type" exact component={ActiveAssetRequests} />
-					<Route path="/closed-requests/:type" exact component={ClosedAssetRequests} />
+					{/* Agent performer || client initiator */}
+					<Route path="/active-requests/deposit" exact component={ActiveOpRequests} />
+					<Route path="/active-requests/withdraw" exact component={ActiveOpRequests} />
+					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
+					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
 
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
 					<Route path="/exchange" exact component={AssetsExchange} />

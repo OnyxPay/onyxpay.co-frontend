@@ -13,8 +13,6 @@ import { sessionReducer } from "./session";
 import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users";
 import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
-import { activeDepositOcRequestsReducer } from "./requests/onyxCash/activeDeposit";
-import { closedDepositOcRequestsReducer } from "./requests/onyxCash/closedDeposit";
 import { opRequestsReducer } from "./requests";
 
 const appReducer = history =>
@@ -34,8 +32,6 @@ const appReducer = history =>
 		userSettlement: setUserSettlementDataReducer,
 		assets: assetsReducer,
 		globalLoading: loadingReducer,
-		activeDepositOcRequests: activeDepositOcRequestsReducer,
-		closedDepositOcRequests: closedDepositOcRequestsReducer,
 		opRequests: opRequestsReducer,
 	});
 

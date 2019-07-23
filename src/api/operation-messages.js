@@ -33,9 +33,9 @@ export async function hideMessage(requestId) {
 	}
 }
 
-export async function getMessages(params, requestType, isActive) {
+export async function getMessages(params, requestType, fetchActive) {
 	let requestStatus = "active-requests";
-	if (!isActive) {
+	if (!fetchActive) {
 		requestStatus = "close-requests";
 	}
 

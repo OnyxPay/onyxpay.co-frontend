@@ -1,14 +1,22 @@
 import React from "react";
 import { PageTitle } from "components/styled";
+import { roles } from "api/constants";
 
-export function parseRequestType({ match, push }) {
-	if (match.params.type === "withdraw") {
-		return "withdraw";
-	} else if (match.params.type === "deposit") {
-		return "deposit";
-	} else {
-		push("/requests"); // redirect to 404
-		return null;
+export function parseRequestType({ pathname }) {
+	switch (pathname) {
+		case "/active-requests/deposit":
+		case "/closed-requests/deposit":
+			return "deposit";
+		case "/active-requests/withdraw":
+		case "/closed-requests/withdraw":
+			return "withdraw";
+		case "/active-requests/deposit-onyx-cash":
+		case "/closed-requests/deposit-onyx-cash":
+		case "/active-customer-requests/deposit-onyx-cash":
+		case "/closed-customer-requests/deposit-onyx-cash":
+			return "buy_onyx_cash";
+		default:
+			return null;
 	}
 }
 
@@ -42,3 +50,11 @@ export const aa = {
 	cancelAccepted: "cancelAccepted",
 	complain: "complain",
 };
+
+export function isThisAgentInitiator(userRole, location) {
+	return (
+		(userRole === roles.a || userRole === roles.sa) &&
+		(location.pathname === "/active-requests/deposit-onyx-cash" ||
+			location.pathname === "/closed-requests/deposit-onyx-cash")
+	);
+}

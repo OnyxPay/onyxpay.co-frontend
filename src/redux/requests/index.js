@@ -20,19 +20,21 @@ export const opRequestsReducer = (state = initState, action) => {
 	}
 };
 
-export const getOpRequests = (
+export const getOpRequests = ({
 	params = {},
-	requestType,
-	isActive,
-	isInitiator
-) => async dispatch => {
+	requestType, // deposit | withdraw | buy_onyx_cash
+	fetchActive,
+	isInitiator,
+}) => async dispatch => {
 	dispatch({ type: GET_OPERATION_REQUESTS_REQUEST });
+	console.log({ params, requestType, fetchActive, isInitiator });
+
 	try {
 		let data;
 		if (isInitiator) {
 			data = await getRequests(params);
 		} else {
-			data = await getMessages(params, requestType, isActive);
+			data = await getMessages(params, requestType, fetchActive);
 		}
 		dispatch({ type: GET_OPERATION_REQUESTS_SUCCESS, payload: data });
 	} catch (e) {

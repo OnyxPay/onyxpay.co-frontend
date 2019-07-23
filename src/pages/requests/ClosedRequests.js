@@ -3,12 +3,12 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table } from "antd";
-import { roles } from "api/constants";
 import { push } from "connected-react-router";
-import { parseRequestType, renderPageTitle } from "../common";
-import renderInitiatorColumns from "../table/columns/renderInitiatorColumns";
-import renderPerformerColumns from "../table/columns/renderPerformerColumns";
+import { roles } from "api/constants";
 import { createLoadingSelector } from "selectors/loading";
+import { parseRequestType, renderPageTitle, isThisAgentInitiator } from "./common";
+import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
+import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
@@ -53,56 +53,54 @@ class ClosedRequests extends Component {
 	fetch = (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, match, push, getOpRequests } = this.props;
+			const { user, location, getOpRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
-			const requestType = parseRequestType({ match, push });
-
+			const requestType = parseRequestType(location);
 			if (user.role === roles.c) {
 				params.type = requestType;
 				params.status = "rejected,completed";
 				params.user = "maker";
-				if (requestType === "deposit") {
-					getOpRequests(params, "deposit", false, true);
-				} else if (requestType === "withdraw") {
-					getOpRequests(params, "withdraw", false, true);
-				}
-			} else if (user.role === roles.a) {
-				if (requestType === "deposit") {
-					getOpRequests(params, "deposit", false, false);
-				} else if (requestType === "withdraw") {
-					getOpRequests(params, "withdraw", false, false);
+				getOpRequests({ params, requestType, fetchActive: false, isInitiator: true });
+			} else {
+				let isAgentInitiator = isThisAgentInitiator(user.role, location);
+				if (isAgentInitiator) {
+					params.status = "rejected,completed";
+					params.user = "maker";
+					getOpRequests({ params, requestType, fetchActive: false, isInitiator: true });
+				} else {
+					getOpRequests({ params, requestType, fetchActive: false, isInitiator: false });
 				}
 			}
 		}
 	};
 
 	render() {
-		const { user, match, push, data, isFetching } = this.props;
-
+		const { user, location, data, isFetching } = this.props;
+		let isAgentInitiator = isThisAgentInitiator(user.role, location);
 		let columns = [];
 
-		if (user.role === roles.c) {
+		if (user.role === roles.c || isAgentInitiator) {
 			columns = renderInitiatorColumns({
 				requestsStatus: "closed",
-				requestsType: parseRequestType({ match, push }),
+				requestsType: parseRequestType(location),
 			});
-		} else if (user.role === roles.a) {
+		} else {
 			columns = renderPerformerColumns({
 				requestsStatus: "closed",
-				requestsType: parseRequestType({ match, push }),
+				requestsType: parseRequestType(location),
 			});
 		}
 
 		return (
 			<>
 				{renderPageTitle({
-					requestType: parseRequestType({ match, push }),
+					requestType: parseRequestType(location),
 					isRequestClosed: true,
-					isUserInitiator: user.role === roles.c,
+					isUserInitiator: user.role === roles.c || isAgentInitiator,
 				})}
 				<Table
 					columns={columns}

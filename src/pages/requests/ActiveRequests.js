@@ -3,20 +3,20 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Table } from "antd";
+import queryString from "query-string";
+import { push } from "connected-react-router";
+import { TimeoutError } from "promise-timeout";
 import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
 import { hideMessage } from "api/operation-messages";
 import ChoosePerformerModal from "components/modals/ChoosePerformer";
 import { roles } from "api/constants";
-import { push } from "connected-react-router";
-import { TimeoutError } from "promise-timeout";
-import UserSettlementsModal from "components/modals/UserSettlementsModal";
-import renderInitiatorColumns from "../table/columns/renderInitiatorColumns";
-import renderPerformerColumns from "../table/columns/renderPerformerColumns";
-import { parseRequestType, renderPageTitle, aa } from "../common";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import { createLoadingSelector } from "selectors/loading";
-import queryString from "query-string";
-import { handleTableChange, getColumnSearchProps } from "../table";
+import UserSettlementsModal from "components/modals/UserSettlementsModal";
+import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
+import renderPerformerColumns from "./table/columns/renderPerformerColumns";
+import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
+import { handleTableChange, getColumnSearchProps } from "./table";
 
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
@@ -75,28 +75,28 @@ class ActiveRequests extends Component {
 
 	fetch = (opts = {}) => {
 		const { pagination } = this.state;
-		const { user, match, push, getOpRequests } = this.props;
+		const { user, location, getOpRequests } = this.props;
 		const params = {
 			pageSize: pagination.pageSize,
 			pageNum: pagination.current,
 			...opts,
 		};
-		const requestType = parseRequestType({ match, push });
+		const requestType = parseRequestType(location);
 
 		if (user.role === roles.c) {
 			params.type = requestType;
 			params.status = "pending,opened,choose,complained";
 			params.user = "maker";
-			if (requestType === "deposit") {
-				getOpRequests(params, "deposit", true, true);
-			} else if (requestType === "withdraw") {
-				getOpRequests(params, "withdraw", true, true);
-			}
-		} else if (user.role === roles.a) {
-			if (requestType === "deposit") {
-				getOpRequests(params, "deposit", true, false);
-			} else if (requestType === "withdraw") {
-				getOpRequests(params, "withdraw", true, false);
+			// deposit | withdraw
+			getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
+		} else {
+			let isAgentInitiator = isThisAgentInitiator(user.role, location);
+			if (isAgentInitiator) {
+				params.status = "pending,opened,choose,complained";
+				params.user = "maker";
+				getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
+			} else {
+				getOpRequests({ params, requestType, fetchActive: true, isInitiator: false });
 			}
 		}
 	};
@@ -216,11 +216,12 @@ class ActiveRequests extends Component {
 	};
 
 	render() {
-		const { user, walletAddress, match, push, data, isFetching } = this.props;
+		const { user, walletAddress, location, data, isFetching } = this.props;
 		const { requestId, activeAction, idParsedFromURL, openedRequestData } = this.state;
 		let columns = [];
+		let isAgentInitiator = isThisAgentInitiator(user.role, location);
 
-		if (user.role === roles.c) {
+		if (user.role === roles.c || isAgentInitiator) {
 			columns = renderInitiatorColumns({
 				activeRequestId: requestId,
 				activeAction,
@@ -228,14 +229,14 @@ class ActiveRequests extends Component {
 				fetchData: this.fetch,
 				showModal: this.showModal,
 				handleComplain: this.handleComplain,
-				requestsType: parseRequestType({ match, push }),
+				requestsType: parseRequestType(location),
 				requestsStatus: "active",
 				showUserSettlementsModal: settlementsId =>
 					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
 						settlementsId,
 					})(),
 			});
-		} else if (user.role === roles.a) {
+		} else {
 			columns = renderPerformerColumns({
 				activeRequestId: requestId,
 				activeAction,
@@ -246,7 +247,7 @@ class ActiveRequests extends Component {
 				performRequest: this.performRequest,
 				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
 				defaultFilterValue: idParsedFromURL,
-				requestsType: parseRequestType({ match, push }),
+				requestsType: parseRequestType(location),
 				requestsStatus: "active",
 			});
 		}
@@ -254,9 +255,9 @@ class ActiveRequests extends Component {
 		return (
 			<>
 				{renderPageTitle({
-					requestType: parseRequestType({ match, push }),
+					requestType: parseRequestType(location),
 					isRequestClosed: false,
-					isUserInitiator: user.role === roles.c,
+					isUserInitiator: user.role === roles.c || isAgentInitiator,
 				})}
 				<Table
 					columns={columns}
