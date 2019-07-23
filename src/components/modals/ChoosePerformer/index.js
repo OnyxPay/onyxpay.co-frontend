@@ -158,7 +158,9 @@ class SendToAgent extends Component {
 
 		return (
 			<Modal
-				title="Send deposit request"
+				title={
+					isSendingMessage ? "Send request to potential performer/ performers" : "Choose performer"
+				}
 				visible={isModalVisible}
 				onCancel={this.handleClose}
 				footer={null}

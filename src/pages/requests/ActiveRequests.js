@@ -284,7 +284,7 @@ class ActiveRequests extends Component {
 							settlementsId,
 						})()
 					}
-					performer={roles.a}
+					performer={user.role === roles.c ? roles.a : roles.sa}
 					openedRequestData={openedRequestData}
 				/>
 				<UserSettlementsModal

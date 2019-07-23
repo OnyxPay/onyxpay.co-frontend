@@ -21,10 +21,10 @@ export const opRequestsReducer = (state = initState, action) => {
 };
 
 export const getOpRequests = ({
-	params = {},
+	params = {}, // get params
 	requestType, // deposit | withdraw | buy_onyx_cash
-	fetchActive,
-	isInitiator,
+	fetchActive, // true | false
+	isInitiator, // true | false
 }) => async dispatch => {
 	dispatch({ type: GET_OPERATION_REQUESTS_REQUEST });
 	console.log({ params, requestType, fetchActive, isInitiator });
