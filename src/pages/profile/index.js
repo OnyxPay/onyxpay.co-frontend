@@ -7,6 +7,7 @@ import ProfileEditor from "./ProfileEditor";
 import WalletAddress from "./WalletAddress";
 import Actions from "../../redux/actions";
 import SettlementCard from "../../pages/settlements/SettlementCard";
+import DeleteAccount from "./DeleteAccount";
 
 class Profile extends Component {
 	render() {
@@ -23,6 +24,7 @@ class Profile extends Component {
 					<ProfileEditor />
 				</Card>
 				<SettlementCard />
+				<DeleteAccount />
 			</>
 		);
 	}
