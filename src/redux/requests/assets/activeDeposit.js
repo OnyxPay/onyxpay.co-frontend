@@ -5,6 +5,7 @@ import {
 	requestStatusNames,
 	operationMessageStatus,
 	operationMessageStatusNames,
+	requestStatus,
 } from "api/constants";
 
 export const GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST = "GET_ACTIVE_DEPOSIT_REQUESTS_REQUEST";
@@ -39,7 +40,7 @@ export const activeDepositRequestsReducer = (state = initState, action) => {
 			});
 			console.info({ ...state, items: stateItems });
 			return { ...state, items: stateItems };
-		case wsEvents.saveRequest:
+		case wsEvents.chooseAgent:
 			let items = state.items.map(el => {
 				if (el.request_id === action.payload.requestId) {
 					return {
@@ -51,6 +52,19 @@ export const activeDepositRequestsReducer = (state = initState, action) => {
 				return el;
 			});
 			return { ...state, items: items };
+		case wsEvents.saveRequest:
+			let savedItems = state.items.map(el => {
+				if (el.trx_hash === action.payload.trxHash) {
+					return {
+						...el,
+						status_code: action.payload.status,
+						status: requestStatusNames[action.payload.status],
+						requestId: action.payload.requestId,
+					};
+				}
+				return el;
+			});
+			return { ...state, items: savedItems };
 		case wsEvents.newMessage:
 			console.info(action.payload);
 			action.payload.forEach(item => {
