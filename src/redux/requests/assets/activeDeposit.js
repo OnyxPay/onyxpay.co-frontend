@@ -36,7 +36,7 @@ export const activeDepositRequestsReducer = (state = initState, action) => {
 		case wsEvents.acceptRequest:
 			pred = item => {
 				if (item.request_id === action.payload.requestId) {
-					item.operation_messages.forEach(message => {
+					item.operation_messages = item.operation_messages.map(message => {
 						if (message.id === action.payload.messageId) {
 							return {
 								...message,
