@@ -112,6 +112,7 @@ const User = Authorization([roles.c]);
 const Agent = Authorization([roles.a, roles.sa]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
+const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
@@ -125,9 +126,8 @@ ActiveRequests = All(ActiveRequests);
 const UserDeposit = User(Deposit);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
-
 const AgentDeposit = Agent(Deposit2);
-
+Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
@@ -140,6 +140,21 @@ class App extends Component {
 		initBalanceProvider();
 		syncLoginState();
 		wsClientRun();
+	}
+	getAdditionalRoutes() {
+		if (process.env.TAG !== "prod") {
+			return (
+				<>
+					<Route path="/deposit" component={UserDeposit} />
+					<Route path="/deposit:agent" exact component={AgentDeposit} />
+					<Route path="/active-requests/:type" exact component={ActiveRequests} />
+					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
+					<Route path="/exchange" exact component={AssetsExchange} />
+					<Route path="/send-asset" exact component={SendAsset} />
+					<Route path="/withdraw" exact component={Withdraw} />
+				</>
+			);
+		}
 	}
 
 	render() {
@@ -154,16 +169,10 @@ class App extends Component {
 					<Route path="/admin/requests/complaints" exact component={Complaints} />
 					<Route path="/admin/requests/complaints/resolve" exact component={ResolvedComplaints} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/deposit" component={UserDeposit} />
-					<Route path="/deposit:agent" exact component={AgentDeposit} />
-					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/active-requests/:type" exact component={ActiveRequests} />
-					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
-					<Route path="/exchange" exact component={AssetsExchange} />
-					<Route path="/send-asset" exact component={SendAsset} />
-					<Route path="/withdraw" exact component={Withdraw} />
 					<Route path="/profile" exact component={Profile} />
+					<Route path="/settlement-accounts" exact component={Settlement} />
+					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
+					{this.getAdditionalRoutes()}
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
