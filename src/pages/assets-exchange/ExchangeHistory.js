@@ -2,16 +2,22 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Table } from "antd";
 import { getExchangeHistory } from "../../api/transactions-history";
+import { convertAmountToStr } from "../../utils/number";
 
 class ExchangeHistory extends Component {
 	state = {
 		pagination: { current: 1, pageSize: 10 },
-		fetchingExchangeHistory: false,
 		exchangeHistoryData: [],
 	};
 
 	componentDidMount = () => {
-		this.fetchTransactionHistory();
+		try {
+			setInterval(() => {
+				this.fetchTransactionHistory();
+			}, 30000);
+		} catch (e) {
+			console.log(e);
+		}
 	};
 
 	handleTableChange = async pagination => {
@@ -38,13 +44,11 @@ class ExchangeHistory extends Component {
 				pageNum: pagination.current,
 				...opts,
 			};
-			this.setState({ fetchingExchangeHistory: true });
 			const res = await getExchangeHistory(params);
 			if (!res.error) {
 				pagination.total = res.total;
 				this.setState({
 					pagination,
-					fetchingExchangeHistory: false,
 					exchangeHistoryData: res.items,
 				});
 			}
@@ -57,10 +61,7 @@ class ExchangeHistory extends Component {
 				title: "Transaction Hash",
 				dataIndex: "trxHast",
 				key: "transactionHash",
-				render: res => {
-					console.log("inside", res);
-					return res ? res : "n/a";
-				},
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Date",
@@ -73,7 +74,7 @@ class ExchangeHistory extends Component {
 				dataIndex: "",
 				key: "soldAsset",
 				render: res =>
-					(res.amountToSell ? res.amountToSell : "n/a") +
+					(res.amountToSell ? convertAmountToStr(res.amountToSell, 8) : "n/a") +
 					" " +
 					(res.assetToSell ? res.assetToSell : "n/a"),
 			},
@@ -82,7 +83,7 @@ class ExchangeHistory extends Component {
 				dataIndex: "",
 				key: "boughtAsset",
 				render: res =>
-					(res.amountToBuy ? res.amountToBuy : "n/a") +
+					(res.amountToBuy ? convertAmountToStr(res.amountToBuy, 0) : "n/a") +
 					" " +
 					(res.assetToBuy ? res.assetToBuy : "n/a"),
 			},
@@ -101,7 +102,6 @@ class ExchangeHistory extends Component {
 					dataSource={this.state.exchangeHistoryData}
 					pagination={this.state.pagination}
 					onChange={this.handleTableChange}
-					loading={this.state.fetchingExchangeHistory}
 					locale={{ emptyText: "You haven't performed any exchange transactions yet." }}
 				/>
 			</>
