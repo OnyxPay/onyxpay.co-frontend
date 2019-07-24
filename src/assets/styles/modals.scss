@@ -49,6 +49,10 @@
 	}
 }
 
+.detailed-balance-modal {
+	width: max-content !important;
+}
+
 @media (max-width: 991px) {
 	.ant-modal {
 		top: 30px !important;

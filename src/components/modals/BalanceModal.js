@@ -16,7 +16,13 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 	];
 
 	return (
-		<Modal title="Detailed balance" visible={isModalVisible} onCancel={hideModal} footer={null}>
+		<Modal
+			title="Detailed balance"
+			visible={isModalVisible}
+			onCancel={hideModal}
+			footer={null}
+			className="detailed-balance-modal"
+		>
 			{role === roles.a ||
 				(role === roles.sa && <Title level={4}>ONYXCASH: {<Text>{balance.onyxCash}</Text>}</Title>)}
 
