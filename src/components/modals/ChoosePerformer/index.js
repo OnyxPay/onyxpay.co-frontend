@@ -237,7 +237,7 @@ class SendToAgent extends Component {
 											disabled={!selectedRowKeys.length || isSubmitting}
 											loading={isSubmitting}
 										>
-											Send request
+											{isSendingMessage ? "Send request" : "Choose"}
 										</Button>
 									</div>
 								</form>

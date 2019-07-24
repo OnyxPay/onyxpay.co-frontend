@@ -28,6 +28,10 @@ export function renderPageTitle({ requestType, isRequestClosed, isUserInitiator 
 		requestStatus = "Active";
 	}
 
+	if (requestType === "buy_onyx_cash") {
+		requestType = "deposit OnyxCash";
+	}
+
 	if (isUserInitiator) {
 		return (
 			<PageTitle>

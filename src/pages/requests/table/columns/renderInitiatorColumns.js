@@ -8,6 +8,11 @@ import { styles } from "../../styles";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
 
+function isTimeUp(startDate, intervalMc) {
+	const now = new Date().getTime();
+	return new Date(startDate).getTime() + intervalMc < now;
+}
+
 function isAgentAccepted(operationMessages) {
 	// check if at least one potential performer is accepted the request
 	return operationMessages.some(mg => mg.status_code === operationMessageStatus.accepted);
@@ -150,7 +155,8 @@ export default function renderInitiatorColumns({
 									</Button>
 								)}
 
-							{(record.status === "opened" || record.status === "choose") && (
+							{(record.status === "opened" ||
+								(record.status === "choose" && !isTimeUp(record.choose_timestamp, h24Mc))) && (
 								<CancelRequest
 									btnStyle={styles.btn}
 									requestId={record.request_id}

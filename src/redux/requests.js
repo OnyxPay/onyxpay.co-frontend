@@ -27,7 +27,6 @@ export const getOpRequests = ({
 	isInitiator, // true | false
 }) => async dispatch => {
 	dispatch({ type: GET_OPERATION_REQUESTS_REQUEST });
-	console.log({ params, requestType, fetchActive, isInitiator });
 
 	try {
 		let data;
