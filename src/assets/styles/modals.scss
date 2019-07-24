@@ -82,4 +82,10 @@
 			padding: 30px 15px;
 		}
 	}
+	.modal-qrcode {
+		canvas {
+			width: 128px !important;
+			height: 128px !important;
+		}
+	}
 }

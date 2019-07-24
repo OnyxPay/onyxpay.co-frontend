@@ -104,7 +104,7 @@ class Balance extends Component {
 				<Row gutter={16}>
 					<Col md={24} lg={10}>
 						<BalanceCard
-							title="Balance"
+							title="Total Balance"
 							assetLabel={user.role === roles.a || user.role === roles.sa ? "OnyxCash" : "USD"}
 							amount={user.role === roles.c ? assetsTotal : onyxCashTotal}
 							extra={

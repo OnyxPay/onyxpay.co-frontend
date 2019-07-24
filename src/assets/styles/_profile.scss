@@ -19,6 +19,15 @@
 	}
 }
 
+.referral-info {
+	display: flex;
+	span {
+		&:first-child {
+			margin-right: 5px;
+		}
+	}
+}
+
 .profile-editor-select {
 	width: 50%;
 }
@@ -48,6 +57,12 @@
 		width: 100%;
 		margin-top: 15px;
 		height: 70px;
+	}
+	.referral-info {
+		flex-wrap: wrap;
+		.btn-show-qrcode {
+			margin-top: 5px;
+		}
 	}
 }
 
