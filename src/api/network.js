@@ -1,9 +1,9 @@
 import axios from "axios";
 import { WebsocketClient, RestClient } from "ontology-ts-sdk";
 import { bcEndpoints, backEndRestEndpoint, gasCompensatorEndpoint } from "./constants";
-import { message } from "antd";
 import { getStore } from "../store";
 import { showSessionExpiredModal } from "../redux/session";
+import { showNotification } from "components/notification";
 
 const bcWsClient = new WebsocketClient(bcEndpoints.ws, false, false);
 const bcRestClient = new RestClient(bcEndpoints.rest);
@@ -69,9 +69,17 @@ export function handleReqError(error) {
 		// The request was made and the server responded with a status code
 		// that falls out of the range of 2xx
 		if (error.response.status === 404) {
-			message.error("Something went wrong at the server side", 5);
+			showNotification({
+				type: "error",
+				msg: "Error 404",
+				desc: "Not Found",
+			});
 		} else if (error.response.status === 403) {
-			message.error("Forbidden", 5);
+			showNotification({
+				type: "error",
+				msg: "Error 403",
+				desc: "Forbidden",
+			});
 		} else if (error.response.status >= 400 && error.response.status < 500) {
 			return {
 				error: {
@@ -85,15 +93,26 @@ export function handleReqError(error) {
 			// 422 Unprocessable Entity
 			// 403 Forbidden - blocked user?????
 		} else if (error.response.status >= 500) {
-			message.error("Something went wrong at the server side", 5);
+			showNotification({
+				type: "error",
+				msg: "Server error",
+				desc: "Something went wrong at the server side",
+			});
 		}
 	} else if (error.request) {
 		// The request was made but no response was received
-		message.error("Something went wrong at the server side", 5);
+		showNotification({
+			type: "error",
+			msg: "Server error",
+			desc: "Request is timed out. Something went wrong at the server side",
+		});
 		return { error: { message: "Something went wrong at the server side" } };
 	} else {
 		// Something happened in setting up the request that triggered an Error
-		message.error("Something went wrong", 5);
+		showNotification({
+			type: "error",
+			msg: "Something went wrong",
+		});
 		return {
 			error: {
 				message: "Something went wrong",

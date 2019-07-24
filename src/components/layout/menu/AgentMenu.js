@@ -3,12 +3,13 @@ import { Icon, Menu } from "antd";
 import { Link, withRouter } from "react-router-dom";
 import { compose } from "redux";
 import connect from "react-redux/es/connect/connect";
+import { roles } from "api/constants";
 
 const SubMenu = Menu.SubMenu;
 
 class AgentMenu extends Component {
 	render() {
-		const { location } = this.props;
+		const { location, role } = this.props;
 		return (
 			<Menu theme="dark" selectedKeys={[location.pathname]} mode="inline">
 				<Menu.Item key="/">
@@ -26,37 +27,58 @@ class AgentMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="/deposit:agent">
-						<Link to="/deposit:agent">Deposit</Link>
+					<Menu.Item key="/deposit-onyx-cash">
+						<Link to="/deposit-onyx-cash">Deposit</Link>
 					</Menu.Item>
-					<Menu.Item key="/test-link">
-						<Link to="/test-link">Requests</Link>
+					<Menu.Item key="/active-requests/deposit-onyx-cash">
+						<Link to="/active-requests/deposit-onyx-cash">Active deposit requests</Link>
 					</Menu.Item>
-				</SubMenu>
-
-				<SubMenu
-					key="active-requests"
-					title={
-						<span className="ant-menu-item-content">
-							<Icon type="team" />
-							<span>Customer requests</span>
-						</span>
-					}
-				>
-					<Menu.Item key="/active-requests/deposit">
-						<Link to="/active-requests/deposit">Active deposit requests</Link>
-					</Menu.Item>
-					<Menu.Item key="/active-requests/withdraw">
-						<Link to="/active-requests/withdraw">Active withdraw requests</Link>
-					</Menu.Item>
-
-					<Menu.Item key="/closed-requests/deposit">
-						<Link to="/closed-requests/deposit">Closed deposit requests</Link>
-					</Menu.Item>
-					<Menu.Item key="/closed-requests/withdraw">
-						<Link to="/closed-requests/withdraw">Closed withdraw requests</Link>
+					<Menu.Item key="/closed-requests/deposit-onyx-cash">
+						<Link to="/closed-requests/deposit-onyx-cash">Closed deposit requests</Link>
 					</Menu.Item>
 				</SubMenu>
+				{role === roles.a ? (
+					<SubMenu
+						key="active-requests"
+						title={
+							<span className="ant-menu-item-content">
+								<Icon type="team" />
+								<span>Customer requests</span>
+							</span>
+						}
+					>
+						<Menu.Item key="/active-requests/deposit">
+							<Link to="/active-requests/deposit">Active deposit requests</Link>
+						</Menu.Item>
+						<Menu.Item key="/active-requests/withdraw">
+							<Link to="/active-requests/withdraw">Active withdraw requests</Link>
+						</Menu.Item>
+
+						<Menu.Item key="/closed-requests/deposit">
+							<Link to="/closed-requests/deposit">Closed deposit requests</Link>
+						</Menu.Item>
+						<Menu.Item key="/closed-requests/withdraw">
+							<Link to="/closed-requests/withdraw">Closed withdraw requests</Link>
+						</Menu.Item>
+					</SubMenu>
+				) : (
+					<SubMenu
+						key="active-requests"
+						title={
+							<span className="ant-menu-item-content">
+								<Icon type="team" />
+								<span>Customer requests</span>
+							</span>
+						}
+					>
+						<Menu.Item key="/active-customer-requests/deposit-onyx-cash">
+							<Link to="/active-customer-requests/deposit-onyx-cash">Active deposit requests</Link>
+						</Menu.Item>
+						<Menu.Item key="/closed-customer-requests/deposit-onyx-cash">
+							<Link to="/closed-customer-requests/deposit-onyx-cash">Closed deposit requests</Link>
+						</Menu.Item>
+					</SubMenu>
+				)}
 
 				<Menu.Item key="/exchange">
 					<Link to="/exchange" className="ant-menu-item-content">

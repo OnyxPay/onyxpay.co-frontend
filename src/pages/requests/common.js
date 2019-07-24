@@ -2,18 +2,25 @@ import React from "react";
 import { PageTitle } from "components/styled";
 import { roles } from "api/constants";
 
-export function parseRequestType({ match, push }) {
-	if (match.params.type === "withdraw") {
-		return "withdraw";
-	} else if (match.params.type === "deposit") {
-		return "deposit";
-	} else {
-		push("/requests"); // redirect to 404
-		return null;
+export function parseRequestType({ pathname }) {
+	switch (pathname) {
+		case "/active-requests/deposit":
+		case "/closed-requests/deposit":
+			return "deposit";
+		case "/active-requests/withdraw":
+		case "/closed-requests/withdraw":
+			return "withdraw";
+		case "/active-requests/deposit-onyx-cash":
+		case "/closed-requests/deposit-onyx-cash":
+		case "/active-customer-requests/deposit-onyx-cash":
+		case "/closed-customer-requests/deposit-onyx-cash":
+			return "buy_onyx_cash";
+		default:
+			return null;
 	}
 }
 
-export function renderPageTitle({ userRole, requestType, isRequestClosed }) {
+export function renderPageTitle({ requestType, isRequestClosed, isUserInitiator }) {
 	let requestStatus;
 	if (isRequestClosed) {
 		requestStatus = "Closed";
@@ -21,17 +28,37 @@ export function renderPageTitle({ userRole, requestType, isRequestClosed }) {
 		requestStatus = "Active";
 	}
 
-	if (userRole === roles.c) {
+	if (requestType === "buy_onyx_cash") {
+		requestType = "deposit OnyxCash";
+	}
+
+	if (isUserInitiator) {
 		return (
 			<PageTitle>
 				{requestStatus} {requestType} requests
 			</PageTitle>
 		);
-	} else if (userRole === roles.a) {
+	} else {
 		return (
 			<PageTitle>
 				{requestStatus} customer {requestType} requests
 			</PageTitle>
 		);
 	}
+}
+
+export const aa = {
+	// active action
+	accept: "accept",
+	perform: "perform",
+	cancelAccepted: "cancelAccepted",
+	complain: "complain",
+};
+
+export function isThisAgentInitiator(userRole, location) {
+	return (
+		(userRole === roles.a || userRole === roles.sa) &&
+		(location.pathname === "/active-requests/deposit-onyx-cash" ||
+			location.pathname === "/closed-requests/deposit-onyx-cash")
+	);
 }
