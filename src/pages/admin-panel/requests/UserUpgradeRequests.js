@@ -114,15 +114,13 @@ class UserUpgradeRequests extends Component {
 		);
 	};
 
-	handleFilterStatusChange = (statuses, filters) => {
+	handleFilterStatusChange = statuses => {
 		this.setState(
 			{
 				statusFilters: statuses,
 			},
 			() => {
-				this.fetchRequests({
-					...filters,
-				});
+				this.fetchRequests();
 			}
 		);
 	};
