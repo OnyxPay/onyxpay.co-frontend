@@ -124,7 +124,7 @@ class App extends Component {
 	componentDidMount() {
 		initBalanceProvider();
 		syncLoginState();
-		wsClientRun();
+		// wsClientRun();
 	}
 	getAdditionalRoutes() {
 		if (process.env.TAG !== "prod") {
