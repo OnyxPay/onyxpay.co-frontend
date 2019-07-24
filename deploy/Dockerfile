@@ -6,4 +6,4 @@ WORKDIR /frontend
 COPY . .
 ARG TAG=prod
 ENV TAG=${TAG}
-RUN npm install; echo ${TAG}; TAG=${TAG} npm run build
+RUN npm install; REACT_APP_TAG=${TAG} npm run build
