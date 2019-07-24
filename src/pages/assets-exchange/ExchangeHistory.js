@@ -5,14 +5,13 @@ import { getExchangeHistory } from "../../api/transactions-history";
 
 class ExchangeHistory extends Component {
 	state = {
-		pagination: { current: 1, pageSize: 20 },
+		pagination: { current: 1, pageSize: 10 },
 		fetchingExchangeHistory: false,
+		exchangeHistoryData: [],
 	};
 
 	componentDidMount = () => {
 		this.fetchTransactionHistory();
-		// for testing purposes
-		// createRequest();
 	};
 
 	handleTableChange = async pagination => {
@@ -23,18 +22,16 @@ class ExchangeHistory extends Component {
 					current: pagination.current,
 					pageSize: pagination.pageSize,
 				},
+			},
+			() => {
+				this.fetchTransactionHistory();
 			}
-			// () => {
-			// this.fetchRequests({
-			// 	...filters,
-			// });
-			// }
 		);
 	};
 
 	fetchTransactionHistory = async (opts = {}) => {
 		try {
-			const { pagination, statusFilters } = this.state;
+			const { pagination } = this.state;
 
 			const params = {
 				pageSize: pagination.pageSize,
@@ -43,50 +40,57 @@ class ExchangeHistory extends Component {
 			};
 			this.setState({ fetchingExchangeHistory: true });
 			const res = await getExchangeHistory(params);
-
 			if (!res.error) {
 				pagination.total = res.total;
-				this.setState({ pagination, fetchingExchangeHistory: false, requestsData: res.items });
+				this.setState({
+					pagination,
+					fetchingExchangeHistory: false,
+					exchangeHistoryData: res.items,
+				});
 			}
 		} catch (e) {}
 	};
 
 	render() {
-		const { pagination, exchangeHistoryData } = this.state;
-
 		const exchangeHistoryColumns = [
 			{
 				title: "Transaction Hash",
-				dataIndex: "transactionHash",
+				dataIndex: "trxHast",
 				key: "transactionHash",
-				width: "9em",
 				render: res => {
-					"kek";
+					console.log("inside", res);
+					return res ? res : "n/a";
 				},
 			},
 			{
 				title: "Date",
-				dataIndex: "date",
+				dataIndex: "timestamp",
 				key: "date",
-				width: "9em",
+				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Sold asset",
-				dataIndex: "soldAsset",
+				dataIndex: "",
 				key: "soldAsset",
-				width: "9em",
+				render: res =>
+					(res.amountToSell ? res.amountToSell : "n/a") +
+					" " +
+					(res.assetToSell ? res.assetToSell : "n/a"),
 			},
 			{
 				title: "Bought Asset",
-				dataIndex: "boughtAsset",
+				dataIndex: "",
 				key: "boughtAsset",
-				width: "9em",
+				render: res =>
+					(res.amountToBuy ? res.amountToBuy : "n/a") +
+					" " +
+					(res.assetToBuy ? res.assetToBuy : "n/a"),
 			},
 			{
 				title: "Status",
-				dataIndex: "status",
+				dataIndex: "statusCode",
 				key: "status",
-				width: "9em",
+				render: res => (res ? res : "Unknown"),
 			},
 		];
 
@@ -94,8 +98,8 @@ class ExchangeHistory extends Component {
 			<>
 				<Table
 					columns={exchangeHistoryColumns}
-					dataSource={exchangeHistoryData}
-					pagination={pagination}
+					dataSource={this.state.exchangeHistoryData}
+					pagination={this.state.pagination}
 					onChange={this.handleTableChange}
 					loading={this.state.fetchingExchangeHistory}
 					locale={{ emptyText: "You haven't performed any exchange transactions yet." }}
