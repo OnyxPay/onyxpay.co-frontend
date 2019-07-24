@@ -27,8 +27,10 @@ const Text = styled.div`
 const Page404 = () => {
 	return (
 		<Wrapper>
-			<Title>404</Title>
-			<Text>This page will be available soon.</Text>
+			<Text>
+				Other features will be enabled once we are satisfied that the community knows how to create,
+				customer, agent and super agent Accounts and secure them well. Thanks.
+			</Text>
 			<Button type="primary" size="large">
 				<Link to="/">Home</Link>
 			</Button>
