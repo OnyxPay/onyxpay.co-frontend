@@ -124,7 +124,7 @@ class App extends Component {
 	componentDidMount() {
 		initBalanceProvider();
 		syncLoginState();
-		// wsClientRun();
+		wsClientRun();
 	}
 	getAdditionalRoutes() {
 		if (process.env.TAG !== "prod") {
@@ -169,7 +169,7 @@ class App extends Component {
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/login" exact component={Login} />
-          <Route path="/profile" exact component={Profile} />
+					<Route path="/profile" exact component={Profile} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
 					{this.getAdditionalRoutes()}
