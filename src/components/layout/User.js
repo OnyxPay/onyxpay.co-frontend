@@ -46,7 +46,7 @@ export default function User({ firstName, lastName, role }) {
 		return (
 			<Wrapper>
 				<Tooltip
-					title={`${firstName} ${lastName}`}
+					title={`${firstName} ${lastName} role: ${role}`}
 					placement="right"
 					trigger="hover"
 					className="user-name-tooltip"
