@@ -75,10 +75,9 @@ export const login = values => async (dispatch, getState) => {
 		) {
 			showNotification({
 				type: "error",
+				msg: er.response.data.errors.user_status,
 				desc: (
 					<>
-						{er.response.data.errors.user_status}&nbsp;
-						<br />
 						Please,&nbsp;
 						<a href="mailto:support@onyxpay.co">contact the support</a>
 					</>

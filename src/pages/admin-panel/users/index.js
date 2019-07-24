@@ -201,6 +201,53 @@ class Users extends Component {
 		if (!adminUsers) return null;
 		const columns = [
 			{
+				title: "Actions",
+				render: res => (
+					<div>
+						{res.status_code === 1 ? (
+							<Button
+								style={styles.btn}
+								type="danger"
+								icon="user-delete"
+								loading={res.user_id === this.state.user_id && loadingBlockUser}
+								onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
+							>
+								Block
+							</Button>
+						) : null}
+						{res.status_code === 2 ? (
+							<Button
+								style={styles.btn}
+								type="primary"
+								icon="user-add"
+								loading={res.user_id === this.state.user_id && loadingUnblockUser}
+								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
+							>
+								Unblock
+							</Button>
+						) : null}
+						{res.role_code !== roleCodes.user ? (
+							<Button
+								style={styles.btn}
+								type="danger"
+								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
+							>
+								Downgrade
+							</Button>
+						) : null}
+						{res.is_settlements_exists ? (
+							<Button
+								style={styles.btn}
+								icon="account-book"
+								onClick={() => this.showSettlement(res.user_id)}
+							>
+								Settlement accounts
+							</Button>
+						) : null}
+					</div>
+				),
+			},
+			{
 				title: "First name",
 				dataIndex: "first_name",
 				key: "first_name",
@@ -313,53 +360,6 @@ class Users extends Component {
 					}
 					return "";
 				},
-			},
-			{
-				title: "Actions",
-				render: res => (
-					<div>
-						{res.status_code === 1 ? (
-							<Button
-								style={styles.btn}
-								type="danger"
-								icon="user-delete"
-								loading={res.user_id === this.state.user_id && loadingBlockUser}
-								onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
-							>
-								Block
-							</Button>
-						) : null}
-						{res.status_code === 2 ? (
-							<Button
-								style={styles.btn}
-								type="primary"
-								icon="user-add"
-								loading={res.user_id === this.state.user_id && loadingUnblockUser}
-								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
-							>
-								Unblock
-							</Button>
-						) : null}
-						{res.role_code !== roleCodes.user ? (
-							<Button
-								style={styles.btn}
-								type="danger"
-								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
-							>
-								Downgrade
-							</Button>
-						) : null}
-						{res.is_settlements_exists ? (
-							<Button
-								style={styles.btn}
-								icon="account-book"
-								onClick={() => this.showSettlement(res.user_id)}
-							>
-								Settlement accounts
-							</Button>
-						) : null}
-					</div>
-				),
 			},
 		];
 

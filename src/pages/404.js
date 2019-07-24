@@ -28,7 +28,7 @@ const Page404 = () => {
 	return (
 		<Wrapper>
 			<Title>404</Title>
-			<Text>Page not found</Text>
+			<Text>This page will be available soon.</Text>
 			<Button type="primary" size="large">
 				<Link to="/">Home</Link>
 			</Button>

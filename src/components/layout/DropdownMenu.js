@@ -10,8 +10,24 @@ const UpgradeLink = styled.span`
 	color: #1890ff;
 `;
 
+const AvatarContainer = styled.div`
+	.ant-avatar {
+		background-color: #fff;
+		color: #555;
+		cursor: pointer;
+	}
+	@media (max-width: 480px) {
+		.ant-avatar {
+			width: 32px;
+			height: 32px;
+			line-height: 32px;
+			font-size: 18px;
+		}
+	}
+`;
+
 function getMenuItem(linkRole, title, userRole) {
-	if (userRole === roles.sa) {
+	if (userRole === roles.sa || userRole === roles.adm || userRole === roles.sadm) {
 		return;
 	} else if (userRole === roles.a && linkRole === roles.a) {
 		return;
@@ -30,7 +46,7 @@ const DropdownMenu = ({ logOut, user }) => {
 	let menu;
 	if (user) {
 		menu = (
-			<Menu>
+			<Menu style={{ minWidth: 160 }}>
 				{getMenuItem("agent", "Upgrade to Agent", user.role)}
 				{getMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
 				<Menu.Item>
@@ -48,11 +64,9 @@ const DropdownMenu = ({ logOut, user }) => {
 
 	return (
 		<Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-			<Avatar
-				size="large"
-				icon="user"
-				style={{ backgroundColor: "#fff", color: "#555", cursor: "pointer" }}
-			/>
+			<AvatarContainer>
+				<Avatar size="large" icon="user" />
+			</AvatarContainer>
 		</Dropdown>
 	);
 };

@@ -25,7 +25,8 @@ export function closeNotification(key) {
 export function showTimeoutNotification() {
 	return showNotification({
 		type: "info",
-		msg:
+		msg: "Timeout Error",
+		desc:
 			"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
 	});
 }

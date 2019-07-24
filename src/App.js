@@ -10,7 +10,7 @@ import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
-// import { wsClientRun } from "./websock/client";
+import { wsClientRun } from "./websock/client";
 
 let Dashboard = Loadable({
 	loader: () => import(/* webpackChunkName: "Home" */ "./pages/dashboard"),
@@ -101,6 +101,7 @@ const User = Authorization([roles.c]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
 // const UserAndAgent = Authorization([roles.c, roles.a]);
+const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
@@ -110,19 +111,52 @@ Settlement = All(Settlement);
 UpgradeUser = All(UpgradeUser);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
-Profile = All(Profile);
+Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
 Assets = AdminAndSuperAdmin(Assets);
 ActiveOpRequests = All(ActiveOpRequests);
 ClosedOpRequests = All(ClosedOpRequests);
+Deposit = All(Deposit);
 
 class App extends Component {
 	componentDidMount() {
 		initBalanceProvider();
 		syncLoginState();
 		// wsClientRun();
+	}
+	getAdditionalRoutes() {
+		if (process.env.TAG !== "prod") {
+			return (
+				<>
+					<Route path="/deposit" component={Deposit} />
+					<Route path="/exchange" exact component={AssetsExchange} />
+					<Route path="/send-asset" exact component={SendAsset} />
+					<Route path="/withdraw" exact component={Withdraw} />
+					<Route path="/deposit-onyx-cash" exact component={Deposit} />
+					{/* Agent initiator || Super agent initiator */}
+					<Route path="/active-requests/deposit-onyx-cash" exact component={ActiveOpRequests} />
+					<Route path="/closed-requests/deposit-onyx-cash" exact component={ClosedOpRequests} />
+					{/* Super agent performer */}
+					<Route
+						path="/active-customer-requests/deposit-onyx-cash"
+						exact
+						component={ActiveOpRequests}
+					/>
+					<Route
+						path="/closed-customer-requests/deposit-onyx-cash"
+						exact
+						component={ClosedOpRequests}
+					/>
+					{/* Agent performer || client initiator */}
+					<Route path="/active-requests/deposit" exact component={ActiveOpRequests} />
+					<Route path="/active-requests/withdraw" exact component={ActiveOpRequests} />
+					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
+					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
+				</>
+			);
+		}
 	}
 
 	render() {
@@ -135,37 +169,10 @@ class App extends Component {
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
 					<Route path="/login" exact component={Login} />
-					<Route path="/deposit" component={Deposit} />
-					<Route path="/deposit-onyx-cash" exact component={Deposit} />
+          <Route path="/profile" exact component={Profile} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
-
-					{/* Agent initiator || Super agent initiator */}
-					<Route path="/active-requests/deposit-onyx-cash" exact component={ActiveOpRequests} />
-					<Route path="/closed-requests/deposit-onyx-cash" exact component={ClosedOpRequests} />
-
-					{/* Super agent performer */}
-					<Route
-						path="/active-customer-requests/deposit-onyx-cash"
-						exact
-						component={ActiveOpRequests}
-					/>
-					<Route
-						path="/closed-customer-requests/deposit-onyx-cash"
-						exact
-						component={ClosedOpRequests}
-					/>
-
-					{/* Agent performer || client initiator */}
-					<Route path="/active-requests/deposit" exact component={ActiveOpRequests} />
-					<Route path="/active-requests/withdraw" exact component={ActiveOpRequests} />
-					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
-					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
-
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					<Route path="/exchange" exact component={AssetsExchange} />
-					<Route path="/send-asset" exact component={SendAsset} />
-					<Route path="/withdraw" exact component={Withdraw} />
-					<Route path="/profile" exact component={Profile} />
+					{this.getAdditionalRoutes()}
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />
