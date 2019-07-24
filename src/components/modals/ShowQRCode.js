@@ -9,7 +9,6 @@ export default function ShowQRCode(props) {
 			<Modal
 				visible={isModalVisible}
 				onCancel={hideModal}
-				s
 				onOk={hideModal}
 				className="modal-qrcode"
 			>
