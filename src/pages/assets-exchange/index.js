@@ -218,17 +218,25 @@ class AssetsExchange extends Component {
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
-		const { assetsData } = this.state;
-		const { buyPrice } = assetsData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const { sellPrice } = assetsData.find(ratesRecord => ratesRecord.name === assetToSellName);
+		let assetsForBuyData = this.getAssetsForBuyData();
+		let assetsForSellData = this.getAssetsForSellData();
+
+		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
+		const { sellPrice } = assetsForSellData.find(
+			ratesRecord => ratesRecord.name === assetToSellName
+		);
 		const amountToSell = (amountToBuy * buyPrice) / sellPrice; // amountToBuyInUsd / sellPrice
 		return amountToSell;
 	};
 
 	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
-		const { assetsData } = this.state;
-		const { buyPrice } = assetsData.find(ratesRecord => ratesRecord.name === assetToBuyName);
-		const { sellPrice } = assetsData.find(ratesRecord => ratesRecord.name === assetToSellName);
+		let assetsForBuyData = this.getAssetsForBuyData();
+		let assetsForSellData = this.getAssetsForSellData();
+
+		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
+		const { sellPrice } = assetsForSellData.find(
+			ratesRecord => ratesRecord.name === assetToSellName
+		);
 		const amountToBuy = (amountToSell * sellPrice) / buyPrice; // amountToSellInUsd * sellPrice
 		return amountToBuy;
 	};
@@ -463,8 +471,10 @@ class AssetsExchange extends Component {
 												<Form.Item>
 													<Button
 														onClick={() => {
-															const { assetsData, assetToSell } = this.state;
-															let asset = assetsData.find(
+															const { assetToSell } = this.state;
+															let assetsForSellData = this.getAssetsForSellData();
+
+															let asset = assetsForSellData.find(
 																record => record.name === assetToSell.name
 															);
 															this.handleAssetToSellAmountChange(Number(asset.balance));
@@ -492,7 +502,7 @@ class AssetsExchange extends Component {
 												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												className="asset-exchange-select"
 											>
-												{this.state.assetsData.map(asset => (
+												{this.getAssetsForSellData().map(asset => (
 													<Option key={asset.key}>{asset.key}</Option>
 												))}
 											</Select>
@@ -555,8 +565,10 @@ class AssetsExchange extends Component {
 												<Form.Item>
 													<Button
 														onClick={() => {
-															const { assetsData, assetToSell, assetToBuy } = this.state;
-															let asset = assetsData.find(
+															const { assetToSell, assetToBuy } = this.state;
+															let assetsForSellData = this.getAssetsForSellData();
+
+															let asset = assetsForSellData.find(
 																record => record.name === assetToSell.name
 															);
 															this.handleAssetToBuyAmountChange(
@@ -591,7 +603,7 @@ class AssetsExchange extends Component {
 												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												className="asset-exchange-select"
 											>
-												{this.state.assetsData.map(asset => (
+												{this.getAssetsForBuyData().map(asset => (
 													<Option key={asset.key}>{asset.key}</Option>
 												))}
 											</Select>
