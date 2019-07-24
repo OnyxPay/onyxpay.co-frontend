@@ -9,17 +9,14 @@ const Amount = styled.div`
 `;
 
 const AssetLabel = styled.span`
-	color: #f07141;
-	font-size: 18px;
 	font-weight: 500;
-	text-transform: uppercase;
 `;
 
 export const BalanceCard = ({ title, amount = 0, extra, assetLabel }) => {
 	return (
 		<Card title={title} extra={extra} style={{ marginBottom: "24px" }}>
-			<AssetLabel>{assetLabel}</AssetLabel>
 			<Amount>{amount}</Amount>
+			<AssetLabel>(in {assetLabel} equivalent)</AssetLabel>
 		</Card>
 	);
 };
