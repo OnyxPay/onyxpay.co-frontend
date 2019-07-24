@@ -7,8 +7,13 @@ const Wrapper = styled.div`
 	display: flex;
 	align-items: center;
 	border-bottom: 1px solid rgba(167, 180, 201, 0.1);
-	padding: 10px 30px 10px 20px;
+	padding: 10px 20px;
 	margin-bottom: 15px;
+	.user-name-tooltip {
+		display: flex;
+		overflow: hidden;
+		align-items: center;
+	}
 	.user-role {
 		color: white;
 		font-size: 13px;
@@ -19,6 +24,7 @@ const Wrapper = styled.div`
 		font-size: 18px;
 		font-weight: 600;
 		margin-left: 10px;
+		margin-right: 10px;
 	}
 	.ant-avatar {
 		background-color: #fff;
@@ -39,10 +45,13 @@ export default function User({ firstName, lastName, role }) {
 	if (firstName || lastName) {
 		return (
 			<Wrapper>
-				<Tooltip title={`${firstName} ${lastName}`} placement="right" trigger="hover">
+				<Tooltip
+					title={`${firstName} ${lastName}`}
+					placement="right"
+					trigger="hover"
+					className="user-name-tooltip"
+				>
 					<Avatar size="large" icon="user" />
-				</Tooltip>
-				<Tooltip title={`${firstName} ${lastName}`} placement="right" trigger="hover">
 					<Text ellipsis={true}>
 						{firstName} {lastName}
 						<p className="user-role">role: {role}</p>
