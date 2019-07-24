@@ -13,7 +13,7 @@ function sortValues(valA, valB) {
 	return 0;
 }
 
-function AgentsTable({
+function PerformersTable({
 	data,
 	loading,
 	selectedRowKeys,
@@ -128,4 +128,4 @@ function AgentsTable({
 	);
 }
 
-export default AgentsTable;
+export default PerformersTable;

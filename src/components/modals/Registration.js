@@ -10,16 +10,9 @@ import text from "../../assets/text.json";
 import { signWithPk } from "../../utils/blockchain";
 import { generateTokenTimeStamp } from "../../utils";
 import { getData as getCountriesData } from "country-list";
-import { isLatinChars } from "../../utils/validate";
+import { isLatinChars, isBase58Address } from "../../utils/validate";
 
 const { Option } = Select;
-
-const initialValues = {
-	first_name: "",
-	last_name: "",
-	country_id: "",
-	referral_code: "",
-};
 
 function areBcErrors(data) {
 	const keysToCheck = ["public_key", "wallet_addr"];
@@ -34,6 +27,15 @@ class RegistrationModal extends Component {
 			isBcValidationError: false,
 		};
 	}
+
+	getInitialFormValues = () => {
+		return {
+			first_name: "",
+			last_name: "",
+			country_id: "",
+			referral_wallet: localStorage.getItem("rcode") || "",
+		};
+	};
 
 	handleFormSubmit = async (values, formActions) => {
 		const { signUp, push, getUserData } = this.props;
@@ -80,6 +82,7 @@ class RegistrationModal extends Component {
 	render() {
 		const { isModalVisible } = this.props;
 		const { isBcValidationError } = this.state;
+		const initialReferralWalletValue = localStorage.getItem("rcode") || "";
 
 		return (
 			<Modal
@@ -89,10 +92,11 @@ class RegistrationModal extends Component {
 				footer={null}
 				className="registration-modal"
 				destroyOnClose={true}
+				maskClosable={false}
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
-					initialValues={initialValues}
+					initialValues={this.getInitialFormValues()}
 					validate={values => {
 						let errors = {};
 						if (!values.first_name) {
@@ -112,7 +116,9 @@ class RegistrationModal extends Component {
 						if (!values.country_id) {
 							errors.country_id = "required";
 						}
-
+						if (values.referral_wallet.length !== 0 && !isBase58Address(values.referral_wallet)) {
+							errors.referral_wallet = "Referral wallet address should be in base58 format";
+						}
 						return errors;
 					}}
 				>
@@ -189,13 +195,19 @@ class RegistrationModal extends Component {
 									</Select>
 								</Form.Item>
 
-								<Form.Item label="Referral code">
+								<Form.Item
+									label="Referral code"
+									validateStatus={errors.referral_wallet && touched.referral_wallet ? "error" : ""}
+									help={
+										errors.referral_wallet && touched.referral_wallet ? errors.referral_wallet : ""
+									}
+								>
 									<Input
-										name="referralCode"
-										value={values.referralCode}
+										name="referral_wallet"
+										value={values.referral_wallet}
 										onChange={handleChange}
 										onBlur={handleBlur}
-										disabled={isSubmitting}
+										disabled={isSubmitting || initialReferralWalletValue !== ""}
 									/>
 								</Form.Item>
 

@@ -4,8 +4,17 @@ export const bcEndpoints = {
 	rest: "https://" + syncNodeUrl + ":20334",
 };
 
-export const backEndRestEndpoint = "https://" + process.env.REACT_APP_BACKEND_URL + "/api/v1/";
-export const wssBackEnd = "wss://" + process.env.REACT_APP_BACKEND_URL;
+let reactAppBackendUrl;
+if (process.env.TAG === "prod") {
+	reactAppBackendUrl = "www.onyxpay.co";
+} else if (process.env.TAG === "preprod") {
+	reactAppBackendUrl = "preprod.onyxpay.co";
+} else {
+	reactAppBackendUrl = "10.100.3.189";
+}
+
+export const backEndRestEndpoint = "https://" + reactAppBackendUrl + "/api/v1/";
+export const wssBackEnd = "wss://" + reactAppBackendUrl;
 
 export const wsEvents = {
 	approveUpgradeRequest: "APPROVE_UPGRADE_REQUEST",
@@ -20,7 +29,7 @@ export const wsEvents = {
 
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
 export const addressOfHead = "87fd9b3718308de50fd639c9b9a411835936766a";
-export const BackendUrl = process.env.REACT_APP_BACKEND_URL;
+export const BackendUrl = reactAppBackendUrl;
 
 export const OnyxCashDecimals = 8;
 export const onyxCashSymbol = "oCASH";

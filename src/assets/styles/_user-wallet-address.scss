@@ -1,0 +1,45 @@
+.wallet-address-tooltip {
+	max-width: 100% !important;
+	z-index: 1000 !important;
+	span {
+		margin-right: 10px;
+	}
+}
+.user-wallet-address-container {
+	margin-right: 20px;
+	span {
+		color: white;
+		margin: 0;
+	}
+	.wallet-address {
+		i {
+			margin-left: 5px;
+			width: 16px;
+			height: 16px;
+			color: white;
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.user-wallet-address-container {
+		margin-right: 10px;
+	}
+}
+
+@media (max-width: 480px) {
+	.user-wallet-address-container {
+		.ant-avatar {
+			width: 32px;
+			height: 32px;
+			line-height: 32px;
+			font-size: 18px !important;
+		}
+	}
+}
+
+@media (max-width: 400px) {
+	.wallet-address-tooltip {
+		max-width: 250px !important;
+	}
+}

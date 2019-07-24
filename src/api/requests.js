@@ -17,6 +17,7 @@ import { notifyTimeout } from "./constants";
 import { get } from "lodash";
 
 export async function createRequest(formValues, requestType) {
+	// initiator creates a new request
 	const { pk, accountAddress } = await unlockWalletAccount();
 
 	const client = getRestClient();
@@ -25,7 +26,11 @@ export async function createRequest(formValues, requestType) {
 	const amount = convertAmountFromStr(formValues.amount);
 
 	const params = [
-		{ label: "operationRequested", type: ParameterType.String, value: requestType },
+		{
+			label: "operationRequested",
+			type: ParameterType.String,
+			value: requestType === "buy_onyx_cash" ? "deposit" : requestType,
+		},
 		{
 			label: "initiator",
 			type: ParameterType.ByteArray,
@@ -99,6 +104,7 @@ export async function getRequests(params) {
 }
 
 export async function cancelRequest(requestId, type) {
+	// initiator cancels
 	const { pk } = await unlockWalletAccount();
 	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
 	const serializedTrx = await createAndSignTrxViaGasCompensator(
@@ -143,6 +149,7 @@ export async function getRejectionCounter(userId) {
 }
 
 export async function acceptRequest(requestId) {
+	// performer accepts
 	const { pk, accountAddress } = await unlockWalletAccount();
 	const params = [
 		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
@@ -158,6 +165,7 @@ export async function acceptRequest(requestId) {
 }
 
 export async function cancelAcceptedRequest(requestId) {
+	// performer cancels
 	const { pk, accountAddress } = await unlockWalletAccount();
 	const params = [
 		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
@@ -176,7 +184,7 @@ export async function cancelAcceptedRequest(requestId) {
 	return addSignAndSendTrx(serializedTrx, pk);
 }
 
-export async function chooseAgent(requestId, agentAddress) {
+export async function choosePerformer(requestId, agentAddress) {
 	const { pk } = await unlockWalletAccount();
 	const params = [
 		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },

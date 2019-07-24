@@ -1,14 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Modal, Select, Form, Button, notification, message } from "antd";
+import { Modal, Select, Form, Button } from "antd";
 import { getData as getCountriesData } from "country-list";
 import { Formik } from "formik";
-import AgentsTable from "./AgentsTable";
-import { searchUsers } from "../../../api/users";
-import { sendMessage } from "../../../api/operation-messages";
-import { chooseAgent } from "../../../api/requests";
+import PerformersTable from "./PerformersTable";
+import { searchUsers } from "api/users";
+import { sendMessage } from "api/operation-messages";
+import { choosePerformer } from "api/requests";
 import { TimeoutError } from "promise-timeout";
-
+import { showNotification, showTimeoutNotification, showBcError } from "components/notification";
+import { convertAmountToStr } from "utils/number";
 const { Option } = Select;
 
 class SendToAgent extends Component {
@@ -33,7 +34,7 @@ class SendToAgent extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { requestId, isSendingMessage, fetchRequests } = this.props;
+		const { requestId, isSendingMessage, fetchRequests, openedRequestData } = this.props;
 		const { selectedRows } = this.state;
 
 		if (isSendingMessage) {
@@ -44,33 +45,34 @@ class SendToAgent extends Component {
 			const res = await sendMessage(requestId, ids);
 			if (!res.error) {
 				formActions.resetForm();
-				notification.success({
-					message: "Done",
-					description: "Request is successfully sent to agent/agents",
+				showNotification({
+					type: "success",
+					msg: "Request is successfully sent to agent/agents",
 				});
 				fetchRequests();
 				this.handleClose();
 			}
 		} else {
 			try {
-				const agentAddress = selectedRows[0].receiver.wallet_addr;
-				await chooseAgent(requestId, agentAddress);
+				const performer = selectedRows[0].receiver;
+				await choosePerformer(requestId, performer.wallet_addr);
 				formActions.resetForm();
-				notification.success({
-					message: "Done",
-					description: "You successfully chosen an agent",
+				showNotification({
+					type: "success",
+					msg: "You successfully chosen an agent",
+					desc: `Send ${convertAmountToStr(openedRequestData.amount, 8)} FIAT ${
+						openedRequestData.asset
+					} to agent ${performer.first_name} ${
+						performer.last_name
+					} settlement account or hand over the cash by hand`,
 				});
 				fetchRequests();
 				this.handleClose();
 			} catch (e) {
 				if (e instanceof TimeoutError) {
-					notification.info({
-						message: e.message,
-						description:
-							"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-					});
+					showTimeoutNotification();
 				} else {
-					message.error(e.message);
+					showBcError(e.message);
 				}
 			} finally {
 				formActions.setSubmitting(false);
@@ -115,16 +117,18 @@ class SendToAgent extends Component {
 	};
 
 	async fetchUsers(opts = {}) {
+		const { user, performer } = this.props;
+		const { pagination } = this.state;
 		try {
-			const { pagination } = this.state;
-			const { user } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
-				role: "agent",
+				role: performer,
 				country: user.countryId,
 				...opts,
 			};
+
+			console.log(params);
 
 			this.setState({ loading: true });
 			const res = await searchUsers(params);
@@ -154,7 +158,9 @@ class SendToAgent extends Component {
 
 		return (
 			<Modal
-				title="Send deposit request"
+				title={
+					isSendingMessage ? "Send request to potential performer/ performers" : "Choose performer"
+				}
 				visible={isModalVisible}
 				onCancel={this.handleClose}
 				footer={null}
@@ -209,7 +215,7 @@ class SendToAgent extends Component {
 										</Form.Item>
 									)}
 
-									<AgentsTable
+									<PerformersTable
 										loading={loading}
 										data={isSendingMessage ? users : operationMessages}
 										onSelectedRowKeysChange={this.onSelectedRow}
@@ -231,7 +237,7 @@ class SendToAgent extends Component {
 											disabled={!selectedRowKeys.length || isSubmitting}
 											loading={isSubmitting}
 										>
-											Send request
+											{isSendingMessage ? "Send request" : "Choose"}
 										</Button>
 									</div>
 								</form>

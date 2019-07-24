@@ -96,7 +96,8 @@ class SendAsset extends Component {
 				formActions.resetForm();
 				showNotification({
 					type: "success",
-					msg: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
+					msg: "Success",
+					desc: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
 						values.receiver_address
 					} address`,
 				});
@@ -227,6 +228,7 @@ class SendAsset extends Component {
 													onChange={handleChange}
 													onBlur={handleBlur}
 													disabled={!availableAssetsToSend.length || isSubmitting}
+													autocomplete="new-password"
 												/>
 											</Form.Item>
 										</Col>
@@ -312,9 +314,15 @@ class SendAsset extends Component {
 										</Col>
 									</Row>
 									<Row>
-										<Text type="secondary">
-											Min available amount to send is equivalent of 1 USD
-										</Text>
+										{availableAssetsToSend.length !== 0 ? (
+											<Text type="secondary">
+												Min available amount to send is equivalent of 1 USD
+											</Text>
+										) : (
+											<Text type="danger">
+												You have no assets to send at the moment. Please, make a deposit.
+											</Text>
+										)}
 									</Row>
 									<TextAligner align="right" mobile="left" className="send-assets__button-wrapper">
 										<Button

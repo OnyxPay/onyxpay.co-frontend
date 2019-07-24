@@ -9,7 +9,7 @@ type:
   warning
 */
 
-export function showNotification({ type = "info", msg, desc, duration = 10, key }) {
+export function showNotification({ type = "info", msg, desc, duration = 5, key }) {
 	return notification[type]({
 		message: msg,
 		description: desc,
@@ -25,7 +25,8 @@ export function closeNotification(key) {
 export function showTimeoutNotification() {
 	return showNotification({
 		type: "info",
-		msg:
+		msg: "Timeout Error",
+		desc:
 			"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
 	});
 }
@@ -36,5 +37,13 @@ export function showBcError(er) {
 		type: "error",
 		msg: "Block-chain error",
 		desc: parseBcError(er),
+	});
+}
+
+export function showGasCompensationError() {
+	return showNotification({
+		type: "error",
+		msg: "Gas compensation error",
+		desc: "Something went wrong at the gas compensation server",
 	});
 }

@@ -9,13 +9,17 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 		{ title: "Amount", dataIndex: "amount" },
 		{ title: "Buy", dataIndex: "buy" },
 		{ title: "Sell", dataIndex: "sell" },
-		{ title: [role === roles.a ? "ONYXCASH" : "USD"], dataIndex: "asset_converted" },
+		{
+			title: role === roles.a || role === roles.sa ? "ONYXCASH" : "USD",
+			dataIndex: "asset_converted",
+		},
 	];
 
 	return (
 		<Modal title="Detailed balance" visible={isModalVisible} onCancel={hideModal} footer={null}>
-			{role === roles.a && <Title level={4}>ONYXCASH: {<Text>{balance.onyxCash}</Text>}</Title>}
-
+			{role === roles.a || role === roles.sa ? (
+				<Title level={4}>ONYXCASH: {<Text>{balance.onyxCash}</Text>}</Title>
+			) : null}
 			<Title level={4}>Assets:</Title>
 			<Table
 				columns={columns}

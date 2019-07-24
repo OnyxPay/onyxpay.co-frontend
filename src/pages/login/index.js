@@ -15,6 +15,8 @@ import RegistrationModal from "../../components/modals/Registration";
 import { generateTokenTimeStamp } from "../../utils";
 import { signWithPk } from "../../utils/blockchain";
 import { showNotification } from "components/notification";
+import { isBase58Address } from "../../utils/validate";
+import queryString from "query-string";
 
 const { Title } = Typography;
 
@@ -56,6 +58,10 @@ class Login extends Component {
 
 	componentDidMount() {
 		this._isMounted = true;
+		let params = queryString.parse(this.props.location.search);
+		if (!!params.rcode && isBase58Address(params.rcode)) {
+			localStorage.setItem("rcode", params.rcode);
+		}
 	}
 
 	componentWillUnmount() {
@@ -81,9 +87,13 @@ class Login extends Component {
 	};
 
 	handleClearWallet = () => {
-		const { clearWallet, logOut } = this.props;
+		const { clearWallet, logOut, user } = this.props;
 		clearWallet();
-		logOut();
+		if (user) {
+			logOut();
+		} else {
+			logOut(false);
+		}
 		showNotification({
 			type: "success",
 			msg: "You successfully closed your wallet",
@@ -97,6 +107,8 @@ class Login extends Component {
 			const { pk, accountAddress, publicKey } = await unlockWalletAccount();
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
+
+			console.log({ publicKey, accountAddress });
 
 			const res = await login({
 				public_key: publicKey.key,

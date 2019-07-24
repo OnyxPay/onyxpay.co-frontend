@@ -117,7 +117,7 @@ class AssetsList extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	async componentDidMount() {
+	componentDidMount() {
 		const { getAssetsList, getExchangeRates } = this.props;
 		getExchangeRates();
 		getAssetsList();
@@ -213,9 +213,9 @@ class AssetsList extends Component {
 		}
 		const columns = [
 			{
-				title: "Asset name",
+				title: "Assets name",
 				key: "symbol",
-				width: "40%",
+				width: "15%",
 				dataIndex: "symbol",
 				sorter: (a, b) => {
 					const nameA = a.symbol.toLowerCase();
@@ -242,7 +242,7 @@ class AssetsList extends Component {
 			{
 				title: "Action",
 				key: "action",
-				width: "20%",
+				width: "45%",
 				dataIndex: "",
 				render: res => (
 					<>
