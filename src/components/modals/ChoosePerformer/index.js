@@ -117,7 +117,7 @@ class SendToAgent extends Component {
 	};
 
 	async fetchUsers(opts = {}) {
-		const { user, performer } = this.props;
+		const { user, performer, accountAddress } = this.props;
 		const { pagination } = this.state;
 		try {
 			const params = {
@@ -128,12 +128,11 @@ class SendToAgent extends Component {
 				...opts,
 			};
 
-			console.log(params);
-
 			this.setState({ loading: true });
 			const res = await searchUsers(params);
 			pagination.total = res.total;
-			this.setState({ loading: false, users: res, pagination });
+			const performers = res.items.filter(performer => performer.wallet_addr !== accountAddress);
+			this.setState({ loading: false, users: { items: performers, total: res.total }, pagination });
 		} catch (e) {}
 	}
 
@@ -253,5 +252,6 @@ class SendToAgent extends Component {
 export default connect(state => {
 	return {
 		user: state.user,
+		accountAddress: state.wallet.defaultAccountAddress,
 	};
 })(SendToAgent);
