@@ -9,7 +9,7 @@ type:
   warning
 */
 
-export function showNotification({ type = "info", msg, desc, duration = 10, key }) {
+export function showNotification({ type = "info", msg, desc, duration = 5, key }) {
 	return notification[type]({
 		message: msg,
 		description: desc,
@@ -37,5 +37,13 @@ export function showBcError(er) {
 		type: "error",
 		msg: "Block-chain error",
 		desc: parseBcError(er),
+	});
+}
+
+export function showGasCompensationError() {
+	return showNotification({
+		type: "error",
+		msg: "Gas compensation error",
+		desc: "Something went wrong at the gas compensation server",
 	});
 }
