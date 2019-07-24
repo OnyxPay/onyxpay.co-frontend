@@ -5,9 +5,9 @@ export const bcEndpoints = {
 };
 
 let reactAppBackendUrl;
-if (process.env.TAG === "prod") {
+if (process.env.REACT_APP_TAG === "prod") {
 	reactAppBackendUrl = "www.onyxpay.co";
-} else if (process.env.TAG === "preprod") {
+} else if (process.env.REACT_APP_TAG === "preprod") {
 	reactAppBackendUrl = "preprod.onyxpay.co";
 } else {
 	reactAppBackendUrl = "10.100.3.189";
