@@ -31,6 +31,10 @@ const Header = styled.header`
 			height: 20px;
 		}
 	}
+	@media (max-width: 575px) {
+		position: relative;
+	}
+
 	@media (max-width: 480px) {
 		.trigger {
 			padding: 0 5px;

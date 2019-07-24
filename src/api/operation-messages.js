@@ -33,10 +33,15 @@ export async function hideMessage(requestId) {
 	}
 }
 
-export async function getMessages(params) {
+export async function getMessages(params, requestType, fetchActive) {
+	let requestStatus = "active-requests";
+	if (!fetchActive) {
+		requestStatus = "close-requests";
+	}
+
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("operation-messages", {
+		const { data } = await client.get(`operation-messages/${requestType}/${requestStatus}`, {
 			headers: {
 				...authHeaders,
 			},
@@ -48,10 +53,10 @@ export async function getMessages(params) {
 	}
 }
 
-export async function getMessagesForActiveRequests(params) {
+export async function getMessagesForActiveRequests(params, requestType = "deposit") {
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("operation-messages/deposit/active-requests", {
+		const { data } = await client.get(`operation-messages/${requestType}/active-requests`, {
 			headers: {
 				...authHeaders,
 			},
@@ -63,10 +68,10 @@ export async function getMessagesForActiveRequests(params) {
 	}
 }
 
-export async function getMessagesForClosedRequests(params) {
+export async function getMessagesForClosedRequests(params, requestType = "deposit") {
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("operation-messages/close-requests", {
+		const { data } = await client.get(`operation-messages/${requestType}/close-requests`, {
 			headers: {
 				...authHeaders,
 			},

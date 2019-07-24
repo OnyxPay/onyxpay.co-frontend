@@ -68,7 +68,6 @@ export const login = values => async (dispatch, getState) => {
 			});
 		}
 	} catch (er) {
-		console.info(er.response.data.errors.user_status);
 		if (
 			er.response.status === 403 &&
 			er.response.data.errors &&
@@ -76,10 +75,9 @@ export const login = values => async (dispatch, getState) => {
 		) {
 			showNotification({
 				type: "error",
+				msg: er.response.data.errors.user_status,
 				desc: (
 					<>
-						{er.response.data.errors.user_status}&nbsp;
-						<br />
 						Please,&nbsp;
 						<a href="mailto:support@onyxpay.co">contact the support</a>
 					</>
@@ -104,7 +102,10 @@ export const confirmEmail = values => async (dispatch, getState) => {
 	}
 };
 
-export const logOut = () => (dispatch, getState) => {
+export const logOut = (reload = true) => (dispatch, getState) => {
 	dispatch({ type: LOG_OUT });
 	dispatch(push("/login"));
+	if (reload) {
+		window.location.reload();
+	}
 };

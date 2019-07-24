@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Avatar } from "antd";
+import { Typography, Avatar, Tooltip } from "antd";
 import styled from "styled-components";
 const { Text } = Typography;
 
@@ -9,6 +9,11 @@ const Wrapper = styled.div`
 	border-bottom: 1px solid rgba(167, 180, 201, 0.1);
 	padding: 10px 20px;
 	margin-bottom: 15px;
+	.user-name-tooltip {
+		display: flex;
+		overflow: hidden;
+		align-items: center;
+	}
 	.user-role {
 		color: white;
 		font-size: 13px;
@@ -19,6 +24,7 @@ const Wrapper = styled.div`
 		font-size: 18px;
 		font-weight: 600;
 		margin-left: 10px;
+		margin-right: 10px;
 	}
 	.ant-avatar {
 		background-color: #fff;
@@ -39,11 +45,25 @@ export default function User({ firstName, lastName, role }) {
 	if (firstName || lastName) {
 		return (
 			<Wrapper>
-				<Avatar size="large" icon="user" />
-				<Text ellipsis={true}>
-					{firstName} {lastName}
-					<p className="user-role">role: {role}</p>
-				</Text>
+				<Tooltip
+					title={
+						<>
+							<div>
+								{firstName} {lastName}
+							</div>
+							<div>role: {role}</div>
+						</>
+					}
+					placement="right"
+					trigger="hover"
+					className="user-name-tooltip"
+				>
+					<Avatar size="large" icon="user" />
+					<Text ellipsis={true}>
+						{firstName} {lastName}
+						<p className="user-role">role: {role}</p>
+					</Text>
+				</Tooltip>
 			</Wrapper>
 		);
 	} else {

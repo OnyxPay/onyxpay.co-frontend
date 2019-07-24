@@ -479,12 +479,12 @@ class AssetsExchange extends Component {
 											</Input.Group>
 										</Form.Item>
 									</Col>
-									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 2 }} xl={{ span: 8 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 8 }} xl={{ span: 8 }}>
 										<Form.Item
 											validateStatus={
 												this.state.assetToSellNameError.length === 0 ? "success" : "error"
 											}
-											style={{ display: "inline-block" }}
+											style={{ display: "flex" }}
 											className="asset-exchange-form-select-parent"
 										>
 											<Select
@@ -578,12 +578,12 @@ class AssetsExchange extends Component {
 										</Form.Item>
 									</Col>
 
-									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 2 }} xl={{ span: 8 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 8 }} xl={{ span: 8 }}>
 										<Form.Item
 											validateStatus={
 												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
 											}
-											style={{ display: "inline-block" }}
+											style={{ display: "flex" }}
 											className="asset-exchange-form-select-parent"
 										>
 											<Select

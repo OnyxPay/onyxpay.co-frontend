@@ -28,6 +28,24 @@
 	}
 }
 
+@media (min-width: 576px) {
+	.exchange-form {
+		.asset-exchange-form-select-parent {
+			padding-right: 1em;
+		}
+
+		.asset-exchange-form-select-parent {
+			.ant-form-item-control-wrapper {
+				flex-grow: 1;
+			}
+		}
+
+		.asset-exchange-amount-input-group {
+			padding-top: 0.1em;
+		}
+	}
+}
+
 @media (max-width: 576px) {
 	.exchange-form {
 		.asset-exchange-form-input-parent {
