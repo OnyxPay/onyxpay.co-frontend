@@ -4,5 +4,6 @@ MAINTAINER toktor <ak.toktor@gmail.com>
 VOLUME [/frontend]
 WORKDIR /frontend
 COPY . .
-RUN npm install; npm run build
+ARG TAG=prod
+RUN npm install; TAG=$TAG npm run build
 

@@ -4,13 +4,29 @@ import { getRequests, upgradeUser, downgradeUser, rejectRequest } from "api/admi
 import { TimeoutError } from "promise-timeout";
 import { PageTitle } from "components";
 import { showNotification, showTimeoutNotification } from "components/notification";
-import { Table, Button } from "antd";
+import { Table, Button, Select, Divider } from "antd";
+
+const { Option } = Select;
 
 const style = {
 	button: {
 		marginRight: 8,
 	},
 };
+
+const requestStatus = {
+	active: "opened",
+	refused: "refused",
+	accepted: "closed", // request completed successfully ?
+	deleted: "deleted",
+};
+const initialFilters = [requestStatus.active];
+const requestStatusSelectOptions = [];
+for (let status in requestStatus) {
+	if (requestStatus.hasOwnProperty(status)) {
+		requestStatusSelectOptions.push(<Option key={requestStatus[status]}>{status}</Option>);
+	}
+}
 
 class UserUpgradeRequests extends Component {
 	state = {
@@ -20,6 +36,7 @@ class UserUpgradeRequests extends Component {
 		fetchingRequests: false,
 		loadingUpgradeUser: false,
 		loadingDowngradeUser: false,
+		statusFilters: initialFilters,
 	};
 
 	componentDidMount = () => {
@@ -54,35 +71,6 @@ class UserUpgradeRequests extends Component {
 		}
 		this.setState({
 			loadingUpgradeUser: false,
-		});
-	};
-
-	handleDowngrade = async (wallet_addr, role, id) => {
-		try {
-			this.setState({
-				loadingDowngradeUser: true,
-				request_id: id,
-			});
-			const res = await downgradeUser(wallet_addr, role);
-			if (res.Error === 0) {
-				showNotification({
-					type: "success",
-					msg: "User was successfully downgrade",
-				});
-			}
-			this.fetchRequests();
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
-		}
-		this.setState({
-			loadingDowngradeUser: false,
 		});
 	};
 
@@ -131,14 +119,25 @@ class UserUpgradeRequests extends Component {
 		);
 	};
 
+	handleFilterStatusChange = statuses => {
+		this.setState(
+			{
+				statusFilters: statuses,
+			},
+			() => {
+				this.fetchRequests();
+			}
+		);
+	};
+
 	async fetchRequests(opts = {}) {
 		try {
-			const { pagination } = this.state;
+			const { pagination, statusFilters } = this.state;
 
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
-				status: "opened",
+				status: statusFilters.join(","),
 				...opts,
 			};
 			this.setState({ fetchingRequests: true });
@@ -197,23 +196,32 @@ class UserUpgradeRequests extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Actions",
+				title: "Actions / Info",
 				dataIndex: "",
 				render: res => (
 					<>
-						<Button
-							type="primary"
-							onClick={() =>
-								this.handleUpgrade(res.user.wallet_addr, res.expected_position, res.id)
-							}
-							style={style.button}
-							loading={res.id === request_id && loadingUpgradeUser}
-						>
-							Confirm
-						</Button>
-						<Button type="danger" onClick={() => this.showModal(res.id)} style={style.button}>
-							Reject
-						</Button>
+						{res.status === requestStatus.active ? (
+							<>
+								<Button
+									type="primary"
+									onClick={() =>
+										this.handleUpgrade(res.user.wallet_addr, res.expected_position, res.id)
+									}
+									style={style.button}
+									loading={res.id === request_id && loadingUpgradeUser}
+								>
+									Confirm
+								</Button>
+								<Button type="danger" onClick={() => this.showModal(res.id)} style={style.button}>
+									Reject
+								</Button>
+							</>
+						) : (
+							""
+						)}
+						{res.status === requestStatus.accepted ? "Request accepted" : ""}
+						{res.status === requestStatus.refused ? "Refused with reason '" + res.reason + "'" : ""}
+						{res.status === requestStatus.deleted ? "Request deleted" : ""}
 					</>
 				),
 			},
@@ -222,6 +230,16 @@ class UserUpgradeRequests extends Component {
 		return (
 			<>
 				<PageTitle>Account upgrade</PageTitle>
+				<Select
+					mode="multiple"
+					style={{ width: "100%" }}
+					placeholder="Filter requests: "
+					defaultValue={initialFilters}
+					onChange={this.handleFilterStatusChange}
+				>
+					{requestStatusSelectOptions}
+				</Select>
+				<Divider> </Divider>
 				<Table
 					columns={columns}
 					rowKey={requests => requests.id}

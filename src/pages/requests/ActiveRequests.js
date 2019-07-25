@@ -2,29 +2,23 @@ import React, { Component } from "react";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { Table, Input, Button, Icon } from "antd";
-import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
-import { hideMessage } from "api/operation-messages";
-import SendToAgentModal from "components/modals/SendToAgent";
-import { roles } from "api/constants";
+import { Table } from "antd";
+import queryString from "query-string";
 import { push } from "connected-react-router";
 import { TimeoutError } from "promise-timeout";
-import UserSettlementsModal from "components/modals/UserSettlementsModal";
-import renderClientColumns from "./table-columns/renderClientColumns";
-import renderAgentColumns from "./table-columns/renderAgentColumns";
-import { parseRequestType, renderPageTitle } from "./common";
+import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
+import { hideMessage } from "api/operation-messages";
+import ChoosePerformerModal from "components/modals/ChoosePerformer";
+import { roles } from "api/constants";
 import { showNotification, showTimeoutNotification } from "components/notification";
-import {
-	GET_ACTIVE_DEPOSIT_REQUESTS,
-	getActiveDepositRequests,
-} from "redux/requests/assets/activeDeposit";
-import {
-	getActiveWithdrawRequests,
-	GET_ACTIVE_WITHDRAW_REQUESTS,
-} from "redux/requests/assets/activeWithdraw";
 import { createLoadingSelector } from "selectors/loading";
-import { createRequestsDataSelector } from "selectors/requests";
-import queryString from "query-string";
+import UserSettlementsModal from "components/modals/UserSettlementsModal";
+import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
+import renderPerformerColumns from "./table/columns/renderPerformerColumns";
+import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
+import { handleTableChange, getColumnSearchProps } from "./table";
+
+import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -32,31 +26,32 @@ const modals = {
 };
 
 class ActiveRequests extends Component {
-	state = {
-		pagination: { current: 1, pageSize: 20 },
-		[modals.SEND_REQ_TO_AGENT]: false,
-		[modals.USER_SETTLEMENT_ACCOUNTS]: false,
-		requestId: null,
-		isSendingMessage: false,
-		operationMessages: [],
-		activeAction: "",
-		idParsedFromURL: "",
-	};
+	constructor(props) {
+		super(props);
+		this.state = {
+			pagination: { current: 1, pageSize: 20 },
+			[modals.SEND_REQ_TO_AGENT]: false,
+			[modals.USER_SETTLEMENT_ACCOUNTS]: false,
+			requestId: null,
+			isSendingMessage: false,
+			operationMessages: [],
+			activeAction: "",
+			idParsedFromURL: "",
+			openedRequestData: {}, // to choose performer
+		};
+		this.setState = this.setState.bind(this);
+		this.searchInput = "";
+	}
 
 	componentDidMount() {
 		const { location } = this.props;
-		this._isMounted = true;
 		const values = queryString.parse(location.search);
 		if (values.id) {
 			this.setState({ idParsedFromURL: values.id });
-			this.fetch({ id: values.id });
+			this.fetch({ requestId: values.id });
 		} else {
 			this.fetch();
 		}
-	}
-
-	componentWillUnmount() {
-		this._isMounted = false;
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -79,31 +74,29 @@ class ActiveRequests extends Component {
 	};
 
 	fetch = (opts = {}) => {
-		if (this._isMounted) {
-			const { pagination } = this.state;
-			const { user, match, push, getActiveDepositRequests, getActiveWithdrawRequests } = this.props;
-			const params = {
-				pageSize: pagination.pageSize,
-				pageNum: pagination.current,
-				...opts,
-			};
-			const requestType = parseRequestType({ match, push });
+		const { pagination } = this.state;
+		const { user, location, getOpRequests } = this.props;
+		const params = {
+			pageSize: pagination.pageSize,
+			pageNum: pagination.current,
+			...opts,
+		};
+		const requestType = parseRequestType(location);
 
-			if (user.role === roles.c) {
-				params.type = requestType;
+		if (user.role === roles.c) {
+			params.type = requestType;
+			params.status = "pending,opened,choose,complained";
+			params.user = "maker";
+			// deposit | withdraw
+			getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
+		} else {
+			let isAgentInitiator = isThisAgentInitiator(user.role, location);
+			if (isAgentInitiator) {
 				params.status = "pending,opened,choose,complained";
 				params.user = "maker";
-				if (requestType === "deposit") {
-					getActiveDepositRequests(params, false);
-				} else if (requestType === "withdraw") {
-					getActiveWithdrawRequests(params, false);
-				}
-			} else if (user.role === roles.a) {
-				if (requestType === "deposit") {
-					getActiveDepositRequests(params, true);
-				} else if (requestType === "withdraw") {
-					getActiveWithdrawRequests(params, true);
-				}
+				getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
+			} else {
+				getOpRequests({ params, requestType, fetchActive: true, isInitiator: false });
 			}
 		}
 	};
@@ -111,7 +104,7 @@ class ActiveRequests extends Component {
 	acceptRequest = async requestId => {
 		// agent accepts deposit or withdraw request
 		try {
-			this.setState({ requestId, activeAction: "accept" });
+			this.setState({ requestId, activeAction: aa.accept });
 			await acceptRequest(requestId);
 			showNotification({
 				type: "success",
@@ -146,9 +139,9 @@ class ActiveRequests extends Component {
 	};
 
 	performRequest = async requestId => {
-		// agent performs request
+		// agent performs deposit and client withdraw request
 		try {
-			this.setState({ requestId, activeAction: "perform" });
+			this.setState({ requestId, activeAction: aa.perform });
 			await performRequest(requestId);
 			showNotification({
 				type: "success",
@@ -172,7 +165,7 @@ class ActiveRequests extends Component {
 	cancelAcceptedRequest = async requestId => {
 		// agent cancels request
 		try {
-			this.setState({ requestId, activeAction: "cancel_accepted_request" });
+			this.setState({ requestId, activeAction: aa.cancelAccepted });
 			await cancelAcceptedRequest(requestId);
 			showNotification({
 				type: "success",
@@ -197,7 +190,7 @@ class ActiveRequests extends Component {
 		// client complains
 		if (canComplain) {
 			try {
-				this.setState({ requestId, activeAction: "complain" });
+				this.setState({ requestId, activeAction: aa.complain });
 				const res = await complain(requestId);
 				console.log("complained", res);
 
@@ -222,108 +215,29 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, ...rest }) => {
-			return (
-				<div style={{ padding: 8 }}>
-					<Input
-						ref={node => {
-							this.searchInput = node;
-						}}
-						placeholder={`Search ${dataIndex}`}
-						value={selectedKeys[0]}
-						onChange={e => {
-							return setSelectedKeys(e.target.value ? [e.target.value] : []);
-						}}
-						onPressEnter={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
-						style={{ width: 188, marginBottom: 8, display: "block" }}
-					/>
-					<Button
-						type="primary"
-						onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
-						icon="search"
-						size="small"
-						style={{ width: 90, marginRight: 8 }}
-					>
-						Search
-					</Button>
-					<Button
-						onClick={() => this.handleReset(clearFilters, dataIndex)}
-						size="small"
-						style={{ width: 90 }}
-					>
-						Reset
-					</Button>
-				</div>
-			);
-		},
-
-		filterIcon: filtered => (
-			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
-		),
-
-		onFilterDropdownVisibleChange: visible => {
-			if (visible) {
-				setTimeout(() => this.searchInput.select());
-			}
-		},
-	});
-
-	handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm();
-		if (dataIndex === "id") {
-			setTimeout(() => {
-				this.setState({ idParsedFromURL: selectedKeys[0] });
-			}, 0);
-		}
-	};
-
-	handleReset = (clearFilters, dataIndex) => {
-		clearFilters();
-		if (dataIndex === "id") {
-			setTimeout(() => {
-				this.setState({ idParsedFromURL: "" });
-			}, 0);
-		}
-	};
-
-	handleTableChange = (pagination, filters, sorter) => {
-		this.setState(
-			{
-				pagination: {
-					...this.state.pagination,
-					current: pagination.current,
-					pageSize: pagination.pageSize,
-				},
-			},
-			() => {
-				for (const filter in filters) {
-					filters[filter] = filters[filter][0];
-				}
-				console.log("filters", filters);
-				this.fetch({
-					...filters,
-				});
-			}
-		);
-	};
-
 	render() {
-		const { user, walletAddress, match, push, data, isFetching } = this.props;
-		const { requestId, activeAction, idParsedFromURL } = this.state;
+		const { user, walletAddress, location, data, isFetching } = this.props;
+		const { requestId, activeAction, idParsedFromURL, openedRequestData } = this.state;
 		let columns = [];
+		let isAgentInitiator = isThisAgentInitiator(user.role, location);
 
-		if (user.role === roles.c) {
-			columns = renderClientColumns({
+		if (user.role === roles.c || isAgentInitiator) {
+			columns = renderInitiatorColumns({
 				activeRequestId: requestId,
 				activeAction,
 				modals,
 				fetchData: this.fetch,
 				showModal: this.showModal,
 				handleComplain: this.handleComplain,
+				requestsType: parseRequestType(location),
+				requestsStatus: "active",
+				showUserSettlementsModal: settlementsId =>
+					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
+						settlementsId,
+					})(),
 			});
-		} else if (user.role === roles.a) {
-			columns = renderAgentColumns({
+		} else {
+			columns = renderPerformerColumns({
 				activeRequestId: requestId,
 				activeAction,
 				walletAddress,
@@ -331,17 +245,19 @@ class ActiveRequests extends Component {
 				acceptRequest: this.acceptRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
-				getColumnSearchProps: this.getColumnSearchProps,
+				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
 				defaultFilterValue: idParsedFromURL,
+				requestsType: parseRequestType(location),
+				requestsStatus: "active",
 			});
 		}
 
 		return (
 			<>
 				{renderPageTitle({
-					userRole: user.role,
-					requestType: parseRequestType({ match, push }),
+					requestType: parseRequestType(location),
 					isRequestClosed: false,
+					isUserInitiator: user.role === roles.c || isAgentInitiator,
 				})}
 				<Table
 					columns={columns}
@@ -349,10 +265,14 @@ class ActiveRequests extends Component {
 					dataSource={data.items}
 					pagination={{ ...this.state.pagination, total: data.total }}
 					loading={isFetching}
-					onChange={this.handleTableChange}
+					onChange={handleTableChange({
+						fetchData: this.fetch,
+						paginationState: this.state.pagination,
+						setState: this.setState,
+					})}
 					className="ovf-auto tbody-white"
 				/>
-				<SendToAgentModal
+				<ChoosePerformerModal
 					isModalVisible={this.state.SEND_REQ_TO_AGENT}
 					hideModal={this.hideModal(modals.SEND_REQ_TO_AGENT)}
 					requestId={this.state.requestId}
@@ -364,6 +284,8 @@ class ActiveRequests extends Component {
 							settlementsId,
 						})()
 					}
+					performer={user.role === roles.c ? roles.a : roles.sa}
+					openedRequestData={openedRequestData}
 				/>
 				<UserSettlementsModal
 					isModalVisible={this.state.USER_SETTLEMENT_ACCOUNTS}
@@ -375,16 +297,13 @@ class ActiveRequests extends Component {
 	}
 }
 
-const loadingSelector = createLoadingSelector([
-	GET_ACTIVE_DEPOSIT_REQUESTS,
-	GET_ACTIVE_WITHDRAW_REQUESTS,
-]);
+const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
 
 function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: createRequestsDataSelector(state, ownProps.match.params.type, "active"),
+		data: state.opRequests,
 		isFetching: loadingSelector(state),
 	};
 }
@@ -393,7 +312,7 @@ ActiveRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getActiveDepositRequests, getActiveWithdrawRequests }
+		{ push, getOpRequests }
 	)
 )(ActiveRequests);
 

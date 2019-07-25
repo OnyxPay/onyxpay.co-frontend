@@ -11,5 +11,11 @@ export function createRequestsDataSelector(state, type, status) {
 		} else {
 			return state.closedWithdrawRequests;
 		}
+	} else if (type === "depositOnyxCash") {
+		if (status === "active") {
+			return state.activeDepositOcRequests;
+		} else {
+			return state.closedDepositOcRequests;
+		}
 	}
 }

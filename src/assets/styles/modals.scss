@@ -49,6 +49,11 @@
 	}
 }
 
+.detailed-balance-modal {
+	max-width: 700px !important;
+	width: auto !important;
+}
+
 @media (max-width: 991px) {
 	.ant-modal {
 		top: 30px !important;
@@ -67,7 +72,8 @@
 }
 
 @media (max-width: 767px) {
-	.create-wallet-modal {
+	.create-wallet-modal,
+	.detailed-balance-modal {
 		width: calc(100vw - 16px) !important;
 		.ant-modal-body {
 			padding: 40px 30px;

@@ -12,8 +12,6 @@ import SessionExpiredModal from "./components/modals/SessionExpired";
 import { roles } from "./api/constants";
 import { wsClientRun } from "./websock/client";
 
-const Deposit2 = props => <div>Agent's deposit...</div>;
-
 let Dashboard = Loadable({
 	loader: () => import(/* webpackChunkName: "Home" */ "./pages/dashboard"),
 	loading: Loader,
@@ -51,7 +49,7 @@ let Page404 = Loadable({
 	loading: Loader,
 });
 
-const Deposit = Loadable({
+let Deposit = Loadable({
 	loader: () => import(/* webpackChunkName: "Deposit" */ "./pages/deposit"),
 	loading: Loader,
 });
@@ -63,16 +61,6 @@ let Settlement = Loadable({
 
 let UpgradeUser = Loadable({
 	loader: () => import(/* webpackChunkName: "UpgradeUser" */ "./pages/upgrade-user"),
-	loading: Loader,
-});
-
-let ActiveRequests = Loadable({
-	loader: () => import(/* webpackChunkName: "ActiveRequests" */ "./pages/requests/ActiveRequests"),
-	loading: Loader,
-});
-
-const ClosedRequests = Loadable({
-	loader: () => import(/* webpackChunkName: "ClosedRequests" */ "./pages/requests/ClosedRequests"),
 	loading: Loader,
 });
 
@@ -107,11 +95,24 @@ let UserUpgradeRequests = Loadable({
 	loading: Loader,
 });
 
+let ActiveOpRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ActiveOpRequests" */ "./pages/requests/ActiveRequests"),
+	loading: Loader,
+});
+
+let ClosedOpRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ClosedOpRequests" */ "./pages/requests/ClosedRequests"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization([roles.c]);
-const Agent = Authorization([roles.a, roles.sa]);
+// const AgentAndSuperAgent = Authorization([roles.a, roles.sa]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
+// const UserAndAgent = Authorization([roles.c, roles.a]);
 const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.sadm]);
 
 // routes with permissions
@@ -121,12 +122,8 @@ Page404 = All(Page404);
 Settlement = All(Settlement);
 UpgradeUser = All(UpgradeUser);
 Profile = All(Profile);
-ActiveRequests = All(ActiveRequests);
-
-const UserDeposit = User(Deposit);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
-const AgentDeposit = Agent(Deposit2);
 Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
@@ -134,6 +131,9 @@ Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdmin(Complaints);
 ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
 Assets = AdminAndSuperAdmin(Assets);
+ActiveOpRequests = All(ActiveOpRequests);
+ClosedOpRequests = All(ClosedOpRequests);
+Deposit = All(Deposit);
 
 class App extends Component {
 	componentDidMount() {
@@ -142,16 +142,33 @@ class App extends Component {
 		wsClientRun();
 	}
 	getAdditionalRoutes() {
-		if (process.env.TAG !== "prod") {
+		if (process.env.REACT_APP_TAG !== "prod") {
 			return (
 				<>
-					<Route path="/deposit" component={UserDeposit} />
-					<Route path="/deposit:agent" exact component={AgentDeposit} />
-					<Route path="/active-requests/:type" exact component={ActiveRequests} />
-					<Route path="/closed-requests/:type" exact component={ClosedRequests} />
+					<Route path="/deposit" component={Deposit} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
 					<Route path="/withdraw" exact component={Withdraw} />
+					<Route path="/deposit-onyx-cash" exact component={Deposit} />
+					{/* Agent initiator || Super agent initiator */}
+					<Route path="/active-requests/deposit-onyx-cash" exact component={ActiveOpRequests} />
+					<Route path="/closed-requests/deposit-onyx-cash" exact component={ClosedOpRequests} />
+					{/* Super agent performer */}
+					<Route
+						path="/active-customer-requests/deposit-onyx-cash"
+						exact
+						component={ActiveOpRequests}
+					/>
+					<Route
+						path="/closed-customer-requests/deposit-onyx-cash"
+						exact
+						component={ClosedOpRequests}
+					/>
+					{/* Agent performer || client initiator */}
+					<Route path="/active-requests/deposit" exact component={ActiveOpRequests} />
+					<Route path="/active-requests/withdraw" exact component={ActiveOpRequests} />
+					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
+					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
 				</>
 			);
 		}

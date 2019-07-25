@@ -87,9 +87,13 @@ class Login extends Component {
 	};
 
 	handleClearWallet = () => {
-		const { clearWallet, logOut } = this.props;
+		const { clearWallet, logOut, user } = this.props;
 		clearWallet();
-		logOut(true);
+		if (user) {
+			logOut();
+		} else {
+			logOut(false);
+		}
 		showNotification({
 			type: "success",
 			msg: "You successfully closed your wallet",
@@ -103,6 +107,8 @@ class Login extends Component {
 			const { pk, accountAddress, publicKey } = await unlockWalletAccount();
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
+
+			console.log({ publicKey, accountAddress });
 
 			const res = await login({
 				public_key: publicKey.key,
