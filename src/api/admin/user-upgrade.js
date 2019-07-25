@@ -34,19 +34,17 @@ export async function upgradeUser(userAccountAddress, role) {
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
 		{
 			label: "userAddress",
-			type: ParameterType.userAddress,
+			type: ParameterType.ByteArray,
 			value: utils.reverseHex(cryptoAddress(userAccountAddress).toHexString()),
+		},
+		{
+			label: "role",
+			type: ParameterType.String,
+			value: role === roles.a ? "Agent" : "SuperAgent",
 		},
 	];
 
-	let funcName;
-	if (role === roles.a) {
-		funcName = "RegisterAgent";
-	} else if (role === roles.sa) {
-		funcName = "RegisterSuperAgent";
-	}
-
-	const serializedTrx = await createAndSignTrxViaGasCompensator("OnyxPay", funcName, params);
+	const serializedTrx = await createAndSignTrxViaGasCompensator("OnyxPay", "UpgradeAndPay", params);
 
 	return addSignAndSendTrx(serializedTrx, pk);
 }

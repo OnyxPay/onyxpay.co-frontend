@@ -1,9 +1,19 @@
 import React, { Component } from "react";
-import { Table, Button, Select, Divider, notification, message } from "antd";
+import { Table, Button, Select, Divider, Modal } from "antd";
 import ReasonToRejectUpgradeModal from "../../../components/modals/admin/ReasonToRejectUpgrade";
 import { getRequests, upgradeUser, rejectRequest } from "../../../api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
+import { roles } from "api/constants";
+import {
+	showNotification,
+	showTimeoutNotification,
+	showGasCompensationError,
+	showBcError,
+} from "components/notification";
+import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+
 const { Option } = Select;
+const { confirm } = Modal;
 
 const style = {
 	button: {
@@ -16,6 +26,7 @@ const requestStatus = {
 	refused: "refused",
 	accepted: "closed", // request completed successfully ?
 	deleted: "deleted",
+	completed: "completed",
 };
 const initialFilters = [requestStatus.active];
 const requestStatusSelectOptions = [];
@@ -23,6 +34,15 @@ for (let status in requestStatus) {
 	if (requestStatus.hasOwnProperty(status)) {
 		requestStatusSelectOptions.push(<Option key={requestStatus[status]}>{status}</Option>);
 	}
+}
+
+function ConfirmUpgradeModalContent({ expectedPosition, user }) {
+	const amount = expectedPosition && expectedPosition === roles.a ? 500 : 100000;
+	return (
+		<div>
+			This also means on {user.wallet_addr} address will be sent <strong>{amount}</strong> OnyxCash
+		</div>
+	);
 }
 
 class UserUpgradeRequests extends Component {
@@ -38,8 +58,6 @@ class UserUpgradeRequests extends Component {
 
 	componentDidMount = () => {
 		this.fetchRequests();
-		// for testing purposes
-		// createRequest();
 	};
 
 	handleUpgrade = async (wallet_addr, role, id) => {
@@ -50,18 +68,19 @@ class UserUpgradeRequests extends Component {
 			});
 			const res = await upgradeUser(wallet_addr, role);
 			if (res.Error === 0) {
-				message.success("User was successfully upgrade");
-			}
-			this.fetchRequests();
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
+				showNotification({
+					type: "success",
+					msg: "User was successfully upgraded",
 				});
-			} else {
-				message.error(e.message);
+				this.fetchRequests();
+			}
+		} catch (e) {
+			if (e instanceof GasCompensationError) {
+				showGasCompensationError();
+			} else if (e instanceof SendRawTrxError) {
+				showBcError(e.message);
+			} else if (e instanceof TimeoutError) {
+				showTimeoutNotification();
 			}
 		}
 		this.setState({
@@ -73,14 +92,13 @@ class UserUpgradeRequests extends Component {
 		const { request_id } = this.state;
 		const res = await rejectRequest(request_id, reason);
 		if (!res.error) {
-			notification.success({
-				message: "Done",
-				description: `You rejected request with id ${request_id}`,
+			showNotification({
+				type: "Success",
+				msg: `You rejected request with id ${request_id}`,
 			});
 			this.hideModal();
 			this.fetchRequests();
 		}
-		console.log(res);
 	};
 
 	showModal = async request_id => {
@@ -145,6 +163,33 @@ class UserUpgradeRequests extends Component {
 		} catch (e) {}
 	}
 
+	showUpgradeConfirmationModal = record => {
+		const that = this;
+		if (record.expected_position && record.user) {
+			confirm({
+				title: `Are you sure you want to upgrade ${record.user.role} ${record.user.first_name} ${
+					record.user.last_name
+				} to ${record.expected_position} ?`,
+				content: (
+					<ConfirmUpgradeModalContent
+						user={record.user}
+						expectedPosition={record.expected_position}
+					/>
+				),
+				okText: "Yes",
+				okType: "danger",
+				cancelText: "No",
+				okButtonProps: { type: "primary " },
+				cancelButtonProps: { type: "default " },
+				onOk() {
+					that.handleUpgrade(record.user.wallet_addr, record.expected_position, record.id);
+				},
+			});
+		} else {
+			return null;
+		}
+	};
+
 	render() {
 		const {
 			isReasonToRejectModalVisible,
@@ -199,9 +244,7 @@ class UserUpgradeRequests extends Component {
 							<>
 								<Button
 									type="primary"
-									onClick={() =>
-										this.handleUpgrade(res.user.wallet_addr, res.expected_position, res.id)
-									}
+									onClick={() => this.showUpgradeConfirmationModal(res)}
 									style={style.button}
 									loading={res.id === request_id && loadingUpgradeUser}
 								>
@@ -211,9 +254,7 @@ class UserUpgradeRequests extends Component {
 									Reject
 								</Button>
 							</>
-						) : (
-							""
-						)}
+						) : null}
 						{res.status === requestStatus.accepted ? "Request accepted" : ""}
 						{res.status === requestStatus.refused ? "Refused with reason '" + res.reason + "'" : ""}
 						{res.status === requestStatus.deleted ? "Request deleted" : ""}
