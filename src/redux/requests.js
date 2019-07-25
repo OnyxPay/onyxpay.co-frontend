@@ -64,7 +64,7 @@ export const opRequestsReducer = (state = initState, action) => {
 				return item;
 			};
 			break;
-		case wsEvents.chooseAgent:
+		case wsEvents.chooseAgentMaker:
 			pred = item => {
 				if (item.request_id === action.payload.requestId) {
 					console.log("chooseAgent", item);
@@ -72,6 +72,25 @@ export const opRequestsReducer = (state = initState, action) => {
 						...item,
 						status_code: action.payload.status,
 						status: requestStatusNames[action.payload.status],
+						taker: action.payload.taker,
+						choose_timestamp: action.payload.chooseTimestamp,
+					};
+				}
+				return item;
+			};
+			break;
+		case wsEvents.chooseAgentTaker:
+			pred = item => {
+				if (item.request.request_id === action.payload.requestId) {
+					return {
+						...item,
+						request: {
+							...item.request,
+							status_code: action.payload.status,
+							status: requestStatusNames[action.payload.status],
+							taker_addr: action.payload.takerAddr,
+							choose_timestamp: action.payload.chooseTimestamp,
+						},
 					};
 				}
 				return item;
