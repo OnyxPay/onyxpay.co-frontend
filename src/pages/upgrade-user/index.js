@@ -5,7 +5,6 @@ import { PageTitle } from "components";
 import Actions from "redux/actions";
 import AddSettlementModal from "components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
-import { IPayForm } from "./IPayForm";
 import { sendUpgradeRequest } from "api/upgrade";
 import { UpgradeRequestStatus, roleByCode } from "api/constants";
 import { showNotification } from "components/notification";
@@ -212,7 +211,6 @@ class UpgradeUser extends Component {
 						amount={paymentAmount}
 						handleSubmit={this.moveNextStep()}
 					/>
-					<IPayForm amount={paymentAmount} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
 		} else if (this.state.currentStep === steps.success) {
