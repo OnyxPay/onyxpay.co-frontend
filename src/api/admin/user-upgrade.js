@@ -56,7 +56,7 @@ export async function downgradeUser(userAccountAddress, role) {
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
 		{
 			label: "userAddress",
-			type: ParameterType.userAddress,
+			type: ParameterType.ByteArray,
 			value: utils.reverseHex(cryptoAddress(userAccountAddress).toHexString()),
 		},
 	];
