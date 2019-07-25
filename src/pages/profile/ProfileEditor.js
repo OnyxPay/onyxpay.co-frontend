@@ -24,6 +24,8 @@ function updateProfile(data, getUserData) {
 function validateNameField(value) {
 	if (!value) {
 		return "required";
+	} else if (value.length < 2) {
+		return "min length 2";
 	} else if (!isLatinChars(value)) {
 		return "only Latin characters are accepted";
 	}
