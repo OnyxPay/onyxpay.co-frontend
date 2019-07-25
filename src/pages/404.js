@@ -11,13 +11,13 @@ const Wrapper = styled.div`
 	height: 100%;
 `;
 
-const Title = styled.h1`
-	color: #1890ff;
-	font-weight: 500;
-	font-size: 120px;
-	line-height: 120px;
-	margin-bottom: 0;
-`;
+// const Title = styled.h1`
+// 	color: #1890ff;
+// 	font-weight: 500;
+// 	font-size: 120px;
+// 	line-height: 120px;
+// 	margin-bottom: 0;
+// `;
 
 const Text = styled.div`
 	font-size: 30px;
