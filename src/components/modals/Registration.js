@@ -11,6 +11,7 @@ import { signWithPk } from "../../utils/blockchain";
 import { generateTokenTimeStamp } from "../../utils";
 import { getData as getCountriesData } from "country-list";
 import { isLatinChars, isBase58Address } from "../../utils/validate";
+import { addReferral } from "api/referral";
 
 const { Option } = Select;
 
@@ -30,9 +31,9 @@ class RegistrationModal extends Component {
 
 	getInitialFormValues = () => {
 		return {
-			first_name: "",
-			last_name: "",
-			country_id: "",
+			first_name: "fsdfdsf",
+			last_name: "sfsdfdsfds",
+			country_id: "UA",
 			referral_wallet: localStorage.getItem("rcode") || "",
 		};
 	};
@@ -58,9 +59,11 @@ class RegistrationModal extends Component {
 				}
 			} else {
 				await getUserData();
-				message.success(text.modals.registration.reg_success, 5);
-				formActions.resetForm();
-				push("/");
+				const res = await addReferral(values.referral_wallet, pk, accountAddress);
+				console.log(res);
+				// message.success(text.modals.registration.reg_success, 5);
+				// formActions.resetForm();
+				// push("/");
 			}
 			formActions.setSubmitting(false);
 		} catch (error) {
@@ -178,7 +181,7 @@ class RegistrationModal extends Component {
 										name="country_id"
 										placeholder="Select a country"
 										optionFilterProp="children"
-										value={values.country_id}
+										value={values.country_id ? values.country_id : undefined}
 										onChange={this.handleSelectChange(setFieldValue)}
 										filterOption={(input, option) =>
 											option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -204,6 +207,7 @@ class RegistrationModal extends Component {
 								>
 									<Input
 										name="referral_wallet"
+										placeholder="Enter referral code"
 										value={values.referral_wallet}
 										onChange={handleChange}
 										onBlur={handleBlur}
