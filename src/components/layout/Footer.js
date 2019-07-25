@@ -18,15 +18,15 @@ export const FooterComponent = () => {
 	return (
 		<Footer>
 			Copyright © 2019{" "}
-			<a href="https://onyxpay.co/mywallet/#" target="_blank" rel="noopener noreferrer">
+			<a href="https://www.onyxpay.co" target="_blank" rel="noopener noreferrer">
 				OnyxPay
+			</a>
+			,{" "}
+			<a href="https://wallet.onyxpay.co" target="_blank" rel="noopener noreferrer">
+				Wallet
 			</a>{" "}
 			| Powered by{" "}
-			<a
-				href="https://onyxpay.co/mywallet/www.onyxcoin.io"
-				target="_blank"
-				rel="noopener noreferrer"
-			>
+			<a href="https://onyxcoin.io/" target="_blank" rel="noopener noreferrer">
 				OnyxCoin
 			</a>{" "}
 			| All trademarks Licensed to <strong>Kwakoo Marketplace</strong>&nbsp; rights reserved.
