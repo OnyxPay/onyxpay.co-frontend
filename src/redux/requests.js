@@ -1,5 +1,11 @@
 import { getRequests } from "api/requests";
 import { getMessages } from "api/operation-messages";
+import {
+	wsEvents,
+	requestStatusNames,
+	operationMessageStatus,
+	operationMessageStatusNames,
+} from "api/constants";
 
 export const GET_OPERATION_REQUESTS_REQUEST = "GET_OPERATION_REQUESTS_REQUEST";
 export const GET_OPERATION_REQUESTS_SUCCESS = "GET_OPERATION_REQUESTS_SUCCESS";
@@ -11,13 +17,86 @@ const initState = {
 	total: null,
 };
 
+function enumerateItems(state, pred) {
+	console.info("enumerateItems", state);
+	if (state.items) {
+		let items = state.items.map(el => {
+			return pred(el);
+		});
+		console.info("enumerateItems_end", { ...state, items: items });
+		return { ...state, items: items };
+	}
+	return state;
+}
+
 export const opRequestsReducer = (state = initState, action) => {
+	let pred;
 	switch (action.type) {
 		case GET_OPERATION_REQUESTS_SUCCESS:
 			return { items: action.payload.items, total: action.payload.total };
+		case wsEvents.acceptRequestMaker:
+			pred = item => {
+				if (item.request_id === action.payload.requestId) {
+					let newItem = item;
+					newItem.operation_messages = item.operation_messages.map(message => {
+						if (message.id === action.payload.messageId) {
+							return {
+								...message,
+								status_code: operationMessageStatus.accepted,
+								status: operationMessageStatusNames[operationMessageStatus.accepted],
+							};
+						}
+						return message;
+					});
+					return newItem;
+				}
+				return item;
+			};
+			break;
+		case wsEvents.acceptRequestTaker:
+			pred = item => {
+				if (item.request.request_id === action.payload.requestId) {
+					let newItem = item;
+					newItem.status_code = operationMessageStatus.accepted;
+					newItem.status = operationMessageStatusNames[operationMessageStatus.accepted];
+					return newItem;
+				}
+				return item;
+			};
+			break;
+		case wsEvents.chooseAgent:
+			pred = item => {
+				if (item.request_id === action.payload.requestId) {
+					console.log("chooseAgent", item);
+					return {
+						...item,
+						status_code: action.payload.status,
+						status: requestStatusNames[action.payload.status],
+					};
+				}
+				return item;
+			};
+			break;
+		case wsEvents.saveRequest:
+			pred = item => {
+				if (item.trx_hash === action.payload.trxHash) {
+					console.log("saveRequest", item);
+					return {
+						...item,
+						status_code: action.payload.status,
+						status: requestStatusNames[action.payload.status],
+						requestId: action.payload.requestId,
+					};
+				}
+				return item;
+			};
+			break;
+		case wsEvents.newMessage:
+			return { ...state, total: state.total + 1, items: [action.payload, state.items] };
 		default:
 			return state;
 	}
+	return enumerateItems(state, pred);
 };
 
 export const getOpRequests = ({

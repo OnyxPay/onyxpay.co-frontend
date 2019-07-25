@@ -10,7 +10,7 @@ if (process.env.TAG === "prod") {
 } else if (process.env.TAG === "preprod") {
 	reactAppBackendUrl = "preprod.onyxpay.co";
 } else {
-	reactAppBackendUrl = "10.100.3.189";
+	reactAppBackendUrl = "localhost:8443";
 }
 
 export const backEndRestEndpoint = "https://" + reactAppBackendUrl + "/api/v1/";
@@ -24,7 +24,8 @@ export const wsEvents = {
 	saveRequest: "SAVE_REQUEST",
 	chooseAgent: "CHOOSE_AGENT",
 	newMessage: "NEW_MESSAGE",
-	acceptRequest: "ACCEPT_REQUEST",
+	acceptRequestMaker: "ACCEPT_REQUEST_MAKER",
+	acceptRequestTaker: "ACCEPT_REQUEST_TAKER",
 };
 
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
