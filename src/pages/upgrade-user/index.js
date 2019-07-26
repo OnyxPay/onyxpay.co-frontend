@@ -5,7 +5,6 @@ import { PageTitle } from "components";
 import Actions from "redux/actions";
 import AddSettlementModal from "components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
-import { IPayForm } from "./IPayForm";
 import { sendUpgradeRequest } from "api/upgrade";
 import { UpgradeRequestStatus, roleByCode } from "api/constants";
 import { showNotification } from "components/notification";
@@ -202,7 +201,7 @@ class UpgradeUser extends Component {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
-						Buy OnyxCache.
+						Buy OnyxCash.
 					</Title>
 					<p>
 						Please, buy OnyxCash amounting to <b>{role === "agent" ? "500$" : "100 000$"}.</b>
@@ -212,7 +211,6 @@ class UpgradeUser extends Component {
 						amount={paymentAmount}
 						handleSubmit={this.moveNextStep()}
 					/>
-					<IPayForm amount={paymentAmount} handleSubmit={this.moveNextStep()} />
 				</div>
 			);
 		} else if (this.state.currentStep === steps.success) {
@@ -267,9 +265,9 @@ class UpgradeUser extends Component {
 						Waiting for Approvement
 					</Title>
 					<p>
-						You role will be upgraded automatically after receiving the paymant. Receiving the
-						payment can take a wile up to 24 hours. If you role wasn't updated during 24 hours or
-						you didn't receive OnyxCache please &nbsp;
+						You role will be upgraded automatically after receiving the payment. Receiving the
+						payment can take a while up to 24 hours. If you role wasn't updated during 24 hours or
+						you didn't receive OnyxCash please &nbsp;
 						<a href="mailto:support@onyxpay.co">contact the support</a>.
 					</p>
 					<Button
@@ -301,7 +299,7 @@ class UpgradeUser extends Component {
 								title={getStepTitle(0, this.state.currentStep)}
 								description="Fill settlements account."
 							/>
-							<Step title={getStepTitle(1, this.state.currentStep)} description="Buy OnyxCache." />
+							<Step title={getStepTitle(1, this.state.currentStep)} description="Buy OnyxCash." />
 							<Step
 								title={getStepTitle(2, this.state.currentStep)}
 								description="Upgrading approvement."

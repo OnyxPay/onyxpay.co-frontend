@@ -11,13 +11,13 @@ const Wrapper = styled.div`
 	height: 100%;
 `;
 
-const Title = styled.h1`
-	color: #1890ff;
-	font-weight: 500;
-	font-size: 120px;
-	line-height: 120px;
-	margin-bottom: 0;
-`;
+// const Title = styled.h1`
+// 	color: #1890ff;
+// 	font-weight: 500;
+// 	font-size: 120px;
+// 	line-height: 120px;
+// 	margin-bottom: 0;
+// `;
 
 const Text = styled.div`
 	font-size: 30px;
@@ -27,8 +27,10 @@ const Text = styled.div`
 const Page404 = () => {
 	return (
 		<Wrapper>
-			<Title>404</Title>
-			<Text>This page will be available soon.</Text>
+			<Text>
+				Other features will be enabled once we are satisfied that the community knows how to create,
+				customer, agent and super agent Accounts and secure them well. Thanks.
+			</Text>
 			<Button type="primary" size="large">
 				<Link to="/">Home</Link>
 			</Button>

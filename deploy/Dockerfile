@@ -5,5 +5,5 @@ VOLUME [/frontend]
 WORKDIR /frontend
 COPY . .
 ARG TAG=prod
-RUN npm install; TAG=$TAG npm run build
-
+ENV TAG=${TAG}
+RUN npm install; REACT_APP_TAG=${TAG} npm run build
