@@ -8,15 +8,37 @@ import { convertAmountToStr } from "utils/number";
 export class ResolvedComplaint extends Component {
 	state = {
 		data: [],
-		loadingRequestData: true,
+		loadingRequestData: false,
 		pagination: { current: 1, pageSize: 20 },
 	};
 
 	componentDidMount = async () => {
+		this.setState({
+			loadingRequestData: true,
+		});
 		await this.fetchRequestResolvedComplaints({ is_complain: 1, status: "completed" });
 		this.setState({
 			loadingRequestData: false,
 		});
+	};
+
+	handleTableChange = (pagination, filters) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetchRequestResolvedComplaints({
+					...filters,
+					is_complain: 1,
+					status: "completed",
+				});
+			}
+		);
 	};
 
 	async fetchRequestResolvedComplaints(opts = {}) {
@@ -28,16 +50,18 @@ export class ResolvedComplaint extends Component {
 				...opts,
 			};
 			const res = await getRequestsComplaint(params);
+			pagination.total = res.total;
 			this.setState({
 				data: res.items,
+				pagination,
 			});
-			pagination.total = res.items.total;
 		} catch (e) {
 			console.log(e);
 		}
 	}
 
 	render() {
+		const { pagination } = this.state;
 		const columns = [
 			{
 				title: "Type request",
@@ -73,6 +97,9 @@ export class ResolvedComplaint extends Component {
 					loading={this.state.loadingRequestData}
 					rowKey={data => data.id}
 					dataSource={this.state.data}
+					onChange={this.handleTableChange}
+					className="ovf-auto"
+					pagination={pagination}
 				/>
 			</>
 		);

@@ -71,6 +71,25 @@ class ComplaintsList extends Component {
 		}
 	};
 
+	handleTableChange = (pagination, filters) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetchRequestComplaint({
+					...filters,
+					is_complain: 1,
+					status: "complained",
+				});
+			}
+		);
+	};
+
 	async fetchRequestComplaint(opts = {}) {
 		try {
 			const { pagination } = this.state;
@@ -80,16 +99,18 @@ class ComplaintsList extends Component {
 				...opts,
 			};
 			const res = await getRequestsComplaint(params);
+			pagination.total = res.total;
 			this.setState({
 				data: res.items,
+				pagination,
 			});
-			pagination.total = res.items.total;
 		} catch (e) {
 			console.log(e);
 		}
 	}
 
 	render() {
+		console.log(this.state);
 		const {
 			data,
 			visible,
@@ -98,10 +119,8 @@ class ComplaintsList extends Component {
 			requestId,
 			loadingSolve,
 			userId,
+			pagination,
 		} = this.state;
-		if (!data) {
-			return null;
-		}
 		const columns = [
 			{
 				title: "Type request",
@@ -180,6 +199,8 @@ class ComplaintsList extends Component {
 					rowKey={data => data.id}
 					dataSource={data}
 					className="ovf-auto"
+					onChange={this.handleTableChange}
+					pagination={pagination}
 				/>
 				{visible ? (
 					<ShowUserData visible={visible} hideModal={this.hideModal} data={[dataUser]} />
