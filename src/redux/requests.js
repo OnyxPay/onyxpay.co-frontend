@@ -111,7 +111,18 @@ export const opRequestsReducer = (state = initState, action) => {
 			};
 			break;
 		case wsEvents.newMessage:
-			return { ...state, total: state.total + 1, items: [action.payload, state.items] };
+			return { ...state, total: state.total + 1, items: [action.payload, ...state.items] };
+		case wsEvents.changeRequestStatusTaker:
+			let takerItems = state.items.filter(
+				item => item.request.request_id !== action.payload.requestId
+			);
+			return { ...state, items: takerItems };
+		case wsEvents.changeRequestStatusMaker:
+			let makerItems = state.items.filter(item => {
+				console.log(item.request_id + " => " + action.payload.requestId);
+				return item.request_id !== action.payload.requestId;
+			});
+			return { ...state, items: makerItems };
 		default:
 			return state;
 	}
