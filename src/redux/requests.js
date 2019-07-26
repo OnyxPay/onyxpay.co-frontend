@@ -5,6 +5,7 @@ import {
 	requestStatusNames,
 	operationMessageStatus,
 	operationMessageStatusNames,
+	requestStatus,
 } from "api/constants";
 
 export const GET_OPERATION_REQUESTS_REQUEST = "GET_OPERATION_REQUESTS_REQUEST";
@@ -34,16 +35,21 @@ export const opRequestsReducer = (state = initState, action) => {
 	switch (action.type) {
 		case GET_OPERATION_REQUESTS_SUCCESS:
 			return { items: action.payload.items, total: action.payload.total };
+		case wsEvents.cancelAcceptationMaker:
 		case wsEvents.acceptRequestMaker:
 			pred = item => {
+				const status =
+					action.type === wsEvents.acceptRequestMaker
+						? operationMessageStatus.accepted
+						: operationMessageStatus.opened;
 				if (item.request_id === action.payload.requestId) {
 					let newItem = item;
 					newItem.operation_messages = item.operation_messages.map(message => {
 						if (message.id === action.payload.messageId) {
 							return {
 								...message,
-								status_code: operationMessageStatus.accepted,
-								status: operationMessageStatusNames[operationMessageStatus.accepted],
+								status_code: status,
+								status: operationMessageStatusNames[status],
 							};
 						}
 						return message;
@@ -53,12 +59,18 @@ export const opRequestsReducer = (state = initState, action) => {
 				return item;
 			};
 			break;
+
 		case wsEvents.acceptRequestTaker:
+		case wsEvents.cancelAcceptationTaker:
 			pred = item => {
+				const status =
+					action.type === wsEvents.acceptRequestTaker
+						? operationMessageStatus.accepted
+						: operationMessageStatus.opened;
 				if (item.request.request_id === action.payload.requestId) {
 					let newItem = item;
-					newItem.status_code = operationMessageStatus.accepted;
-					newItem.status = operationMessageStatusNames[operationMessageStatus.accepted];
+					newItem.status_code = status;
+					newItem.status = operationMessageStatusNames[status];
 					return newItem;
 				}
 				return item;
@@ -114,16 +126,46 @@ export const opRequestsReducer = (state = initState, action) => {
 		case wsEvents.newMessage:
 			return { ...state, total: state.total + 1, items: [action.payload, ...state.items] };
 		case wsEvents.changeRequestStatusTaker:
-			let takerItems = state.items.filter(
-				item => item.request.request_id !== action.payload.requestId
-			);
-			return { ...state, items: takerItems };
+			if (action.payload.status === requestStatus.complained) {
+				pred = item => {
+					if (item.request.request_id === action.payload.requestId) {
+						console.log("changeRequestStatusTaker", item);
+						return {
+							...item,
+							request: {
+								...item.request,
+								status_code: action.payload.status,
+								status: requestStatusNames[action.payload.status],
+							},
+						};
+					}
+					return item;
+				};
+			} else {
+				let takerItems = state.items.filter(
+					item => item.request.request_id !== action.payload.requestId
+				);
+				return { ...state, items: takerItems };
+			}
+			break;
 		case wsEvents.changeRequestStatusMaker:
-			let makerItems = state.items.filter(item => {
-				console.log(item.request_id + " => " + action.payload.requestId);
-				return item.request_id !== action.payload.requestId;
-			});
-			return { ...state, items: makerItems };
+			if (action.payload.status === requestStatus.complained) {
+				pred = item => {
+					if (item.request_id === action.payload.requestId) {
+						console.log("changeRequestStatusTaker", item);
+						return {
+							...item,
+							status_code: action.payload.status,
+							status: requestStatusNames[action.payload.status],
+						};
+					}
+					return item;
+				};
+			} else {
+				let makerItems = state.items.filter(item => item.request_id !== action.payload.requestId);
+				return { ...state, items: makerItems };
+			}
+			break;
 		default:
 			return state;
 	}
