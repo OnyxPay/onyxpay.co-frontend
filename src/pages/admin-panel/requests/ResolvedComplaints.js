@@ -3,6 +3,7 @@ import { Table } from "antd";
 import { PageTitle } from "components";
 import { connect } from "react-redux";
 import { getRequestsComplaint } from "api/admin/complaints";
+import { convertAmountToStr } from "utils/number";
 
 export class ResolvedComplaint extends Component {
 	state = {
@@ -27,7 +28,6 @@ export class ResolvedComplaint extends Component {
 				...opts,
 			};
 			const res = await getRequestsComplaint(params);
-			console.log(res);
 			this.setState({
 				data: res.items,
 			});
@@ -50,14 +50,19 @@ export class ResolvedComplaint extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
+				title: "Amount",
+				dataIndex: "amount",
+				render: res => (res ? convertAmountToStr(res, 8) : "n/a"),
+			},
+			{
 				title: "Winner",
-				dataIndex: "asset",
+				dataIndex: "complainWinner",
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Made a decision",
-				dataIndex: "amount",
-				render: res => (res ? res : "n/a"),
+				dataIndex: "made",
+				render: res => (res ? res : "super admin"),
 			},
 		];
 		return (

@@ -4,6 +4,7 @@ import ShowUserData from "components/modals/admin/ShowUserData";
 import { connect } from "react-redux";
 import { getRequestsComplaint, handleComplainedRequest } from "api/admin/complaints";
 import { PageTitle } from "components";
+import { convertAmountToStr } from "utils/number";
 
 const styles = {
 	btn: {
@@ -60,7 +61,7 @@ class ComplaintsList extends Component {
 			});
 			const res = await handleComplainedRequest(requestId, winner);
 			console.log(res);
-			this.fetchRequestComplaint({ is_complain: 1, status: "complained" });
+			setTimeout(() => this.fetchRequestComplaint({ is_complain: 1, status: "complained" }), 3000);
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -79,7 +80,6 @@ class ComplaintsList extends Component {
 				...opts,
 			};
 			const res = await getRequestsComplaint(params);
-			console.log(res);
 			this.setState({
 				data: res.items,
 			});
@@ -108,10 +108,6 @@ class ComplaintsList extends Component {
 				dataIndex: "type",
 				render: res => (res ? res : "n/a"),
 			},
-			/*{
-				title: "Having complained",
-				dataIndex: "having_complained",
-			},*/
 			{
 				title: "Name initiator",
 				render: res => (
@@ -136,7 +132,7 @@ class ComplaintsList extends Component {
 			{
 				title: "Amount",
 				dataIndex: "amount",
-				render: res => (res ? res : "n/a"),
+				render: res => (res ? convertAmountToStr(res, 8) : "n/a"),
 			},
 			{
 				title: "Created",
