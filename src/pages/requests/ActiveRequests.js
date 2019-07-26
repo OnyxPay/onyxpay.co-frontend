@@ -105,11 +105,13 @@ class ActiveRequests extends Component {
 	acceptRequest = async (requestId, requestAmount, requestAsset) => {
 		// agent accepts deposit or withdraw request
 		try {
-			const { balanceAssets } = this.props;
+			const { balanceAssets, balanceOnyxCash } = this.props;
 			this.setState({ requestId, activeAction: aa.accept });
 
 			const allow = balanceAssets.some(
-				balance => balance.symbol === requestAsset && requestAmount <= balance.amount
+				balance =>
+					(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
+					(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
 			);
 			if (!allow) {
 				showNotification({
@@ -320,6 +322,7 @@ function mapStateToProps(state, ownProps) {
 		data: state.opRequests,
 		isFetching: loadingSelector(state),
 		balanceAssets: state.balance.assets,
+		balanceOnyxCash: state.balance.onyxCash,
 	};
 }
 
