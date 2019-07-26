@@ -31,9 +31,9 @@ class RegistrationModal extends Component {
 
 	getInitialFormValues = () => {
 		return {
-			first_name: "fsdfdsf",
-			last_name: "sfsdfdsfds",
-			country_id: "UA",
+			first_name: "",
+			last_name: "",
+			country_id: "",
 			referral_wallet: localStorage.getItem("rcode") || "",
 		};
 	};
