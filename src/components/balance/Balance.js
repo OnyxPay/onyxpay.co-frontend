@@ -61,7 +61,7 @@ class Balance extends Component {
 		}
 	}
 
-	calcTotalAmount(arr, amount) {
+	calcTotalAmount(arr, amount = 0) {
 		if (arr.length) {
 			const result = arr.reduce((total, asset) => {
 				return addAmounts(total, asset.asset_converted);
@@ -69,7 +69,7 @@ class Balance extends Component {
 
 			return addAmounts(result, amount);
 		} else {
-			return 0;
+			return amount;
 		}
 	}
 
