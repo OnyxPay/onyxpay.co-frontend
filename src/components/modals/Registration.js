@@ -60,8 +60,7 @@ class RegistrationModal extends Component {
 			} else {
 				await getUserData();
 				if (values.referral_wallet) {
-					const res = await addReferral(values.referral_wallet, pk, accountAddress);
-					console.log(res);
+					await addReferral(values.referral_wallet, pk, accountAddress);
 				}
 				message.success(text.modals.registration.reg_success, 5);
 				formActions.resetForm();
