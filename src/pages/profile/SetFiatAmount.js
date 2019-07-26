@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, Typography, Row, Col } from "antd";
+import { Button, Input, Form, Select, Row, Col, Card } from "antd";
 import { Formik } from "formik";
-import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
-import { push } from "connected-react-router";
-import { createRequest } from "../../api/requests";
+import { setFiatAmount } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isAssetBlocked } from "../../api/assets";
 import { countDecimals } from "../../utils/validate";
@@ -23,9 +21,8 @@ const { Option } = Select;
 
 class SetFiatAmount extends Component {
 	componentDidMount() {
-		const { getAssetsList, getExchangeRates } = this.props;
+		const { getAssetsList } = this.props;
 		getAssetsList();
-		getExchangeRates();
 	}
 
 	handleFormSubmit = async (values, formActions) => {
@@ -35,6 +32,13 @@ class SetFiatAmount extends Component {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
 			}
+
+			await setFiatAmount(values.asset_symbol, values.amount);
+			formActions.resetForm();
+			showNotification({
+				type: "success",
+				msg: `Fiat amount of ${values.asset_symbol} is set to ${values.amount}`,
+			});
 		} catch (e) {
 			if (e instanceof GasCompensationError) {
 				showGasCompensationError();
@@ -53,10 +57,13 @@ class SetFiatAmount extends Component {
 	};
 
 	render() {
-		const { assets } = this.props;
+		const { assets, user } = this.props;
+		if (user && user.role !== roles.a) {
+			return null;
+		}
 
 		return (
-			<>
+			<Card style={{ marginBottom: 24 }}>
 				<h3>
 					<b>Set fiat amount</b>
 				</h3>
@@ -162,7 +169,7 @@ class SetFiatAmount extends Component {
 						);
 					}}
 				</Formik>
-			</>
+			</Card>
 		);
 	}
 }
@@ -172,12 +179,9 @@ export default connect(
 		return {
 			user: state.user,
 			assets: state.assets.list,
-			exchangeRates: state.assets.rates,
 		};
 	},
 	{
 		getAssetsList: Actions.assets.getAssetsList,
-		getExchangeRates: Actions.assets.getExchangeRates,
-		push,
 	}
 )(SetFiatAmount);
