@@ -73,6 +73,7 @@ export const opRequestsReducer = (state = initState, action) => {
 						status_code: action.payload.status,
 						status: requestStatusNames[action.payload.status],
 						taker: action.payload.taker,
+						taker_addr: action.payload.takerAddr,
 						choose_timestamp: action.payload.chooseTimestamp,
 					};
 				}
