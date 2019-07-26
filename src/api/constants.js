@@ -37,6 +37,7 @@ export const roles = {
 	a: "agent",
 	sa: "superagent", // at back-end
 	adm: "admin",
+	support: "support",
 	sadm: "super_admin",
 };
 export const roleCodes = {
@@ -44,6 +45,7 @@ export const roleCodes = {
 	agent: 2,
 	superagent: 3,
 	adm: 4,
+	support: 10,
 	super_admin: 100,
 };
 export const roleByCode = {
@@ -51,6 +53,7 @@ export const roleByCode = {
 	2: roles.a,
 	3: roles.sa,
 	4: roles.adm,
+	10: roles.support,
 	100: roles.sadm,
 };
 export const notifyTimeout = 30000;

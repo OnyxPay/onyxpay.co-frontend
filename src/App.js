@@ -99,9 +99,11 @@ let ClosedOpRequests = Loadable({
 const User = Authorization([roles.c]);
 // const AgentAndSuperAgent = Authorization([roles.a, roles.sa]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
+const AllAndSupport = Authorization([roles.c, roles.a, roles.sa, roles.support]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
+const AdminAndSuperAdminAndSupport = Authorization([roles.adm, roles.sadm, roles.support]);
 // const UserAndAgent = Authorization([roles.c, roles.a]);
-const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.sadm]);
+const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.support, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
@@ -112,11 +114,11 @@ UpgradeUser = All(UpgradeUser);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
 Profile = AllRoles(Profile);
-Users = AdminAndSuperAdmin(Users);
+Users = AdminAndSuperAdminAndSupport(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
 Assets = AdminAndSuperAdmin(Assets);
-ActiveOpRequests = All(ActiveOpRequests);
+ActiveOpRequests = AllAndSupport(ActiveOpRequests);
 ClosedOpRequests = All(ClosedOpRequests);
 Deposit = All(Deposit);
 

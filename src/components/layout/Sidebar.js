@@ -3,6 +3,7 @@ import { Layout } from "antd";
 import UserMenu from "./menu/UserMenu";
 import AgentMenu from "./menu/AgentMenu";
 import AdminMenu from "./menu/AdminMenu";
+import SupportMenu from "./menu/SupportMenu";
 import { roles } from "../../api/constants";
 import User from "./User";
 
@@ -25,6 +26,7 @@ function Sidebar({ collapsed, location, user, xsDevise }) {
 					<AgentMenu role={user.role} />
 				)}
 				{user && user.role === roles.sadm && <AdminMenu />}
+				{user && user.role === roles.support && <SupportMenu />}
 			</div>
 		</Sider>
 	);

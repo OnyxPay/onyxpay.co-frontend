@@ -27,7 +27,12 @@ const AvatarContainer = styled.div`
 `;
 
 function getMenuItem(linkRole, title, userRole) {
-	if (userRole === roles.sa || userRole === roles.adm || userRole === roles.sadm) {
+	if (
+		userRole === roles.sa ||
+		userRole === roles.adm ||
+		userRole === roles.sadm ||
+		userRole === roles.support
+	) {
 		return;
 	} else if (userRole === roles.a && linkRole === roles.a) {
 		return;
