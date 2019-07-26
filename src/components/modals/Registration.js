@@ -59,11 +59,13 @@ class RegistrationModal extends Component {
 				}
 			} else {
 				await getUserData();
-				const res = await addReferral(values.referral_wallet, pk, accountAddress);
-				console.log(res);
-				// message.success(text.modals.registration.reg_success, 5);
-				// formActions.resetForm();
-				// push("/");
+				if (values.referral_wallet) {
+					const res = await addReferral(values.referral_wallet, pk, accountAddress);
+					console.log(res);
+				}
+				message.success(text.modals.registration.reg_success, 5);
+				formActions.resetForm();
+				push("/");
 			}
 			formActions.setSubmitting(false);
 		} catch (error) {
