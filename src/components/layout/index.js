@@ -38,7 +38,7 @@ class Layout extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		if (
 			prevProps.location.pathname !== this.props.location.pathname &&
-			this.state.xsDevise &&
+			this.state.activeBreakPoint === "xs" &&
 			!this.state.isSideBarCollapsed
 		) {
 			this.toggleSidebar(); // hide menu on route change
