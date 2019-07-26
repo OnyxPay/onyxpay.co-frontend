@@ -132,7 +132,18 @@ class AssetsList extends Component {
 	};
 
 	showModalSetExchangeRates = (type, symbol) => () => {
-		this.setState({ tokenId: symbol, ADD_SET_EXCHANGE_RATES: true });
+		let buyPrice, sellPrice;
+		let { exchangeRates } = this.props;
+
+		for (let item of exchangeRates) {
+			if (item.symbol === symbol) {
+				buyPrice = item.buy;
+				sellPrice = item.sell;
+				break;
+			}
+		}
+
+		this.setState({ tokenId: symbol, buyPrice, sellPrice, ADD_SET_EXCHANGE_RATES: true });
 	};
 
 	hideModalSetExchangeRates = type => () => {
@@ -199,6 +210,8 @@ class AssetsList extends Component {
 			ADD_ASSETS_MODAL,
 			ADD_SET_EXCHANGE_RATES,
 			tokenId,
+			buyPrice,
+			sellPrice,
 		} = this.state;
 		const {
 			data,
@@ -302,6 +315,8 @@ class AssetsList extends Component {
 					isModalVisible={ADD_SET_EXCHANGE_RATES}
 					hideModal={this.hideModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES)}
 					tokenId={tokenId}
+					buyPrice={buyPrice}
+					sellPrice={sellPrice}
 					getExchangeRates={getExchangeRates}
 				/>
 			</>
