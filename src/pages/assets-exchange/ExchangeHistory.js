@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import { Table } from "antd";
 import { getExchangeHistory } from "../../api/transactions-history";
 import { convertAmountToStr } from "../../utils/number";
@@ -109,4 +108,4 @@ class ExchangeHistory extends Component {
 	}
 }
 
-export default connect()(ExchangeHistory);
+export default ExchangeHistory;

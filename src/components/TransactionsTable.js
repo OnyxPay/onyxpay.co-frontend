@@ -1,101 +1,111 @@
-import React from "react";
+import React, { Component } from "react";
 import { Table } from "antd";
+import { getExchangeHistory } from "../../api/transactions-history";
+import { convertAmountToStr } from "../../utils/number";
 
-const columns = [
-	{
-		title: "Name",
-		dataIndex: "name",
-		filters: [
-			{
-				text: "Joe",
-				value: "Joe",
-			},
-			{
-				text: "Jim",
-				value: "Jim",
-			},
-			{
-				text: "Submenu",
-				value: "Submenu",
-				children: [
-					{
-						text: "Green",
-						value: "Green",
-					},
-					{
-						text: "Black",
-						value: "Black",
-					},
-				],
-			},
-		],
-		// specify the condition of filtering result
-		// here is that finding the name started with `value`
-		onFilter: (value, record) => record.name.indexOf(value) === 0,
-		sorter: (a, b) => a.name.length - b.name.length,
-		sortDirections: ["descend"],
-	},
-	{
-		title: "Age",
-		dataIndex: "age",
-		defaultSortOrder: "descend",
-		sorter: (a, b) => a.age - b.age,
-	},
-	{
-		title: "Address",
-		dataIndex: "address",
-		filters: [
-			{
-				text: "London",
-				value: "London",
-			},
-			{
-				text: "New York",
-				value: "New York",
-			},
-		],
-		filterMultiple: false,
-		onFilter: (value, record) => record.address.indexOf(value) === 0,
-		sorter: (a, b) => a.address.length - b.address.length,
-		sortDirections: ["descend", "ascend"],
-	},
-];
+class TransactionsTable extends Component {
+	state = {
+		pagination: { current: 1, pageSize: 10 },
+		exchangeHistoryData: [],
+	};
 
-const data = [
-	{
-		key: "1",
-		name: "John Brown",
-		age: 32,
-		address: "New York No. 1 Lake Park",
-	},
-	{
-		key: "2",
-		name: "Jim Green",
-		age: 42,
-		address: "London No. 1 Lake Park",
-	},
-	{
-		key: "3",
-		name: "Joe Black",
-		age: 32,
-		address: "Sidney No. 1 Lake Park",
-	},
-	{
-		key: "4",
-		name: "Jim Red",
-		age: 32,
-		address: "London No. 2 Lake Park",
-	},
-];
+	componentDidMount = () => {
+		try {
+			setInterval(() => {
+				this.fetchTransactionHistory();
+			}, 30000);
+		} catch (e) {
+			console.log(e);
+		}
+	};
 
-function onChange(pagination, filters, sorter) {
-	console.log("params", pagination, filters, sorter);
+	handleTableChange = async pagination => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				this.fetchTransactionHistory();
+			}
+		);
+	};
+
+	fetchTransactionHistory = async (opts = {}) => {
+		try {
+			const { pagination } = this.state;
+
+			const params = {
+				pageSize: pagination.pageSize,
+				pageNum: pagination.current,
+				...opts,
+			};
+			const res = await getExchangeHistory(params);
+			if (!res.error) {
+				pagination.total = res.total;
+				this.setState({
+					pagination,
+					exchangeHistoryData: res.items,
+				});
+			}
+		} catch (e) {}
+	};
+
+	render() {
+		const exchangeHistoryColumns = [
+			{
+				title: "Transaction Hash",
+				dataIndex: "trxHast",
+				key: "transactionHash",
+				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Date",
+				dataIndex: "timestamp",
+				key: "date",
+				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Sold asset",
+				dataIndex: "",
+				key: "soldAsset",
+				render: res =>
+					(res.amountToSell ? convertAmountToStr(res.amountToSell, 8) : "n/a") +
+					" " +
+					(res.assetToSell ? res.assetToSell : "n/a"),
+			},
+			{
+				title: "Bought Asset",
+				dataIndex: "",
+				key: "boughtAsset",
+				render: res =>
+					(res.amountToBuy ? convertAmountToStr(res.amountToBuy, 0) : "n/a") +
+					" " +
+					(res.assetToBuy ? res.assetToBuy : "n/a"),
+			},
+			{
+				title: "Status",
+				dataIndex: "statusCode",
+				key: "status",
+				render: res => (res ? res : "Unknown"),
+			},
+		];
+
+		return (
+			<>
+				<Table
+					columns={exchangeHistoryColumns}
+					dataSource={this.state.exchangeHistoryData}
+					pagination={this.state.pagination}
+					onChange={this.handleTableChange}
+					locale={{ emptyText: "You haven't performed any exchange transactions yet." }}
+				/>
+			</>
+		);
+	}
 }
-
-const TransactionsTable = () => {
-	return (
-		<Table columns={columns} dataSource={data} onChange={onChange} bordered className="ovf-auto" />
-	);
-};
 
 export default TransactionsTable;
