@@ -226,7 +226,13 @@ export default function renderPerformerColumns({
 								) : (
 									<Popconfirm
 										title="Sure to accept?"
-										onConfirm={() => acceptRequest(record.request.request_id)}
+										onConfirm={() =>
+											acceptRequest(
+												record.request.request_id,
+												record.request.amount,
+												record.request.asset
+											)
+										}
 									>
 										<Button type="primary" style={styles.btn}>
 											Accept
