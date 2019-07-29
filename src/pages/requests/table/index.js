@@ -1,6 +1,6 @@
 import React from "react";
 import { Input, Button, Icon, Popconfirm } from "antd";
-import { requestStatus } from "api/constants";
+import { requestStatus, operationMessageStatus } from "api/constants";
 import { styles } from "../styles";
 import { h24Mc } from "api/constants";
 
@@ -112,51 +112,49 @@ export function renderPerformBtn(
 	isPerformActive
 ) {
 	let btn;
-	if (requestsType === "withdraw") {
-		if (record.status_code === requestStatus.choose && record.taker_addr && record.taker) {
-			if (isPerformActive) {
-				btn = (
-					<Button type="primary" style={styles.btn} loading={true} disabled={true}>
+
+	function getButton(requestId) {
+		if (isPerformActive) {
+			return (
+				<Button type="primary" style={styles.btn} loading={true} disabled={true}>
+					Perform
+				</Button>
+			);
+		} else {
+			return (
+				<Popconfirm title="Sure to perform?" onConfirm={() => performRequest(requestId)}>
+					<Button type="primary" style={styles.btn}>
 						Perform
 					</Button>
-				);
-			} else {
-				btn = (
-					<Popconfirm title="Sure to perform?" onConfirm={() => performRequest(record.request_id)}>
-						<Button type="primary" style={styles.btn}>
-							Perform
-						</Button>
-					</Popconfirm>
-				);
-			}
+				</Popconfirm>
+			);
+		}
+	}
+
+	if (requestsType === "withdraw") {
+		if (record.status_code === requestStatus.choose && record.taker_addr && record.taker) {
+			// for initiator
+			btn = getButton(record.request_id);
+		} else if (
+			record.status_code === operationMessageStatus.accepted &&
+			record.request &&
+			record.request.taker_addr === walletAddress &&
+			isTimeUp(record.request.choose_timestamp, h24Mc)
+		) {
+			// for performer
+			btn = getButton(record.request.request_id);
 		} else {
 			btn = null;
 		}
 	} else {
 		if (
+			record.request &&
 			record.request.taker_addr === walletAddress &&
 			record.request.status_code !== requestStatus.completed &&
 			record.request.status_code !== requestStatus.complained &&
 			!isTimeUp(record.request.choose_timestamp, h24Mc)
 		) {
-			if (isPerformActive) {
-				btn = (
-					<Button type="primary" style={styles.btn} loading={true} disabled={true}>
-						Perform
-					</Button>
-				);
-			} else {
-				btn = (
-					<Popconfirm
-						title="Sure to perform?"
-						onConfirm={() => performRequest(record.request.request_id)}
-					>
-						<Button type="primary" style={styles.btn}>
-							Perform
-						</Button>
-					</Popconfirm>
-				);
-			}
+			btn = getButton(record.request.request_id);
 		} else {
 			btn = null;
 		}
