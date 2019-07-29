@@ -12,7 +12,7 @@ import { showNotification, showTimeoutNotification, showBcError } from "componen
 import { convertAmountToStr } from "utils/number";
 const { Option } = Select;
 
-class SendToAgent extends Component {
+class ChoosePerformer extends Component {
 	state = this.getInitialState();
 
 	getInitialState() {
@@ -57,22 +57,32 @@ class SendToAgent extends Component {
 				const performer = selectedRows[0].receiver;
 				await choosePerformer(requestId, performer.wallet_addr);
 				formActions.resetForm();
-				let assetSymbol = openedRequestData.asset;
-				const splittedAssetSymbol = openedRequestData.asset.split("");
-				if (splittedAssetSymbol[0] === "o") {
-					assetSymbol = splittedAssetSymbol.slice(1).join("");
+				if (openedRequestData.type === "withdraw") {
+					showNotification({
+						type: "success",
+						msg: "You successfully chosen an agent",
+						desc:
+							"Next, you should wait until fiat money is coming, and then finalize the request by clicking on the 'Perform' button",
+					});
+				} else {
+					let assetSymbol = openedRequestData.asset;
+					const splittedAssetSymbol = openedRequestData.asset.split("");
+					if (splittedAssetSymbol[0] === "o") {
+						assetSymbol = splittedAssetSymbol.slice(1).join("");
+					}
+
+					showNotification({
+						type: "success",
+						msg: "You successfully chosen an agent",
+						desc: `Send ${convertAmountToStr(
+							openedRequestData.amount,
+							8
+						)} FIAT ${assetSymbol} to agent ${performer.first_name} ${
+							performer.last_name
+						} settlement account or hand over the cash by hand`,
+					});
 				}
 
-				showNotification({
-					type: "success",
-					msg: "You successfully chosen an agent",
-					desc: `Send ${convertAmountToStr(
-						openedRequestData.amount,
-						8
-					)} FIAT ${assetSymbol} to agent ${performer.first_name} ${
-						performer.last_name
-					} settlement account or hand over the cash by hand`,
-				});
 				fetchRequests();
 				this.handleClose();
 			} catch (e) {
@@ -261,4 +271,4 @@ export default connect(state => {
 		user: state.user,
 		accountAddress: state.wallet.defaultAccountAddress,
 	};
-})(SendToAgent);
+})(ChoosePerformer);

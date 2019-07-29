@@ -10,13 +10,19 @@ import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "
 import { hideMessage } from "api/operation-messages";
 import ChoosePerformerModal from "components/modals/ChoosePerformer";
 import { roles } from "api/constants";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import {
+	showNotification,
+	showTimeoutNotification,
+	showGasCompensationError,
+	showBcError,
+} from "components/notification";
 import { createLoadingSelector } from "selectors/loading";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
 import { handleTableChange, getColumnSearchProps } from "./table";
+import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
@@ -128,7 +134,13 @@ class ActiveRequests extends Component {
 			});
 			this.fetch();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
+			console.dir(e);
+
+			if (e instanceof GasCompensationError) {
+				showGasCompensationError();
+			} else if (e instanceof SendRawTrxError) {
+				showBcError(e.message);
+			} else if (e instanceof TimeoutError) {
 				showTimeoutNotification();
 			} else {
 				showNotification({
