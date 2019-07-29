@@ -60,6 +60,47 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 	return button;
 }
 
+function renderCancelBtn(
+	record,
+	requestsType,
+	cancelRequest,
+	isComplainActive,
+	isCancelRequestActive
+) {
+	let btn = null;
+	if (requestsType === "withdraw") {
+		if (record.status === "opened") {
+			btn = (
+				<CancelRequest
+					btnStyle={styles.btn}
+					disabled={isComplainActive}
+					isActionActive={isCancelRequestActive}
+					handleCancel={e => {
+						return cancelRequest(record.request_id);
+					}}
+				/>
+			);
+		}
+	} else {
+		if (
+			record.status === "opened" ||
+			(record.status === "choose" && !isTimeUp(record.choose_timestamp, h24Mc))
+		) {
+			btn = (
+				<CancelRequest
+					btnStyle={styles.btn}
+					disabled={isComplainActive}
+					isActionActive={isCancelRequestActive}
+					handleCancel={e => {
+						return cancelRequest(record.request_id);
+					}}
+				/>
+			);
+		}
+	}
+	return btn;
+}
+
 export default function renderInitiatorColumns({
 	activeRequestId,
 	activeAction,
@@ -164,18 +205,12 @@ export default function renderInitiatorColumns({
 								)}
 
 							{/* Cancel request */}
-							{(record.status === "opened" ||
-								(record.status === "choose" && !isTimeUp(record.choose_timestamp, h24Mc))) && (
-								<CancelRequest
-									btnStyle={styles.btn}
-									requestId={record.request_id}
-									fetchRequests={fetchData}
-									disabled={isComplainActive}
-									isActionActive={isCancelRequestActive}
-									handleCancel={e => {
-										return cancelRequest(record.request_id);
-									}}
-								/>
+							{renderCancelBtn(
+								record,
+								requestsType,
+								cancelRequest,
+								isComplainActive,
+								isCancelRequestActive
 							)}
 
 							{/* Choose agent (performer) */}
