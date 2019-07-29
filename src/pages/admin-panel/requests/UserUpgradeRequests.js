@@ -93,7 +93,7 @@ class UserUpgradeRequests extends Component {
 		const res = await rejectRequest(request_id, reason);
 		if (!res.error) {
 			showNotification({
-				type: "Success",
+				type: "success",
 				msg: `You rejected request with id ${request_id}`,
 			});
 			this.hideModal();
