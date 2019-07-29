@@ -7,9 +7,9 @@ import PerformersTable from "./PerformersTable";
 import { searchUsers } from "api/users";
 import { sendMessage } from "api/operation-messages";
 import { choosePerformer } from "api/requests";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification, showBcError } from "components/notification";
+import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
+import { handleBcError } from "api/network";
 const { Option } = Select;
 
 class ChoosePerformer extends Component {
@@ -86,11 +86,7 @@ class ChoosePerformer extends Component {
 				fetchRequests();
 				this.handleClose();
 			} catch (e) {
-				if (e instanceof TimeoutError) {
-					showTimeoutNotification();
-				} else {
-					showBcError(e.message);
-				}
+				handleBcError(e);
 			} finally {
 				formActions.setSubmitting(false);
 			}

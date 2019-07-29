@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { Popover, Button, Spin } from "antd";
 import { TextAligner } from "../../components/styled";
 import { cancelRequest, getRejectionCounter } from "../../api/requests";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { showNotification } from "components/notification";
+import { handleBcError } from "api/network";
 
 class CancelRequest extends Component {
 	state = {
@@ -20,10 +20,7 @@ class CancelRequest extends Component {
 				const counter = await getRejectionCounter();
 				this.setState({ loading: false, counter });
 			} catch (e) {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
+				handleBcError(e);
 			}
 		}
 	}
@@ -52,14 +49,7 @@ class CancelRequest extends Component {
 				msg: "You have canceled the request",
 			});
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({ actionIsOn: false });
 		}
