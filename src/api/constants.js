@@ -21,6 +21,16 @@ export const wsEvents = {
 	rejectUpgradeRequest: "REJECT_UPGRADE_REQUEST",
 	phoneNumberIsChanged: "PHONE_NUMBER_IS_CHANGED",
 	upgradeUser: "UPDATE_USER",
+	saveRequest: "SAVE_REQUEST",
+	chooseAgentMaker: "CHOOSE_AGENT_MAKER",
+	chooseAgentTaker: "CHOOSE_AGENT_TAKER",
+	newMessage: "NEW_MESSAGE",
+	acceptRequestMaker: "ACCEPT_REQUEST_MAKER",
+	acceptRequestTaker: "ACCEPT_REQUEST_TAKER",
+	changeRequestStatusMaker: "CHANGE_REQUEST_STATUS_MAKER",
+	changeRequestStatusTaker: "CHANGE_REQUEST_STATUS_TAKER",
+	cancelAcceptationMaker: "CANCEL_ACCEPTATION_MAKER",
+	cancelAcceptationTaker: "CANCEL_ACCEPTATION_TAKER",
 };
 
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
@@ -78,6 +88,17 @@ export const requestStatus = {
 	complained: 5,
 	completed: 6,
 	closed: 7, //  not set at back-end now
+};
+
+export const requestStatusNames = {
+	0: "pending",
+	1: "opened",
+	2: "choose",
+	3: "rejected",
+	4: "canceled",
+	5: "complained",
+	6: "completed",
+	7: "closed",
 };
 
 export const UpgradeRequestStatus = {
