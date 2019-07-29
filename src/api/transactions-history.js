@@ -22,7 +22,7 @@ export const getOperationHistory = async params => {
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
 	try {
-		const { data } = await client.get("/exchanges", {
+		const { data } = await client.get("/transactions", {
 			headers: {
 				...authHeaders,
 			},
@@ -30,6 +30,7 @@ export const getOperationHistory = async params => {
 				...params,
 			},
 		});
+		console.log(data);
 		return data;
 	} catch (er) {
 		return handleReqError(er);

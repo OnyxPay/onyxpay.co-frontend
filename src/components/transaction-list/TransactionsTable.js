@@ -9,12 +9,17 @@ class TransactionsTable extends Component {
 
 	componentDidMount = () => {
 		try {
-			setInterval(() => {
+			this.fetchTransactionHistory();
+			this.interval = setInterval(async () => {
 				this.fetchTransactionHistory();
 			}, 30000);
 		} catch (e) {
 			console.log(e);
 		}
+	};
+
+	componentWillUnmount = () => {
+		clearInterval(this.interval);
 	};
 
 	handleTableChange = async pagination => {
@@ -56,10 +61,11 @@ class TransactionsTable extends Component {
 	};
 
 	render() {
+		const { columns } = this.props;
 		return (
 			<>
 				<Table
-					columns={this.props.columns}
+					columns={columns}
 					dataSource={this.state.transactionListData}
 					pagination={this.state.pagination}
 					onChange={this.handleTableChange}
