@@ -213,7 +213,7 @@ class ActiveRequests extends Component {
 		try {
 			this.setState({ requestId, activeAction: aa.cancel });
 			await cancelRequest(requestId);
-			this.fetchRequests();
+			this.fetch();
 			showNotification({
 				type: "success",
 				msg: "You have canceled the request",
