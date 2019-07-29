@@ -108,7 +108,7 @@ class Login extends Component {
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
 
-			console.log({ publicKey, accountAddress });
+			console.log({ publicKey, accountAddress, signed_msg: signature.serializeHex() });
 
 			const res = await login({
 				public_key: publicKey.key,

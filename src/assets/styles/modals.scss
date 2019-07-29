@@ -17,6 +17,14 @@
 	}
 }
 
+.registration-modal {
+	@media (min-width: 576px) {
+		.ant-form-item-label {
+			line-height: 24px;
+		}
+	}
+}
+
 .ant-tabs-content tbody {
 	background: #ffffff;
 }

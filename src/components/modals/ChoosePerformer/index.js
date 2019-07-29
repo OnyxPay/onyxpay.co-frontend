@@ -57,12 +57,19 @@ class SendToAgent extends Component {
 				const performer = selectedRows[0].receiver;
 				await choosePerformer(requestId, performer.wallet_addr);
 				formActions.resetForm();
+				let assetSymbol = openedRequestData.asset;
+				const splittedAssetSymbol = openedRequestData.asset.split("");
+				if (splittedAssetSymbol[0] === "o") {
+					assetSymbol = splittedAssetSymbol.slice(1).join("");
+				}
+
 				showNotification({
 					type: "success",
 					msg: "You successfully chosen an agent",
-					desc: `Send ${convertAmountToStr(openedRequestData.amount, 8)} FIAT ${
-						openedRequestData.asset
-					} to agent ${performer.first_name} ${
+					desc: `Send ${convertAmountToStr(
+						openedRequestData.amount,
+						8
+					)} FIAT ${assetSymbol} to agent ${performer.first_name} ${
 						performer.last_name
 					} settlement account or hand over the cash by hand`,
 				});
@@ -117,7 +124,7 @@ class SendToAgent extends Component {
 	};
 
 	async fetchUsers(opts = {}) {
-		const { user, performer } = this.props;
+		const { user, performer, accountAddress } = this.props;
 		const { pagination } = this.state;
 		try {
 			const params = {
@@ -128,12 +135,11 @@ class SendToAgent extends Component {
 				...opts,
 			};
 
-			console.log(params);
-
 			this.setState({ loading: true });
 			const res = await searchUsers(params);
 			pagination.total = res.total;
-			this.setState({ loading: false, users: res, pagination });
+			const performers = res.items.filter(performer => performer.wallet_addr !== accountAddress);
+			this.setState({ loading: false, users: { items: performers, total: res.total }, pagination });
 		} catch (e) {}
 	}
 
@@ -253,5 +259,6 @@ class SendToAgent extends Component {
 export default connect(state => {
 	return {
 		user: state.user,
+		accountAddress: state.wallet.defaultAccountAddress,
 	};
 })(SendToAgent);

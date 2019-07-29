@@ -98,13 +98,15 @@ export default function renderInitiatorColumns({
 			{
 				title: "Created",
 				render: (text, record, index) => {
-					return getLocalTime(record.trx_timestamp);
+					return record.trx_timestamp ? getLocalTime(record.trx_timestamp) : "n/a";
 				},
 			},
 			{
 				title: "Performer",
 				render: (text, record, index) => {
-					return record.taker_addr ? getPerformerName(record) : "n/a";
+					return record.taker_addr && record.taker
+						? getPerformerName(record.taker_addr, record.taker)
+						: "n/a";
 				},
 			},
 			{
@@ -220,7 +222,9 @@ export default function renderInitiatorColumns({
 			{
 				title: "Performer",
 				render: (text, record, index) => {
-					return record.taker_addr ? getPerformerName(record) : "n/a";
+					return record.taker_addr && record.taker
+						? getPerformerName(record.taker_addr, record.taker)
+						: "n/a";
 				},
 			},
 		];

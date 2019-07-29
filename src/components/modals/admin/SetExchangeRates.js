@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { Formik } from "formik";
-import { Modal, Button, Input, Form } from "antd";
+import { Modal, Button, Input, Form, Descriptions } from "antd";
 import { TextAligner } from "./../../styled";
 import { setAssetExchangeRates } from "api/assets";
 import { TimeoutError } from "promise-timeout";
 import { showNotification, showTimeoutNotification } from "components/notification";
+import { convertAmountToStr } from "utils/number";
 
 class SetExchangeRates extends Component {
 	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -36,7 +37,7 @@ class SetExchangeRates extends Component {
 	};
 
 	render() {
-		const { isModalVisible, hideModal } = this.props;
+		const { isModalVisible, hideModal, tokenId, buyPrice, sellPrice } = this.props;
 		return (
 			<>
 				<Modal
@@ -46,6 +47,15 @@ class SetExchangeRates extends Component {
 					footer={null}
 					className="assets-modal"
 				>
+					<Descriptions>
+						<Descriptions.Item label="Asset">{tokenId}</Descriptions.Item>
+						<Descriptions.Item label="Buy price">
+							{convertAmountToStr(buyPrice, 8)}
+						</Descriptions.Item>
+						<Descriptions.Item label="Sell price">
+							{convertAmountToStr(sellPrice, 8)}
+						</Descriptions.Item>
+					</Descriptions>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{ assets_buy: "", asset_sell: "" }}

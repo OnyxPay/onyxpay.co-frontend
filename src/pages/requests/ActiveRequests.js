@@ -92,6 +92,7 @@ class ActiveRequests extends Component {
 		} else {
 			let isAgentInitiator = isThisAgentInitiator(user.role, location);
 			if (isAgentInitiator) {
+				params.type = requestType;
 				params.status = "pending,opened,choose,complained";
 				params.user = "maker";
 				getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
@@ -101,10 +102,25 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	acceptRequest = async requestId => {
+	acceptRequest = async (requestId, requestAmount, requestAsset) => {
 		// agent accepts deposit or withdraw request
 		try {
+			const { balanceAssets, balanceOnyxCash } = this.props;
 			this.setState({ requestId, activeAction: aa.accept });
+
+			const allow = balanceAssets.some(
+				balance =>
+					(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
+					(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
+			);
+			if (!allow) {
+				showNotification({
+					type: "error",
+					msg: "Request cannot be accepted. Insufficient amount of asset.",
+				});
+				return false;
+			}
+
 			await acceptRequest(requestId);
 			showNotification({
 				type: "success",
@@ -305,6 +321,8 @@ function mapStateToProps(state, ownProps) {
 		walletAddress: state.wallet.defaultAccountAddress,
 		data: state.opRequests,
 		isFetching: loadingSelector(state),
+		balanceAssets: state.balance.assets,
+		balanceOnyxCash: state.balance.onyxCash,
 	};
 }
 

@@ -43,6 +43,7 @@ class Deposit extends Component {
 		const isOnyxCash = values.asset_symbol === onyxCashSymbol;
 		let isEnoughAmount = true;
 		let requestType = "deposit";
+		let isBlocked;
 
 		if (isOnyxCash) {
 			values.asset_symbol = "OnyxCash";
@@ -50,13 +51,13 @@ class Deposit extends Component {
 		}
 
 		try {
-			const isBlocked = await isAssetBlocked(values.asset_symbol);
-			if (isBlocked) {
-				formActions.setSubmitting(false);
-				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
-			}
-
 			if (!isOnyxCash) {
+				isBlocked = await isAssetBlocked(values.asset_symbol);
+				if (isBlocked) {
+					formActions.setSubmitting(false);
+					return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
+				}
+
 				isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
 				if (!isEnoughAmount) {
 					formActions.setSubmitting(false);

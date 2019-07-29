@@ -9,7 +9,7 @@ export default function ReferralLink() {
 	const [isModalVisible, showModal] = useState(false);
 
 	const referralCode = localStorage.getItem("OnyxAddr");
-	const link = BackendUrl + "?rcode=" + referralCode;
+	const link = BackendUrl + "/login?rcode=" + referralCode;
 
 	return (
 		<div>
