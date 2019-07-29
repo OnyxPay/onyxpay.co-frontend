@@ -38,7 +38,7 @@ const appReducer = history =>
 export default history => {
 	const reducer = appReducer(history);
 	return (state, action) => {
-		if (action === "LOG_OUT") {
+		if (action.type === "LOG_OUT") {
 			state = undefined;
 		}
 		return reducer(state, action);
