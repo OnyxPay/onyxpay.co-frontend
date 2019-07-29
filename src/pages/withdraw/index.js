@@ -10,6 +10,7 @@ import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
 import { isAssetBlocked } from "../../api/assets";
+import Balance from "components/balance/Balance";
 
 const { Option } = Select;
 
@@ -99,6 +100,7 @@ class Withdraw extends Component {
 		return (
 			<>
 				<PageTitle>Withdraw</PageTitle>
+				<Balance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
