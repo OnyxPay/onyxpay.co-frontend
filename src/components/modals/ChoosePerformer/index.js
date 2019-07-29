@@ -57,12 +57,19 @@ class SendToAgent extends Component {
 				const performer = selectedRows[0].receiver;
 				await choosePerformer(requestId, performer.wallet_addr);
 				formActions.resetForm();
+				let assetSymbol = openedRequestData.asset;
+				const splittedAssetSymbol = openedRequestData.asset.split("");
+				if (splittedAssetSymbol[0] === "o") {
+					assetSymbol = splittedAssetSymbol.slice(1).join("");
+				}
+
 				showNotification({
 					type: "success",
 					msg: "You successfully chosen an agent",
-					desc: `Send ${convertAmountToStr(openedRequestData.amount, 8)} FIAT ${
-						openedRequestData.asset
-					} to agent ${performer.first_name} ${
+					desc: `Send ${convertAmountToStr(
+						openedRequestData.amount,
+						8
+					)} FIAT ${assetSymbol} to agent ${performer.first_name} ${
 						performer.last_name
 					} settlement account or hand over the cash by hand`,
 				});
