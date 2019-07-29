@@ -71,6 +71,7 @@ export default function renderInitiatorColumns({
 	requestsType, // deposit | withdraw | depositOnyxCash
 	showUserSettlementsModal,
 	performRequest, // for withdraw
+	cancelRequest,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -141,6 +142,9 @@ export default function renderInitiatorColumns({
 					const isPerformActive =
 						record.request_id === activeRequestId && activeAction === aa.perform;
 
+					const isCancelRequestActive =
+						record.request_id === activeRequestId && activeAction === aa.cancel;
+
 					return (
 						<>
 							{/* Send to agents (performers) */}
@@ -149,6 +153,7 @@ export default function renderInitiatorColumns({
 								!record.operation_messages.length && (
 									<Button
 										style={styles.btn}
+										disabled={isCancelRequestActive}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 											requestId: record.id,
 											isSendingMessage: true,
@@ -166,6 +171,10 @@ export default function renderInitiatorColumns({
 									requestId={record.request_id}
 									fetchRequests={fetchData}
 									disabled={isComplainActive}
+									isActionActive={isCancelRequestActive}
+									handleCancel={e => {
+										return cancelRequest(record.request_id);
+									}}
 								/>
 							)}
 
@@ -188,7 +197,7 @@ export default function renderInitiatorColumns({
 									</Button>
 								)}
 
-							{/* Cancel request */}
+							{/* Complain on request */}
 							{record.taker_addr &&
 								record.choose_timestamp &&
 								record.status !== "complained" &&

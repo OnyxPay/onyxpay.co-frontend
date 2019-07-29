@@ -1,14 +1,13 @@
 import React, { Component } from "react";
 import { Popover, Button, Spin } from "antd";
 import { TextAligner } from "../../components/styled";
-import { cancelRequest, getRejectionCounter } from "../../api/requests";
-import { showNotification } from "components/notification";
+import { getRejectionCounter } from "../../api/requests";
 import { handleBcError } from "api/network";
 
 class CancelRequest extends Component {
 	state = {
 		visible: false,
-		loading: false,
+		fetching: false,
 		counter: null,
 		actionIsOn: false,
 	};
@@ -16,9 +15,9 @@ class CancelRequest extends Component {
 	async componentDidUpdate(prevProps, prevState) {
 		if (!prevState.visible && prevState.visible !== this.state.visible) {
 			try {
-				this.setState({ loading: true });
+				this.setState({ fetching: true });
 				const counter = await getRejectionCounter();
-				this.setState({ loading: false, counter });
+				this.setState({ fetching: false, counter });
 			} catch (e) {
 				handleBcError(e);
 			}
@@ -38,30 +37,13 @@ class CancelRequest extends Component {
 		}
 	};
 
-	handleConfirm = async () => {
-		const { requestId, fetchRequests } = this.props;
-		try {
-			this.setState({ actionIsOn: true });
-			await cancelRequest(requestId, "deposit");
-			fetchRequests();
-			showNotification({
-				type: "success",
-				msg: "You have canceled the request",
-			});
-		} catch (e) {
-			handleBcError(e);
-		} finally {
-			this.setState({ actionIsOn: false });
-		}
-	};
-
 	render() {
-		const { btnStyle, disabled } = this.props;
-		const { loading, counter, actionIsOn } = this.state;
+		const { btnStyle, disabled, handleCancel, isActionActive } = this.props;
+		const { fetching, counter } = this.state;
 		return (
 			<Popover
 				content={
-					loading ? (
+					fetching ? (
 						<Spin />
 					) : (
 						<div>
@@ -74,7 +56,7 @@ class CancelRequest extends Component {
 								<Button size="small" style={{ marginRight: 8 }} onClick={this.hide}>
 									No
 								</Button>
-								<Button size="small" type="primary" onClick={this.handleConfirm}>
+								<Button size="small" type="primary" onClick={handleCancel}>
 									Ok
 								</Button>
 							</TextAligner>
@@ -88,8 +70,8 @@ class CancelRequest extends Component {
 				<Button
 					type="danger"
 					style={btnStyle}
-					loading={actionIsOn}
-					disabled={actionIsOn || disabled}
+					loading={isActionActive}
+					disabled={isActionActive || disabled}
 				>
 					Cancel
 				</Button>

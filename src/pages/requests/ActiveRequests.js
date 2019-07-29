@@ -5,7 +5,13 @@ import { connect } from "react-redux";
 import { Table } from "antd";
 import queryString from "query-string";
 import { push } from "connected-react-router";
-import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
+import {
+	acceptRequest,
+	performRequest,
+	cancelAcceptedRequest,
+	complain,
+	cancelRequest,
+} from "api/requests";
 import { hideMessage } from "api/operation-messages";
 import ChoosePerformerModal from "components/modals/ChoosePerformer";
 import { roles } from "api/constants";
@@ -203,6 +209,22 @@ class ActiveRequests extends Component {
 		}
 	};
 
+	cancelRequest = async requestId => {
+		try {
+			this.setState({ requestId, activeAction: aa.cancel });
+			await cancelRequest(requestId);
+			this.fetchRequests();
+			showNotification({
+				type: "success",
+				msg: "You have canceled the request",
+			});
+		} catch (e) {
+			handleBcError(e);
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
+		}
+	};
+
 	render() {
 		const { user, walletAddress, location, data, isFetching } = this.props;
 		const { requestId, activeAction, idParsedFromURL, openedRequestData } = this.state;
@@ -224,6 +246,7 @@ class ActiveRequests extends Component {
 						settlementsId,
 					})(),
 				performRequest: this.performRequest,
+				cancelRequest: this.cancelRequest,
 			});
 		} else {
 			columns = renderPerformerColumns({
