@@ -24,22 +24,7 @@ import { isAssetBlocked } from "../../api/assets";
 import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 const { Option } = Select;
 
-const assetsForBuyColumns = [
-	{
-		title: "Asset name",
-		dataIndex: "name",
-		key: "name",
-		width: "9em",
-	},
-	{
-		title: "Buy price",
-		dataIndex: "buyPrice",
-		key: "buyPrice",
-		width: "9em",
-	},
-];
-
-const assetsForSellColumns = [
+const assetsColumns = [
 	{
 		title: "Asset name",
 		dataIndex: "name",
@@ -53,6 +38,12 @@ const assetsForSellColumns = [
 		width: "9em",
 	},
 	{
+		title: "Buy price",
+		dataIndex: "buyPrice",
+		key: "buyPrice",
+		width: "9em",
+	},
+	{
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
@@ -62,8 +53,7 @@ const assetsForSellColumns = [
 
 class AssetsExchange extends Component {
 	state = {
-		assetsForBuyData: [],
-		assetsForSellData: [],
+		assetsData: [],
 		assetToSell: {
 			name: "",
 			amount: 0,
@@ -88,63 +78,77 @@ class AssetsExchange extends Component {
 		});
 	}
 
-	fillAssetsForBuyData = async () => {
-		const { exchangeRates, user } = this.props;
+	getAssetsForTypeData(type) {
+		const { assetsData } = this.state;
+		let res = [];
 
-		let assetsForBuyData = [];
+		for (let i in assetsData) {
+			let item = assetsData[i];
+
+			if (type === "buy" && item.buyPrice) {
+				res.push(item);
+			} else if (type === "sell" && item.sellPrice) {
+				res.push(item);
+			}
+		}
+
+		return res;
+	}
+
+	getAssetsForBuyData() {
+		return this.getAssetsForTypeData("buy");
+	}
+
+	getAssetsForSellData() {
+		return this.getAssetsForTypeData("sell");
+	}
+
+	fillAssetsData = async () => {
+		const { exchangeRates, user } = this.props;
+		const { assets, onyxCash } = this.props.balance;
+
+		let assetsData = [];
 		if (user.role === roles.a || user.role === roles.sa) {
-			assetsForBuyData.push({
+			assetsData.push({
 				key: onyxCashSymbol,
 				name: onyxCashSymbol,
 				buyPrice: 1,
-			});
-		}
-		if (user.role !== roles.sa) {
-			for (let record of exchangeRates) {
-				assetsForBuyData.push({
-					key: record.symbol,
-					name: record.symbol,
-					buyPrice: convertAmountToStr(record.buy, 8),
-				});
-			}
-		}
-		await this.setStateAsync({
-			assetsForBuyData: assetsForBuyData,
-		});
-	};
-
-	fillAssetsForSellData = async () => {
-		const { assets, onyxCash } = this.props.balance;
-		const { exchangeRates, user } = this.props;
-
-		// get all assets, in which user's balance is greater than 0
-		let assetsForSellData = [];
-		if (user.role === roles.a || user.role === roles.sa) {
-			assetsForSellData.push({
-				key: onyxCashSymbol,
-				name: onyxCashSymbol,
 				balance: convertAmountToStr(onyxCash, OnyxCashDecimals),
 				sellPrice: 1,
 			});
 		}
-		for (let record of assets) {
-			let assetRatesData = exchangeRates.find(ratesRecord => ratesRecord.symbol === record.symbol);
-			assetsForSellData.push({
-				key: record.key,
-				name: record.key,
-				balance: convertAmountToStr(record.amount, 8),
-				sellPrice: convertAmountToStr(assetRatesData.sell, 8),
-			});
+
+		for (let record of exchangeRates) {
+			let item = {
+				key: record.symbol,
+				name: record.symbol,
+			};
+
+			if (user.role !== roles.sa) {
+				item.buyPrice = convertAmountToStr(record.buy, 8);
+			}
+
+			for (let sellRecord of assets) {
+				if (sellRecord.symbol === record.symbol) {
+					item.balance = convertAmountToStr(sellRecord.amount, 8);
+					item.sellPrice = convertAmountToStr(record.sell, 8);
+					break;
+				}
+			}
+
+			assetsData.push(item);
 		}
 
 		await this.setStateAsync({
-			assetsForSellData: assetsForSellData,
+			assetsData,
 		});
 	};
 
 	setDefaultAssets = () => {
-		const { assetsForBuyData, assetsForSellData } = this.state;
 		const { user } = this.props;
+
+		let assetsForBuyData = this.getAssetsForBuyData();
+		let assetsForSellData = this.getAssetsForSellData();
 
 		let defaultAssetToSellName = "";
 		let defaultAssetToBuyName = "";
@@ -179,10 +183,9 @@ class AssetsExchange extends Component {
 		const { getExchangeRates } = this.props;
 		await getExchangeRates();
 
-		await this.fillAssetsForBuyData();
-		await this.fillAssetsForSellData();
+		await this.fillAssetsData();
 
-		const { assetsForSellData } = this.state;
+		let assetsForSellData = this.getAssetsForSellData();
 		if (assetsForSellData.length !== 0) {
 			if (this.setDefaultAssets()) {
 				this.setState({ dataLoaded: true });
@@ -194,8 +197,8 @@ class AssetsExchange extends Component {
 		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
 			const { dataLoaded } = this.state;
 
-			await this.fillAssetsForSellData();
-			const { assetsForSellData } = this.state;
+			await this.fillAssetsData();
+			let assetsForSellData = this.getAssetsForSellData();
 			if (!dataLoaded && assetsForSellData.length !== 0) {
 				if (this.setDefaultAssets()) {
 					this.setState({ dataLoaded: true });
@@ -215,7 +218,9 @@ class AssetsExchange extends Component {
 	};
 
 	recountAssetToSellAmount = (assetToSellName, assetToBuyName, amountToBuy) => {
-		const { assetsForBuyData, assetsForSellData } = this.state;
+		let assetsForBuyData = this.getAssetsForBuyData();
+		let assetsForSellData = this.getAssetsForSellData();
+
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
@@ -225,7 +230,9 @@ class AssetsExchange extends Component {
 	};
 
 	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
-		const { assetsForBuyData, assetsForSellData } = this.state;
+		let assetsForBuyData = this.getAssetsForBuyData();
+		let assetsForSellData = this.getAssetsForSellData();
+
 		const { buyPrice } = assetsForBuyData.find(ratesRecord => ratesRecord.name === assetToBuyName);
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
@@ -239,10 +246,14 @@ class AssetsExchange extends Component {
 
 		let value = assetType === "sell" ? assetToSell.name : assetToBuy.name;
 		let error = "";
+
+		// TODO: optimize validation
 		if (assetToSell.name === assetToBuy.name) {
 			error = "Cannot exchange asset on itself";
-		} else if (await isAssetBlocked(value)) {
-			error = value + " asset is blocked at the moment";
+		} else if (value !== onyxCashSymbol) {
+			if (await isAssetBlocked(value)) {
+				error = value + " asset is blocked at the moment";
+			}
 		}
 
 		await this.setStateAsync({
@@ -266,7 +277,8 @@ class AssetsExchange extends Component {
 	};
 
 	validateToSellAmount = async () => {
-		const { assetToSell, assetsForSellData } = this.state;
+		const { assetToSell } = this.state;
+		let assetsForSellData = this.getAssetsForSellData();
 		let error = "";
 
 		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
@@ -463,7 +475,9 @@ class AssetsExchange extends Component {
 												<Form.Item>
 													<Button
 														onClick={() => {
-															const { assetsForSellData, assetToSell } = this.state;
+															const { assetToSell } = this.state;
+															let assetsForSellData = this.getAssetsForSellData();
+
 															let asset = assetsForSellData.find(
 																record => record.name === assetToSell.name
 															);
@@ -492,7 +506,7 @@ class AssetsExchange extends Component {
 												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												className="asset-exchange-select"
 											>
-												{this.state.assetsForSellData.map(asset => (
+												{this.getAssetsForSellData().map(asset => (
 													<Option key={asset.key}>{asset.key}</Option>
 												))}
 											</Select>
@@ -555,7 +569,9 @@ class AssetsExchange extends Component {
 												<Form.Item>
 													<Button
 														onClick={() => {
-															const { assetsForSellData, assetToSell, assetToBuy } = this.state;
+															const { assetToSell, assetToBuy } = this.state;
+															let assetsForSellData = this.getAssetsForSellData();
+
 															let asset = assetsForSellData.find(
 																record => record.name === assetToSell.name
 															);
@@ -591,7 +607,7 @@ class AssetsExchange extends Component {
 												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												className="asset-exchange-select"
 											>
-												{this.state.assetsForBuyData.map(asset => (
+												{this.getAssetsForBuyData().map(asset => (
 													<Option key={asset.key}>{asset.key}</Option>
 												))}
 											</Select>
@@ -639,24 +655,10 @@ class AssetsExchange extends Component {
 					</Row>
 					<Divider />
 					<Row gutter={48} className="exchange-tables">
-						<Col md={24} lg={12}>
+						<Col md={48} lg={24}>
 							<Table
-								columns={assetsForSellColumns}
-								dataSource={this.state.assetsForSellData}
-								pagination={false}
-								scroll={{ y: "16em" }}
-								locale={{ emptyText: "You have no assets at the moment. Please, make a deposit." }}
-							/>
-						</Col>
-
-						<Col md={{ span: 24 }} lg={{ span: 0 }}>
-							<div className="table-divider" />
-						</Col>
-
-						<Col md={24} lg={12}>
-							<Table
-								columns={assetsForBuyColumns}
-								dataSource={this.state.assetsForBuyData}
+								columns={assetsColumns}
+								dataSource={this.state.assetsData}
 								pagination={false}
 								scroll={{ y: "16em" }}
 								locale={{ emptyText: "No assets available in the system at the moment." }}
