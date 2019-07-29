@@ -7,11 +7,7 @@ import Countdown from "../../Countdown";
 import { styles } from "../../styles";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
-
-function isTimeUp(startDate, intervalMc) {
-	const now = new Date().getTime();
-	return new Date(startDate).getTime() + intervalMc < now;
-}
+import { renderPerformBtn, isTimeUp } from "../index";
 
 function isAgentAccepted(operationMessages) {
 	// check if at least one potential performer is accepted the request
@@ -74,6 +70,7 @@ export default function renderInitiatorColumns({
 	requestsStatus, // active | closed
 	requestsType, // deposit | withdraw | depositOnyxCash
 	showUserSettlementsModal,
+	performRequest, // for withdraw
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -141,8 +138,12 @@ export default function renderInitiatorColumns({
 					const isComplainActive =
 						record.request_id === activeRequestId && activeAction === aa.complain;
 
+					const isPerformActive =
+						record.request_id === activeRequestId && activeAction === aa.perform;
+
 					return (
 						<>
+							{/* Send to agents (performers) */}
 							{record.status === "opened" &&
 								record.operation_messages &&
 								!record.operation_messages.length && (
@@ -157,6 +158,7 @@ export default function renderInitiatorColumns({
 									</Button>
 								)}
 
+							{/* Cancel request */}
 							{(record.status === "opened" ||
 								(record.status === "choose" && !isTimeUp(record.choose_timestamp, h24Mc))) && (
 								<CancelRequest
@@ -166,6 +168,8 @@ export default function renderInitiatorColumns({
 									disabled={isComplainActive}
 								/>
 							)}
+
+							{/* Choose agent (performer) */}
 							{record.operation_messages &&
 								isAgentAccepted(record.operation_messages) &&
 								record.status === "opened" && (
@@ -183,11 +187,17 @@ export default function renderInitiatorColumns({
 										Choose agent
 									</Button>
 								)}
+
+							{/* Cancel request */}
 							{record.taker_addr &&
 								record.choose_timestamp &&
 								record.status !== "complained" &&
 								!is24hOver(record.choose_timestamp) &&
 								renderComplainButton(record, handleComplain, isComplainActive)}
+
+							{/* Perform withdraw request */}
+							{requestsType === "withdraw" &&
+								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
 						</>
 					);
 				},

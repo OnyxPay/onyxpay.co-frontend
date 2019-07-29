@@ -223,6 +223,7 @@ class ActiveRequests extends Component {
 					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
 						settlementsId,
 					})(),
+				performRequest: this.performRequest,
 			});
 		} else {
 			columns = renderPerformerColumns({

@@ -7,6 +7,7 @@ import Countdown from "../../Countdown";
 import { h24Mc } from "api/constants";
 import { styles } from "../../styles";
 import { aa } from "../../common";
+import { renderPerformBtn, isTimeUp } from "../index";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
@@ -81,47 +82,6 @@ function renderCancelBtn(
 	}
 
 	return btn;
-}
-
-function renderPerformBtn(record, performRequest, walletAddress, requestsType, isPerformActive) {
-	let btn;
-	if (requestsType === "withdraw") {
-	} else {
-		if (
-			record.request.taker_addr === walletAddress &&
-			record.request.status_code !== requestStatus.completed &&
-			record.request.status_code !== requestStatus.complained &&
-			!isTimeUp(record.request.choose_timestamp, h24Mc)
-		) {
-			if (isPerformActive) {
-				btn = (
-					<Button type="primary" style={styles.btn} loading={true} disabled={true}>
-						Perform
-					</Button>
-				);
-			} else {
-				btn = (
-					<Popconfirm
-						title="Sure to perform?"
-						onConfirm={() => performRequest(record.request.request_id)}
-					>
-						<Button type="primary" style={styles.btn}>
-							Perform
-						</Button>
-					</Popconfirm>
-				);
-			}
-		} else {
-			btn = null;
-		}
-	}
-
-	return btn;
-}
-
-function isTimeUp(startDate, intervalMc) {
-	const now = new Date().getTime();
-	return new Date(startDate).getTime() + intervalMc < now;
 }
 
 export default function renderPerformerColumns({
