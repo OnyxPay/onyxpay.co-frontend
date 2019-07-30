@@ -443,10 +443,10 @@ class AssetsExchange extends Component {
 							}}
 							className="exchange-form"
 						>
-							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
+							<Col lg={{ span: 24 }} xl={{ span: 24 }}>
 								<Col span={24}>Asset to sell:</Col>
 								<Col span={24}>
-									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 7 }}>
 										<Form.Item
 											style={{ display: "inline-block" }}
 											className="asset-exchange-form-input-parent"
@@ -492,7 +492,7 @@ class AssetsExchange extends Component {
 											</Input.Group>
 										</Form.Item>
 									</Col>
-									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 8 }} xl={{ span: 8 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 6 }} lg={{ span: 6 }} xl={{ span: 5 }}>
 										<Form.Item
 											validateStatus={
 												this.state.assetToSellNameError.length === 0 ? "success" : "error"
@@ -537,10 +537,10 @@ class AssetsExchange extends Component {
 								<div className="form-divider" />
 							</Col>
 
-							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
+							<Col lg={{ span: 24 }} xl={{ span: 24 }}>
 								<Col span={24}>Asset to buy:</Col>
 								<Col span={24}>
-									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 7 }}>
 										<Form.Item
 											style={{ display: "inline-block" }}
 											className="asset-exchange-form-input-parent"
@@ -593,7 +593,7 @@ class AssetsExchange extends Component {
 										</Form.Item>
 									</Col>
 
-									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 8 }} xl={{ span: 8 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 6 }} lg={{ span: 6 }} xl={{ span: 5 }}>
 										<Form.Item
 											validateStatus={
 												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
