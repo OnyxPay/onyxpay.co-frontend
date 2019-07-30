@@ -20,8 +20,6 @@ const Container = styled.div`
 `;
 
 const AddWallet = ({ showImportWalletModal, wallet, clearWallet }) => {
-	console.log("wallet", wallet);
-
 	return (
 		<Container>
 			{wallet ? (

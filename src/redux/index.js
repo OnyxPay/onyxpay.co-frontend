@@ -15,7 +15,7 @@ import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
 import { opRequestsReducer } from "./requests";
 
-const appReducer = history =>
+export default history =>
 	combineReducers({
 		router: connectRouter(history),
 		user: userReducer,
@@ -34,17 +34,3 @@ const appReducer = history =>
 		globalLoading: loadingReducer,
 		opRequests: opRequestsReducer,
 	});
-
-export const RESET_STORE_STATE = "RESET_STORE_STATE";
-
-export default history => {
-	const reducer = appReducer(history);
-	return (state, action) => {
-		console.log("root", action);
-
-		// if (action.type === RESET_STORE_STATE) {
-		// 	state = undefined;
-		// }
-		return reducer(state, action);
-	};
-};
