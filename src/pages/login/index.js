@@ -88,6 +88,7 @@ class Login extends Component {
 
 	handleClearWallet = () => {
 		const { clearWallet, logOut, user } = this.props;
+		console.log("handleClearWallet", user);
 		clearWallet();
 		if (user) {
 			logOut();
