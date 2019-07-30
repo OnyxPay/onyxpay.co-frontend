@@ -288,6 +288,7 @@ class UserUpgradeRequests extends Component {
 					className="ovf-auto"
 					onChange={this.handleTableChange}
 					loading={this.state.fetchingRequests}
+					scroll={{ y: "50vh" }}
 				/>
 				{isReasonToRejectModalVisible && (
 					<ReasonToRejectUpgradeModal
