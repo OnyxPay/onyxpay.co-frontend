@@ -35,12 +35,16 @@ const appReducer = history =>
 		opRequests: opRequestsReducer,
 	});
 
+export const RESET_STORE_STATE = "RESET_STORE_STATE";
+
 export default history => {
 	const reducer = appReducer(history);
 	return (state, action) => {
-		if (action.type === "LOG_OUT") {
-			state = undefined;
-		}
+		console.log("root", action);
+
+		// if (action.type === RESET_STORE_STATE) {
+		// 	state = undefined;
+		// }
 		return reducer(state, action);
 	};
 };

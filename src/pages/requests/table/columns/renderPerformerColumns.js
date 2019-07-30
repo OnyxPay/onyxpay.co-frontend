@@ -3,7 +3,7 @@ import { Button, Popconfirm } from "antd";
 import { getLocalTime } from "utils";
 import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
-import Countdown from "../../Countdown";
+import Countdown from "components/Countdown";
 import { h24Mc } from "api/constants";
 import { styles } from "../../styles";
 import { aa } from "../../common";
