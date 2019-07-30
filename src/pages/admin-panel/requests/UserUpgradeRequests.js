@@ -236,7 +236,7 @@ class UserUpgradeRequests extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Request creation time",
+				title: "Created at",
 				dataIndex: "created_at",
 				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
