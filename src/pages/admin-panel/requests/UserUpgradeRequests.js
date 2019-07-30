@@ -207,13 +207,13 @@ class UserUpgradeRequests extends Component {
 				render: res => <span>{res.first_name + " " + res.last_name}</span>,
 			},
 			{
-				title: "Date registration",
+				title: "Registration date",
 				dataIndex: "user.registered_at",
 				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
 				title: "Current role",
-				dataIndex: "user.role",
+				dataIndex: "existing_position",
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -235,6 +235,11 @@ class UserUpgradeRequests extends Component {
 				title: "Wallet address",
 				dataIndex: "user.wallet_addr",
 				render: res => (res ? res : "n/a"),
+			},
+			{
+				title: "Request creation time",
+				dataIndex: "created_at",
+				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
 				title: "Actions / Info",
