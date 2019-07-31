@@ -1,18 +1,20 @@
-export const syncNodeUrl = process.env.REACT_APP_SYNC_NODE_URL;
+let syncNodeUrl;
+let reactAppBackendUrl;
+if (process.env.REACT_APP_TAG === "prod") {
+	reactAppBackendUrl = "www.onyxpay.co";
+	syncNodeUrl = "andromeda-sync.onyxpay.co";
+} else if (process.env.REACT_APP_TAG === "preprod") {
+	reactAppBackendUrl = "preprod.onyxpay.co";
+	syncNodeUrl = "cepheus5.onyxpay.co";
+} else {
+	reactAppBackendUrl = "10.100.3.189";
+	syncNodeUrl = "cepheus5.onyxpay.co";
+}
+
 export const bcEndpoints = {
 	ws: "wss://" + syncNodeUrl + ":20335",
 	rest: "https://" + syncNodeUrl + ":20334",
 };
-
-let reactAppBackendUrl;
-if (process.env.REACT_APP_TAG === "prod") {
-	reactAppBackendUrl = "www.onyxpay.co";
-} else if (process.env.REACT_APP_TAG === "preprod") {
-	reactAppBackendUrl = "preprod.onyxpay.co";
-} else {
-	reactAppBackendUrl = "10.100.3.189";
-}
-
 export const backEndRestEndpoint = "https://" + reactAppBackendUrl + "/api/v1/";
 export const wssBackEnd = "wss://" + reactAppBackendUrl;
 

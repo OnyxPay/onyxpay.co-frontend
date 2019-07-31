@@ -5,20 +5,25 @@ import { connect } from "react-redux";
 import { Table } from "antd";
 import queryString from "query-string";
 import { push } from "connected-react-router";
-import { TimeoutError } from "promise-timeout";
-import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
+import {
+	acceptRequest,
+	performRequest,
+	cancelAcceptedRequest,
+	complain,
+	cancelRequest,
+} from "api/requests";
 import { hideMessage } from "api/operation-messages";
 import ChoosePerformerModal from "components/modals/ChoosePerformer";
 import { roles } from "api/constants";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { showNotification } from "components/notification";
 import { createLoadingSelector } from "selectors/loading";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
 import { handleTableChange, getColumnSearchProps } from "./table";
-
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
+import { handleBcError } from "api/network";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -120,7 +125,6 @@ class ActiveRequests extends Component {
 				});
 				return false;
 			}
-
 			await acceptRequest(requestId);
 			showNotification({
 				type: "success",
@@ -128,14 +132,7 @@ class ActiveRequests extends Component {
 			});
 			this.fetch();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
 		}
@@ -165,14 +162,7 @@ class ActiveRequests extends Component {
 			});
 			this.fetch();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
 		}
@@ -189,14 +179,7 @@ class ActiveRequests extends Component {
 			});
 			this.fetch();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
 		}
@@ -207,19 +190,14 @@ class ActiveRequests extends Component {
 		if (canComplain) {
 			try {
 				this.setState({ requestId, activeAction: aa.complain });
-				const res = await complain(requestId);
-				console.log("complained", res);
-
+				await complain(requestId);
 				showNotification({
 					type: "success",
 					msg: "You have complained on the request",
 				});
 				this.fetch();
 			} catch (e) {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
+				handleBcError(e);
 			} finally {
 				this.setState({ requestId: null, activeAction: "" });
 			}
@@ -228,6 +206,22 @@ class ActiveRequests extends Component {
 				type: "info",
 				msg: "A complaint can only be filed 12 hours after the selection of the performer",
 			});
+		}
+	};
+
+	cancelRequest = async requestId => {
+		try {
+			this.setState({ requestId, activeAction: aa.cancel });
+			await cancelRequest(requestId);
+			this.fetch();
+			showNotification({
+				type: "success",
+				msg: "You have canceled the request",
+			});
+		} catch (e) {
+			handleBcError(e);
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
 		}
 	};
 
@@ -251,6 +245,8 @@ class ActiveRequests extends Component {
 					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
 						settlementsId,
 					})(),
+				performRequest: this.performRequest,
+				cancelRequest: this.cancelRequest,
 			});
 		} else {
 			columns = renderPerformerColumns({

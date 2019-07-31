@@ -1,13 +1,12 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import { Card } from "antd";
 import { PageTitle } from "../../components";
 import ReferralLink from "./ReferralLink";
 import ProfileEditor from "./ProfileEditor";
 import WalletAddress from "./WalletAddress";
-import Actions from "../../redux/actions";
 import SettlementCard from "../../pages/settlements/SettlementCard";
 import DeleteAccount from "./DeleteAccount";
+import SetFiatAmount from "./SetFiatAmount";
 
 class Profile extends Component {
 	render() {
@@ -24,13 +23,11 @@ class Profile extends Component {
 					<ProfileEditor />
 				</Card>
 				<SettlementCard />
+				<SetFiatAmount />
 				<DeleteAccount />
 			</>
 		);
 	}
 }
 
-export default connect(
-	null,
-	{ getUserData: Actions.user.getUserData }
-)(Profile);
+export default Profile;

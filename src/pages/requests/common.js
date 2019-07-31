@@ -53,6 +53,7 @@ export const aa = {
 	perform: "perform",
 	cancelAccepted: "cancelAccepted",
 	complain: "complain",
+	cancel: "cancel",
 };
 
 export function isThisAgentInitiator(userRole, location) {
