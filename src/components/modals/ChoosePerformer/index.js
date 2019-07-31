@@ -168,7 +168,6 @@ class ChoosePerformer extends Component {
 	async fetchUsers(opts = {}) {
 		const { user, performer, accountAddress, openedRequestData, rates } = this.props;
 		const { pagination } = this.state;
-		console.log();
 		const convertedAmount = convertAsset(openedRequestData.amount, openedRequestData.asset, rates);
 		try {
 			const params = {
@@ -302,12 +301,12 @@ class ChoosePerformer extends Component {
 												key="allAgent"
 												onClick={() => this.handleSendAllAgents()}
 												style={{ marginLeft: 10 }}
+												disabled={(users && !users.length) || isSubmitting}
+												loading={isSubmitting}
 											>
 												Send to all agents
 											</Button>
-										) : (
-											""
-										)}
+										) : null}
 									</div>
 								</form>
 							</div>
