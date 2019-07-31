@@ -14,7 +14,7 @@ const exchangeHistoryColumns = [
 		title: "Date",
 		dataIndex: "timestamp",
 		key: "date",
-		render: res => (res ? res : "n/a"),
+		render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 	},
 	{
 		title: "Sold asset",
