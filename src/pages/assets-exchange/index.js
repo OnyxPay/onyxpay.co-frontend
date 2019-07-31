@@ -246,10 +246,14 @@ class AssetsExchange extends Component {
 
 		let value = assetType === "sell" ? assetToSell.name : assetToBuy.name;
 		let error = "";
+
+		// TODO: optimize validation
 		if (assetToSell.name === assetToBuy.name) {
 			error = "Cannot exchange asset on itself";
-		} else if (await isAssetBlocked(value)) {
-			error = value + " asset is blocked at the moment";
+		} else if (value !== onyxCashSymbol) {
+			if (await isAssetBlocked(value)) {
+				error = value + " asset is blocked at the moment";
+			}
 		}
 
 		await this.setStateAsync({

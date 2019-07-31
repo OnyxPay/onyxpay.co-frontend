@@ -24,9 +24,9 @@ const style = {
 const requestStatus = {
 	active: "opened",
 	refused: "refused",
-	accepted: "closed", // request completed successfully ?
 	deleted: "deleted",
-	completed: "completed",
+	completed: "completed", // request completed successfully ?
+	closed: "closed", // request completed successfully ?
 };
 const initialFilters = [requestStatus.active];
 const requestStatusSelectOptions = [];
@@ -93,7 +93,7 @@ class UserUpgradeRequests extends Component {
 		const res = await rejectRequest(request_id, reason);
 		if (!res.error) {
 			showNotification({
-				type: "Success",
+				type: "success",
 				msg: `You rejected request with id ${request_id}`,
 			});
 			this.hideModal();
@@ -206,13 +206,13 @@ class UserUpgradeRequests extends Component {
 				render: res => <span>{res.first_name + " " + res.last_name}</span>,
 			},
 			{
-				title: "Date registration",
+				title: "Registration date",
 				dataIndex: "user.registered_at",
 				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
 				title: "Current role",
-				dataIndex: "user.role",
+				dataIndex: "existing_position",
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -236,6 +236,11 @@ class UserUpgradeRequests extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
+				title: "Created at",
+				dataIndex: "created_at",
+				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
+			},
+			{
 				title: "Actions / Info",
 				dataIndex: "",
 				render: res => (
@@ -255,7 +260,7 @@ class UserUpgradeRequests extends Component {
 								</Button>
 							</>
 						) : null}
-						{res.status === requestStatus.accepted ? "Request accepted" : ""}
+						{res.status === requestStatus.completed ? "Request accepted" : ""}
 						{res.status === requestStatus.refused ? "Refused with reason '" + res.reason + "'" : ""}
 						{res.status === requestStatus.deleted ? "Request deleted" : ""}
 					</>
@@ -283,6 +288,7 @@ class UserUpgradeRequests extends Component {
 					className="ovf-auto"
 					onChange={this.handleTableChange}
 					loading={this.state.fetchingRequests}
+					style={{ height: "70vh" }}
 				/>
 				{isReasonToRejectModalVisible && (
 					<ReasonToRejectUpgradeModal

@@ -1,18 +1,20 @@
-export const syncNodeUrl = process.env.REACT_APP_SYNC_NODE_URL;
+let syncNodeUrl;
+let reactAppBackendUrl;
+if (process.env.REACT_APP_TAG === "prod") {
+	reactAppBackendUrl = "www.onyxpay.co";
+	syncNodeUrl = "andromeda-sync.onyxpay.co";
+} else if (process.env.REACT_APP_TAG === "preprod") {
+	reactAppBackendUrl = "preprod.onyxpay.co";
+	syncNodeUrl = "cepheus5.onyxpay.co";
+} else {
+	reactAppBackendUrl = "10.100.3.189";
+	syncNodeUrl = "cepheus5.onyxpay.co";
+}
+
 export const bcEndpoints = {
 	ws: "wss://" + syncNodeUrl + ":20335",
 	rest: "https://" + syncNodeUrl + ":20334",
 };
-
-let reactAppBackendUrl;
-if (process.env.REACT_APP_TAG === "prod") {
-	reactAppBackendUrl = "www.onyxpay.co";
-} else if (process.env.REACT_APP_TAG === "preprod") {
-	reactAppBackendUrl = "preprod.onyxpay.co";
-} else {
-	reactAppBackendUrl = "10.100.3.189";
-}
-
 export const backEndRestEndpoint = "https://" + reactAppBackendUrl + "/api/v1/";
 export const wssBackEnd = "wss://" + reactAppBackendUrl;
 
@@ -21,6 +23,16 @@ export const wsEvents = {
 	rejectUpgradeRequest: "REJECT_UPGRADE_REQUEST",
 	phoneNumberIsChanged: "PHONE_NUMBER_IS_CHANGED",
 	upgradeUser: "UPDATE_USER",
+	saveRequest: "SAVE_REQUEST",
+	chooseAgentMaker: "CHOOSE_AGENT_MAKER",
+	chooseAgentTaker: "CHOOSE_AGENT_TAKER",
+	newMessage: "NEW_MESSAGE",
+	acceptRequestMaker: "ACCEPT_REQUEST_MAKER",
+	acceptRequestTaker: "ACCEPT_REQUEST_TAKER",
+	changeRequestStatusMaker: "CHANGE_REQUEST_STATUS_MAKER",
+	changeRequestStatusTaker: "CHANGE_REQUEST_STATUS_TAKER",
+	cancelAcceptationMaker: "CANCEL_ACCEPTATION_MAKER",
+	cancelAcceptationTaker: "CANCEL_ACCEPTATION_TAKER",
 };
 
 export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
@@ -78,6 +90,17 @@ export const requestStatus = {
 	complained: 5,
 	completed: 6,
 	closed: 7, //  not set at back-end now
+};
+
+export const requestStatusNames = {
+	0: "pending",
+	1: "opened",
+	2: "choose",
+	3: "rejected",
+	4: "canceled",
+	5: "complained",
+	6: "completed",
+	7: "closed",
 };
 
 export const UpgradeRequestStatus = {

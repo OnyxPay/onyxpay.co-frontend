@@ -3,7 +3,7 @@ import { Button, Popconfirm } from "antd";
 import { getLocalTime } from "utils";
 import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
-import Countdown from "../../Countdown";
+import Countdown from "components/Countdown";
 import { h24Mc } from "api/constants";
 import { styles } from "../../styles";
 import { aa } from "../../common";
@@ -226,7 +226,13 @@ export default function renderPerformerColumns({
 								) : (
 									<Popconfirm
 										title="Sure to accept?"
-										onConfirm={() => acceptRequest(record.request.request_id)}
+										onConfirm={() =>
+											acceptRequest(
+												record.request.request_id,
+												record.request.amount,
+												record.request.asset
+											)
+										}
 									>
 										<Button type="primary" style={styles.btn}>
 											Accept
