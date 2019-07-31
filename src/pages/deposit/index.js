@@ -18,7 +18,7 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
-import Balance from "components/balance/Balance";
+import AssetsBalance from "components/balance/AssetsBalance";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -105,7 +105,7 @@ class Deposit extends Component {
 		return (
 			<>
 				<PageTitle>Deposit</PageTitle>
-				<Balance />
+				<AssetsBalance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
