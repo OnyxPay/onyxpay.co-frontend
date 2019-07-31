@@ -12,10 +12,13 @@ import { convertAmountToStr } from "utils/number";
 import { handleBcError } from "api/network";
 const { Option } = Select;
 
-export function convertAsset(assetAmount, assetSymbol, exchangeRates) {
-	const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
-	console.log(rate);
-	return rate.buy * assetAmount;
+function convertAsset(assetAmount, assetSymbol, exchangeRates) {
+	try {
+		const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
+		return (rate.buy / 10 ** 8) * assetAmount;
+	} catch (e) {
+		return 0;
+	}
 }
 
 class ChoosePerformer extends Component {
@@ -167,7 +170,6 @@ class ChoosePerformer extends Component {
 		const { pagination } = this.state;
 		console.log();
 		const convertedAmount = convertAsset(openedRequestData.amount, openedRequestData.asset, rates);
-		console.log(convertedAmount);
 		try {
 			const params = {
 				pageSize: pagination.pageSize,
@@ -175,7 +177,7 @@ class ChoosePerformer extends Component {
 				role: performer,
 				country: user.countryId,
 				status: "active",
-				// consolidated_balance: opAmount,
+				consolidated_balance: convertedAmount,
 				...opts,
 			};
 
