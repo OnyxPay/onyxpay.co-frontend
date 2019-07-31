@@ -448,7 +448,7 @@ class AssetsExchange extends Component {
 								<Col span={24}>
 									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 7 }}>
 										<Form.Item
-											style={{ display: "inline-block" }}
+											style={{ display: "flex" }}
 											className="asset-exchange-form-input-parent"
 										>
 											<Input.Group
@@ -460,6 +460,7 @@ class AssetsExchange extends Component {
 													validateStatus={
 														this.state.assetToSellAmountError.length === 0 ? "success" : "error"
 													}
+													style={{ display: "flex" }}
 													className="asset-exchange-amount-input-group-form-item"
 												>
 													<InputNumber
@@ -542,7 +543,7 @@ class AssetsExchange extends Component {
 								<Col span={24}>
 									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 7 }}>
 										<Form.Item
-											style={{ display: "inline-block" }}
+											style={{ display: "flex" }}
 											className="asset-exchange-form-input-parent"
 										>
 											<Input.Group
@@ -554,6 +555,7 @@ class AssetsExchange extends Component {
 													validateStatus={
 														this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
 													}
+													style={{ display: "flex" }}
 													className="asset-exchange-amount-input-group-form-item"
 												>
 													<InputNumber
