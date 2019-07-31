@@ -50,7 +50,6 @@ class TransactionsTable extends Component {
 			const res = await dataFetchFunction(params);
 			if (!res.error) {
 				pagination.total = res.total;
-				console.log(res.items);
 				this.setState({
 					pagination,
 					transactionListData: res.items,

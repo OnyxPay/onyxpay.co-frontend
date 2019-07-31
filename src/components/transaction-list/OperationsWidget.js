@@ -46,12 +46,6 @@ const operationHistoryColumns = [
 		key: "amount",
 		render: res => (res ? convertAmountToStr(res, 8) : "n/a"),
 	},
-	// {
-	// 	title: "Status",
-	// 	dataIndex: "statusCode",
-	// 	key: "status",
-	// 	render: res => (res ? res : "n/a"),
-	// },
 ];
 
 class OperationsWidget extends Component {
