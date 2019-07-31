@@ -53,7 +53,7 @@ class AssetsBalance extends Component {
 				name: onyxCashSymbol,
 				balance: convertAmountToStr(onyxCash, OnyxCashDecimals),
 			});
-			assets.map(asset =>
+			assets.forEach(asset =>
 				assetsData.push({
 					key: asset.key,
 					name: asset.symbol,
@@ -92,8 +92,8 @@ class AssetsBalance extends Component {
 				dataSource={assetsData}
 				pagination={false}
 				scroll={{ y: "16em" }}
-				style={{ marginBottom: "20px" }}
 				loading={loadingAssetBalanceData}
+				className="asset-balance-table"
 			/>
 		);
 	}
