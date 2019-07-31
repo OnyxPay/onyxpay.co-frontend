@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Table } from "antd";
+import { getName as getCountryName } from "country-list";
 
 const ShowUserData = props => {
 	const { data, visible, hideModal } = props;
@@ -7,7 +8,7 @@ const ShowUserData = props => {
 		{
 			title: "Country",
 			dataIndex: "country",
-			render: (text, record, index) => (record ? record : "n/a"),
+			render: (text, record, index) => (record ? getCountryName(record.country) : "n/a"),
 		},
 		{
 			title: "Operations",
@@ -26,7 +27,7 @@ const ShowUserData = props => {
 			title: "Phone number",
 			dataIndex: "phone_number",
 			width: "10%",
-			render: (text, record, index) => (record ? record : "n/a"),
+			render: (text, record, index) => (record ? record.phone_number : "n/a"),
 		},
 	];
 	return (
@@ -44,6 +45,7 @@ const ShowUserData = props => {
 					dataSource={data}
 					className="ovf-auto"
 					pagination={false}
+					bordered={true}
 				/>
 			</Modal>
 		</>

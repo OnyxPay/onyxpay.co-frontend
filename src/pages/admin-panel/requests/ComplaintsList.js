@@ -57,8 +57,7 @@ class ComplaintsList extends Component {
 				userId: userId,
 				requestId: requestId,
 			});
-			const res = await handleComplainedRequest(requestId, winner);
-			console.log(res);
+			await handleComplainedRequest(requestId, winner);
 			setTimeout(() => this.fetchRequestComplaint({ is_complain: 1, status: "complained" }), 3000);
 		} catch (error) {
 			console.log(error);
@@ -169,7 +168,7 @@ class ComplaintsList extends Component {
 							}
 							style={styles.btn}
 							loading={res.maker.id === userId && res.request_id === requestId && loadingSolve}
-							disable={!(res.maker.id === userId && res.request_id === requestId && loadingSolve)}
+							disabled={res.request_id === requestId && loadingSolve}
 						>
 							Winner initiator
 						</Button>
@@ -180,7 +179,7 @@ class ComplaintsList extends Component {
 							}
 							style={styles.btn}
 							loading={res.taker.id === userId && res.request_id === requestId && loadingSolve}
-							disable={!(res.taker.id === userId && res.request_id === requestId && loadingSolve)}
+							disabled={res.request_id === requestId && loadingSolve}
 						>
 							Winner performer
 						</Button>
