@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, notification, Row, Col, message } from "antd";
+import { Card, Button, Input, Form, Select, Row, Col } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -10,6 +10,14 @@ import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
 import { isAssetBlocked } from "../../api/assets";
+import { countDecimals } from "../../utils/validate";
+import {
+	showNotification,
+	showTimeoutNotification,
+	showGasCompensationError,
+	showBcError,
+} from "components/notification";
+import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 
 const { Option } = Select;
 
@@ -65,9 +73,9 @@ class Withdraw extends Component {
 			if (!isBlocked && isEnoughAmount && isAmountNotOverMax) {
 				const res = await createRequest(values, "withdraw");
 				if (!res.error) {
-					notification.success({
-						message: "Done",
-						description: "Deposit request is successfully created",
+					showNotification({
+						type: "success",
+						msg: "Withdraw request is successfully created",
 					});
 					push("/active-requests/withdraw");
 				} else if (res.error.data) {
@@ -75,14 +83,12 @@ class Withdraw extends Component {
 				}
 			}
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
+			if (e instanceof GasCompensationError) {
+				showGasCompensationError();
+			} else if (e instanceof SendRawTrxError) {
+				showBcError(e.message);
+			} else if (e instanceof TimeoutError) {
+				showTimeoutNotification();
 			}
 		}
 
@@ -113,6 +119,10 @@ class Withdraw extends Component {
 							}
 							if (!values.amount) {
 								errors.amount = "required";
+							} else if (values.amount <= 0) {
+								errors.amount = "only positive values are allowed";
+							} else if (countDecimals(values.amount) > 8) {
+								errors.amount = "max number of decimal places is 8";
 							}
 							return errors;
 						}}
@@ -181,6 +191,7 @@ class Withdraw extends Component {
 														onChange={handleChange}
 														onBlur={handleBlur}
 														disabled={isSubmitting}
+														step="any"
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
