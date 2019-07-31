@@ -3,7 +3,14 @@ import { WebsocketClient, RestClient } from "ontology-ts-sdk";
 import { bcEndpoints, backEndRestEndpoint, gasCompensatorEndpoint } from "./constants";
 import { getStore } from "../store";
 import { showSessionExpiredModal } from "../redux/session";
-import { showNotification } from "components/notification";
+import {
+	showNotification,
+	showTimeoutNotification,
+	showGasCompensationError,
+	showBcError,
+} from "components/notification";
+import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+import { TimeoutError } from "promise-timeout";
 
 const bcWsClient = new WebsocketClient(bcEndpoints.ws, false, false);
 const bcRestClient = new RestClient(bcEndpoints.rest);
@@ -121,13 +128,19 @@ export function handleReqError(error) {
 	}
 }
 
-export function makeFormData(data) {
-	const formData = new FormData();
+export function handleBcError(e) {
+	if (process.env.NODE_ENV === "development") console.dir(e);
 
-	for (const field in data) {
-		if (data.hasOwnProperty(field)) {
-			formData.append(field, data[field]);
-		}
+	if (e instanceof GasCompensationError) {
+		showGasCompensationError();
+	} else if (e instanceof SendRawTrxError) {
+		showBcError(e.message);
+	} else if (e instanceof TimeoutError) {
+		showTimeoutNotification();
+	} else {
+		showNotification({
+			type: "error",
+			msg: e.message,
+		});
 	}
-	return formData;
 }

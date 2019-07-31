@@ -23,6 +23,14 @@ export const userReducer = (state = initialState, action) => {
 				return newState;
 			}
 			return null;
+		case wsEvents.phoneNumberIsChanged:
+			let currentState = localStorage.getItem("user");
+			if (currentState) {
+				let newState = { ...JSON.parse(currentState), phone: action.payload.phone };
+				localStorage.setItem("user", JSON.stringify(newState));
+				return newState;
+			}
+			return null;
 		case LOG_OUT:
 			localStorage.removeItem("user");
 			return null;
