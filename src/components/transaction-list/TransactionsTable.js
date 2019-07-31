@@ -50,6 +50,7 @@ class TransactionsTable extends Component {
 			const res = await dataFetchFunction(params);
 			if (!res.error) {
 				pagination.total = res.total;
+				console.log(res.items);
 				this.setState({
 					pagination,
 					transactionListData: res.items,
@@ -61,7 +62,7 @@ class TransactionsTable extends Component {
 	};
 
 	render() {
-		const { columns } = this.props;
+		const { columns, rowKey } = this.props;
 		return (
 			<>
 				<Table
@@ -69,6 +70,7 @@ class TransactionsTable extends Component {
 					dataSource={this.state.transactionListData}
 					pagination={this.state.pagination}
 					onChange={this.handleTableChange}
+					rowKey={rowKey}
 					locale={{ emptyText: "You haven't performed any exchange transactions yet." }}
 				/>
 			</>

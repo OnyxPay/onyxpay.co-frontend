@@ -30,7 +30,7 @@ const exchangeHistoryColumns = [
 		dataIndex: "",
 		key: "boughtAsset",
 		render: res =>
-			(res.amountToBuy ? convertAmountToStr(res.amountToBuy, 9) : "n/a") +
+			(res.amountToBuy ? convertAmountToStr(res.amountToBuy, 8) : "n/a") +
 			" " +
 			(res.assetToBuy ? res.assetToBuy : "n/a"),
 	},
@@ -38,7 +38,7 @@ const exchangeHistoryColumns = [
 		title: "Status",
 		dataIndex: "statusCode",
 		key: "status",
-		render: res => (res ? res : "Unknown"),
+		render: res => (res ? res : "Completed"),
 	},
 ];
 
@@ -48,6 +48,7 @@ class ExchangeHistory extends Component {
 			<>
 				<TransactionsTable
 					columns={exchangeHistoryColumns}
+					rowKey={"trxHast"}
 					dataFetchFunction={getExchangeHistory}
 				/>
 			</>
