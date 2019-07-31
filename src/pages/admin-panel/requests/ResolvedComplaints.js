@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "antd";
 import { PageTitle } from "components";
-import { connect } from "react-redux";
-import { getRequestsComplaint } from "api/admin/complaints";
+import { getRequests } from "api/admin/complaints";
 import { convertAmountToStr } from "utils/number";
 
 export class ResolvedComplaint extends Component {
@@ -49,7 +48,7 @@ export class ResolvedComplaint extends Component {
 				pageNum: pagination.current,
 				...opts,
 			};
-			const res = await getRequestsComplaint(params);
+			const res = await getRequests(params);
 			pagination.total = res.total;
 			this.setState({
 				data: res.items,
@@ -66,27 +65,35 @@ export class ResolvedComplaint extends Component {
 			{
 				title: "Type request",
 				dataIndex: "type",
-				render: res => (res ? res : "n/a"),
+				render: (text, record, index) => (text ? text : "n/a"),
 			},
 			{
 				title: "Request id",
 				dataIndex: "request_id",
-				render: res => (res ? res : "n/a"),
+				render: (text, record, index) => (text ? text : "n/a"),
 			},
 			{
 				title: "Amount",
 				dataIndex: "amount",
-				render: res => (res ? convertAmountToStr(res, 8) : "n/a"),
+				render: (text, record, index) => (record ? convertAmountToStr(record.amount, 8) : "n/a"),
 			},
 			{
 				title: "Winner",
 				dataIndex: "complainWinner",
-				render: res => (res ? res : "n/a"),
+				render: (text, record, index) =>
+					record.complainWinner ? (
+						<span>
+							{record.complainWinner.first_name} {record.complainWinner.last_name}
+						</span>
+					) : (
+						"n/a"
+					),
 			},
 			{
 				title: "Made a decision",
 				dataIndex: "made",
-				render: res => (res ? res : "super admin"),
+				render: (text, record, index) =>
+					record.made_decision ? record.made_decision : "super admin",
 			},
 		];
 		return (
@@ -106,9 +113,4 @@ export class ResolvedComplaint extends Component {
 	}
 }
 
-export default connect(
-	null,
-	{
-		getRequestsComplaint,
-	}
-)(ResolvedComplaint);
+export default ResolvedComplaint;

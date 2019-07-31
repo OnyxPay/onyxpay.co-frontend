@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import { Button, Table } from "antd";
-import ShowUserData from "components/modals/admin/ShowUserData";
-import { connect } from "react-redux";
-import { getRequestsComplaint, handleComplainedRequest } from "api/admin/complaints";
+import ShowUserData from "components/modals/ShowUserData";
+import { getRequests, handleComplainedRequest } from "api/admin/complaints";
 import { PageTitle } from "components";
 import { convertAmountToStr } from "utils/number";
 
@@ -12,14 +11,13 @@ const styles = {
 		marginBottom: 5,
 	},
 	btnColor: {
-		color: "rgba(0, 0, 0, 0.65)",
 		padding: 0,
 	},
 };
 
 class ComplaintsList extends Component {
 	state = {
-		visible: false,
+		isModalVisible: false,
 		dataUser: null,
 		data: null,
 		pagination: { current: 1, pageSize: 20 },
@@ -41,14 +39,14 @@ class ComplaintsList extends Component {
 
 	showUserData = data => {
 		this.setState({
-			visible: true,
+			isModalVisible: true,
 			dataUser: data,
 		});
 	};
 
 	hideModal = visible => {
 		this.setState({
-			visible: visible,
+			isModalVisible: visible,
 		});
 	};
 
@@ -98,7 +96,7 @@ class ComplaintsList extends Component {
 				pageNum: pagination.current,
 				...opts,
 			};
-			const res = await getRequestsComplaint(params);
+			const res = await getRequests(params);
 			pagination.total = res.total;
 			this.setState({
 				data: res.items,
@@ -110,10 +108,9 @@ class ComplaintsList extends Component {
 	}
 
 	render() {
-		console.log(this.state);
 		const {
 			data,
-			visible,
+			isModalVisible,
 			dataUser,
 			loadingRequestComplaintsData,
 			requestId,
@@ -172,18 +169,20 @@ class ComplaintsList extends Component {
 							}
 							style={styles.btn}
 							loading={res.maker.id === userId && res.request_id === requestId && loadingSolve}
+							disable={!(res.maker.id === userId && res.request_id === requestId && loadingSolve)}
 						>
-							Winner {res.maker.first_name + " " + res.maker.last_name}
+							Winner initiator
 						</Button>
 						<Button
 							type="primary"
-							loading={res.taker.id === userId && res.request_id === requestId && loadingSolve}
 							onClick={() =>
 								this.handleComplainedRequests(res.request_id, "winnerAgent", res.taker.id)
 							}
 							style={styles.btn}
+							loading={res.taker.id === userId && res.request_id === requestId && loadingSolve}
+							disable={!(res.taker.id === userId && res.request_id === requestId && loadingSolve)}
 						>
-							Winner {res.taker.first_name + " " + res.taker.last_name}
+							Winner performer
 						</Button>
 					</>
 				),
@@ -202,16 +201,11 @@ class ComplaintsList extends Component {
 					onChange={this.handleTableChange}
 					pagination={pagination}
 				/>
-				{visible ? (
-					<ShowUserData visible={visible} hideModal={this.hideModal} data={[dataUser]} />
+				{isModalVisible ? (
+					<ShowUserData visible={isModalVisible} hideModal={this.hideModal} data={[dataUser]} />
 				) : null}
 			</>
 		);
 	}
 }
-export default connect(
-	null,
-	{
-		getRequestsComplaint,
-	}
-)(ComplaintsList);
+export default ComplaintsList;

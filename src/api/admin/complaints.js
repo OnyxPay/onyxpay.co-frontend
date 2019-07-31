@@ -3,7 +3,7 @@ import { getRestClient, handleReqError, getAuthHeaders } from "../network";
 import { unlockWalletAccount } from "../wallet";
 import { createAndSignTrxViaGasCompensator, addSignAndSendTrx } from "../bc";
 
-export const getRequestsComplaint = async params => {
+export const getRequests = async params => {
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
 

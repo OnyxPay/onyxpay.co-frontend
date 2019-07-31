@@ -7,21 +7,26 @@ const ShowUserData = props => {
 		{
 			title: "Country",
 			dataIndex: "country",
-			render: res => (res ? res : "n/a"),
+			render: (text, record, index) => (record ? record : "n/a"),
 		},
 		{
-			title: "Successful operations",
-			dataIndex: "successful_operations",
-		},
-		{
-			title: "Unsuccessful operations",
-			dataIndex: "unsuccessful_operations",
+			title: "Operations",
+			children: [
+				{
+					title: "Successful",
+					dataIndex: "successful_operations",
+				},
+				{
+					title: "Unsuccessful",
+					dataIndex: "unsuccessful_operations",
+				},
+			],
 		},
 		{
 			title: "Phone number",
 			dataIndex: "phone_number",
 			width: "10%",
-			render: res => (res ? res : "n/a"),
+			render: (text, record, index) => (record ? record : "n/a"),
 		},
 	];
 	return (
