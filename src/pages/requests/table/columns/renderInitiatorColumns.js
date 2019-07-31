@@ -3,15 +3,11 @@ import { Button, Popconfirm, Tooltip } from "antd";
 import { convertAmountToStr } from "utils/number";
 import { getLocalTime, getPerformerName, is24hOver, is12hOver } from "utils";
 import { h24Mc, operationMessageStatus } from "api/constants";
-import Countdown from "../../Countdown";
+import Countdown from "components/Countdown";
 import { styles } from "../../styles";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
-
-function isTimeUp(startDate, intervalMc) {
-	const now = new Date().getTime();
-	return new Date(startDate).getTime() + intervalMc < now;
-}
+import { renderPerformBtn, isTimeUp } from "../index";
 
 function isAgentAccepted(operationMessages) {
 	// check if at least one potential performer is accepted the request
@@ -64,6 +60,47 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 	return button;
 }
 
+function renderCancelBtn(
+	record,
+	requestsType,
+	cancelRequest,
+	isComplainActive,
+	isCancelRequestActive
+) {
+	let btn = null;
+	if (requestsType === "withdraw") {
+		if (record.status === "opened") {
+			btn = (
+				<CancelRequest
+					btnStyle={styles.btn}
+					disabled={isComplainActive}
+					isActionActive={isCancelRequestActive}
+					handleCancel={e => {
+						return cancelRequest(record.request_id);
+					}}
+				/>
+			);
+		}
+	} else {
+		if (
+			record.status === "opened" ||
+			(record.status === "choose" && !isTimeUp(record.choose_timestamp, h24Mc))
+		) {
+			btn = (
+				<CancelRequest
+					btnStyle={styles.btn}
+					disabled={isComplainActive}
+					isActionActive={isCancelRequestActive}
+					handleCancel={e => {
+						return cancelRequest(record.request_id);
+					}}
+				/>
+			);
+		}
+	}
+	return btn;
+}
+
 export default function renderInitiatorColumns({
 	activeRequestId,
 	activeAction,
@@ -74,6 +111,8 @@ export default function renderInitiatorColumns({
 	requestsStatus, // active | closed
 	requestsType, // deposit | withdraw | depositOnyxCash
 	showUserSettlementsModal,
+	performRequest, // for withdraw
+	cancelRequest,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -141,13 +180,21 @@ export default function renderInitiatorColumns({
 					const isComplainActive =
 						record.request_id === activeRequestId && activeAction === aa.complain;
 
+					const isPerformActive =
+						record.request_id === activeRequestId && activeAction === aa.perform;
+
+					const isCancelRequestActive =
+						record.request_id === activeRequestId && activeAction === aa.cancel;
+
 					return (
 						<>
+							{/* Send to agents (performers) */}
 							{record.status === "opened" &&
 								record.operation_messages &&
 								!record.operation_messages.length && (
 									<Button
 										style={styles.btn}
+										disabled={isCancelRequestActive}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 											requestId: record.id,
 											isSendingMessage: true,
@@ -157,15 +204,16 @@ export default function renderInitiatorColumns({
 									</Button>
 								)}
 
-							{(record.status === "opened" ||
-								(record.status === "choose" && !isTimeUp(record.choose_timestamp, h24Mc))) && (
-								<CancelRequest
-									btnStyle={styles.btn}
-									requestId={record.request_id}
-									fetchRequests={fetchData}
-									disabled={isComplainActive}
-								/>
+							{/* Cancel request */}
+							{renderCancelBtn(
+								record,
+								requestsType,
+								cancelRequest,
+								isComplainActive,
+								isCancelRequestActive
 							)}
+
+							{/* Choose agent (performer) */}
 							{record.operation_messages &&
 								isAgentAccepted(record.operation_messages) &&
 								record.status === "opened" && (
@@ -183,11 +231,17 @@ export default function renderInitiatorColumns({
 										Choose agent
 									</Button>
 								)}
+
+							{/* Complain on request */}
 							{record.taker_addr &&
 								record.choose_timestamp &&
 								record.status !== "complained" &&
 								!is24hOver(record.choose_timestamp) &&
 								renderComplainButton(record, handleComplain, isComplainActive)}
+
+							{/* Perform withdraw request */}
+							{requestsType === "withdraw" &&
+								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
 						</>
 					);
 				},

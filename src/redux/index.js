@@ -15,7 +15,7 @@ import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
 import { opRequestsReducer } from "./requests";
 
-const appReducer = history =>
+export default history =>
 	combineReducers({
 		router: connectRouter(history),
 		user: userReducer,
@@ -34,13 +34,3 @@ const appReducer = history =>
 		globalLoading: loadingReducer,
 		opRequests: opRequestsReducer,
 	});
-
-export default history => {
-	const reducer = appReducer(history);
-	return (state, action) => {
-		if (action === "LOG_OUT") {
-			state = undefined;
-		}
-		return reducer(state, action);
-	};
-};
