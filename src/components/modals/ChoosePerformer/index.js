@@ -22,6 +22,7 @@ class ChoosePerformer extends Component {
 			selectedRows: [],
 			selectedRowKeys: [],
 			pagination: { current: 1, pageSize: 20 },
+			country: null,
 		};
 	}
 
@@ -95,6 +96,7 @@ class ChoosePerformer extends Component {
 
 	handleTableChange = (pagination, filters, sorter) => {
 		let sorOrder;
+		const { country } = this.state;
 
 		if (sorter.order === "ascend") {
 			sorOrder = "asc";
@@ -115,9 +117,34 @@ class ChoosePerformer extends Component {
 					...filters,
 					sort_field: sorter.field,
 					sort: sorOrder,
+					country: country,
 				});
 			}
 		);
+	};
+
+	handleSendAllAgents = async () => {
+		const { fetchRequests, requestId } = this.props;
+		const { country, pagination } = this.state;
+		await this.fetchUsers({
+			pageSize: pagination.total,
+			pageNum: 1,
+			country: country,
+		});
+		const { users } = this.state;
+		const ids = [];
+		users.items.forEach(user => {
+			ids.push(user.user_id);
+		});
+		const res = await sendMessage(requestId, ids);
+		if (!res.error) {
+			showNotification({
+				type: "success",
+				msg: "Request is successfully sent to agent/agents",
+			});
+			fetchRequests();
+			this.handleClose();
+		}
 	};
 
 	handleCountryChange = (setFieldValue, setSubmitting) => async countryId => {
@@ -125,7 +152,7 @@ class ChoosePerformer extends Component {
 			country: countryId,
 		});
 		// reset selected users
-		this.setState({ selectedRowKeys: [], selectedRows: [] });
+		this.setState({ selectedRowKeys: [], selectedRows: [], country: countryId });
 		setFieldValue("country", countryId);
 	};
 
@@ -145,7 +172,12 @@ class ChoosePerformer extends Component {
 			const res = await searchUsers(params);
 			pagination.total = res.total;
 			const performers = res.items.filter(performer => performer.wallet_addr !== accountAddress);
-			this.setState({ loading: false, users: { items: performers, total: res.total }, pagination });
+			this.setState({
+				loading: false,
+				users: { items: performers, total: res.total },
+				pagination,
+				country: user.countryId,
+			});
 		} catch (e) {}
 	}
 
@@ -251,6 +283,18 @@ class ChoosePerformer extends Component {
 										>
 											{isSendingMessage ? "Send request" : "Choose"}
 										</Button>
+										{isSendingMessage ? (
+											<Button
+												type="primary"
+												key="allAgent"
+												onClick={() => this.handleSendAllAgents()}
+												style={{ marginLeft: 10 }}
+											>
+												Send to all agents
+											</Button>
+										) : (
+											""
+										)}
 									</div>
 								</form>
 							</div>
