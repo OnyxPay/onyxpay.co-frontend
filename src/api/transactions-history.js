@@ -30,7 +30,6 @@ export const getOperationHistory = async params => {
 				...params,
 			},
 		});
-		console.log(data);
 		return data;
 	} catch (er) {
 		return handleReqError(er);
