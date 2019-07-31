@@ -103,7 +103,7 @@ export async function getRequests(params) {
 	}
 }
 
-export async function cancelRequest(requestId, type) {
+export async function cancelRequest(requestId) {
 	// initiator cancels
 	const { pk } = await unlockWalletAccount();
 	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
