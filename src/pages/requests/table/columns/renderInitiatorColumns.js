@@ -4,7 +4,6 @@ import { convertAmountToStr } from "utils/number";
 import { getLocalTime, getPerformerName, is24hOver, is12hOver } from "utils";
 import { h24Mc, operationMessageStatus } from "api/constants";
 import Countdown from "components/Countdown";
-import { styles } from "../../styles";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
@@ -19,7 +18,6 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 	if (!is12hOver(record.choose_timestamp)) {
 		button = (
 			<Button
-				style={styles.btn}
 				type="danger"
 				onClick={() => handleComplain(record.request_id, false)} // can't complain
 			>
@@ -29,12 +27,7 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 	} else {
 		if (isComplainActive) {
 			button = (
-				<Button
-					type="danger"
-					style={styles.btn}
-					loading={isComplainActive}
-					disabled={isComplainActive}
-				>
+				<Button type="danger" loading={isComplainActive} disabled={isComplainActive}>
 					Complain
 				</Button>
 			);
@@ -45,12 +38,7 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 					cancelText="No"
 					onConfirm={() => handleComplain(record.request_id, true)}
 				>
-					<Button
-						type="danger"
-						style={styles.btn}
-						loading={isComplainActive}
-						disabled={isComplainActive}
-					>
+					<Button type="danger" loading={isComplainActive} disabled={isComplainActive}>
 						Complain
 					</Button>
 				</Popconfirm>
@@ -72,7 +60,6 @@ function renderCancelBtn(
 		if (record.status === "opened") {
 			btn = (
 				<CancelRequest
-					btnStyle={styles.btn}
 					disabled={isComplainActive}
 					isActionActive={isCancelRequestActive}
 					handleCancel={e => {
@@ -88,7 +75,6 @@ function renderCancelBtn(
 		) {
 			btn = (
 				<CancelRequest
-					btnStyle={styles.btn}
 					disabled={isComplainActive}
 					isActionActive={isCancelRequestActive}
 					handleCancel={e => {
@@ -193,7 +179,6 @@ export default function renderInitiatorColumns({
 								record.operation_messages &&
 								!record.operation_messages.length && (
 									<Button
-										style={styles.btn}
 										disabled={isCancelRequestActive}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 											requestId: record.id,
@@ -218,7 +203,6 @@ export default function renderInitiatorColumns({
 								isAgentAccepted(record.operation_messages) &&
 								record.status === "opened" && (
 									<Button
-										style={styles.btn}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 											requestId: record.request_id,
 											isSendingMessage: false,
