@@ -23,6 +23,7 @@ import { convertAmountToStr, minus } from "../../utils/number";
 import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
+import AssetsBalance from "components/balance/AssetsBalance";
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -161,6 +162,7 @@ class SendAsset extends Component {
 		return (
 			<>
 				<PageTitle>Send assets</PageTitle>
+				<AssetsBalance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
