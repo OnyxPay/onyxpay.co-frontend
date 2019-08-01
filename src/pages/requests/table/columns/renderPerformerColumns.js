@@ -81,7 +81,6 @@ export default function renderPerformerColumns({
 	activeRequestId,
 	activeAction,
 	walletAddress,
-	acceptRequest,
 	hideRequest,
 	performRequest,
 	cancelAcceptedRequest,
@@ -89,6 +88,7 @@ export default function renderPerformerColumns({
 	requestsType, // deposit | withdraw | depositOnyxCash
 	getColumnSearchProps,
 	defaultFilterValue,
+	isAssetBlocked,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -180,7 +180,7 @@ export default function renderPerformerColumns({
 									<Popconfirm
 										title="Sure to accept?"
 										onConfirm={() =>
-											acceptRequest(
+											isAssetBlocked(
 												record.request.request_id,
 												record.request.amount,
 												record.request.asset

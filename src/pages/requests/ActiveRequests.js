@@ -24,6 +24,7 @@ import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./c
 import { handleTableChange, getColumnSearchProps } from "./table";
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 import { handleBcError } from "api/network";
+import { isAssetBlocked } from "api/assets";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -225,6 +226,19 @@ class ActiveRequests extends Component {
 		}
 	};
 
+	handleCheckIsAssetBlocked = async (request_id, amount, asset) => {
+		const res = await isAssetBlocked(asset);
+
+		if (res) {
+			showNotification({
+				type: "error",
+				msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
+			});
+			return false;
+		}
+		await acceptRequest(request_id, amount, asset);
+	};
+
 	render() {
 		const { user, walletAddress, location, data, isFetching } = this.props;
 		const { requestId, activeAction, idParsedFromURL, openedRequestData } = this.state;
@@ -253,6 +267,7 @@ class ActiveRequests extends Component {
 				activeRequestId: requestId,
 				activeAction,
 				walletAddress,
+				isAssetBlocked: this.handleCheckIsAssetBlocked,
 				hideRequest: this.hideRequest,
 				acceptRequest: this.acceptRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
