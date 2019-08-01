@@ -117,14 +117,14 @@ export function renderPerformBtn(
 		if (isPerformActive) {
 			return (
 				<Button type="primary" style={styles.btn} loading={true} disabled={true}>
-					Perform
+					{requestsType === "deposit" ? "Perform Deposit" : "Perform"}
 				</Button>
 			);
 		} else {
 			return (
 				<Popconfirm title="Sure to perform?" onConfirm={() => performRequest(requestId)}>
 					<Button type="primary" style={styles.btn}>
-						Perform
+						{requestsType === "deposit" ? "Perform Deposit" : "Perform"}
 					</Button>
 				</Popconfirm>
 			);
