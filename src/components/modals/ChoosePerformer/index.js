@@ -270,9 +270,7 @@ class ChoosePerformer extends Component {
 										pagination={this.state.pagination}
 										onChange={this.handleTableChange}
 										isSendingMessage={isSendingMessage}
-										showUserSettlementsModal={userId => {
-											return showUserSettlementsModal(userId);
-										}}
+										showUserSettlementsModal={showUserSettlementsModal}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>
