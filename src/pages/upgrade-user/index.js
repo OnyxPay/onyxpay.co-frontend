@@ -201,10 +201,12 @@ class UpgradeUser extends Component {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
-						Buy OnyxCash.
+						Purchase OnyxCash.
 					</Title>
 					<p>
-						Please, buy OnyxCash amounting to <b>{role === "agent" ? "500$" : "100 000$"}.</b>
+						Please purchase an amount of OnyxCash equal to{" "}
+						<b>{role === "agent" ? "500" : "100 000"}</b> U.S. dollar in order to be upgraded to the{" "}
+						{getTitleRoleByRole(role)} role.
 					</p>
 					<CoinPaymentsForm
 						user={this.props.user}
@@ -262,7 +264,7 @@ class UpgradeUser extends Component {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
-						Waiting for Approvement
+						Upgrade Approval
 					</Title>
 					<p>
 						You role will be upgraded automatically after receiving the payment. Receiving the
@@ -299,10 +301,13 @@ class UpgradeUser extends Component {
 								title={getStepTitle(0, this.state.currentStep)}
 								description="Fill settlements account."
 							/>
-							<Step title={getStepTitle(1, this.state.currentStep)} description="Buy OnyxCash." />
+							<Step
+								title={getStepTitle(1, this.state.currentStep)}
+								description="Purchase OnyxCash."
+							/>
 							<Step
 								title={getStepTitle(2, this.state.currentStep)}
-								description="Upgrading approvement."
+								description="Upgrade Approval."
 							/>
 						</Steps>
 					</nav>

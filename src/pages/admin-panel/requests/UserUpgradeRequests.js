@@ -24,9 +24,9 @@ const style = {
 const requestStatus = {
 	active: "opened",
 	refused: "refused",
-	accepted: "closed", // request completed successfully ?
 	deleted: "deleted",
-	completed: "completed",
+	completed: "completed", // request completed successfully ?
+	closed: "closed", // request completed successfully ?
 };
 const initialFilters = [requestStatus.active];
 const requestStatusSelectOptions = [];
@@ -260,7 +260,7 @@ class UserUpgradeRequests extends Component {
 								</Button>
 							</>
 						) : null}
-						{res.status === requestStatus.accepted ? "Request accepted" : ""}
+						{res.status === requestStatus.completed ? "Request accepted" : ""}
 						{res.status === requestStatus.refused ? "Refused with reason '" + res.reason + "'" : ""}
 						{res.status === requestStatus.deleted ? "Request deleted" : ""}
 					</>
@@ -288,6 +288,7 @@ class UserUpgradeRequests extends Component {
 					className="ovf-auto"
 					onChange={this.handleTableChange}
 					loading={this.state.fetchingRequests}
+					style={{ height: "70vh" }}
 				/>
 				{isReasonToRejectModalVisible && (
 					<ReasonToRejectUpgradeModal
