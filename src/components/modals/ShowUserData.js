@@ -8,7 +8,7 @@ const ShowUserData = props => {
 		{
 			title: "Country",
 			dataIndex: "country",
-			render: (text, record, index) => (record ? getCountryName(record.country) : "n/a"),
+			render: (text, record) => (record ? getCountryName(record.country) : "n/a"),
 		},
 		{
 			title: "Operations",
@@ -24,10 +24,16 @@ const ShowUserData = props => {
 			],
 		},
 		{
-			title: "Phone number",
+			title: "Phone",
 			dataIndex: "phone_number",
 			width: "10%",
-			render: (text, record, index) => (record ? record.phone_number : "n/a"),
+			render: (text, record) => (record && record.phone_number ? record.phone_number : "n/a"),
+		},
+		{
+			title: "Email",
+			dataIndex: "email",
+			width: "10%",
+			render: (text, record) => (record && record.email ? record.email : "n/a"),
 		},
 	];
 	return (
