@@ -65,7 +65,7 @@ class AssetsBalance extends Component {
 			});
 		}
 		if (user.role === roles.c && assets) {
-			assets.map(asset =>
+			assets.forEach(asset =>
 				assetsData.push({
 					key: asset.key,
 					name: asset.symbol,
@@ -91,7 +91,6 @@ class AssetsBalance extends Component {
 				columns={assetsColumns}
 				dataSource={assetsData}
 				pagination={false}
-				scroll={{ y: "16em" }}
 				loading={loadingAssetBalanceData}
 				className="asset-balance-table"
 			/>

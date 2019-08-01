@@ -5,6 +5,7 @@
 .asset-balance-table {
 	margin-bottom: 20px;
 	.ant-table-body {
-		overflow-y: auto !important;
+		overflow-y: auto;
+		max-height: 20em;
 	}
 }
