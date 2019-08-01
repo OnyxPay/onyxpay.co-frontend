@@ -3,7 +3,7 @@ import { Table } from "antd";
 
 class TransactionsTable extends Component {
 	state = {
-		pagination: { current: 1, pageSize: 3 },
+		pagination: { current: 1, pageSize: 10 },
 		transactionListData: [],
 		loading: false,
 	};
