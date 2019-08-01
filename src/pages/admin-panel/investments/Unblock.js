@@ -66,14 +66,14 @@ class UnblockInvestor extends Component {
 									</Form.Item>
 
 									<Form.Item
-										label="Password"
+										label="Password hash"
 										required
 										validateStatus={errors.user_password && touched.user_password ? "error" : ""}
 										help={errors.user_password && touched.user_password ? errors.user_password : ""}
 									>
 										<Input.Password
 											name="user_password"
-											placeholder="enter password"
+											placeholder="enter password hash"
 											size="large"
 											disabled={isSubmitting}
 											value={values.user_password}
