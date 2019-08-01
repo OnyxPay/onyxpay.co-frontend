@@ -10,6 +10,7 @@ import { createRequest } from "../../api/requests";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "../../utils/number";
 import { isAssetBlocked } from "../../api/assets";
+import AssetsBalance from "components/balance/AssetsBalance";
 import { countDecimals } from "../../utils/validate";
 import {
 	showNotification,
@@ -105,6 +106,7 @@ class Withdraw extends Component {
 		return (
 			<>
 				<PageTitle>Withdraw</PageTitle>
+				<AssetsBalance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
