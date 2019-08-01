@@ -113,6 +113,9 @@ class ChoosePerformer extends Component {
 				},
 			},
 			() => {
+				for (const filter in filters) {
+					filters[filter] = filters[filter][0];
+				}
 				this.fetchUsers({
 					...filters,
 					sort_field: sorter.field,

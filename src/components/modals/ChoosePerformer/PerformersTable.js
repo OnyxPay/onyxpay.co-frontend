@@ -1,17 +1,8 @@
 import React from "react";
-import { Table } from "antd";
 import { getLocalTime } from "../../../utils";
-import { Button, Tooltip } from "antd";
-
-function sortValues(valA, valB) {
-	if (valA < valB) {
-		return -1;
-	}
-	if (valA > valB) {
-		return 1;
-	}
-	return 0;
-}
+import { Button, Tooltip, Table } from "antd";
+import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
+import { sortValues } from "utils";
 
 function PerformersTable({
 	data,
@@ -26,8 +17,20 @@ function PerformersTable({
 	let columns = [];
 	if (isSendingMessage) {
 		columns = [
-			{ title: "First name", dataIndex: "first_name", sorter: true },
-			{ title: "Last name", dataIndex: "last_name", sorter: true },
+			{
+				title: "First name",
+				dataIndex: "first_name",
+				sorter: true,
+				width: 160,
+				...getColumnSearchProps()("first_name"),
+			},
+			{
+				title: "Last name",
+				dataIndex: "last_name",
+				sorter: true,
+				width: 160,
+				...getColumnSearchProps()("last_name"),
+			},
 			{
 				title: "Registered",
 				dataIndex: "created_at",
@@ -36,7 +39,11 @@ function PerformersTable({
 					return <span>{getLocalTime(record.created_at)}</span>;
 				},
 			},
-			{ title: "Wallet address", dataIndex: "wallet_addr" },
+			{
+				title: "Wallet address",
+				dataIndex: "wallet_addr",
+				...getColumnSearchProps()("wallet_addr"),
+			},
 			{
 				title: "Actions",
 				render: (text, record, index) => {
@@ -63,6 +70,8 @@ function PerformersTable({
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
+				...getColumnSearchProps()("first_name"),
+				...getOnColumnFilterProp("receiver.first_name"),
 			},
 			{
 				title: "Last name",
@@ -73,6 +82,8 @@ function PerformersTable({
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
+				...getColumnSearchProps()("last_name"),
+				...getOnColumnFilterProp("receiver.last_name"),
 			},
 			{
 				title: "Registered",
@@ -87,7 +98,12 @@ function PerformersTable({
 					return <span>{getLocalTime(record.receiver.created_at)}</span>;
 				},
 			},
-			{ title: "Wallet address", dataIndex: "receiver.wallet_addr" },
+			{
+				title: "Wallet address",
+				dataIndex: "receiver.wallet_addr",
+				...getColumnSearchProps()("wallet_addr"),
+				...getOnColumnFilterProp("receiver.wallet_addr"),
+			},
 			{
 				title: "Actions",
 				render: (text, record, index) => {
