@@ -77,7 +77,7 @@ class SettlementCard extends Component {
 
 		return (
 			<>
-				<Card>
+				<Card style={{ marginBottom: 24 }}>
 					<div style={{ marginBottom: 30 }}>
 						<Button type="primary" onClick={this.showModal(modals.ADD_SETTLEMENTS_MODAL)}>
 							<Icon type="plus" /> Add new settlement account
