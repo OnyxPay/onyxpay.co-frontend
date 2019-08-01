@@ -3,15 +3,16 @@ import { Table } from "antd";
 
 class TransactionsTable extends Component {
 	state = {
-		pagination: { current: 1, pageSize: 10 },
+		pagination: { current: 1, pageSize: 3 },
 		transactionListData: [],
+		loading: false,
 	};
 
 	componentDidMount = () => {
 		try {
 			this.fetchTransactionHistory();
-			this.interval = setInterval(async () => {
-				this.fetchTransactionHistory();
+			this.interval = setInterval(() => {
+				this.fetchTransactionHistory({}, true);
 			}, 30000);
 		} catch (e) {
 			console.log(e);
@@ -37,31 +38,36 @@ class TransactionsTable extends Component {
 		);
 	};
 
-	fetchTransactionHistory = async (opts = {}) => {
+	fetchTransactionHistory = async (opts = {}, hideLoading = false) => {
 		try {
 			const { pagination } = this.state;
-			const { dataFetchFunction } = this.props;
+			const { fetchData } = this.props;
 
+			if (!hideLoading) {
+				this.setState({ loading: true });
+			}
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
 			};
-			const res = await dataFetchFunction(params);
+			const res = await fetchData(params);
 			if (!res.error) {
 				pagination.total = res.total;
 				this.setState({
 					pagination,
 					transactionListData: res.items,
+					loading: false,
 				});
 			}
 		} catch (e) {
+			this.setState({ loading: false });
 			console.log(e);
 		}
 	};
 
 	render() {
-		const { columns, rowKey } = this.props;
+		const { columns, rowKey, emptyTableMessage } = this.props;
 		return (
 			<>
 				<Table
@@ -70,7 +76,9 @@ class TransactionsTable extends Component {
 					pagination={this.state.pagination}
 					onChange={this.handleTableChange}
 					rowKey={rowKey}
-					locale={{ emptyText: "You haven't performed any exchange transactions yet." }}
+					locale={{ emptyText: emptyTableMessage }}
+					loading={this.state.loading}
+					className="transactions-table"
 				/>
 			</>
 		);
