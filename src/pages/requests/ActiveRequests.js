@@ -24,10 +24,12 @@ import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./c
 import { handleTableChange, getColumnSearchProps } from "./table";
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 import { handleBcError } from "api/network";
+import ShowUserDataModal from "components/modals/ShowUserData";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
 	USER_SETTLEMENT_ACCOUNTS: "USER_SETTLEMENT_ACCOUNTS",
+	SELECTED_USER_DATA: "SELECTED_USER_DATA",
 };
 
 class ActiveRequests extends Component {
@@ -241,10 +243,12 @@ class ActiveRequests extends Component {
 				handleComplain: this.handleComplain,
 				requestsType: parseRequestType(location),
 				requestsStatus: "active",
-				showUserSettlementsModal: settlementsId =>
-					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
-						settlementsId,
-					})(),
+				showUserSettlementsModal: settlementsId => {
+					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
+				},
+				showSelectedUserDataModal: selectedUserData => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
+				},
 				performRequest: this.performRequest,
 				cancelRequest: this.cancelRequest,
 			});
@@ -291,11 +295,9 @@ class ActiveRequests extends Component {
 					isSendingMessage={this.state.isSendingMessage}
 					operationMessages={this.state.operationMessages}
 					fetchRequests={this.fetch}
-					showUserSettlementsModal={settlementsId =>
-						this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
-							settlementsId,
-						})()
-					}
+					showUserSettlementsModal={settlementsId => {
+						this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId: [settlementsId] })();
+					}}
 					performer={user.role === roles.c ? roles.a : roles.sa}
 					openedRequestData={openedRequestData}
 				/>
@@ -303,6 +305,11 @@ class ActiveRequests extends Component {
 					isModalVisible={this.state.USER_SETTLEMENT_ACCOUNTS}
 					hideModal={this.hideModal(modals.USER_SETTLEMENT_ACCOUNTS)}
 					userId={this.state.settlementsId}
+				/>
+				<ShowUserDataModal
+					visible={this.state.SELECTED_USER_DATA}
+					hideModal={this.hideModal(modals.SELECTED_USER_DATA)}
+					data={[this.state.selectedUserData]}
 				/>
 			</>
 		);
