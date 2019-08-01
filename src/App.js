@@ -22,6 +22,18 @@ let Investments = Loadable({
 	loading: Loader,
 });
 
+let Complaints = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/requests/ComplaintsList"),
+	loading: Loader,
+});
+
+let ResolvedComplaints = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/requests/ResolvedComplaints"),
+	loading: Loader,
+});
+
 let Assets = Loadable({
 	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/assets"),
 	loading: Loader,
@@ -109,12 +121,15 @@ AssetsExchange = All(AssetsExchange);
 Page404 = All(Page404);
 Settlement = All(Settlement);
 UpgradeUser = All(UpgradeUser);
+Profile = All(Profile);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
 Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Investments = AdminAndSuperAdmin(Investments);
+Complaints = AdminAndSuperAdmin(Complaints);
+ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
 Assets = AdminAndSuperAdmin(Assets);
 ActiveOpRequests = All(ActiveOpRequests);
 ClosedOpRequests = All(ClosedOpRequests);
@@ -168,6 +183,8 @@ class App extends Component {
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
+					<Route path="/admin/requests/complaints" exact component={Complaints} />
+					<Route path="/admin/requests/complaints/resolve" exact component={ResolvedComplaints} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/profile" exact component={Profile} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
