@@ -27,8 +27,15 @@
 		flex-grow: 1;
 	}
 
+	.asset-exchange-amount-input-group-input-number {
+		border-top-right-radius: 0%;
+		border-bottom-right-radius: 0%;
+	}
+
 	.asset-exchange-amount-input-group-button {
 		width: 100%;
+		border-top-left-radius: 0%;
+		border-bottom-left-radius: 0%;
 	}
 }
 

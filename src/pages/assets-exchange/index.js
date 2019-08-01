@@ -471,6 +471,7 @@ class AssetsExchange extends Component {
 														onChange={this.handleAssetToSellAmountChange}
 														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 														style={{ width: "100%" }}
+														className="asset-exchange-amount-input-group-input-number"
 													/>
 												</Form.Item>
 												<Form.Item>
@@ -566,6 +567,7 @@ class AssetsExchange extends Component {
 														onChange={this.handleAssetToBuyAmountChange}
 														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 														style={{ width: "100%" }}
+														className="asset-exchange-amount-input-group-input-number"
 													/>
 												</Form.Item>
 												<Form.Item>
