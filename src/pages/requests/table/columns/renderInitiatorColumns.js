@@ -113,6 +113,7 @@ export default function renderInitiatorColumns({
 	showUserSettlementsModal,
 	performRequest, // for withdraw
 	cancelRequest,
+	showSelectedUserDataModal,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -143,9 +144,17 @@ export default function renderInitiatorColumns({
 			{
 				title: "Performer",
 				render: (text, record, index) => {
-					return record.taker_addr && record.taker
-						? getPerformerName(record.taker_addr, record.taker)
-						: "n/a";
+					return record.taker_addr && record.taker ? (
+						<Button
+							type="link"
+							style={styles.btnLink}
+							onClick={() => showSelectedUserDataModal(record.taker)}
+						>
+							{getPerformerName(record.taker_addr, record.taker)}
+						</Button>
+					) : (
+						"n/a"
+					);
 				},
 			},
 			{

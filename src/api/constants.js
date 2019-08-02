@@ -1,14 +1,22 @@
 let syncNodeUrl;
 let reactAppBackendUrl;
+let headAddress;
+let compensatorUrl;
 if (process.env.REACT_APP_TAG === "prod") {
 	reactAppBackendUrl = "www.onyxpay.co";
 	syncNodeUrl = "andromeda-sync.onyxpay.co";
+	headAddress = "9a54f5d022fe964d32881a7ed8fe36795ec37c27";
+	compensatorUrl = "https://andromeda-compensator.onyxpay.co/api";
 } else if (process.env.REACT_APP_TAG === "preprod") {
 	reactAppBackendUrl = "preprod.onyxpay.co";
 	syncNodeUrl = "cepheus5.onyxpay.co";
+	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
+	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
 } else {
 	reactAppBackendUrl = "10.100.3.189";
 	syncNodeUrl = "cepheus5.onyxpay.co";
+	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
+	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
 }
 
 export const bcEndpoints = {
@@ -35,8 +43,8 @@ export const wsEvents = {
 	cancelAcceptationTaker: "CANCEL_ACCEPTATION_TAKER",
 };
 
-export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
-export const addressOfHead = "87fd9b3718308de50fd639c9b9a411835936766a";
+export const gasCompensatorEndpoint = compensatorUrl;
+export const addressOfHead = headAddress;
 export const BackendUrl = reactAppBackendUrl;
 
 export const OnyxCashDecimals = 8;
