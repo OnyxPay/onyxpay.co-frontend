@@ -5,7 +5,6 @@ import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
 import Countdown from "components/Countdown";
 import { h24Mc } from "api/constants";
-import { styles } from "../../styles";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
 
@@ -63,14 +62,12 @@ function renderCancelBtn(
 				cancelText="No"
 				onConfirm={() => handleCancel(record.request.request_id)}
 			>
-				<Button type="danger" style={styles.btn}>
-					{buttonText}
-				</Button>
+				<Button type="danger">{buttonText}</Button>
 			</Popconfirm>
 		);
 	} else {
 		return (
-			<Button type="danger" style={styles.btn} loading={true} disabled={true}>
+			<Button type="danger" loading={true} disabled={true}>
 				{buttonText}
 			</Button>
 		);
@@ -173,7 +170,7 @@ export default function renderPerformerColumns({
 						<>
 							{record.status !== "accepted" &&
 								(isAcceptActive ? (
-									<Button type="primary" style={styles.btn} loading={true} disabled={true}>
+									<Button type="primary" loading={true} disabled={true}>
 										Accept
 									</Button>
 								) : (
@@ -187,15 +184,13 @@ export default function renderPerformerColumns({
 											)
 										}
 									>
-										<Button type="primary" style={styles.btn}>
-											Accept
-										</Button>
+										<Button type="primary">Accept</Button>
 									</Popconfirm>
 								))}
 
 							{record.status !== "accepted" &&
 								(isAcceptActive || isCancelAcceptedRequestActive ? (
-									<Button type="danger" style={styles.btn} disabled={true}>
+									<Button type="danger" disabled={true}>
 										Hide
 									</Button>
 								) : (
@@ -203,9 +198,7 @@ export default function renderPerformerColumns({
 										title="Sure to hide?"
 										onConfirm={() => hideRequest(record.id)} // messageId
 									>
-										<Button type="danger" style={styles.btn}>
-											Hide
-										</Button>
+										<Button type="danger">Hide</Button>
 									</Popconfirm>
 								))}
 
