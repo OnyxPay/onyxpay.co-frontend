@@ -6,11 +6,7 @@ import { PageTitle } from "components";
 import { convertAmountToStr } from "utils/number";
 
 const styles = {
-	btn: {
-		marginRight: 5,
-		marginBottom: 5,
-	},
-	btnColor: {
+	btnLink: {
 		padding: 0,
 	},
 };
@@ -126,7 +122,7 @@ class ComplaintsList extends Component {
 			{
 				title: "Name initiator",
 				render: res => (
-					<Button style={styles.btnColor} type="link" onClick={() => this.showUserData(res.maker)}>
+					<Button style={styles.btnLink} type="link" onClick={() => this.showUserData(res.maker)}>
 						<span>{res.maker.first_name + " " + res.maker.last_name}</span>
 					</Button>
 				),
@@ -134,7 +130,7 @@ class ComplaintsList extends Component {
 			{
 				title: "Name performer",
 				render: res => (
-					<Button style={styles.btnColor} type="link" onClick={() => this.showUserData(res.taker)}>
+					<Button style={styles.btnLink} type="link" onClick={() => this.showUserData(res.taker)}>
 						<span>{res.taker.first_name + " " + res.taker.last_name}</span>
 					</Button>
 				),
@@ -166,7 +162,6 @@ class ComplaintsList extends Component {
 							onClick={() =>
 								this.handleComplainedRequests(res.request_id, "winnerClient", res.maker.id)
 							}
-							style={styles.btn}
 							loading={res.maker.id === userId && res.request_id === requestId && loadingSolve}
 							disabled={res.request_id === requestId && loadingSolve}
 						>
@@ -177,7 +172,6 @@ class ComplaintsList extends Component {
 							onClick={() =>
 								this.handleComplainedRequests(res.request_id, "winnerAgent", res.taker.id)
 							}
-							style={styles.btn}
 							loading={res.taker.id === userId && res.request_id === requestId && loadingSolve}
 							disabled={res.request_id === requestId && loadingSolve}
 						>
