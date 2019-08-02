@@ -3,18 +3,15 @@ import { Table, Input, Button, Icon, message, notification } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
 import { roleCodes } from "api/constants";
-import {
-	unblockUser,
-	blockedUsersData,
-	blockUser,
-	isBlockedUser,
-	getUsersData,
-	updateUserStatus,
-} from "redux/admin-panel/users";
+import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
+import { blockUser, unblockUser, isBlockedUser } from "api/admin/users";
 
 import { downgradeUser } from "api/admin/user-upgrade";
 
 import { TimeoutError } from "promise-timeout";
+import { handleBcError } from "api/network";
+import { showNotification } from "components/notification";
+
 const styles = {
 	btn: { marginRight: 8 },
 };
@@ -105,8 +102,6 @@ class Users extends Component {
 				},
 			},
 			() => {
-				console.log(filters);
-
 				for (const filter in filters) {
 					filters[filter] = filters[filter][0];
 				}
@@ -131,41 +126,51 @@ class Users extends Component {
 		} catch (e) {}
 	}
 
-	blockUser = async (wallet_addr, reason, duration, userId) => {
-		const { blockUser, isBlockedUser, updateUserStatus } = this.props;
-		this.setState({
-			user_id: userId,
-			loadingBlockUser: true,
-		});
-		const res = await blockUser(wallet_addr, reason, duration);
-		if (!res) {
+	handleBlockUser = async (wallet_addr, reason, duration, userId) => {
+		try {
+			const { updateUserStatus } = this.props;
+			this.setState({
+				user_id: userId,
+				loadingBlockUser: true,
+			});
+			await blockUser(wallet_addr, reason, duration);
+
+			if (await isBlockedUser(wallet_addr)) {
+				updateUserStatus(userId, 2);
+				showNotification({
+					type: "success",
+					msg: "User was successfully blocked",
+				});
+			}
+		} catch (e) {
+			handleBcError(e);
+		} finally {
 			this.setState({
 				loadingBlockUser: false,
 			});
-			return false;
 		}
-		await isBlockedUser(wallet_addr);
-
-		updateUserStatus(userId, 2);
-
-		this.setState({
-			loadingBlockUser: false,
-		});
 	};
 
-	unblockUser = async (wallet_addr, userId) => {
-		const { unblockUser, updateUserStatus } = this.props;
-		this.setState({
-			user_id: userId,
-			loadingUnblockUser: true,
-		});
-		await unblockUser(wallet_addr);
-
-		updateUserStatus(userId, 1);
-
-		this.setState({
-			loadingUnblockUser: false,
-		});
+	handleUnblockUser = async (wallet_addr, userId) => {
+		try {
+			const { updateUserStatus } = this.props;
+			this.setState({
+				user_id: userId,
+				loadingUnblockUser: true,
+			});
+			await unblockUser(wallet_addr);
+			updateUserStatus(userId, 1);
+			showNotification({
+				type: "success",
+				msg: "User was successfully unblocked",
+			});
+		} catch (e) {
+			handleBcError(e);
+		} finally {
+			this.setState({
+				loadingUnblockUser: false,
+			});
+		}
 	};
 
 	handleDowngrade = async (wallet_addr, role, id) => {
@@ -210,7 +215,7 @@ class Users extends Component {
 								type="danger"
 								icon="user-delete"
 								loading={res.user_id === this.state.user_id && loadingBlockUser}
-								onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
+								onClick={() => this.handleBlockUser(res.wallet_addr, 1, 10, res.user_id)}
 							>
 								Block
 							</Button>
@@ -221,7 +226,7 @@ class Users extends Component {
 								type="primary"
 								icon="user-add"
 								loading={res.user_id === this.state.user_id && loadingUnblockUser}
-								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
+								onClick={() => this.handleUnblockUser(res.wallet_addr, res.user_id)}
 							>
 								Unblock
 							</Button>
@@ -367,7 +372,7 @@ class Users extends Component {
 			<>
 				<Table
 					columns={columns}
-					rowKey={adminUsers => adminUsers.user_id}
+					rowKey={record => record.user_id}
 					dataSource={adminUsers}
 					className="usersTable ovf-auto"
 					onChange={this.handleTableChange}
@@ -395,8 +400,6 @@ export default connect(
 	{
 		unblockUser,
 		blockedUsersData,
-		blockUser,
-		isBlockedUser,
 		getUsersData,
 		updateUserStatus,
 	}
