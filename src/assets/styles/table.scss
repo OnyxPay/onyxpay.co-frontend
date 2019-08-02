@@ -8,3 +8,11 @@
 		overflow-y: auto !important;
 	}
 }
+
+.ant-table .ant-btn:not(.ant-btn-link) {
+	margin: 0 6px 6px 0 !important;
+}
+
+.ant-table .ant-table-tbody > tr > td {
+	padding: 13px;
+}
