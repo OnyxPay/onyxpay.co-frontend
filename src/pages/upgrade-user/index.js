@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Typography, Steps, Button, Icon, Spin, message } from "antd";
+import { Card, Typography, Steps, Button, Icon, Spin } from "antd";
 import { PageTitle } from "components";
 import Actions from "redux/actions";
 import AddSettlementModal from "components/modals/AddSettlementModal";
@@ -104,10 +104,12 @@ class UpgradeUser extends Component {
 			},
 			err => {
 				console.error(err.errors);
-				message.error(
-					"There is an error occurred while receiving upgrade requests. Details:" +
-						JSON.stringify(err.errors)
-				);
+				showNotification({
+					type: "error",
+					msg:
+						"There is an error occurred while receiving upgrade requests. Details:" +
+						JSON.stringify(err.errors),
+				});
 				this.setState({ showSpin: false });
 			}
 		);

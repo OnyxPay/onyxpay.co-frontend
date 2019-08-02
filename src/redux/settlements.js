@@ -1,6 +1,6 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { startLoading, finishLoading } from "./loading";
-import { message } from "antd";
+import { showNotification } from "components/notification";
 const client = getRestClient();
 
 export const INIT_SETTLEMENTS_LIST = "INIT_SETTLEMENTS_LIST";
@@ -77,7 +77,10 @@ export const deleteAccount = id => {
 				type: DELETE_SETTLEMENT,
 				payload: id,
 			});
-			message.success("Settlements account was successfully deleted");
+			showNotification({
+				type: "success",
+				msg: "Settlements account was successfully deleted",
+			});
 		} catch (error) {
 			return handleReqError(error);
 		}

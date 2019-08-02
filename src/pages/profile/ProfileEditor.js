@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { Input, Select, Icon, Modal, message } from "antd";
+import { Input, Select, Icon, Modal } from "antd";
 import { getData as getCountriesData } from "country-list";
 import { getTelegramBotLink, confirmEmail, changeProfile } from "../../api/profile";
 import StyledSelect from "./StyledSelect";
 import StyledInput from "./StyledInput";
 import Actions from "../../redux/actions";
 import { isEmailValid, isLatinChars } from "../../utils/validate";
+import { showNotification } from "components/notification";
 
 const { Option } = Select;
 
@@ -16,7 +17,10 @@ function updateProfile(data, getUserData) {
 			getUserData();
 		},
 		err => {
-			message.error("There is error occured while user profile updating.", 5);
+			showNotification({
+				type: "error",
+				msg: "There is error occured while user profile updating",
+			});
 		}
 	);
 }
@@ -114,7 +118,10 @@ function openTelegramLink() {
 		},
 		error => {
 			console.error(error);
-			message.error("There is the problem with opening telegram link.", 5);
+			showNotification({
+				type: "error",
+				msg: "There is the problem with opening telegram link",
+			});
 		}
 	);
 }
@@ -157,12 +164,18 @@ function ProfileEditor(props) {
 					console.info(emailConfirmationInputRef.state.value);
 					confirmEmail({ token: emailConfirmationInputRef.state.value }).then(
 						() => {
-							message.info("Email was changed successfully", 5);
+							showNotification({
+								type: "success",
+								msg: "Email was changed successfully",
+							});
 							props.getUserData();
 						},
 						err => {
 							console.error(err.response.data.errors);
-							message.error("Error updating email. Details: " + err.response.data.errors.token, 5);
+							showNotification({
+								type: "error",
+								msg: "Error updating email. Details: " + err.response.data.errors.token,
+							});
 						}
 					);
 					setConfirmEmailVisible(false);
