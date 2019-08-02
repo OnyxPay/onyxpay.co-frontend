@@ -1,7 +1,6 @@
 import React from "react";
 import { Input, Button, Icon, Popconfirm } from "antd";
 import { requestStatus, operationMessageStatus } from "api/constants";
-import { styles } from "../styles";
 import { h24Mc } from "api/constants";
 
 export function handleTableChange({ fetchData, paginationState, setState }) {
@@ -116,16 +115,14 @@ export function renderPerformBtn(
 	function getButton(requestId) {
 		if (isPerformActive) {
 			return (
-				<Button type="primary" style={styles.btn} loading={true} disabled={true}>
+				<Button type="primary" loading={true} disabled={true}>
 					Perform
 				</Button>
 			);
 		} else {
 			return (
 				<Popconfirm title="Sure to perform?" onConfirm={() => performRequest(requestId)}>
-					<Button type="primary" style={styles.btn}>
-						Perform
-					</Button>
+					<Button type="primary">Perform</Button>
 				</Popconfirm>
 			);
 		}

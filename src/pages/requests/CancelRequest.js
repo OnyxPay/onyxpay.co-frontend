@@ -38,7 +38,7 @@ class CancelRequest extends Component {
 	};
 
 	render() {
-		const { btnStyle, disabled, handleCancel, isActionActive } = this.props;
+		const { disabled, handleCancel, isActionActive } = this.props;
 		const { fetching, counter } = this.state;
 		return (
 			<Popover
@@ -67,12 +67,7 @@ class CancelRequest extends Component {
 				visible={this.state.visible}
 				onVisibleChange={this.handleVisibleChange}
 			>
-				<Button
-					type="danger"
-					style={btnStyle}
-					loading={isActionActive}
-					disabled={isActionActive || disabled}
-				>
+				<Button type="danger" loading={isActionActive} disabled={isActionActive || disabled}>
 					Cancel
 				</Button>
 			</Popover>

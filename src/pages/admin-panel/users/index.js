@@ -11,13 +11,9 @@ import {
 	getUsersData,
 	updateUserStatus,
 } from "redux/admin-panel/users";
-
 import { downgradeUser } from "api/admin/user-upgrade";
-
 import { TimeoutError } from "promise-timeout";
-const styles = {
-	btn: { marginRight: 8 },
-};
+
 class Users extends Component {
 	state = {
 		searchText: "",
@@ -206,7 +202,6 @@ class Users extends Component {
 					<div>
 						{res.status_code === 1 ? (
 							<Button
-								style={styles.btn}
 								type="danger"
 								icon="user-delete"
 								loading={res.user_id === this.state.user_id && loadingBlockUser}
@@ -217,7 +212,6 @@ class Users extends Component {
 						) : null}
 						{res.status_code === 2 ? (
 							<Button
-								style={styles.btn}
 								type="primary"
 								icon="user-add"
 								loading={res.user_id === this.state.user_id && loadingUnblockUser}
@@ -228,7 +222,6 @@ class Users extends Component {
 						) : null}
 						{res.role_code !== roleCodes.user ? (
 							<Button
-								style={styles.btn}
 								type="danger"
 								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
 							>
@@ -236,11 +229,7 @@ class Users extends Component {
 							</Button>
 						) : null}
 						{res.is_settlements_exists ? (
-							<Button
-								style={styles.btn}
-								icon="account-book"
-								onClick={() => this.showSettlement(res.user_id)}
-							>
+							<Button icon="account-book" onClick={() => this.showSettlement(res.user_id)}>
 								Settlement accounts
 							</Button>
 						) : null}
