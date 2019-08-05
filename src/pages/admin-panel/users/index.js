@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon, message, notification } from "antd";
+import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
 import { roleCodes } from "api/constants";
@@ -12,7 +12,8 @@ import {
 	updateUserStatus,
 } from "redux/admin-panel/users";
 import { downgradeUser } from "api/admin/user-upgrade";
-import { TimeoutError } from "promise-timeout";
+import { handleBcError } from "api/network";
+import { showNotification } from "components/notification";
 
 class Users extends Component {
 	state = {
@@ -172,19 +173,14 @@ class Users extends Component {
 			});
 			const res = await downgradeUser(wallet_addr, role);
 			if (res.Error === 0) {
-				message.success("User was successfully downgrade");
+				showNotification({
+					type: "success",
+					msg: "User was successfully downgraded",
+				});
 			}
 			this.fetchUsers();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
-			}
+			handleBcError(e);
 		}
 		this.setState({
 			loadingDowngradeUser: false,

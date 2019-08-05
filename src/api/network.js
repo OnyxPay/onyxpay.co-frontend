@@ -26,7 +26,7 @@ export function getRestClient({ type } = {}) {
 	if (type === "explorer") {
 		return axios;
 	} else if (type === "gas") {
-		return axios.create({ baseURL: gasCompensatorEndpoint });
+		return axios.create({ baseURL: gasCompensatorEndpoint, timeout: 30000 });
 	}
 	return createCustomRestClient();
 }

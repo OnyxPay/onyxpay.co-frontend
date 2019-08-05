@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { push } from "connected-react-router";
 import { Formik } from "formik";
-import { Modal, Button, Form, Input, Select, message } from "antd";
+import { Modal, Button, Form, Input, Select } from "antd";
 import Actions from "../../redux/actions";
 import { unlockWalletAccount } from "../../api/wallet";
 import { ErrorText } from "../styled";
@@ -12,6 +12,7 @@ import { generateTokenTimeStamp } from "../../utils";
 import { getData as getCountriesData } from "country-list";
 import { isLatinChars, isBase58Address } from "../../utils/validate";
 import { addReferral } from "api/referral";
+import { showNotification } from "components/notification";
 
 const { Option } = Select;
 
@@ -62,7 +63,10 @@ class RegistrationModal extends Component {
 				if (values.referral_wallet) {
 					await addReferral(values.referral_wallet, pk, accountAddress);
 				}
-				message.success(text.modals.registration.reg_success, 5);
+				showNotification({
+					type: "success",
+					msg: text.modals.registration.reg_success,
+				});
 				formActions.resetForm();
 				push("/");
 			}
