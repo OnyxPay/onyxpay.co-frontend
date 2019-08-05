@@ -230,7 +230,7 @@ class SendAsset extends Component {
 													onChange={handleChange}
 													onBlur={handleBlur}
 													disabled={!availableAssetsToSend.length || isSubmitting}
-													autocomplete="new-password"
+													autoComplete="new-password"
 												/>
 											</Form.Item>
 										</Col>
