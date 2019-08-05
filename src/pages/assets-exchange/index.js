@@ -11,18 +11,17 @@ import {
 	Select,
 	Table,
 	Divider,
-	notification,
 	Tag,
 } from "antd";
 import ExchangeHistory from "components/transaction-list/ExchangeHistory";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";
-import { TimeoutError } from "promise-timeout";
-import { SendRawTrxError } from "../../utils/custom-error";
 import { exchangeAssets, exchangeAssetsForOnyxCash } from "../../api/exchange";
 import { isAssetBlocked } from "../../api/assets";
 import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
+import { showNotification } from "components/notification";
+import { handleBcError } from "api/network";
 const { Option } = Select;
 
 const assetsColumns = [
@@ -372,10 +371,9 @@ class AssetsExchange extends Component {
 	};
 
 	openNotification = (type, description) => {
-		notification[type]({
-			message: type === "success" ? "Exchange operation successful" : "Exchange operation failed",
-			description: description,
-			duration: 0,
+		showNotification({
+			type: [type],
+			msg: type === "success" ? "Exchange operation successful" : "Exchange operation failed",
 		});
 	};
 
@@ -410,23 +408,9 @@ class AssetsExchange extends Component {
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
-			this.setState({ transactionInProcess: false });
-			console.log(result);
 		} catch (e) {
-			console.log(e, typeof e);
-			if (e instanceof TimeoutError) {
-				this.openNotification(
-					"error",
-					"Transaction timed out. Try checking your balance some time later."
-				);
-			} else if (e instanceof SendRawTrxError) {
-				this.openNotification("error", "Contract execution error");
-			} else {
-				if (!e.message.includes("You should unlock your wallet to make transactions")) {
-					this.openNotification("error", "Unknown error");
-				}
-			}
-			console.log("error: ", e);
+			handleBcError(e);
+		} finally {
 			this.setState({ transactionInProcess: false });
 		}
 	};

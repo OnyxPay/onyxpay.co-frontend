@@ -1,9 +1,9 @@
-import { message } from "antd";
 import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
 import { gasPrice, cryptoAddress } from "../../utils/blockchain";
 import { getBcClient } from "../../api/network";
 import { unlockWalletAccount } from "../../api/wallet";
 import { resolveContractAddress } from "../contracts";
+import { showNotification } from "components/notification";
 
 export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => {
 	return async (dispatch, getState) => {
@@ -35,18 +35,26 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("Amount was successfully set");
+					showNotification({
+						type: "success",
+						msg: "Amount was successfully set",
+					});
 					setSubmitting(false);
 					resetForm();
 				}
 			} catch (error) {
-				console.log(error);
-				message.error("Operation is failed", 5);
+				showNotification({
+					type: "error",
+					msg: "Operation is failed",
+				});
 				setSubmitting(false);
 			}
 		} catch (error) {
 			if (error.message === "contract address is not found") {
-				message.error(error.message);
+				showNotification({
+					type: "error",
+					msg: error.message,
+				});
 			}
 			setSubmitting(false);
 			console.log(error);
@@ -85,11 +93,17 @@ export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 				setSubmitting(false);
 				resetForm();
 				if (balance !== 0) {
-					message.success(`Investor had unclaimed ${balance}`);
+					showNotification({
+						type: "success",
+						msg: `Investor had unclaimed ${balance}`,
+					});
 					setSubmitting(false);
 					resetForm();
 				} else {
-					message.success("Investor was  blocked");
+					showNotification({
+						type: "success",
+						msg: "Investor was  blocked",
+					});
 					setSubmitting(false);
 					resetForm();
 				}
@@ -100,7 +114,10 @@ export const getUnclaimed = (secret_hash, { setSubmitting, resetForm }) => {
 				return balance;
 			} catch (error) {
 				console.log(error);
-				message.error("Investor is not found");
+				showNotification({
+					type: "error",
+					msg: "Investor is not found",
+				});
 				setSubmitting(false);
 			}
 		} catch (e) {
@@ -139,18 +156,27 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("Investor was successfully blocked");
+					showNotification({
+						type: "success",
+						msg: "Investor was successfully blocked",
+					});
 					setSubmitting(false);
 					resetForm();
 				}
 			} catch (error) {
 				console.log(error);
-				message.error("Operation is failed", 5);
+				showNotification({
+					type: "error",
+					msg: "Operation is failed",
+				});
 				setSubmitting(false);
 			}
 		} catch (error) {
 			if (error.message === "contract address is not found") {
-				message.error(error.message);
+				showNotification({
+					type: "error",
+					msg: error.message,
+				});
 			}
 			setSubmitting(false);
 			console.log(error);
@@ -186,18 +212,27 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 				const res = await client.sendRawTransaction(tx.serialize(), false, true);
 				console.log(res);
 				if (res.Error === 0) {
-					message.success("Investor was successfully unblocked");
+					showNotification({
+						type: "success",
+						msg: "Investor was successfully unblocked",
+					});
 					setSubmitting(false);
 					resetForm();
 				}
 			} catch (error) {
 				console.log(error);
-				message.error("Operation is failed", 5);
+				showNotification({
+					type: "error",
+					msg: "Operation is failed",
+				});
 				setSubmitting(false);
 			}
 		} catch (error) {
 			if (error.message === "contract address is not found") {
-				message.error(error.message);
+				showNotification({
+					type: "error",
+					msg: error.message,
+				});
 			}
 			setSubmitting(false);
 			console.log(error);
