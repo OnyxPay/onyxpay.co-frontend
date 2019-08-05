@@ -143,3 +143,5 @@ export const userStatusNames = {
 export const h12Mc = 12 * 60 * 60 * 1000;
 export const h24Mc = 24 * 60 * 60 * 1000;
 export const refreshBalanceEveryMsec = 30000;
+
+export const gasCompensatorTimeout = 30000;
