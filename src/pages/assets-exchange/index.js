@@ -420,7 +420,7 @@ class AssetsExchange extends Component {
 			<>
 				<PageTitle>Assets Exchange</PageTitle>
 				<Card className="exchange-card-wrapper">
-					<Row>
+					<Row gutter={16}>
 						<Form
 							layout="inline"
 							onSubmit={e => {
@@ -428,56 +428,51 @@ class AssetsExchange extends Component {
 							}}
 							className="exchange-form"
 						>
-							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
+							<Col lg={{ span: 24 }} xl={{ span: 24 }}>
 								<Col span={24}>Asset to sell:</Col>
 								<Col span={24}>
-									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 7 }}>
 										<Form.Item
-											style={{ display: "inline-block" }}
+											style={{ display: "flex" }}
 											className="asset-exchange-form-input-parent"
+											validateStatus={
+												this.state.assetToSellAmountError.length === 0 ? "success" : "error"
+											}
 										>
 											<Input.Group
 												compact
 												style={{ display: "flex" }}
 												className="asset-exchange-amount-input-group"
 											>
-												<Form.Item
-													validateStatus={
-														this.state.assetToSellAmountError.length === 0 ? "success" : "error"
-													}
-													className="asset-exchange-amount-input-group-form-item"
-												>
-													<InputNumber
-														min={0}
-														precision={8}
-														placeholder="You send"
-														value={this.state.assetToSell.amount}
-														onChange={this.handleAssetToSellAmountChange}
-														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-														style={{ width: "100%" }}
-													/>
-												</Form.Item>
-												<Form.Item>
-													<Button
-														onClick={() => {
-															const { assetToSell } = this.state;
-															let assetsForSellData = this.getAssetsForSellData();
+												<InputNumber
+													min={0}
+													precision={8}
+													placeholder="You send"
+													value={this.state.assetToSell.amount}
+													onChange={this.handleAssetToSellAmountChange}
+													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+													style={{ width: "100%" }}
+													className="asset-exchange-amount-input-group-input-number"
+												/>
+												<Button
+													onClick={() => {
+														const { assetToSell } = this.state;
+														let assetsForSellData = this.getAssetsForSellData();
 
-															let asset = assetsForSellData.find(
-																record => record.name === assetToSell.name
-															);
-															this.handleAssetToSellAmountChange(Number(asset.balance));
-														}}
-														className="asset-exchange-amount-input-group-button"
-														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-													>
-														Max
-													</Button>
-												</Form.Item>
+														let asset = assetsForSellData.find(
+															record => record.name === assetToSell.name
+														);
+														this.handleAssetToSellAmountChange(Number(asset.balance));
+													}}
+													className="asset-exchange-amount-input-group-button"
+													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+												>
+													Max
+												</Button>
 											</Input.Group>
 										</Form.Item>
 									</Col>
-									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 8 }} xl={{ span: 8 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 6 }} lg={{ span: 6 }} xl={{ span: 5 }}>
 										<Form.Item
 											validateStatus={
 												this.state.assetToSellNameError.length === 0 ? "success" : "error"
@@ -517,68 +512,63 @@ class AssetsExchange extends Component {
 								sm={{ span: 24 }}
 								md={{ span: 24 }}
 								lg={{ span: 24 }}
-								xl={{ span: 0 }}
+								xl={{ span: 24 }}
 							>
 								<div className="form-divider" />
 							</Col>
 
-							<Col lg={{ span: 24 }} xl={{ span: 10 }}>
+							<Col lg={{ span: 24 }} xl={{ span: 24 }}>
 								<Col span={24}>Asset to buy:</Col>
 								<Col span={24}>
-									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 16 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 16 }} lg={{ span: 10 }} xl={{ span: 7 }}>
 										<Form.Item
-											style={{ display: "inline-block" }}
+											style={{ display: "flex" }}
 											className="asset-exchange-form-input-parent"
+											validateStatus={
+												this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
+											}
 										>
 											<Input.Group
 												compact
 												style={{ display: "flex" }}
 												className="asset-exchange-amount-input-group"
 											>
-												<Form.Item
-													validateStatus={
-														this.state.assetToBuyAmountError.length === 0 ? "success" : "error"
-													}
-													className="asset-exchange-amount-input-group-form-item"
-												>
-													<InputNumber
-														min={0}
-														precision={8}
-														placeholder="You get"
-														value={this.state.assetToBuy.amount}
-														onChange={this.handleAssetToBuyAmountChange}
-														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-														style={{ width: "100%" }}
-													/>
-												</Form.Item>
-												<Form.Item>
-													<Button
-														onClick={() => {
-															const { assetToSell, assetToBuy } = this.state;
-															let assetsForSellData = this.getAssetsForSellData();
+												<InputNumber
+													min={0}
+													precision={8}
+													placeholder="You get"
+													value={this.state.assetToBuy.amount}
+													onChange={this.handleAssetToBuyAmountChange}
+													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+													style={{ width: "100%" }}
+													className="asset-exchange-amount-input-group-input-number"
+												/>
+												<Button
+													onClick={() => {
+														const { assetToSell, assetToBuy } = this.state;
+														let assetsForSellData = this.getAssetsForSellData();
 
-															let asset = assetsForSellData.find(
-																record => record.name === assetToSell.name
-															);
-															this.handleAssetToBuyAmountChange(
-																this.recountAssetToBuyAmount(
-																	assetToSell.name,
-																	assetToBuy.name,
-																	asset.balance
-																)
-															);
-														}}
-														className="asset-exchange-amount-input-group-button"
-														disabled={this.state.transactionInProcess || !this.state.dataLoaded}
-													>
-														Max
-													</Button>
-												</Form.Item>
+														let asset = assetsForSellData.find(
+															record => record.name === assetToSell.name
+														);
+														this.handleAssetToBuyAmountChange(
+															this.recountAssetToBuyAmount(
+																assetToSell.name,
+																assetToBuy.name,
+																asset.balance
+															)
+														);
+													}}
+													className="asset-exchange-amount-input-group-button"
+													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
+												>
+													Max
+												</Button>
 											</Input.Group>
 										</Form.Item>
 									</Col>
 
-									<Col xs={{ span: 24 }} sm={{ span: 8 }} lg={{ span: 8 }} xl={{ span: 8 }}>
+									<Col xs={{ span: 24 }} sm={{ span: 6 }} lg={{ span: 6 }} xl={{ span: 5 }}>
 										<Form.Item
 											validateStatus={
 												this.state.assetToBuyNameError.length === 0 ? "success" : "error"
