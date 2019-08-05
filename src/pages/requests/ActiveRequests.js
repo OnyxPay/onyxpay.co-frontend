@@ -110,10 +110,27 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	acceptRequest = async (requestId, requestAmount, requestAsset) => {
+	handleCheckIsAssetBlocked = async asset => {
+		const res = await isAssetBlocked(asset);
+
+		if (res) {
+			showNotification({
+				type: "error",
+				msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
+			});
+			return true;
+		}
+		return false;
+	};
+
+	handleAcceptRequest = async (requestId, requestAmount, requestAsset) => {
 		// agent accepts deposit or withdraw request
 		try {
 			const { balanceAssets, balanceOnyxCash } = this.props;
+			if (this.handleCheckIsAssetBlocked(requestAsset) === false) {
+				return;
+			}
+
 			this.setState({ requestId, activeAction: aa.accept });
 
 			const allow = balanceAssets.some(
@@ -228,19 +245,6 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	handleCheckIsAssetBlocked = async (request_id, amount, asset) => {
-		const res = await isAssetBlocked(asset);
-
-		if (res) {
-			showNotification({
-				type: "error",
-				msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
-			});
-			return false;
-		}
-		await acceptRequest(request_id, amount, asset);
-	};
-
 	render() {
 		const { user, walletAddress, location, data, isFetching } = this.props;
 		const { requestId, activeAction, idParsedFromURL, openedRequestData } = this.state;
@@ -271,9 +275,8 @@ class ActiveRequests extends Component {
 				activeRequestId: requestId,
 				activeAction,
 				walletAddress,
-				isAssetBlocked: this.handleCheckIsAssetBlocked,
 				hideRequest: this.hideRequest,
-				acceptRequest: this.acceptRequest,
+				acceptRequest: this.handleAcceptRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
 				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
