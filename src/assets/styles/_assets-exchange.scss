@@ -9,57 +9,30 @@
 .exchange-form {
 	.exchange-submit-button {
 		margin-top: 1.7em;
+		margin-left: 0.5em;
 	}
 
 	.asset-exchange-form-input-parent {
 		width: 100%;
+		margin-top: 0.23em;
 		.ant-form-item-control-wrapper {
 			flex-grow: 1;
 		}
 	}
 
 	.asset-exchange-form-select-parent {
-		padding-right: 1em;
+		margin-bottom: 0.5em;
 		width: 100%;
 	}
 
-	.asset-exchange-amount-input-group {
-		width: 100%;
-	}
-
-	.asset-exchange-amount-input-group-form-item {
-		flex-grow: 1;
-	}
-
-	.asset-exchange-amount-input-group-input-number {
-		border-top-right-radius: 0%;
-		border-bottom-right-radius: 0%;
-	}
-
-	.asset-exchange-amount-input-group-button {
-		width: 100%;
-		border-top-left-radius: 0%;
-		border-bottom-left-radius: 0%;
+	.form-divider {
+		padding-top: 1.7em;
 	}
 }
 
 .exchange-tables {
 	.ant-table-fixed-header .ant-table-scroll .ant-table-header {
 		overflow-y: hidden;
-	}
-}
-
-@media (max-width: 1200px) {
-	.exchange-form {
-		.form-divider {
-			padding-top: 1.7em;
-		}
-	}
-
-	.exchange-tables {
-		.table-divider {
-			padding-top: 3em;
-		}
 	}
 }
 
