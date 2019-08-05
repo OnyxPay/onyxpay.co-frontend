@@ -8,6 +8,7 @@ import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
 import { styles } from "../../styles";
+
 function isAgentAccepted(operationMessages) {
 	// check if at least one potential performer is accepted the request
 	return operationMessages.some(mg => mg.status_code === operationMessageStatus.accepted);
@@ -95,7 +96,7 @@ export default function renderInitiatorColumns({
 	showModal,
 	handleComplain,
 	requestsStatus, // active | closed
-	requestsType, // deposit | withdraw | depositOnyxCash
+	requestsType, // deposit | withdraw | buy_onyx_cash
 	showUserSettlementsModal,
 	performRequest, // for withdraw
 	cancelRequest,
@@ -183,7 +184,16 @@ export default function renderInitiatorColumns({
 
 					return (
 						<>
-							{/* Send to agents (performers) */}
+							{/* Cancel request */}
+							{renderCancelBtn(
+								record,
+								requestsType,
+								cancelRequest,
+								isComplainActive,
+								isCancelRequestActive
+							)}
+
+							{/* Send request to performers */}
 							{record.status === "opened" &&
 								record.operation_messages &&
 								!record.operation_messages.length && (
@@ -194,20 +204,11 @@ export default function renderInitiatorColumns({
 											isSendingMessage: true,
 										})}
 									>
-										Send to agents
+										{requestsType === "buy_onyx_cash" ? "Send to super-agents" : "Send to agents"}
 									</Button>
 								)}
 
-							{/* Cancel request */}
-							{renderCancelBtn(
-								record,
-								requestsType,
-								cancelRequest,
-								isComplainActive,
-								isCancelRequestActive
-							)}
-
-							{/* Choose agent (performer) */}
+							{/* Choose performer */}
 							{record.operation_messages &&
 								isAgentAccepted(record.operation_messages) &&
 								record.status === "opened" && (
@@ -221,7 +222,7 @@ export default function renderInitiatorColumns({
 											),
 										})}
 									>
-										Choose agent
+										{requestsType === "buy_onyx_cash" ? "Choose super-agent" : "Choose agent"}
 									</Button>
 								)}
 
