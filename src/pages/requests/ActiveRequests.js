@@ -24,7 +24,7 @@ import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./c
 import { handleTableChange, getColumnSearchProps } from "./table";
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 import { handleBcError } from "api/network";
-import { isAssetBlocked } from "api/assets";
+import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
 
 const modals = {
@@ -110,24 +110,16 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	handleCheckIsAssetBlocked = async asset => {
-		const res = await isAssetBlocked(asset);
-
-		if (res) {
-			showNotification({
-				type: "error",
-				msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
-			});
-			return true;
-		}
-		return false;
-	};
-
 	handleAcceptRequest = async (requestId, requestAmount, requestAsset) => {
 		// agent accepts deposit or withdraw request
 		try {
 			const { balanceAssets, balanceOnyxCash } = this.props;
-			if (this.handleCheckIsAssetBlocked(requestAsset) === false) {
+			const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
+			if (isAssetBlocked) {
+				showNotification({
+					type: "error",
+					msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
+				});
 				return;
 			}
 
@@ -143,7 +135,7 @@ class ActiveRequests extends Component {
 					type: "error",
 					msg: "Request cannot be accepted. Insufficient amount of asset.",
 				});
-				return false;
+				return;
 			}
 			await acceptRequest(requestId);
 			showNotification({
