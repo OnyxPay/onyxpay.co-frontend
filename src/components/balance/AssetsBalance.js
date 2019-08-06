@@ -46,6 +46,7 @@ class AssetsBalance extends Component {
 		const { user } = this.props;
 		const { assets, onyxCash } = this.props.balance;
 		let assetsData = [];
+
 		if ((user.role === roles.a && onyxCash) || (user.role === roles.sa && onyxCash)) {
 			assetsData.push({
 				key: onyxCashSymbol,

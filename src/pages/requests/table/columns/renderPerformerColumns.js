@@ -78,7 +78,6 @@ export default function renderPerformerColumns({
 	activeRequestId,
 	activeAction,
 	walletAddress,
-	acceptRequest,
 	hideRequest,
 	performRequest,
 	cancelAcceptedRequest,
@@ -86,6 +85,7 @@ export default function renderPerformerColumns({
 	requestsType, // deposit | withdraw | depositOnyxCash
 	getColumnSearchProps,
 	defaultFilterValue,
+	acceptRequest,
 }) {
 	if (requestsStatus === "active") {
 		return [

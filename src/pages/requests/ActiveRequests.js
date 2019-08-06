@@ -24,6 +24,7 @@ import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./c
 import { handleTableChange, getColumnSearchProps } from "./table";
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 import { handleBcError } from "api/network";
+import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
 
 const modals = {
@@ -109,10 +110,19 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	acceptRequest = async (requestId, requestAmount, requestAsset) => {
+	handleAcceptRequest = async (requestId, requestAmount, requestAsset) => {
 		// agent accepts deposit or withdraw request
 		try {
 			const { balanceAssets, balanceOnyxCash } = this.props;
+			const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
+			if (isAssetBlocked) {
+				showNotification({
+					type: "error",
+					msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
+				});
+				return;
+			}
+
 			this.setState({ requestId, activeAction: aa.accept });
 
 			const allow = balanceAssets.some(
@@ -125,7 +135,7 @@ class ActiveRequests extends Component {
 					type: "error",
 					msg: "Request cannot be accepted. Insufficient amount of asset.",
 				});
-				return false;
+				return;
 			}
 			await acceptRequest(requestId);
 			showNotification({
@@ -258,7 +268,7 @@ class ActiveRequests extends Component {
 				activeAction,
 				walletAddress,
 				hideRequest: this.hideRequest,
-				acceptRequest: this.acceptRequest,
+				acceptRequest: this.handleAcceptRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
 				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
