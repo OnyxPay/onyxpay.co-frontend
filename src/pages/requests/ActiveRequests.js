@@ -14,7 +14,7 @@ import {
 } from "api/requests";
 import { hideMessage } from "api/operation-messages";
 import ChoosePerformerModal from "components/modals/ChoosePerformer";
-import { roles } from "api/constants";
+import { roles, operationType } from "api/constants";
 import { showNotification } from "components/notification";
 import { createLoadingSelector } from "selectors/loading";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
@@ -328,11 +328,38 @@ class ActiveRequests extends Component {
 
 const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
 
+function operationNameToType(name) {
+	switch (name) {
+		case "deposit":
+			return operationType.deposit;
+		case "withdraw":
+			return operationType.withdraw;
+		case "deposit-onyx-cash":
+			return operationType.buyOnyxCache;
+		default:
+			return 0;
+	}
+}
+
 function mapStateToProps(state, ownProps) {
+	const requestName = parseRequestType(ownProps.location);
+	const requestType = operationNameToType(requestName);
+	let items = [];
+	// we are filtering unnecessary types of requests to handle unnecessary websocket events
+	if (state.opRequests.items) {
+		items = state.opRequests.items.filter(el => {
+			if (el.request) {
+				return el.request.type_code === requestType;
+			} else {
+				return el.type_code === requestType;
+			}
+		});
+	}
+
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: state.opRequests,
+		data: { ...state.opRequests, items: items },
 		isFetching: loadingSelector(state),
 		balanceAssets: state.balance.assets,
 		balanceOnyxCash: state.balance.onyxCash,
