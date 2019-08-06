@@ -174,7 +174,8 @@ function ProfileEditor(props) {
 							console.error(err.response.data.errors);
 							showNotification({
 								type: "error",
-								msg: "Error updating email. Details: " + err.response.data.errors.token,
+								msg: "Error updating email",
+								desc: `Details: ${err.response.data.errors.token}`,
 							});
 						}
 					);
