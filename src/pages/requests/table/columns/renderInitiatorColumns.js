@@ -198,20 +198,18 @@ export default function renderInitiatorColumns({
 					return (
 						<>
 							{/* Send to agents (performers) */}
-							{record.status === "opened" &&
-								record.operation_messages &&
-								!record.operation_messages.length && (
-									<Button
-										style={styles.btn}
-										disabled={isCancelRequestActive}
-										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-											requestId: record.id,
-											isSendingMessage: true,
-										})}
-									>
-										Send to agents
-									</Button>
-								)}
+							{record.status === "opened" && (
+								<Button
+									style={styles.btn}
+									disabled={isCancelRequestActive}
+									onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+										requestId: record.id,
+										isSendingMessage: true,
+									})}
+								>
+									Send to agents
+								</Button>
+							)}
 
 							{/* Cancel request */}
 							{renderCancelBtn(

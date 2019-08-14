@@ -268,6 +268,7 @@ class ChoosePerformer extends Component {
 										onChange={this.handleTableChange}
 										isSendingMessage={isSendingMessage}
 										showUserSettlementsModal={showUserSettlementsModal}
+										requestId={this.props.requestId}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>
