@@ -151,20 +151,3 @@ export function handleBcError(e) {
 		});
 	}
 }
-
-export function handleBcError(e) {
-	if (process.env.NODE_ENV === "development") console.dir(e);
-
-	if (e instanceof GasCompensationError) {
-		showGasCompensationError();
-	} else if (e instanceof SendRawTrxError) {
-		showBcError(e.message);
-	} else if (e instanceof TimeoutError) {
-		showTimeoutNotification();
-	} else {
-		showNotification({
-			type: "error",
-			msg: e.message,
-		});
-	}
-}
