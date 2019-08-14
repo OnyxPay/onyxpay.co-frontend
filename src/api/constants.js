@@ -140,6 +140,12 @@ export const userStatusNames = {
 	[userStatus.deleted]: "deleted",
 };
 
+export const operationType = {
+	deposit: 1,
+	withdraw: 2,
+	buyOnyxCache: 3,
+};
+
 export const h12Mc = 12 * 60 * 60 * 1000;
 export const h24Mc = 24 * 60 * 60 * 1000;
 export const refreshBalanceEveryMsec = 30000;
