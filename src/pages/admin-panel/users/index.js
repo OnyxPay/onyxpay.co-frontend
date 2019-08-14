@@ -1,20 +1,20 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon, message, notification } from "antd";
+import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
 import { roleCodes } from "api/constants";
-import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
-import { blockUser, unblockUser, isBlockedUser } from "api/admin/users";
-
+import {
+	unblockUser,
+	blockedUsersData,
+	blockUser,
+	isBlockedUser,
+	getUsersData,
+	updateUserStatus,
+} from "redux/admin-panel/users";
 import { downgradeUser } from "api/admin/user-upgrade";
-
-import { TimeoutError } from "promise-timeout";
 import { handleBcError } from "api/network";
 import { showNotification } from "components/notification";
 
-const styles = {
-	btn: { marginRight: 8 },
-};
 class Users extends Component {
 	state = {
 		searchText: "",
@@ -181,19 +181,14 @@ class Users extends Component {
 			});
 			const res = await downgradeUser(wallet_addr, role);
 			if (res.Error === 0) {
-				message.success("User was successfully downgrade");
+				showNotification({
+					type: "success",
+					msg: "User was successfully downgraded",
+				});
 			}
 			this.fetchUsers();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
-			}
+			handleBcError(e);
 		}
 		this.setState({
 			loadingDowngradeUser: false,
@@ -211,7 +206,6 @@ class Users extends Component {
 					<div>
 						{res.status_code === 1 ? (
 							<Button
-								style={styles.btn}
 								type="danger"
 								icon="user-delete"
 								loading={res.user_id === this.state.user_id && loadingBlockUser}
@@ -222,7 +216,6 @@ class Users extends Component {
 						) : null}
 						{res.status_code === 2 ? (
 							<Button
-								style={styles.btn}
 								type="primary"
 								icon="user-add"
 								loading={res.user_id === this.state.user_id && loadingUnblockUser}
@@ -233,7 +226,6 @@ class Users extends Component {
 						) : null}
 						{res.role_code !== roleCodes.user ? (
 							<Button
-								style={styles.btn}
 								type="danger"
 								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
 							>
@@ -241,11 +233,7 @@ class Users extends Component {
 							</Button>
 						) : null}
 						{res.is_settlements_exists ? (
-							<Button
-								style={styles.btn}
-								icon="account-book"
-								onClick={() => this.showSettlement(res.user_id)}
-							>
+							<Button icon="account-book" onClick={() => this.showSettlement(res.user_id)}>
 								Settlement accounts
 							</Button>
 						) : null}

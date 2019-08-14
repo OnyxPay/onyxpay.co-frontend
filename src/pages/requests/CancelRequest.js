@@ -1,14 +1,13 @@
 import React, { Component } from "react";
 import { Popover, Button, Spin } from "antd";
 import { TextAligner } from "../../components/styled";
-import { cancelRequest, getRejectionCounter } from "../../api/requests";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { getRejectionCounter } from "../../api/requests";
+import { handleBcError } from "api/network";
 
 class CancelRequest extends Component {
 	state = {
 		visible: false,
-		loading: false,
+		fetching: false,
 		counter: null,
 		actionIsOn: false,
 	};
@@ -16,14 +15,11 @@ class CancelRequest extends Component {
 	async componentDidUpdate(prevProps, prevState) {
 		if (!prevState.visible && prevState.visible !== this.state.visible) {
 			try {
-				this.setState({ loading: true });
+				this.setState({ fetching: true });
 				const counter = await getRejectionCounter();
-				this.setState({ loading: false, counter });
+				this.setState({ fetching: false, counter });
 			} catch (e) {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
+				handleBcError(e);
 			}
 		}
 	}
@@ -41,37 +37,13 @@ class CancelRequest extends Component {
 		}
 	};
 
-	handleConfirm = async () => {
-		const { requestId, fetchRequests } = this.props;
-		try {
-			this.setState({ actionIsOn: true });
-			await cancelRequest(requestId, "deposit");
-			fetchRequests();
-			showNotification({
-				type: "success",
-				msg: "You have canceled the request",
-			});
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
-		} finally {
-			this.setState({ actionIsOn: false });
-		}
-	};
-
 	render() {
-		const { btnStyle, disabled } = this.props;
-		const { loading, counter, actionIsOn } = this.state;
+		const { disabled, handleCancel, isActionActive } = this.props;
+		const { fetching, counter } = this.state;
 		return (
 			<Popover
 				content={
-					loading ? (
+					fetching ? (
 						<Spin />
 					) : (
 						<div>
@@ -84,7 +56,7 @@ class CancelRequest extends Component {
 								<Button size="small" style={{ marginRight: 8 }} onClick={this.hide}>
 									No
 								</Button>
-								<Button size="small" type="primary" onClick={this.handleConfirm}>
+								<Button size="small" type="primary" onClick={handleCancel}>
 									Ok
 								</Button>
 							</TextAligner>
@@ -95,12 +67,7 @@ class CancelRequest extends Component {
 				visible={this.state.visible}
 				onVisibleChange={this.handleVisibleChange}
 			>
-				<Button
-					type="danger"
-					style={btnStyle}
-					loading={actionIsOn}
-					disabled={actionIsOn || disabled}
-				>
+				<Button type="danger" loading={isActionActive} disabled={isActionActive || disabled}>
 					Cancel
 				</Button>
 			</Popover>

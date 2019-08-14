@@ -103,7 +103,7 @@ export async function getRequests(params) {
 	}
 }
 
-export async function cancelRequest(requestId, type) {
+export async function cancelRequest(requestId) {
 	// initiator cancels
 	const { pk } = await unlockWalletAccount();
 	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
@@ -229,4 +229,38 @@ export async function complain(requestId) {
 	);
 
 	return addSignAndSendTrx(serializedTrx, pk);
+}
+
+export async function getActiveRequestsCounter(userId) {
+	const store = getStore();
+	const { wallet } = store.getState();
+	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of RequestHolder smart-contract");
+	}
+	const decodedWallet = getWallet(wallet);
+	const account = getAccount(decodedWallet);
+
+	const trx = createTrx({
+		funcName: "ActiveRequestsCounter",
+		params: [
+			{
+				label: "userId",
+				type: ParameterType.ByteArray,
+				value: utils.reverseHex(account.address.toHexString()),
+			},
+		],
+		contractAddress: address,
+	});
+
+	const res = await sendTrx(trx, true);
+
+	let counter = get(res, "Result.Result", 0);
+	if (counter === "") {
+		counter = 0;
+	} else {
+		counter = parseInt(counter, 16);
+	}
+
+	return counter;
 }

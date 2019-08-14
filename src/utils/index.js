@@ -61,3 +61,13 @@ export function is12hOver(timestamp) {
 	const diff = calcTimeDiff(timestamp);
 	return diff > h12Mc;
 }
+
+export function sortValues(valA, valB) {
+	if (valA < valB) {
+		return -1;
+	}
+	if (valA > valB) {
+		return 1;
+	}
+	return 0;
+}

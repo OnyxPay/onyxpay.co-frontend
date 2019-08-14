@@ -5,8 +5,8 @@ import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
 import Countdown from "components/Countdown";
 import { h24Mc } from "api/constants";
-import { styles } from "../../styles";
 import { aa } from "../../common";
+import { renderPerformBtn, isTimeUp } from "../index";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
@@ -27,108 +27,57 @@ function renderCancelBtn(
 	requestsType
 ) {
 	const isAnotherSelected = isAnotherPerformerSelected(record, walletAddress);
-	let btn;
-	if (requestsType === "withdraw") {
-		// TODO: add
-	} else {
-		if (record.status === "accepted" && record.request.taker_addr !== walletAddress) {
-			if (isCancelAcceptedRequestActive) {
-				btn = (
-					<Button type="danger" style={styles.btn} loading={true} disabled={true}>
-						{isAnotherSelected ? "Return assets" : "Cancel acceptation"}
-					</Button>
-				);
-			} else {
-				btn = (
-					<Popconfirm
-						title={isAnotherSelected ? "Sure to return assets?" : "Sure to cancel acceptation?"}
-						cancelText="No"
-						onConfirm={() => handleCancel(record.request.request_id)}
-					>
-						<Button type="danger" style={styles.btn}>
-							{isAnotherSelected ? "Return assets" : "Cancel acceptation"}
-						</Button>
-					</Popconfirm>
-				);
-			}
-		} else if (
-			record.status === "accepted" &&
-			record.request.taker_addr === walletAddress &&
-			isTimeUp(record.request.choose_timestamp, h24Mc)
-		) {
-			if (isCancelAcceptedRequestActive) {
-				btn = (
-					<Button type="danger" style={styles.btn} loading={true} disabled={true}>
-						Return assets
-					</Button>
-				);
-			} else {
-				btn = (
-					<Popconfirm
-						title="Sure to return assets?"
-						cancelText="No"
-						onConfirm={() => handleCancel(record.request.request_id)}
-					>
-						<Button type="danger" style={styles.btn}>
-							Return assets
-						</Button>
-					</Popconfirm>
-				);
-			}
+	let buttonText;
+	let confirmText;
+	let buttonType;
+
+	if (record.status === "accepted" && record.request.taker_addr !== walletAddress) {
+		buttonText = isAnotherSelected ? "Return assets" : "Cancel acceptation";
+		if (isCancelAcceptedRequestActive) {
+			buttonType = "default";
 		} else {
-			btn = null;
+			confirmText = isAnotherSelected ? "Sure to return assets?" : "Sure to cancel acceptation?";
+			buttonType = "confirm";
 		}
+	} else if (
+		record.status === "accepted" &&
+		record.request.taker_addr === walletAddress &&
+		isTimeUp(record.request.choose_timestamp, h24Mc)
+	) {
+		buttonText = "Return assets";
+		if (isCancelAcceptedRequestActive) {
+			buttonType = "default";
+		} else {
+			confirmText = "Sure to return assets?";
+			buttonType = "confirm";
+		}
+	} else {
+		return null;
 	}
 
-	return btn;
-}
-
-function renderPerformBtn(record, performRequest, walletAddress, requestsType, isPerformActive) {
-	let btn;
-	if (requestsType === "withdraw") {
+	if (buttonType === "confirm") {
+		return (
+			<Popconfirm
+				title={confirmText}
+				cancelText="No"
+				onConfirm={() => handleCancel(record.request.request_id)}
+			>
+				<Button type="danger">{buttonText}</Button>
+			</Popconfirm>
+		);
 	} else {
-		if (
-			record.request.taker_addr === walletAddress &&
-			record.request.status_code !== requestStatus.completed &&
-			record.request.status_code !== requestStatus.complained &&
-			!isTimeUp(record.request.choose_timestamp, h24Mc)
-		) {
-			if (isPerformActive) {
-				btn = (
-					<Button type="primary" style={styles.btn} loading={true} disabled={true}>
-						Perform
-					</Button>
-				);
-			} else {
-				btn = (
-					<Popconfirm
-						title="Sure to perform?"
-						onConfirm={() => performRequest(record.request.request_id)}
-					>
-						<Button type="primary" style={styles.btn}>
-							Perform
-						</Button>
-					</Popconfirm>
-				);
-			}
-		} else {
-			btn = null;
-		}
+		return (
+			<Button type="danger" loading={true} disabled={true}>
+				{buttonText}
+			</Button>
+		);
 	}
-
-	return btn;
-}
-
-function isTimeUp(startDate, intervalMc) {
-	const now = new Date().getTime();
-	return new Date(startDate).getTime() + intervalMc < now;
 }
 
 export default function renderPerformerColumns({
 	activeRequestId,
 	activeAction,
 	walletAddress,
-	acceptRequest,
 	hideRequest,
 	performRequest,
 	cancelAcceptedRequest,
@@ -136,6 +85,7 @@ export default function renderPerformerColumns({
 	requestsType, // deposit | withdraw | depositOnyxCash
 	getColumnSearchProps,
 	defaultFilterValue,
+	acceptRequest,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -220,7 +170,7 @@ export default function renderPerformerColumns({
 						<>
 							{record.status !== "accepted" &&
 								(isAcceptActive ? (
-									<Button type="primary" style={styles.btn} loading={true} disabled={true}>
+									<Button type="primary" loading={true} disabled={true}>
 										Accept
 									</Button>
 								) : (
@@ -234,15 +184,13 @@ export default function renderPerformerColumns({
 											)
 										}
 									>
-										<Button type="primary" style={styles.btn}>
-											Accept
-										</Button>
+										<Button type="primary">Accept</Button>
 									</Popconfirm>
 								))}
 
 							{record.status !== "accepted" &&
 								(isAcceptActive || isCancelAcceptedRequestActive ? (
-									<Button type="danger" style={styles.btn} disabled={true}>
+									<Button type="danger" disabled={true}>
 										Hide
 									</Button>
 								) : (
@@ -250,9 +198,7 @@ export default function renderPerformerColumns({
 										title="Sure to hide?"
 										onConfirm={() => hideRequest(record.id)} // messageId
 									>
-										<Button type="danger" style={styles.btn}>
-											Hide
-										</Button>
+										<Button type="danger">Hide</Button>
 									</Popconfirm>
 								))}
 

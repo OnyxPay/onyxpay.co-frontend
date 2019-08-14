@@ -1,5 +1,7 @@
 import React from "react";
-import { Input, Button, Icon } from "antd";
+import { Input, Button, Icon, Popconfirm } from "antd";
+import { requestStatus, operationMessageStatus } from "api/constants";
+import { h24Mc } from "api/constants";
 
 export function handleTableChange({ fetchData, paginationState, setState }) {
 	return function(pagination, filters, sorter) {
@@ -94,4 +96,68 @@ export function getColumnSearchProps(setState, searchInput) {
 			}
 		},
 	});
+}
+
+export function isTimeUp(startDate, intervalMc) {
+	const now = new Date().getTime();
+	return new Date(startDate).getTime() + intervalMc < now;
+}
+
+export function renderPerformBtn(
+	record,
+	performRequest,
+	walletAddress,
+	requestsType,
+	isPerformActive
+) {
+	let btn;
+
+	function getButton(requestId) {
+		if (isPerformActive) {
+			return (
+				<Button type="primary" loading={true} disabled={true}>
+					{requestsType === "deposit" ? "Perform Deposit" : "Perform"}
+				</Button>
+			);
+		} else {
+			return (
+				<Popconfirm title="Sure to perform?" onConfirm={() => performRequest(requestId)}>
+					<Button type="primary">
+						{requestsType === "deposit" ? "Perform Deposit" : "Perform"}
+					</Button>
+				</Popconfirm>
+			);
+		}
+	}
+
+	if (requestsType === "withdraw") {
+		if (record.status_code === requestStatus.choose && record.taker_addr && record.taker) {
+			// for initiator
+			btn = getButton(record.request_id);
+		} else if (
+			record.status_code === operationMessageStatus.accepted &&
+			record.request &&
+			record.request.taker_addr === walletAddress &&
+			isTimeUp(record.request.choose_timestamp, h24Mc)
+		) {
+			// for performer
+			btn = getButton(record.request.request_id);
+		} else {
+			btn = null;
+		}
+	} else {
+		if (
+			record.request &&
+			record.request.taker_addr === walletAddress &&
+			record.request.status_code !== requestStatus.completed &&
+			record.request.status_code !== requestStatus.complained &&
+			!isTimeUp(record.request.choose_timestamp, h24Mc)
+		) {
+			btn = getButton(record.request.request_id);
+		} else {
+			btn = null;
+		}
+	}
+
+	return btn;
 }

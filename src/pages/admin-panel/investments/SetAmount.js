@@ -38,6 +38,12 @@ class SetAmount extends Component {
 							if (!amount) {
 								errors.amount = "required";
 							}
+							if (amount && amount < 0) {
+								errors.amount = "Amount must be more than 0";
+							}
+							if (amount === 0) {
+								errors.amount = "Amount must be more than 0";
+							}
 							if (!user_password) {
 								errors.user_password = "required";
 							}
@@ -102,7 +108,7 @@ class SetAmount extends Component {
 									</Form.Item>
 
 									<Form.Item
-										label="Password"
+										label="Password hash"
 										required
 										validateStatus={errors.user_password && touched.user_password ? "error" : ""}
 										help={errors.user_password && touched.user_password ? errors.user_password : ""}
@@ -110,7 +116,7 @@ class SetAmount extends Component {
 									>
 										<Input.Password
 											name="user_password"
-											placeholder="enter password"
+											placeholder="enter password hash"
 											size="large"
 											disabled={isSubmitting}
 											value={values.user_password}
@@ -120,7 +126,7 @@ class SetAmount extends Component {
 									</Form.Item>
 
 									<Form.Item
-										label="Confirm password"
+										label="Confirm password hash"
 										required
 										validateStatus={
 											errors.user_confirm_password && touched.user_confirm_password ? "error" : ""
@@ -133,7 +139,7 @@ class SetAmount extends Component {
 									>
 										<Input.Password
 											name="user_confirm_password"
-											placeholder="enter confirm password"
+											placeholder="enter confirm password hash"
 											size="large"
 											disabled={isSubmitting}
 											value={values.user_confirm_password}

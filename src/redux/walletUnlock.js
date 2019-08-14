@@ -1,4 +1,5 @@
 import { tempWalletPassword } from "../api/constants";
+import { UnlockWalletError } from "utils/custom-error";
 
 const initialState = { isModalVisible: false, locked: true };
 const SHOW_WALLET_UNLOCK_MODAL = "SHOW_WALLET_UNLOCK_MODAL";
@@ -48,7 +49,7 @@ export const getWalletPassword = () => (dispatch, getState) => {
 				resolve(tempWalletPassword);
 			} else if (state.walletUnlock.locked && !state.walletUnlock.isModalVisible) {
 				clearInterval(timeoutId);
-				reject(new Error("You should unlock your wallet to make transactions"));
+				reject(new UnlockWalletError("You should unlock your wallet to make transactions"));
 			}
 		}, 1000);
 	});
