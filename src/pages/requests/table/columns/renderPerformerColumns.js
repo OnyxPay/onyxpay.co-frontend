@@ -131,7 +131,7 @@ export default function renderPerformerColumns({
 				title: "Client",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
-					return record.request ? `${record.sender.first_name} ${record.sender.last_name}` : null;
+					return record.request ? `${record.sender.firstName} ${record.sender.lastName}` : null;
 				},
 			},
 			{
@@ -260,7 +260,7 @@ export default function renderPerformerColumns({
 				title: "Client",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
-					return record.sender ? `${record.sender.first_name} ${record.sender.last_name}` : null;
+					return record.sender ? `${record.sender.firstName} ${record.sender.lastName}` : null;
 				},
 			},
 		];

@@ -40,7 +40,7 @@ function ConfirmUpgradeModalContent({ expectedPosition, user }) {
 	const amount = expectedPosition && expectedPosition === roles.a ? 500 : 100000;
 	return (
 		<div>
-			This also means on {user.wallet_addr} address will be sent <strong>{amount}</strong> OnyxCash
+			This also means on {user.walletAddr} address will be sent <strong>{amount}</strong> OnyxCash
 		</div>
 	);
 }
@@ -60,13 +60,13 @@ class UserUpgradeRequests extends Component {
 		this.fetchRequests();
 	};
 
-	handleUpgrade = async (wallet_addr, role, id) => {
+	handleUpgrade = async (walletAddr, role, id) => {
 		try {
 			this.setState({
 				loadingUpgradeUser: true,
 				request_id: id,
 			});
-			const res = await upgradeUser(wallet_addr, role);
+			const res = await upgradeUser(walletAddr, role);
 			if (res.Error === 0) {
 				showNotification({
 					type: "success",
@@ -167,8 +167,8 @@ class UserUpgradeRequests extends Component {
 		const that = this;
 		if (record.expected_position && record.user) {
 			confirm({
-				title: `Are you sure you want to upgrade ${record.user.role} ${record.user.first_name} ${
-					record.user.last_name
+				title: `Are you sure you want to upgrade ${record.user.role} ${record.user.firstName} ${
+					record.user.lastName
 				} to ${record.expected_position} ?`,
 				content: (
 					<ConfirmUpgradeModalContent
@@ -182,7 +182,7 @@ class UserUpgradeRequests extends Component {
 				okButtonProps: { type: "primary " },
 				cancelButtonProps: { type: "default " },
 				onOk() {
-					that.handleUpgrade(record.user.wallet_addr, record.expected_position, record.id);
+					that.handleUpgrade(record.user.walletAddr, record.expected_position, record.id);
 				},
 			});
 		} else {
@@ -203,7 +203,7 @@ class UserUpgradeRequests extends Component {
 			{
 				title: "User name",
 				dataIndex: "user",
-				render: res => <span>{res.first_name + " " + res.last_name}</span>,
+				render: res => <span>{res.firstName + " " + res.lastName}</span>,
 			},
 			{
 				title: "Registration date",
@@ -232,7 +232,7 @@ class UserUpgradeRequests extends Component {
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "user.wallet_addr",
+				dataIndex: "user.walletAddr",
 				render: res => (res ? res : "n/a"),
 			},
 			{

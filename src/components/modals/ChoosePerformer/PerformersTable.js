@@ -19,17 +19,17 @@ function PerformersTable({
 		columns = [
 			{
 				title: "First name",
-				dataIndex: "first_name",
+				dataIndex: "firstName",
 				sorter: true,
 				width: 160,
-				...getColumnSearchProps()("first_name"),
+				...getColumnSearchProps()("firstName"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "last_name",
+				dataIndex: "lastName",
 				sorter: true,
 				width: 160,
-				...getColumnSearchProps()("last_name"),
+				...getColumnSearchProps()("lastName"),
 			},
 			{
 				title: "Registered",
@@ -41,8 +41,8 @@ function PerformersTable({
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "wallet_addr",
-				...getColumnSearchProps()("wallet_addr"),
+				dataIndex: "walletAddr",
+				...getColumnSearchProps()("walletAddr"),
 			},
 			{
 				title: "Actions",
@@ -63,27 +63,27 @@ function PerformersTable({
 		columns = [
 			{
 				title: "First name",
-				dataIndex: "receiver.first_name",
+				dataIndex: "receiver.firstName",
 				sorter: (a, b) => {
-					const nameA = a.receiver.first_name.toLowerCase();
-					const nameB = b.receiver.first_name.toLowerCase();
+					const nameA = a.receiver.firstName.toLowerCase();
+					const nameB = b.receiver.firstName.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
-				...getColumnSearchProps()("first_name"),
-				...getOnColumnFilterProp("receiver.first_name"),
+				...getColumnSearchProps()("firstName"),
+				...getOnColumnFilterProp("receiver.firstName"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "receiver.last_name",
+				dataIndex: "receiver.lastName",
 				sorter: (a, b) => {
-					const nameA = a.receiver.last_name.toLowerCase();
-					const nameB = b.receiver.last_name.toLowerCase();
+					const nameA = a.receiver.lastName.toLowerCase();
+					const nameB = b.receiver.lastName.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
-				...getColumnSearchProps()("last_name"),
-				...getOnColumnFilterProp("receiver.last_name"),
+				...getColumnSearchProps()("lastName"),
+				...getOnColumnFilterProp("receiver.lastName"),
 			},
 			{
 				title: "Registered",
@@ -100,9 +100,9 @@ function PerformersTable({
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "receiver.wallet_addr",
-				...getColumnSearchProps()("wallet_addr"),
-				...getOnColumnFilterProp("receiver.wallet_addr"),
+				dataIndex: "receiver.walletAddr",
+				...getColumnSearchProps()("walletAddr"),
+				...getOnColumnFilterProp("receiver.walletAddr"),
 			},
 			{
 				title: "Actions",

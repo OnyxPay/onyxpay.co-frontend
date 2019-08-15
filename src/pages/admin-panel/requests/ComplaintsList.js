@@ -123,7 +123,7 @@ class ComplaintsList extends Component {
 				title: "Name initiator",
 				render: res => (
 					<Button style={styles.btnLink} type="link" onClick={() => this.showUserData(res.maker)}>
-						<span>{res.maker.first_name + " " + res.maker.last_name}</span>
+						<span>{res.maker.firstName + " " + res.maker.lastName}</span>
 					</Button>
 				),
 			},
@@ -131,7 +131,7 @@ class ComplaintsList extends Component {
 				title: "Name performer",
 				render: res => (
 					<Button style={styles.btnLink} type="link" onClick={() => this.showUserData(res.taker)}>
-						<span>{res.taker.first_name + " " + res.taker.last_name}</span>
+						<span>{res.taker.firstName + " " + res.taker.lastName}</span>
 					</Button>
 				),
 			},

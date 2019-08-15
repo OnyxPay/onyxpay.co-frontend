@@ -121,16 +121,16 @@ class Users extends Component {
 		} catch (e) {}
 	}
 
-	handleBlockUser = async (wallet_addr, reason, duration, userId) => {
+	handleBlockUser = async (walletAddr, reason, duration, userId) => {
 		try {
 			const { updateUserStatus } = this.props;
 			this.setState({
 				user_id: userId,
 				loadingBlockUser: true,
 			});
-			await blockUser(wallet_addr, reason, duration);
+			await blockUser(walletAddr, reason, duration);
 
-			if (await isBlockedUser(wallet_addr)) {
+			if (await isBlockedUser(walletAddr)) {
 				updateUserStatus(userId, 2);
 				showNotification({
 					type: "success",
@@ -146,14 +146,14 @@ class Users extends Component {
 		}
 	};
 
-	handleUnblockUser = async (wallet_addr, userId) => {
+	handleUnblockUser = async (walletAddr, userId) => {
 		try {
 			const { updateUserStatus } = this.props;
 			this.setState({
 				user_id: userId,
 				loadingUnblockUser: true,
 			});
-			await unblockUser(wallet_addr);
+			await unblockUser(walletAddr);
 			updateUserStatus(userId, 1);
 			showNotification({
 				type: "success",
@@ -168,13 +168,13 @@ class Users extends Component {
 		}
 	};
 
-	handleDowngrade = async (wallet_addr, role, id) => {
+	handleDowngrade = async (walletAddr, role, id) => {
 		try {
 			this.setState({
 				loadingDowngradeUser: true,
 				request_id: id,
 			});
-			const res = await downgradeUser(wallet_addr, role);
+			const res = await downgradeUser(walletAddr, role);
 			if (res.Error === 0) {
 				showNotification({
 					type: "success",
@@ -204,7 +204,7 @@ class Users extends Component {
 								type="danger"
 								icon="user-delete"
 								loading={res.user_id === this.state.user_id && loadingBlockUser}
-								onClick={() => this.handleBlockUser(res.wallet_addr, 1, 10, res.user_id)}
+								onClick={() => this.handleBlockUser(res.walletAddr, 1, 10, res.user_id)}
 							>
 								Block
 							</Button>
@@ -214,7 +214,7 @@ class Users extends Component {
 								type="primary"
 								icon="user-add"
 								loading={res.user_id === this.state.user_id && loadingUnblockUser}
-								onClick={() => this.handleUnblockUser(res.wallet_addr, res.user_id)}
+								onClick={() => this.handleUnblockUser(res.walletAddr, res.user_id)}
 							>
 								Unblock
 							</Button>
@@ -222,7 +222,7 @@ class Users extends Component {
 						{res.role_code !== roleCodes.user ? (
 							<Button
 								type="danger"
-								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
+								onClick={() => this.handleDowngrade(res.walletAddr, res.role, res.id, res)}
 							>
 								Downgrade
 							</Button>
@@ -237,16 +237,16 @@ class Users extends Component {
 			},
 			{
 				title: "First name",
-				dataIndex: "first_name",
-				key: "first_name",
-				...this.getColumnSearchProps("first_name"),
+				dataIndex: "firstName",
+				key: "firstName",
+				...this.getColumnSearchProps("firstName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "last_name",
-				key: "last_name",
-				...this.getColumnSearchProps("last_name"),
+				dataIndex: "lastName",
+				key: "lastName",
+				...this.getColumnSearchProps("lastName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -307,9 +307,9 @@ class Users extends Component {
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "wallet_addr",
-				key: "wallet_addr",
-				...this.getColumnSearchProps("wallet_addr"),
+				dataIndex: "walletAddr",
+				key: "walletAddr",
+				...this.getColumnSearchProps("walletAddr"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
