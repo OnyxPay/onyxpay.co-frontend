@@ -113,7 +113,7 @@ class ActiveRequests extends Component {
 	handleAcceptRequest = async (requestId, requestAmount, requestAsset) => {
 		// agent accepts deposit or withdraw request
 		try {
-			const { balanceAssets, balanceOnyxCash } = this.props;
+			const { balanceAssets, balanceOnyxCash, disableRequest } = this.props;
 			const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
 			if (isAssetBlocked) {
 				showNotification({
@@ -138,11 +138,11 @@ class ActiveRequests extends Component {
 				return;
 			}
 			await acceptRequest(requestId);
+			disableRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have accepted the request",
 			});
-			this.fetch();
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -166,13 +166,14 @@ class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs deposit and client withdraw request
 		try {
+			const { disableRequest } = this.props;
 			this.setState({ requestId, activeAction: aa.perform });
 			await performRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have performed the request",
 			});
-			this.fetch();
+			disableRequest(requestId);
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -203,11 +204,11 @@ class ActiveRequests extends Component {
 			try {
 				this.setState({ requestId, activeAction: aa.complain });
 				await complain(requestId);
+				this.props.disableRequest(requestId);
 				showNotification({
 					type: "success",
 					msg: "You have complained on the request",
 				});
-				this.fetch();
 			} catch (e) {
 				handleBcError(e);
 			} finally {
@@ -225,7 +226,7 @@ class ActiveRequests extends Component {
 		try {
 			this.setState({ requestId, activeAction: aa.cancel });
 			await cancelRequest(requestId);
-			this.fetch();
+			this.props.disableRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have canceled the request",
@@ -285,13 +286,7 @@ class ActiveRequests extends Component {
 					isRequestClosed: false,
 					isUserInitiator: user.role === roles.c || isAgentInitiator,
 				})}
-				<button
-					onClick={() => {
-						this.props.disableRequest(615);
-					}}
-				>
-					disable request
-				</button>
+
 				<Table
 					columns={columns}
 					rowKey={record => record.id}

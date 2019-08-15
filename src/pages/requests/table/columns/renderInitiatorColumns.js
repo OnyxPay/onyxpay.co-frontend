@@ -121,6 +121,10 @@ export default function renderInitiatorColumns({
 			{
 				title: "Status",
 				dataIndex: "status",
+				render: (text, record, index) => {
+					if (record._isDisabled) return "wait...";
+					return record.status;
+				},
 			},
 			{
 				title: "Created",
@@ -163,6 +167,7 @@ export default function renderInitiatorColumns({
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
+					if (record._isDisabled) return "n/a";
 					return record.taker_addr && record.choose_timestamp && record.status !== "complained" ? (
 						<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
 					) : (
@@ -173,7 +178,7 @@ export default function renderInitiatorColumns({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
-					if (record._isDisabled) return null;
+					if (record._isDisabled) return "n/a";
 					const isComplainActive =
 						record.request_id === activeRequestId && activeAction === aa.complain;
 

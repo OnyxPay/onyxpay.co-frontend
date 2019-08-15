@@ -46,6 +46,7 @@ const makerAcceptationPredicate = (payload, type, notification) => {
 						...message,
 						status_code: status,
 						status: operationMessageStatusNames[status],
+						_isDisabled: false,
 					};
 				}
 				return message;
@@ -68,6 +69,7 @@ const takerAcceptationPredicate = (payload, type, notification) => {
 			let newItem = item;
 			newItem.status_code = status;
 			newItem.status = operationMessageStatusNames[status];
+			newItem._isDisabled = false;
 			return newItem;
 		}
 		return item;
@@ -86,6 +88,7 @@ const chooseRequestMakerPredicate = payload => {
 				taker: payload.taker,
 				taker_addr: payload.takerAddr,
 				choose_timestamp: payload.chooseTimestamp,
+				_isDisabled: false,
 			};
 		}
 		return item;
@@ -169,12 +172,12 @@ export const opRequestsReducer = (state = initState, action) => {
 			return { items: action.payload.items, total: action.payload.total };
 		case DISABLE_REQUEST:
 			const testDataItems = state.items.map(req => {
-				if (req.request && req.request.id) {
-					if (req.request.id === action.payload.requestId) {
+				if (req.request && req.request.request_id) {
+					if (req.request.request_id === action.payload.requestId) {
 						req._isDisabled = true;
 					}
-				} else if (req.id) {
-					if (req.id === action.payload.requestId) {
+				} else if (req.request_id) {
+					if (req.request_id === action.payload.requestId) {
 						req._isDisabled = true;
 					}
 				}
