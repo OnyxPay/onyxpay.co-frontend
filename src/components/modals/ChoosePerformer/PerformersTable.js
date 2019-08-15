@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
-import { Table } from "antd";
 import { getLocalTime } from "../../../utils";
 import { Button, Tooltip, Table } from "antd";
 import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
