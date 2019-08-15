@@ -115,7 +115,7 @@ function PerformersTable({
 	};
 	let request = opRequests.items.find(el => el.id === requestId);
 	// remove agents received message from the list
-	if (request && data && isSendingMessage) {
+	if (request && data && request.operation_messages.length && isSendingMessage) {
 		data.items = data.items.filter(el =>
 			request.operation_messages.find(item => el.wallet_addr !== item.receiver.wallet_addr)
 		);

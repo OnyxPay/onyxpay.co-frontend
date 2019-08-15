@@ -94,7 +94,8 @@ const chooseRequestMakerPredicate = payload => {
 const chooseRequestTakerPredicate = payload => {
 	return item => {
 		if (item.request.request_id === payload.requestId) {
-			let message = item.type + " request with id (" + item.id + ") is chosen successfully";
+			let message =
+				item.request.type + " request with id (" + item.request.id + ") is chosen successfully";
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
