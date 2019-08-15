@@ -9,7 +9,12 @@ import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr, minus } from "../../utils/number";
-import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
+import {
+	showNotification,
+	showBcError,
+	showTimeoutNotification,
+	trimAddress,
+} from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AssetsBalance from "components/balance/AssetsBalance";
@@ -89,9 +94,9 @@ class SendAsset extends Component {
 				showNotification({
 					type: "success",
 					msg: "Success",
-					desc: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
-						values.receiver_address
-					} address`,
+					desc: `You have successfully sent ${values.amount} ${
+						values.asset_symbol
+					} to ${trimAddress(values.receiver_address)} address`,
 				});
 				refreshBalance();
 			}
