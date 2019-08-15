@@ -22,7 +22,7 @@ import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
 import { handleTableChange, getColumnSearchProps } from "./table";
-import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
+import { getOpRequests, GET_OPERATION_REQUESTS, disableRequest } from "redux/requests";
 import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
@@ -285,6 +285,13 @@ class ActiveRequests extends Component {
 					isRequestClosed: false,
 					isUserInitiator: user.role === roles.c || isAgentInitiator,
 				})}
+				<button
+					onClick={() => {
+						this.props.disableRequest(615);
+					}}
+				>
+					disable request
+				</button>
 				<Table
 					columns={columns}
 					rowKey={record => record.id}
@@ -297,6 +304,9 @@ class ActiveRequests extends Component {
 						setState: this.setState,
 					})}
 					className="ovf-auto tbody-white"
+					rowClassName={(record, rowIndex) => {
+						if (record._isDisabled) return "table-row-disabled";
+					}}
 				/>
 				<ChoosePerformerModal
 					isModalVisible={this.state.SEND_REQ_TO_AGENT}
@@ -370,7 +380,7 @@ ActiveRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getOpRequests }
+		{ push, getOpRequests, disableRequest }
 	)
 )(ActiveRequests);
 

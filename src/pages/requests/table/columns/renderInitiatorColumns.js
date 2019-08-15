@@ -173,6 +173,7 @@ export default function renderInitiatorColumns({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
+					if (record._isDisabled) return null;
 					const isComplainActive =
 						record.request_id === activeRequestId && activeAction === aa.complain;
 

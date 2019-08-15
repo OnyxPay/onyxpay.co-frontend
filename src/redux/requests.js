@@ -13,6 +13,7 @@ export const GET_OPERATION_REQUESTS_REQUEST = "GET_OPERATION_REQUESTS_REQUEST";
 export const GET_OPERATION_REQUESTS_SUCCESS = "GET_OPERATION_REQUESTS_SUCCESS";
 export const GET_OPERATION_REQUESTS_FAILURE = "GET_OPERATION_REQUESTS_FAILURE";
 export const GET_OPERATION_REQUESTS = "GET_OPERATION_REQUESTS";
+export const DISABLE_REQUEST = "DISABLE_REQUEST";
 
 const initState = {
 	items: [],
@@ -160,11 +161,27 @@ const changeRequestStatusMakerPredicate = payload => {
 		return item;
 	};
 };
+
 export const opRequestsReducer = (state = initState, action) => {
 	let pred;
 	switch (action.type) {
 		case GET_OPERATION_REQUESTS_SUCCESS:
 			return { items: action.payload.items, total: action.payload.total };
+		case DISABLE_REQUEST:
+			const testDataItems = state.items.map(req => {
+				if (req.request && req.request.id) {
+					if (req.request.id === action.payload.requestId) {
+						req._isDisabled = true;
+					}
+				} else if (req.id) {
+					if (req.id === action.payload.requestId) {
+						req._isDisabled = true;
+					}
+				}
+				return req;
+			});
+
+			return { ...state.total, items: testDataItems };
 
 		case wsEvents.cancelAcceptationMaker:
 			pred = makerAcceptationPredicate(
@@ -251,9 +268,22 @@ export const getOpRequests = ({
 		} else {
 			data = await getMessages(params, requestType, fetchActive);
 		}
-		dispatch({ type: GET_OPERATION_REQUESTS_SUCCESS, payload: data });
+
+		dispatch({
+			type: GET_OPERATION_REQUESTS_SUCCESS,
+			payload: data,
+		});
 	} catch (e) {
 		console.log(e);
 		dispatch({ type: GET_OPERATION_REQUESTS_FAILURE });
 	}
+};
+
+export const disableRequest = requestId => {
+	console.log("requestId", requestId);
+
+	return {
+		type: DISABLE_REQUEST,
+		payload: { requestId },
+	};
 };
