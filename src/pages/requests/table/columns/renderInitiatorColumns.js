@@ -194,9 +194,7 @@ export default function renderInitiatorColumns({
 							)}
 
 							{/* Send request to performers */}
-							{record.status === "opened" &&
-								record.operationMessages &&
-								!record.operationMessages.length && (
+							{record.status === "opened" && (
 									<Button
 										disabled={isCancelRequestActive}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
