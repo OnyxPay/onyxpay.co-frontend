@@ -349,9 +349,9 @@ function mapStateToProps(state, ownProps) {
 	if (state.opRequests.items) {
 		items = state.opRequests.items.filter(el => {
 			if (el.request) {
-				return el.request.type_code === requestType;
+				return el.request.typeCode === requestType;
 			} else {
-				return el.type_code === requestType;
+				return el.typeCode === requestType;
 			}
 		});
 	}
