@@ -35,15 +35,15 @@ const makerAcceptationPredicate = (payload, type, notification) => {
 			type === wsEvents.acceptRequestMaker
 				? operationMessageStatus.accepted
 				: operationMessageStatus.opened;
-		if (item.request_id === payload.requestId) {
+		if (item.requestId === payload.requestId) {
 			let newItem = item;
 			let message = item.type + " " + notification;
 			showNotification({ type: "success", msg: message });
-			newItem.operation_messages = item.operation_messages.map(message => {
+			newItem.operationMessages = item.operationMessages.map(message => {
 				if (message.id === payload.messageId) {
 					return {
 						...message,
-						status_code: status,
+						statusCode: status,
 						status: operationMessageStatusNames[status],
 					};
 				}
@@ -61,11 +61,11 @@ const takerAcceptationPredicate = (payload, type, notification) => {
 			type === wsEvents.acceptRequestTaker
 				? operationMessageStatus.accepted
 				: operationMessageStatus.opened;
-		if (item.request.request_id === payload.requestId) {
+		if (item.request.requestId === payload.requestId) {
 			let message = item.request.type + " " + notification;
 			showNotification({ type: "success", msg: message });
 			let newItem = item;
-			newItem.status_code = status;
+			newItem.statusCode = status;
 			newItem.status = operationMessageStatusNames[status];
 			return newItem;
 		}
@@ -75,16 +75,16 @@ const takerAcceptationPredicate = (payload, type, notification) => {
 
 const chooseRequestMakerPredicate = payload => {
 	return item => {
-		if (item.request_id === payload.requestId) {
+		if (item.requestId === payload.requestId) {
 			let message = item.type + " request with id (" + item.id + ") is chosen";
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
-				status_code: payload.status,
+				statusCode: payload.status,
 				status: requestStatusNames[payload.status],
 				taker: payload.taker,
-				taker_addr: payload.takerAddr,
-				choose_timestamp: payload.chooseTimestamp,
+				takerAddr: payload.takerAddr,
+				chooseTimestamp: payload.chooseTimestamp,
 			};
 		}
 		return item;
@@ -93,17 +93,17 @@ const chooseRequestMakerPredicate = payload => {
 
 const chooseRequestTakerPredicate = payload => {
 	return item => {
-		if (item.request.request_id === payload.requestId) {
+		if (item.request.requestId === payload.requestId) {
 			let message = item.type + " request with id (" + item.id + ") is chosen successfully";
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
 				request: {
 					...item.request,
-					status_code: payload.status,
+					statusCode: payload.status,
 					status: requestStatusNames[payload.status],
-					taker_addr: payload.takerAddr,
-					choose_timestamp: payload.chooseTimestamp,
+					takerAddr: payload.takerAddr,
+					chooseTimestamp: payload.chooseTimestamp,
 				},
 			};
 		}
@@ -118,7 +118,7 @@ const saveRequestPredicate = payload => {
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
-				status_code: payload.status,
+				statusCode: payload.status,
 				status: requestStatusNames[payload.status],
 				requestId: payload.requestId,
 			};
@@ -129,14 +129,14 @@ const saveRequestPredicate = payload => {
 
 const handleComplainStatusPredicate = payload => {
 	return item => {
-		if (item.request.request_id === payload.requestId) {
+		if (item.request.requestId === payload.requestId) {
 			let message = item.type + " request with id (" + item.id + ") is complained";
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
 				request: {
 					...item.request,
-					status_code: payload.status,
+					statusCode: payload.status,
 					status: requestStatusNames[payload.status],
 				},
 			};
@@ -147,13 +147,13 @@ const handleComplainStatusPredicate = payload => {
 
 const changeRequestStatusMakerPredicate = payload => {
 	return item => {
-		if (item.request_id === payload.requestId) {
+		if (item.requestId === payload.requestId) {
 			let message =
 				item.type + " request with id (" + item.id + ") is " + requestStatusNames[payload.status];
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
-				status_code: payload.status,
+				statusCode: payload.status,
 				status: requestStatusNames[payload.status],
 			};
 		}
@@ -216,7 +216,7 @@ export const opRequestsReducer = (state = initState, action) => {
 			} else {
 				// remove request from the list
 				let takerItems = state.items.filter(
-					item => item.request.request_id !== action.payload.requestId
+					item => item.request.requestId !== action.payload.requestId
 				);
 				return { ...state, items: takerItems };
 			}
@@ -226,7 +226,7 @@ export const opRequestsReducer = (state = initState, action) => {
 				pred = changeRequestStatusMakerPredicate(action.payload);
 			} else {
 				// remove request from the list
-				let makerItems = state.items.filter(item => item.request_id !== action.payload.requestId);
+				let makerItems = state.items.filter(item => item.requestId !== action.payload.requestId);
 				return { ...state, items: makerItems };
 			}
 			break;

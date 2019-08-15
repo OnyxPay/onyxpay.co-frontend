@@ -11,16 +11,16 @@ import { styles } from "../../styles";
 
 function isAgentAccepted(operationMessages) {
 	// check if at least one potential performer is accepted the request
-	return operationMessages.some(mg => mg.status_code === operationMessageStatus.accepted);
+	return operationMessages.some(mg => mg.statusCode === operationMessageStatus.accepted);
 }
 
 function renderComplainButton(record, handleComplain, isComplainActive) {
 	let button;
-	if (!is12hOver(record.choose_timestamp)) {
+	if (!is12hOver(record.chooseTimestamp)) {
 		button = (
 			<Button
 				type="danger"
-				onClick={() => handleComplain(record.request_id, false)} // can't complain
+				onClick={() => handleComplain(record.requestId, false)} // can't complain
 			>
 				Complain
 			</Button>
@@ -37,7 +37,7 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 				<Popconfirm
 					title="Sure to complain?"
 					cancelText="No"
-					onConfirm={() => handleComplain(record.request_id, true)}
+					onConfirm={() => handleComplain(record.requestId, true)}
 				>
 					<Button type="danger" loading={isComplainActive} disabled={isComplainActive}>
 						Complain
@@ -64,7 +64,7 @@ function renderCancelBtn(
 					disabled={isComplainActive}
 					isActionActive={isCancelRequestActive}
 					handleCancel={e => {
-						return cancelRequest(record.request_id);
+						return cancelRequest(record.requestId);
 					}}
 				/>
 			);
@@ -72,14 +72,14 @@ function renderCancelBtn(
 	} else {
 		if (
 			record.status === "opened" ||
-			(record.status === "choose" && !isTimeUp(record.choose_timestamp, h24Mc))
+			(record.status === "choose" && !isTimeUp(record.chooseTimestamp, h24Mc))
 		) {
 			btn = (
 				<CancelRequest
 					disabled={isComplainActive}
 					isActionActive={isCancelRequestActive}
 					handleCancel={e => {
-						return cancelRequest(record.request_id);
+						return cancelRequest(record.requestId);
 					}}
 				/>
 			);
@@ -131,13 +131,13 @@ export default function renderInitiatorColumns({
 			{
 				title: "Performer",
 				render: (text, record, index) => {
-					return record.taker_addr && record.taker ? (
+					return record.takerAddr && record.taker ? (
 						<Button
 							type="link"
 							style={styles.btnLink}
 							onClick={() => showSelectedUserDataModal(record.taker)}
 						>
-							{getPerformerName(record.taker_addr, record.taker)}
+							{getPerformerName(record.takerAddr, record.taker)}
 						</Button>
 					) : (
 						"n/a"
@@ -163,8 +163,8 @@ export default function renderInitiatorColumns({
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
-					return record.taker_addr && record.choose_timestamp && record.status !== "complained" ? (
-						<Countdown date={new Date(record.choose_timestamp).getTime() + h24Mc} />
+					return record.takerAddr && record.chooseTimestamp && record.status !== "complained" ? (
+						<Countdown date={new Date(record.chooseTimestamp).getTime() + h24Mc} />
 					) : (
 						"n/a"
 					);
@@ -174,13 +174,13 @@ export default function renderInitiatorColumns({
 				title: "Actions",
 				render: (text, record, index) => {
 					const isComplainActive =
-						record.request_id === activeRequestId && activeAction === aa.complain;
+						record.requestId === activeRequestId && activeAction === aa.complain;
 
 					const isPerformActive =
-						record.request_id === activeRequestId && activeAction === aa.perform;
+						record.requestId === activeRequestId && activeAction === aa.perform;
 
 					const isCancelRequestActive =
-						record.request_id === activeRequestId && activeAction === aa.cancel;
+						record.requestId === activeRequestId && activeAction === aa.cancel;
 
 					return (
 						<>
@@ -195,8 +195,8 @@ export default function renderInitiatorColumns({
 
 							{/* Send request to performers */}
 							{record.status === "opened" &&
-								record.operation_messages &&
-								!record.operation_messages.length && (
+								record.operationMessages &&
+								!record.operationMessages.length && (
 									<Button
 										disabled={isCancelRequestActive}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
@@ -209,16 +209,16 @@ export default function renderInitiatorColumns({
 								)}
 
 							{/* Choose performer */}
-							{record.operation_messages &&
-								isAgentAccepted(record.operation_messages) &&
+							{record.operationMessages &&
+								isAgentAccepted(record.operationMessages) &&
 								record.status === "opened" && (
 									<Button
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-											requestId: record.request_id,
+											requestId: record.requestId,
 											isSendingMessage: false,
 											openedRequestData: record,
-											operationMessages: record.operation_messages.filter(
-												msg => msg.status_code === operationMessageStatus.accepted
+											operationMessages: record.operationMessages.filter(
+												msg => msg.statusCode === operationMessageStatus.accepted
 											),
 										})}
 									>
@@ -227,10 +227,10 @@ export default function renderInitiatorColumns({
 								)}
 
 							{/* Complain on request */}
-							{record.taker_addr &&
-								record.choose_timestamp &&
+							{record.takerAddr &&
+								record.chooseTimestamp &&
 								record.status !== "complained" &&
-								!is24hOver(record.choose_timestamp) &&
+								!is24hOver(record.chooseTimestamp) &&
 								renderComplainButton(record, handleComplain, isComplainActive)}
 
 							{/* Perform withdraw request */}
@@ -270,8 +270,8 @@ export default function renderInitiatorColumns({
 			{
 				title: "Performer",
 				render: (text, record, index) => {
-					return record.taker_addr && record.taker
-						? getPerformerName(record.taker_addr, record.taker)
+					return record.takerAddr && record.taker
+						? getPerformerName(record.takerAddr, record.taker)
 						: "n/a";
 				},
 			},

@@ -48,7 +48,7 @@ function ConfirmUpgradeModalContent({ expectedPosition, user }) {
 class UserUpgradeRequests extends Component {
 	state = {
 		isReasonToRejectModalVisible: false,
-		request_id: null,
+		requestId: null,
 		pagination: { current: 1, pageSize: 20 },
 		fetchingRequests: false,
 		loadingUpgradeUser: false,
@@ -64,7 +64,7 @@ class UserUpgradeRequests extends Component {
 		try {
 			this.setState({
 				loadingUpgradeUser: true,
-				request_id: id,
+				requestId: id,
 			});
 			const res = await upgradeUser(walletAddr, role);
 			if (res.Error === 0) {
@@ -89,29 +89,29 @@ class UserUpgradeRequests extends Component {
 	};
 
 	handleRejectRequest = async reason => {
-		const { request_id } = this.state;
-		const res = await rejectRequest(request_id, reason);
+		const { requestId } = this.state;
+		const res = await rejectRequest(requestId, reason);
 		if (!res.error) {
 			showNotification({
 				type: "success",
-				msg: `You rejected request with id ${request_id}`,
+				msg: `You rejected request with id ${requestId}`,
 			});
 			this.hideModal();
 			this.fetchRequests();
 		}
 	};
 
-	showModal = async request_id => {
+	showModal = async requestId => {
 		this.setState({
 			isReasonToRejectModalVisible: true,
-			request_id: request_id,
+			requestId: requestId,
 		});
 	};
 
 	hideModal = () => {
 		this.setState({
 			isReasonToRejectModalVisible: false,
-			request_id: null,
+			requestId: null,
 		});
 	};
 
@@ -196,7 +196,7 @@ class UserUpgradeRequests extends Component {
 			pagination,
 			requestsData,
 			loadingUpgradeUser,
-			request_id,
+			requestId,
 		} = this.state;
 
 		const columns = [
@@ -227,7 +227,7 @@ class UserUpgradeRequests extends Component {
 			},
 			{
 				title: "Phone",
-				dataIndex: "user.phone_number",
+				dataIndex: "user.phoneNumber",
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -237,7 +237,7 @@ class UserUpgradeRequests extends Component {
 			},
 			{
 				title: "Created at",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
@@ -251,7 +251,7 @@ class UserUpgradeRequests extends Component {
 									type="primary"
 									onClick={() => this.showUpgradeConfirmationModal(res)}
 									style={style.button}
-									loading={res.id === request_id && loadingUpgradeUser}
+									loading={res.id === requestId && loadingUpgradeUser}
 								>
 									Confirm
 								</Button>

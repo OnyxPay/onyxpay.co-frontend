@@ -69,7 +69,7 @@ export class ResolvedComplaint extends Component {
 			},
 			{
 				title: "Request id",
-				dataIndex: "request_id",
+				dataIndex: "requestId",
 				render: (text, record, index) => (text ? text : "n/a"),
 			},
 			{

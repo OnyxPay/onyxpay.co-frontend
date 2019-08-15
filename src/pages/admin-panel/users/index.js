@@ -172,7 +172,7 @@ class Users extends Component {
 		try {
 			this.setState({
 				loadingDowngradeUser: true,
-				request_id: id,
+				requestId: id,
 			});
 			const res = await downgradeUser(walletAddr, role);
 			if (res.Error === 0) {
@@ -199,7 +199,7 @@ class Users extends Component {
 				title: "Actions",
 				render: res => (
 					<div>
-						{res.status_code === 1 ? (
+						{res.statusCode === 1 ? (
 							<Button
 								type="danger"
 								icon="user-delete"
@@ -209,7 +209,7 @@ class Users extends Component {
 								Block
 							</Button>
 						) : null}
-						{res.status_code === 2 ? (
+						{res.statusCode === 2 ? (
 							<Button
 								type="primary"
 								icon="user-add"
@@ -251,9 +251,9 @@ class Users extends Component {
 			},
 			{
 				title: "Registration date",
-				dataIndex: "created_at",
-				key: "created_at",
-				...this.getColumnSearchProps("created_at"),
+				dataIndex: "createdAt",
+				key: "createdAt",
+				...this.getColumnSearchProps("createdAt"),
 				render: res => (res ? new Date(res).toDateString() : "n/a"),
 			},
 			{
@@ -279,9 +279,9 @@ class Users extends Component {
 			},
 			{
 				title: "Phone number",
-				dataIndex: "phone_number",
-				key: "phone_number",
-				...this.getColumnSearchProps("phone_number"),
+				dataIndex: "phoneNumber",
+				key: "phoneNumber",
+				...this.getColumnSearchProps("phoneNumber"),
 				render: res => (res ? res : "n/a"),
 			},
 			{

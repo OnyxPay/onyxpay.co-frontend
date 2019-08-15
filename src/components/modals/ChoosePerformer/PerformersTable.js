@@ -33,10 +33,10 @@ function PerformersTable({
 			},
 			{
 				title: "Registered",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				sorter: true,
 				render: (text, record, index) => {
-					return <span>{getLocalTime(record.created_at)}</span>;
+					return <span>{getLocalTime(record.createdAt)}</span>;
 				},
 			},
 			{
@@ -87,15 +87,15 @@ function PerformersTable({
 			},
 			{
 				title: "Registered",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				sorter: (a, b) => {
-					const dateA = new Date(a.receiver.created_at).getTime();
-					const dateB = new Date(b.receiver.created_at).getTime();
+					const dateA = new Date(a.receiver.createdAt).getTime();
+					const dateB = new Date(b.receiver.createdAt).getTime();
 					return sortValues(dateA, dateB);
 				},
 				sortDirections: ["descend", "ascend"],
 				render: (text, record, index) => {
-					return <span>{getLocalTime(record.receiver.created_at)}</span>;
+					return <span>{getLocalTime(record.receiver.createdAt)}</span>;
 				},
 			},
 			{

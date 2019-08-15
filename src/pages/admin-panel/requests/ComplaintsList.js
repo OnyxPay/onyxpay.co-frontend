@@ -147,7 +147,7 @@ class ComplaintsList extends Component {
 			},
 			{
 				title: "Created",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
@@ -160,20 +160,20 @@ class ComplaintsList extends Component {
 						<Button
 							type="primary"
 							onClick={() =>
-								this.handleComplainedRequests(res.request_id, "winnerClient", res.maker.id)
+								this.handleComplainedRequests(res.requestId, "winnerClient", res.maker.id)
 							}
-							loading={res.maker.id === userId && res.request_id === requestId && loadingSolve}
-							disabled={res.request_id === requestId && loadingSolve}
+							loading={res.maker.id === userId && res.requestId === requestId && loadingSolve}
+							disabled={res.requestId === requestId && loadingSolve}
 						>
 							Winner initiator
 						</Button>
 						<Button
 							type="primary"
 							onClick={() =>
-								this.handleComplainedRequests(res.request_id, "winnerAgent", res.taker.id)
+								this.handleComplainedRequests(res.requestId, "winnerAgent", res.taker.id)
 							}
-							loading={res.taker.id === userId && res.request_id === requestId && loadingSolve}
-							disabled={res.request_id === requestId && loadingSolve}
+							loading={res.taker.id === userId && res.requestId === requestId && loadingSolve}
+							disabled={res.requestId === requestId && loadingSolve}
 						>
 							Winner performer
 						</Button>
