@@ -82,3 +82,21 @@ export async function getMessagesForClosedRequests(params, requestType = "deposi
 		return handleReqError(error);
 	}
 }
+
+export async function sendSettlementAccountsData(userId, receivers = []) {
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.post(
+			`admin/user/${userId}/send-message`,
+			{ receivers },
+			{
+				headers: {
+					...authHeaders,
+				},
+			}
+		);
+		return data;
+	} catch (error) {
+		return handleReqError(error);
+	}
+}
