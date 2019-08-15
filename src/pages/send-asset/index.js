@@ -8,7 +8,7 @@ import { TextAligner } from "../../components/styled";
 import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
-import { convertAmountToStr, minus } from "../../utils/number";
+import { convertAmountToStr } from "../../utils/number";
 import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
@@ -38,10 +38,21 @@ class SendAsset extends Component {
 			try {
 				const asset = assets.find(asset => asset.symbol === assetSymbol);
 				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
-				if (updateFee) {
-					this.setState({ fee: fee / 10 ** 8 });
+				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
+				let amountToSend = (
+					convertAmountToStr(asset.amount, 8) /
+					(1 + maxAmountFeePercent)
+				).toFixed(8);
+				let updatedFee = (await getFee(assetSymbol, amountToSend.toString(), "send")) / 10 ** 8;
+				const updatedAmountFeePercent = parseFloat((updatedFee / amountToSend).toFixed(8));
+				if (maxAmountFeePercent !== updatedAmountFeePercent) {
+					amountToSend = (amountToSend / (1 + updatedAmountFeePercent)).toFixed(8);
+					updatedFee = (await getFee(assetSymbol, amountToSend.toString(), "send")) / 10 ** 8;
 				}
-				return minus(asset.amount, fee) / 10 ** 8;
+				if (updateFee) {
+					this.setState({ fee: updatedFee });
+				}
+				return amountToSend;
 			} catch (e) {
 				showBcError(e.message);
 				return 0;
