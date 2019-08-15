@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Button, message } from "antd";
+import { Row, Col, Button } from "antd";
 import { BalanceCard } from "./Card";
 import { convertAmountToStr, convertAsset, addAmounts } from "../../utils/number";
 import { OnyxCashDecimals, roles } from "../../api/constants";
@@ -57,7 +57,7 @@ class Balance extends Component {
 				};
 			});
 		} catch (e) {
-			message.error(e.message);
+			console.log(e.message);
 		}
 	}
 

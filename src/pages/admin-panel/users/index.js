@@ -1,23 +1,15 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon, message, notification } from "antd";
+import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
 import UserSettlement from "./userSettlement";
 import { roleCodes } from "api/constants";
-import {
-	unblockUser,
-	blockedUsersData,
-	blockUser,
-	isBlockedUser,
-	getUsersData,
-	updateUserStatus,
-} from "redux/admin-panel/users";
+import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
+import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
 
 import { downgradeUser } from "api/admin/user-upgrade";
+import { handleBcError } from "api/network";
+import { showNotification } from "components/notification";
 
-import { TimeoutError } from "promise-timeout";
-const styles = {
-	btn: { marginRight: 8 },
-};
 class Users extends Component {
 	state = {
 		searchText: "",
@@ -105,8 +97,6 @@ class Users extends Component {
 				},
 			},
 			() => {
-				console.log(filters);
-
 				for (const filter in filters) {
 					filters[filter] = filters[filter][0];
 				}
@@ -131,64 +121,69 @@ class Users extends Component {
 		} catch (e) {}
 	}
 
-	blockUser = async (wallet_addr, reason, duration, userId) => {
-		const { blockUser, isBlockedUser, updateUserStatus } = this.props;
-		this.setState({
-			user_id: userId,
-			loadingBlockUser: true,
-		});
-		const res = await blockUser(wallet_addr, reason, duration);
-		if (!res) {
+	handleBlockUser = async (walletAddr, reason, duration, userId) => {
+		try {
+			const { updateUserStatus } = this.props;
+			this.setState({
+				user_id: userId,
+				loadingBlockUser: true,
+			});
+			await blockUser(walletAddr, reason, duration);
+
+			if (await isBlockedUser(walletAddr)) {
+				updateUserStatus(userId, 2);
+				showNotification({
+					type: "success",
+					msg: "User was successfully blocked",
+				});
+			}
+		} catch (e) {
+			handleBcError(e);
+		} finally {
 			this.setState({
 				loadingBlockUser: false,
 			});
-			return false;
 		}
-		await isBlockedUser(wallet_addr);
-
-		updateUserStatus(userId, 2);
-
-		this.setState({
-			loadingBlockUser: false,
-		});
 	};
 
-	unblockUser = async (wallet_addr, userId) => {
-		const { unblockUser, updateUserStatus } = this.props;
-		this.setState({
-			user_id: userId,
-			loadingUnblockUser: true,
-		});
-		await unblockUser(wallet_addr);
-
-		updateUserStatus(userId, 1);
-
-		this.setState({
-			loadingUnblockUser: false,
-		});
+	handleUnblockUser = async (walletAddr, userId) => {
+		try {
+			const { updateUserStatus } = this.props;
+			this.setState({
+				user_id: userId,
+				loadingUnblockUser: true,
+			});
+			await unblockUser(walletAddr);
+			updateUserStatus(userId, 1);
+			showNotification({
+				type: "success",
+				msg: "User was successfully unblocked",
+			});
+		} catch (e) {
+			handleBcError(e);
+		} finally {
+			this.setState({
+				loadingUnblockUser: false,
+			});
+		}
 	};
 
-	handleDowngrade = async (wallet_addr, role, id) => {
+	handleDowngrade = async (walletAddr, role, id) => {
 		try {
 			this.setState({
 				loadingDowngradeUser: true,
-				request_id: id,
+				requestId: id,
 			});
-			const res = await downgradeUser(wallet_addr, role);
+			const res = await downgradeUser(walletAddr, role);
 			if (res.Error === 0) {
-				message.success("User was successfully downgrade");
+				showNotification({
+					type: "success",
+					msg: "User was successfully downgraded",
+				});
 			}
 			this.fetchUsers();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
-			}
+			handleBcError(e);
 		}
 		this.setState({
 			loadingDowngradeUser: false,
@@ -204,43 +199,36 @@ class Users extends Component {
 				title: "Actions",
 				render: res => (
 					<div>
-						{res.status_code === 1 ? (
+						{res.statusCode === 1 ? (
 							<Button
-								style={styles.btn}
 								type="danger"
 								icon="user-delete"
 								loading={res.user_id === this.state.user_id && loadingBlockUser}
-								onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
+								onClick={() => this.handleBlockUser(res.walletAddr, 1, 10, res.user_id)}
 							>
 								Block
 							</Button>
 						) : null}
-						{res.status_code === 2 ? (
+						{res.statusCode === 2 ? (
 							<Button
-								style={styles.btn}
 								type="primary"
 								icon="user-add"
 								loading={res.user_id === this.state.user_id && loadingUnblockUser}
-								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
+								onClick={() => this.handleUnblockUser(res.walletAddr, res.user_id)}
 							>
 								Unblock
 							</Button>
 						) : null}
 						{res.role_code !== roleCodes.user ? (
 							<Button
-								style={styles.btn}
 								type="danger"
-								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
+								onClick={() => this.handleDowngrade(res.walletAddr, res.role, res.id, res)}
 							>
 								Downgrade
 							</Button>
 						) : null}
 						{res.is_settlements_exists ? (
-							<Button
-								style={styles.btn}
-								icon="account-book"
-								onClick={() => this.showSettlement(res.user_id)}
-							>
+							<Button icon="account-book" onClick={() => this.showSettlement(res.user_id)}>
 								Settlement accounts
 							</Button>
 						) : null}
@@ -249,23 +237,23 @@ class Users extends Component {
 			},
 			{
 				title: "First name",
-				dataIndex: "first_name",
-				key: "first_name",
-				...this.getColumnSearchProps("first_name"),
+				dataIndex: "firstName",
+				key: "firstName",
+				...this.getColumnSearchProps("firstName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "last_name",
-				key: "last_name",
-				...this.getColumnSearchProps("last_name"),
+				dataIndex: "lastName",
+				key: "lastName",
+				...this.getColumnSearchProps("lastName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Registration date",
-				dataIndex: "created_at",
-				key: "created_at",
-				...this.getColumnSearchProps("created_at"),
+				dataIndex: "createdAt",
+				key: "createdAt",
+				...this.getColumnSearchProps("createdAt"),
 				render: res => (res ? new Date(res).toDateString() : "n/a"),
 			},
 			{
@@ -291,9 +279,9 @@ class Users extends Component {
 			},
 			{
 				title: "Phone number",
-				dataIndex: "phone_number",
-				key: "phone_number",
-				...this.getColumnSearchProps("phone_number"),
+				dataIndex: "phoneNumber",
+				key: "phoneNumber",
+				...this.getColumnSearchProps("phoneNumber"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -319,9 +307,9 @@ class Users extends Component {
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "wallet_addr",
-				key: "wallet_addr",
-				...this.getColumnSearchProps("wallet_addr"),
+				dataIndex: "walletAddr",
+				key: "walletAddr",
+				...this.getColumnSearchProps("walletAddr"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -367,7 +355,7 @@ class Users extends Component {
 			<>
 				<Table
 					columns={columns}
-					rowKey={adminUsers => adminUsers.user_id}
+					rowKey={record => record.user_id}
 					dataSource={adminUsers}
 					className="usersTable ovf-auto"
 					onChange={this.handleTableChange}
@@ -395,8 +383,6 @@ export default connect(
 	{
 		unblockUser,
 		blockedUsersData,
-		blockUser,
-		isBlockedUser,
 		getUsersData,
 		updateUserStatus,
 	}

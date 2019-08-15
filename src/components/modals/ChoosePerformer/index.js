@@ -56,7 +56,7 @@ class ChoosePerformer extends Component {
 		} else {
 			try {
 				const performer = selectedRows[0].receiver;
-				await choosePerformer(requestId, performer.wallet_addr);
+				await choosePerformer(requestId, performer.walletAddr);
 				formActions.resetForm();
 				if (openedRequestData.type === "withdraw") {
 					showNotification({
@@ -78,8 +78,8 @@ class ChoosePerformer extends Component {
 						desc: `Send ${convertAmountToStr(
 							openedRequestData.amount,
 							8
-						)} FIAT ${assetSymbol} to agent ${performer.first_name} ${
-							performer.last_name
+						)} FIAT ${assetSymbol} to agent ${performer.firstName} ${
+							performer.lastName
 						} settlement account or hand over the cash by hand`,
 					});
 				}
@@ -113,6 +113,9 @@ class ChoosePerformer extends Component {
 				},
 			},
 			() => {
+				for (const filter in filters) {
+					filters[filter] = filters[filter][0];
+				}
 				this.fetchUsers({
 					...filters,
 					sort_field: sorter.field,
@@ -171,7 +174,7 @@ class ChoosePerformer extends Component {
 			this.setState({ loading: true });
 			const res = await searchUsers(params);
 			pagination.total = res.total;
-			const performers = res.items.filter(performer => performer.wallet_addr !== accountAddress);
+			const performers = res.items.filter(performer => performer.walletAddr !== accountAddress);
 			this.setState({
 				loading: false,
 				users: { items: performers, total: res.total },

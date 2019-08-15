@@ -34,9 +34,9 @@ export function generateTokenTimeStamp() {
 }
 
 export function getPerformerName(takerAddress, taker = {}) {
-	const { first_name, last_name } = taker;
-	if (first_name || last_name) {
-		return `${first_name} ${last_name}`;
+	const { firstName, lastName } = taker;
+	if (firstName || lastName) {
+		return `${firstName} ${lastName}`;
 	} else {
 		return takerAddress;
 	}
@@ -60,4 +60,14 @@ export function is24hOver(timestamp) {
 export function is12hOver(timestamp) {
 	const diff = calcTimeDiff(timestamp);
 	return diff > h12Mc;
+}
+
+export function sortValues(valA, valB) {
+	if (valA < valB) {
+		return -1;
+	}
+	if (valA > valB) {
+		return 1;
+	}
+	return 0;
 }

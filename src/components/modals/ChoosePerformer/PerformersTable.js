@@ -2,17 +2,9 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Table } from "antd";
 import { getLocalTime } from "../../../utils";
-import { Button, Tooltip } from "antd";
-
-function sortValues(valA, valB) {
-	if (valA < valB) {
-		return -1;
-	}
-	if (valA > valB) {
-		return 1;
-	}
-	return 0;
-}
+import { Button, Tooltip, Table } from "antd";
+import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
+import { sortValues } from "utils";
 
 function PerformersTable({
 	opRequests,
@@ -29,17 +21,33 @@ function PerformersTable({
 	let columns = [];
 	if (isSendingMessage) {
 		columns = [
-			{ title: "First name", dataIndex: "first_name", sorter: true },
-			{ title: "Last name", dataIndex: "last_name", sorter: true },
+			{
+				title: "First name",
+				dataIndex: "firstName",
+				sorter: true,
+				width: 160,
+				...getColumnSearchProps()("firstName"),
+			},
+			{
+				title: "Last name",
+				dataIndex: "lastName",
+				sorter: true,
+				width: 160,
+				...getColumnSearchProps()("lastName"),
+			},
 			{
 				title: "Registered",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				sorter: true,
 				render: (text, record, index) => {
-					return <span>{getLocalTime(record.created_at)}</span>;
+					return <span>{getLocalTime(record.createdAt)}</span>;
 				},
 			},
-			{ title: "Wallet address", dataIndex: "wallet_addr" },
+			{
+				title: "Wallet address",
+				dataIndex: "walletAddr",
+				...getColumnSearchProps()("walletAddr"),
+			},
 			{
 				title: "Actions",
 				render: (text, record, index) => {
@@ -59,38 +67,47 @@ function PerformersTable({
 		columns = [
 			{
 				title: "First name",
-				dataIndex: "receiver.first_name",
+				dataIndex: "receiver.firstName",
 				sorter: (a, b) => {
-					const nameA = a.receiver.first_name.toLowerCase();
-					const nameB = b.receiver.first_name.toLowerCase();
+					const nameA = a.receiver.firstName.toLowerCase();
+					const nameB = b.receiver.firstName.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
+				...getColumnSearchProps()("firstName"),
+				...getOnColumnFilterProp("receiver.firstName"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "receiver.last_name",
+				dataIndex: "receiver.lastName",
 				sorter: (a, b) => {
-					const nameA = a.receiver.last_name.toLowerCase();
-					const nameB = b.receiver.last_name.toLowerCase();
+					const nameA = a.receiver.lastName.toLowerCase();
+					const nameB = b.receiver.lastName.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
+				...getColumnSearchProps()("lastName"),
+				...getOnColumnFilterProp("receiver.lastName"),
 			},
 			{
 				title: "Registered",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				sorter: (a, b) => {
-					const dateA = new Date(a.receiver.created_at).getTime();
-					const dateB = new Date(b.receiver.created_at).getTime();
+					const dateA = new Date(a.receiver.createdAt).getTime();
+					const dateB = new Date(b.receiver.createdAt).getTime();
 					return sortValues(dateA, dateB);
 				},
 				sortDirections: ["descend", "ascend"],
 				render: (text, record, index) => {
-					return <span>{getLocalTime(record.receiver.created_at)}</span>;
+					return <span>{getLocalTime(record.receiver.createdAt)}</span>;
 				},
 			},
-			{ title: "Wallet address", dataIndex: "receiver.wallet_addr" },
+			{
+				title: "Wallet address",
+				dataIndex: "receiver.walletAddr",
+				...getColumnSearchProps()("walletAddr"),
+				...getOnColumnFilterProp("receiver.walletAddr"),
+			},
 			{
 				title: "Actions",
 				render: (text, record, index) => {

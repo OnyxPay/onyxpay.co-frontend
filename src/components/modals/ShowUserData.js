@@ -25,9 +25,9 @@ const ShowUserData = props => {
 		},
 		{
 			title: "Phone",
-			dataIndex: "phone_number",
+			dataIndex: "phoneNumber",
 			width: "10%",
-			render: (text, record) => (record && record.phone_number ? record.phone_number : "n/a"),
+			render: (text, record) => (record && record.phoneNumber ? record.phoneNumber : "n/a"),
 		},
 		{
 			title: "Email",

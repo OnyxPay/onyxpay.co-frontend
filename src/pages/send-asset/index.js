@@ -1,17 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import {
-	Card,
-	Button,
-	Input,
-	Form,
-	Select,
-	Row,
-	Col,
-	message,
-	Typography,
-	InputNumber,
-} from "antd";
+import { Card, Button, Input, Form, Select, Row, Col, Typography, InputNumber } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -20,10 +9,17 @@ import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr, minus } from "../../utils/number";
-import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
+import {
+	showNotification,
+	showBcError,
+	showTimeoutNotification,
+	trimAddress,
+} from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AssetsBalance from "components/balance/AssetsBalance";
+import { handleBcError } from "api/network";
+
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -98,9 +94,9 @@ class SendAsset extends Component {
 				showNotification({
 					type: "success",
 					msg: "Success",
-					desc: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
-						values.receiver_address
-					} address`,
+					desc: `You have successfully sent ${values.amount} ${
+						values.asset_symbol
+					} to ${trimAddress(values.receiver_address)} address`,
 				});
 				refreshBalance();
 			}
@@ -110,7 +106,7 @@ class SendAsset extends Component {
 				showTimeoutNotification();
 				refreshBalance();
 			} else {
-				message.error(e.message);
+				handleBcError(e);
 			}
 		}
 
@@ -230,7 +226,7 @@ class SendAsset extends Component {
 													onChange={handleChange}
 													onBlur={handleBlur}
 													disabled={!availableAssetsToSend.length || isSubmitting}
-													autocomplete="new-password"
+													autoComplete="new-password"
 												/>
 											</Form.Item>
 										</Col>
