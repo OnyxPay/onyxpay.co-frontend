@@ -20,6 +20,8 @@ class UserDetailedData extends Component {
 
 	componentDidMount = async () => {
 		const { getUserSettlementData, userRecord } = this.props;
+		console.log(userRecord);
+
 		if (userRecord.is_settlements_exists) {
 			this.setState({
 				loadingSettlementData: true,
@@ -52,6 +54,7 @@ class UserDetailedData extends Component {
 				user_id: userId,
 				loadingBlockUser: true,
 			});
+			console.log("about to block user");
 			await blockUser(wallet_addr, reason, duration);
 
 			if (await isBlockedUser(wallet_addr)) {
@@ -210,9 +213,11 @@ class UserDetailedData extends Component {
 							{userRecord.remuneration ? userRecord.remuneration : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Successful/Unsuccessful operations">
-							{userRecord.hasOwnProperty("operations_successful") &&
-							userRecord.hasOwnProperty("operations_unsuccessful")
-								? userRecord.operations_successful + "/" + userRecord.operations_unsuccessful
+							{userRecord.count.hasOwnProperty("operations_successful") &&
+							userRecord.count.hasOwnProperty("operations_unsuccessful")
+								? userRecord.count.operations_successful +
+								  "/" +
+								  userRecord.count.operations_unsuccessful
 								: "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Canceled customer requests">
@@ -232,27 +237,27 @@ class UserDetailedData extends Component {
 					<Divider>Actions</Divider>
 
 					<Form layout="inline">
-						{userRecord.status_code === 1 ? (
+						{userRecord.statusCode === 1 ? (
 							<Form.Item>
 								<Button
 									type="danger"
 									icon="user-delete"
 									loading={userRecord.user_id === this.state.user_id && loadingBlockUser}
 									onClick={() =>
-										this.handleBlockUser(userRecord.wallet_addr, 1, 10, userRecord.user_id)
+										this.handleBlockUser(userRecord.walletAddr, 1, 10, userRecord.user_id)
 									}
 								>
 									Block
 								</Button>
 							</Form.Item>
 						) : null}
-						{userRecord.status_code === 2 ? (
+						{userRecord.statusCode === 2 ? (
 							<Form.Item>
 								<Button
 									type="primary"
 									icon="user-add"
 									loading={userRecord.user_id === this.state.user_id && loadingUnblockUser}
-									onClick={() => this.handleUnblockUser(userRecord.wallet_addr, userRecord.user_id)}
+									onClick={() => this.handleUnblockUser(userRecord.walletAddr, userRecord.user_id)}
 								>
 									Unblock
 								</Button>
@@ -264,7 +269,7 @@ class UserDetailedData extends Component {
 									type="danger"
 									onClick={() =>
 										this.handleDowngrade(
-											userRecord.wallet_addr,
+											userRecord.walletAddr,
 											userRecord.role,
 											userRecord.id,
 											userRecord
