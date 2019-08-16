@@ -131,29 +131,29 @@ export function renderPerformBtn(
 	}
 
 	if (requestsType === "withdraw") {
-		if (record.status_code === requestStatus.choose && record.taker_addr && record.taker) {
+		if (record.statusCode === requestStatus.choose && record.takerAddr && record.taker) {
 			// for initiator
-			btn = getButton(record.request_id);
+			btn = getButton(record.requestId);
 		} else if (
-			record.status_code === operationMessageStatus.accepted &&
+			record.statusCode === operationMessageStatus.accepted &&
 			record.request &&
-			record.request.taker_addr === walletAddress &&
-			isTimeUp(record.request.choose_timestamp, h24Mc)
+			record.request.takerAddr === walletAddress &&
+			isTimeUp(record.request.chooseTimestamp, h24Mc)
 		) {
 			// for performer
-			btn = getButton(record.request.request_id);
+			btn = getButton(record.request.requestId);
 		} else {
 			btn = null;
 		}
 	} else {
 		if (
 			record.request &&
-			record.request.taker_addr === walletAddress &&
-			record.request.status_code !== requestStatus.completed &&
-			record.request.status_code !== requestStatus.complained &&
-			!isTimeUp(record.request.choose_timestamp, h24Mc)
+			record.request.takerAddr === walletAddress &&
+			record.request.statusCode !== requestStatus.completed &&
+			record.request.statusCode !== requestStatus.complained &&
+			!isTimeUp(record.request.chooseTimestamp, h24Mc)
 		) {
-			btn = getButton(record.request.request_id);
+			btn = getButton(record.request.requestId);
 		} else {
 			btn = null;
 		}

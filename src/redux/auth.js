@@ -39,13 +39,13 @@ export const signUp = values => async (dispatch, getState) => {
 		const { status } = await client.post("signup", values, {
 			headers: {
 				OnyxAuth: values.signed_msg,
-				OnyxAddr: values.wallet_addr,
+				OnyxAddr: values.walletAddr,
 			},
 		});
 		if (status === 200) {
 			dispatch({
 				type: SIGN_UP,
-				payload: { OnyxAuth: values.signed_msg, OnyxAddr: values.wallet_addr },
+				payload: { OnyxAuth: values.signed_msg, OnyxAddr: values.walletAddr },
 			});
 		}
 	} catch (er) {
@@ -58,13 +58,13 @@ export const login = values => async (dispatch, getState) => {
 		const { status } = await client.post("login", undefined, {
 			headers: {
 				OnyxAuth: values.signed_msg,
-				OnyxAddr: values.wallet_addr,
+				OnyxAddr: values.walletAddr,
 			},
 		});
 		if (status === 200) {
 			dispatch({
 				type: LOG_IN,
-				payload: { OnyxAuth: values.signed_msg, OnyxAddr: values.wallet_addr },
+				payload: { OnyxAuth: values.signed_msg, OnyxAddr: values.walletAddr },
 			});
 		}
 	} catch (er) {

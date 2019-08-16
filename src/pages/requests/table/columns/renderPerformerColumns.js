@@ -10,9 +10,9 @@ import { renderPerformBtn, isTimeUp } from "../index";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
-		(record.request.status_code === requestStatus.choose ||
-			record.request.status_code === requestStatus.completed) &&
-		record.request.taker_addr !== walletAddress
+		(record.request.statusCode === requestStatus.choose ||
+			record.request.statusCode === requestStatus.completed) &&
+		record.request.takerAddr !== walletAddress
 	) {
 		return true;
 	}
@@ -31,7 +31,7 @@ function renderCancelBtn(
 	let confirmText;
 	let buttonType;
 
-	if (record.status === "accepted" && record.request.taker_addr !== walletAddress) {
+	if (record.status === "accepted" && record.request.takerAddr !== walletAddress) {
 		buttonText = isAnotherSelected ? "Return assets" : "Cancel acceptation";
 		if (isCancelAcceptedRequestActive) {
 			buttonType = "default";
@@ -41,8 +41,8 @@ function renderCancelBtn(
 		}
 	} else if (
 		record.status === "accepted" &&
-		record.request.taker_addr === walletAddress &&
-		isTimeUp(record.request.choose_timestamp, h24Mc)
+		record.request.takerAddr === walletAddress &&
+		isTimeUp(record.request.chooseTimestamp, h24Mc)
 	) {
 		buttonText = "Return assets";
 		if (isCancelAcceptedRequestActive) {
@@ -60,7 +60,7 @@ function renderCancelBtn(
 			<Popconfirm
 				title={confirmText}
 				cancelText="No"
-				onConfirm={() => handleCancel(record.request.request_id)}
+				onConfirm={() => handleCancel(record.request.requestId)}
 			>
 				<Button type="danger">{buttonText}</Button>
 			</Popconfirm>
@@ -132,7 +132,7 @@ export default function renderPerformerColumns({
 				title: "Client",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
-					return record.request ? `${record.sender.first_name} ${record.sender.last_name}` : null;
+					return record.request ? `${record.sender.firstName} ${record.sender.lastName}` : null;
 				},
 			},
 			{
@@ -140,11 +140,11 @@ export default function renderPerformerColumns({
 				render: (text, record, index) => {
 					if (record._isDisabled) return "n/a";
 					if (record.request) {
-						return record.request.taker_addr &&
-							record.request.taker_addr === walletAddress &&
-							record.request.status_code !== requestStatus.complained &&
-							record.request.choose_timestamp ? (
-							<Countdown date={new Date(record.request.choose_timestamp).getTime() + h24Mc} />
+						return record.request.takerAddr &&
+							record.request.takerAddr === walletAddress &&
+							record.request.statusСode !== requestStatus.complained &&
+							record.request.chooseTimestamp ? (
+							<Countdown date={new Date(record.request.chooseTimestamp).getTime() + h24Mc} />
 						) : (
 							"n/a"
 						);
@@ -161,13 +161,13 @@ export default function renderPerformerColumns({
 					}
 					if (record._isDisabled) return "n/a";
 					const isAcceptActive =
-						record.request.request_id === activeRequestId && activeAction === aa.accept;
+						record.request.requestId === activeRequestId && activeAction === aa.accept;
 
 					const isPerformActive =
-						record.request.request_id === activeRequestId && activeAction === aa.perform;
+						record.request.requestId === activeRequestId && activeAction === aa.perform;
 
 					const isCancelAcceptedRequestActive =
-						record.request.request_id === activeRequestId && activeAction === aa.cancelAccepted;
+						record.request.requestId === activeRequestId && activeAction === aa.cancelAccepted;
 
 					return (
 						<>
@@ -181,7 +181,7 @@ export default function renderPerformerColumns({
 										title="Sure to accept?"
 										onConfirm={() =>
 											acceptRequest(
-												record.request.request_id,
+												record.request.requestId,
 												record.request.amount,
 												record.request.asset
 											)
@@ -244,7 +244,7 @@ export default function renderPerformerColumns({
 				dataIndex: "request.status",
 				render: (text, record, index) => {
 					if (record.request) {
-						if (record.status_code === operationMessageStatus.canceled) {
+						if (record.statusCode === operationMessageStatus.canceled) {
 							return "assets returned";
 						}
 						return record.request.status;
@@ -263,7 +263,7 @@ export default function renderPerformerColumns({
 				title: "Client",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
-					return record.sender ? `${record.sender.first_name} ${record.sender.last_name}` : null;
+					return record.sender ? `${record.sender.firstName} ${record.sender.lastName}` : null;
 				},
 			},
 		];

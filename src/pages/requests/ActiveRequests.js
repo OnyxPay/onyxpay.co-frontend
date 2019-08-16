@@ -357,9 +357,9 @@ function mapStateToProps(state, ownProps) {
 			console.log(el);
 
 			if (el.request) {
-				return el.request.type_code === requestType;
+				return el.request.typeCode === requestType;
 			} else {
-				return el.type_code === requestType;
+				return el.typeCode === requestType;
 			}
 		});
 	}
