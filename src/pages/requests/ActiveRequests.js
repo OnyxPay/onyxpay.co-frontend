@@ -186,6 +186,7 @@ class ActiveRequests extends Component {
 		try {
 			this.setState({ requestId, activeAction: aa.cancelAccepted });
 			await cancelAcceptedRequest(requestId);
+			this.props.disableRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have cancelled the request, the assets will be sent back on your address.",
@@ -353,6 +354,8 @@ function mapStateToProps(state, ownProps) {
 	// we are filtering unnecessary types of requests to handle unnecessary websocket events
 	if (state.opRequests.items) {
 		items = state.opRequests.items.filter(el => {
+			console.log(el);
+
 			if (el.request) {
 				return el.request.type_code === requestType;
 			} else {
