@@ -5,7 +5,7 @@ import UserSettlement from "./userSettlement";
 import { roleCodes } from "api/constants";
 import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
 import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
-
+import { convertAmountToStr } from "utils/number";
 import { downgradeUser } from "api/admin/user-upgrade";
 import { handleBcError } from "api/network";
 import { showNotification } from "components/notification";
@@ -292,7 +292,7 @@ class Users extends Component {
 				render: res => {
 					let balances = "";
 					for (let asset in res) {
-						balances += asset + ": " + res[asset] + "\n";
+						balances += asset + ": " + convertAmountToStr(res[asset], 8) + "\n";
 					}
 
 					return balances;
