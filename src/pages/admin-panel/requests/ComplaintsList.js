@@ -131,7 +131,7 @@ class ComplaintsList extends Component {
 						type="link"
 						onClick={() => this.showUserData(record.maker)}
 					>
-						<span>{record.maker.first_name + " " + record.maker.last_name}</span>
+						<span>{record.maker.firstName + " " + record.maker.lastName}</span>
 					</Button>
 				),
 			},
@@ -143,7 +143,7 @@ class ComplaintsList extends Component {
 						type="link"
 						onClick={() => this.showUserData(record.taker)}
 					>
-						<span>{record.taker.first_name + " " + record.taker.last_name}</span>
+						<span>{record.taker.firstName + " " + record.taker.lastName}</span>
 					</Button>
 				),
 			},
@@ -161,7 +161,7 @@ class ComplaintsList extends Component {
 				title: "Created",
 				dataIndex: "createdAt",
 				render: (text, record, index) =>
-					record.created_at ? new Date(record.created_at).toLocaleString() : "n/a",
+					record.createdAt ? new Date(record.createdAt).toLocaleString() : "n/a",
 			},
 			{
 				title: "Action",

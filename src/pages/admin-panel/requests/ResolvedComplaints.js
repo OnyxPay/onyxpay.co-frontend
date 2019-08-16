@@ -82,7 +82,7 @@ export class ResolvedComplaint extends Component {
 				render: (text, record, index) =>
 					record.complainWinner ? (
 						<span>
-							{record.complainWinner.first_name} {record.complainWinner.last_name}
+							{record.complainWinner.firstName} {record.complainWinner.lastName}
 						</span>
 					) : (
 						"n/a"
