@@ -26,6 +26,7 @@ import { getOpRequests, GET_OPERATION_REQUESTS, disableRequest } from "redux/req
 import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
+import { getFiatAmount } from "api/balance";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -110,10 +111,19 @@ class ActiveRequests extends Component {
 		}
 	};
 
-	handleAcceptRequest = async (requestId, requestAmount, requestAsset) => {
+	handleAcceptRequest = async (requestId, requestAmount, requestAsset, requestTypeCode) => {
 		// agent accepts deposit or withdraw request
 		try {
-			const { balanceAssets, balanceOnyxCash, disableRequest } = this.props;
+			const { balanceAssets, balanceOnyxCash, disableRequest, walletAddress } = this.props;
+			const fiatBalance = await getFiatAmount(walletAddress, requestAsset);
+
+			if (requestTypeCode === operationType.withdraw && fiatBalance < requestAmount) {
+				showNotification({
+					type: "error",
+					msg: "Insufficient fiat amount. Please update.",
+				});
+				return;
+			}
 			if (requestAsset !== "OnyxCash") {
 				const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
 				if (isAssetBlocked) {
@@ -128,18 +138,22 @@ class ActiveRequests extends Component {
 
 			this.setState({ requestId, activeAction: aa.accept });
 
-			const allow = balanceAssets.some(
-				balance =>
-					(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
-					(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
-			);
-			if (!allow) {
-				showNotification({
-					type: "error",
-					msg: "Request cannot be accepted. Insufficient amount of asset.",
+			if (!requestTypeCode === operationType.withdraw) {
+				const allow = balanceAssets.some(balance => {
+					return (
+						(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
+						(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
+					);
 				});
-				return;
+				if (!allow) {
+					showNotification({
+						type: "error",
+						msg: "Request cannot be accepted. Insufficient amount of asset.",
+					});
+					return;
+				}
 			}
+
 			await acceptRequest(requestId);
 			disableRequest(requestId);
 			showNotification({
@@ -279,6 +293,12 @@ class ActiveRequests extends Component {
 				defaultFilterValue: idParsedFromURL,
 				requestsType: parseRequestType(location),
 				requestsStatus: "active",
+				showSelectedUserDataModal: selectedUserData => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
+				},
+				showUserSettlementsModal: settlementsId => {
+					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
+				},
 			});
 		}
 
