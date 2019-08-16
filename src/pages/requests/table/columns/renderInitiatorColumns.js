@@ -121,6 +121,10 @@ export default function renderInitiatorColumns({
 			{
 				title: "Status",
 				dataIndex: "status",
+				render: (text, record, index) => {
+					if (record._isDisabled) return "wait...";
+					return record.status;
+				},
 			},
 			{
 				title: "Created",
@@ -163,6 +167,7 @@ export default function renderInitiatorColumns({
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
+					if (record._isDisabled) return "n/a";
 					return record.takerAddr && record.chooseTimestamp && record.status !== "complained" ? (
 						<Countdown date={new Date(record.chooseTimestamp).getTime() + h24Mc} />
 					) : (
@@ -173,6 +178,7 @@ export default function renderInitiatorColumns({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
+					if (record._isDisabled) return "n/a";
 					const isComplainActive =
 						record.requestId === activeRequestId && activeAction === aa.complain;
 
@@ -195,16 +201,16 @@ export default function renderInitiatorColumns({
 
 							{/* Send request to performers */}
 							{record.status === "opened" && (
-									<Button
-										disabled={isCancelRequestActive}
-										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
-											requestId: record.id,
-											isSendingMessage: true,
-										})}
-									>
-										{requestsType === "buy_onyx_cash" ? "Send to super-agents" : "Send to agents"}
-									</Button>
-								)}
+								<Button
+									disabled={isCancelRequestActive}
+									onClick={showModal(modals.SEND_REQ_TO_AGENT, {
+										requestId: record.id,
+										isSendingMessage: true,
+									})}
+								>
+									{requestsType === "buy_onyx_cash" ? "Send to super-agents" : "Send to agents"}
+								</Button>
+							)}
 
 							{/* Choose performer */}
 							{record.operationMessages &&

@@ -10,6 +10,7 @@ import { choosePerformer } from "api/requests";
 import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
 import { handleBcError } from "api/network";
+import { disableRequest } from "redux/requests";
 const { Option } = Select;
 
 class ChoosePerformer extends Component {
@@ -35,7 +36,13 @@ class ChoosePerformer extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { requestId, isSendingMessage, fetchRequests, openedRequestData } = this.props;
+		const {
+			requestId,
+			isSendingMessage,
+			fetchRequests,
+			openedRequestData,
+			disableRequest,
+		} = this.props;
 		const { selectedRows } = this.state;
 
 		if (isSendingMessage) {
@@ -58,6 +65,7 @@ class ChoosePerformer extends Component {
 				const performer = selectedRows[0].receiver;
 				await choosePerformer(requestId, performer.walletAddr);
 				formActions.resetForm();
+				disableRequest(requestId);
 				if (openedRequestData.type === "withdraw") {
 					showNotification({
 						type: "success",
@@ -83,8 +91,6 @@ class ChoosePerformer extends Component {
 						} settlement account or hand over the cash by hand`,
 					});
 				}
-
-				fetchRequests();
 				this.handleClose();
 			} catch (e) {
 				handleBcError(e);
@@ -308,9 +314,12 @@ class ChoosePerformer extends Component {
 	}
 }
 
-export default connect(state => {
-	return {
-		user: state.user,
-		accountAddress: state.wallet.defaultAccountAddress,
-	};
-})(ChoosePerformer);
+export default connect(
+	state => {
+		return {
+			user: state.user,
+			accountAddress: state.wallet.defaultAccountAddress,
+		};
+	},
+	{ disableRequest }
+)(ChoosePerformer);

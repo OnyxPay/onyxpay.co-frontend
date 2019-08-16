@@ -111,6 +111,7 @@ export default function renderPerformerColumns({
 				title: "Status",
 				dataIndex: "request.status",
 				render: (text, record, index) => {
+					if (record._isDisabled) return "wait...";
 					if (record.request) {
 						if (isAnotherPerformerSelected(record, walletAddress)) {
 							return "request wasn't selected";
@@ -137,10 +138,11 @@ export default function renderPerformerColumns({
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
+					if (record._isDisabled) return "n/a";
 					if (record.request) {
 						return record.request.takerAddr &&
 							record.request.takerAddr === walletAddress &&
-							record.request.status !== requestStatus.complained &&
+							record.request.statusСode !== requestStatus.complained &&
 							record.request.chooseTimestamp ? (
 							<Countdown date={new Date(record.request.chooseTimestamp).getTime() + h24Mc} />
 						) : (
@@ -157,6 +159,7 @@ export default function renderPerformerColumns({
 					if (!record.request) {
 						return null;
 					}
+					if (record._isDisabled) return "n/a";
 					const isAcceptActive =
 						record.request.requestId === activeRequestId && activeAction === aa.accept;
 
