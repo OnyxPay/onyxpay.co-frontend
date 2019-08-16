@@ -5,12 +5,11 @@ import { getData as getCountriesData } from "country-list";
 import { Formik } from "formik";
 import PerformersTable from "./PerformersTable";
 import { searchUsers } from "api/users";
-import { sendMessage, sendSettlementAccountsData } from "api/operation-messages";
+import { sendMessage } from "api/operation-messages";
 import { choosePerformer } from "api/requests";
 import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
 import { handleBcError } from "api/network";
-import { getSettlementsByUserId } from "api/settlement-accounts";
 const { Option } = Select;
 
 class ChoosePerformer extends Component {
@@ -36,7 +35,7 @@ class ChoosePerformer extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { requestId, isSendingMessage, fetchRequests, openedRequestData, user } = this.props;
+		const { requestId, isSendingMessage, fetchRequests, openedRequestData } = this.props;
 		const { selectedRows } = this.state;
 
 		if (isSendingMessage) {
@@ -58,8 +57,6 @@ class ChoosePerformer extends Component {
 			try {
 				const performer = selectedRows[0].receiver;
 				await choosePerformer(requestId, performer.wallet_addr);
-				const res = await getSettlementsByUserId(performer.id);
-				sendSettlementAccountsData(user.id, res);
 				formActions.resetForm();
 				if (openedRequestData.type === "withdraw") {
 					showNotification({
