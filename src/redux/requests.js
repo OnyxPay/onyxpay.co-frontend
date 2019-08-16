@@ -159,6 +159,7 @@ const changeRequestStatusMakerPredicate = payload => {
 				...item,
 				status_code: payload.status,
 				status: requestStatusNames[payload.status],
+				_isDisabled: false,
 			};
 		}
 		return item;

@@ -138,11 +138,11 @@ export default function renderPerformerColumns({
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
+					if (record._isDisabled) return "n/a";
 					if (record.request) {
-						if (record._isDisabled) return "n/a";
 						return record.request.taker_addr &&
 							record.request.taker_addr === walletAddress &&
-							record.request.status !== requestStatus.complained &&
+							record.request.status_code !== requestStatus.complained &&
 							record.request.choose_timestamp ? (
 							<Countdown date={new Date(record.request.choose_timestamp).getTime() + h24Mc} />
 						) : (
