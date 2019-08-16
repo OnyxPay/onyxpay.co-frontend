@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
 import UserDetailedData from "./userDetailedData";
-import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
+import { getUsersData } from "redux/admin-panel/users";
 
 class Users extends Component {
 	state = {
@@ -120,6 +120,7 @@ class Users extends Component {
 		const columns = [
 			{
 				title: "Actions",
+				key: "actions",
 				render: userRecord => (
 					<div>
 						<Button icon="account-book" onClick={() => this.showDetailedUserData(userRecord)}>
@@ -130,16 +131,16 @@ class Users extends Component {
 			},
 			{
 				title: "First name",
-				dataIndex: "first_name",
-				key: "first_name",
-				...this.getColumnSearchProps("first_name"),
+				dataIndex: "firstName",
+				key: "firstName",
+				...this.getColumnSearchProps("firstName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "last_name",
-				key: "last_name",
-				...this.getColumnSearchProps("last_name"),
+				dataIndex: "lastName",
+				key: "lastName",
+				...this.getColumnSearchProps("lastName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -158,16 +159,16 @@ class Users extends Component {
 			},
 			{
 				title: "Phone number",
-				dataIndex: "phone_number",
-				key: "phone_number",
-				...this.getColumnSearchProps("phone_number"),
+				dataIndex: "phoneNumber",
+				key: "phoneNumber",
+				...this.getColumnSearchProps("phoneNumber"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "wallet_addr",
-				key: "wallet_addr",
-				...this.getColumnSearchProps("wallet_addr"),
+				dataIndex: "walletAddr",
+				key: "walletAddr",
+				...this.getColumnSearchProps("walletAddr"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -209,8 +210,6 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		blockedUsersData,
 		getUsersData,
-		updateUserStatus,
 	}
 )(Users);

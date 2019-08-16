@@ -8,6 +8,7 @@ import { handleBcError } from "api/network";
 import { showNotification } from "components/notification";
 import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
 import { convertAmountToStr } from "utils/number";
+import { updateUserStatus } from "redux/admin-panel/users";
 
 class UserDetailedData extends Component {
 	state = {
@@ -176,13 +177,13 @@ class UserDetailedData extends Component {
 				>
 					<Descriptions layout="vertical">
 						<Descriptions.Item label="First Name">
-							{userRecord.first_name ? userRecord.first_name : "n/a"}
+							{userRecord.firstName ? userRecord.firstName : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Last name">
-							{userRecord.last_name ? userRecord.last_name : "n/a"}
+							{userRecord.lastName ? userRecord.lastName : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Registration date">
-							{userRecord.created_at ? new Date(userRecord.created_at).toDateString() : "n/a"}
+							{userRecord.createdAt ? new Date(userRecord.createdAt).toDateString() : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Role">
 							{userRecord.role ? userRecord.role : "n/a"}
@@ -194,13 +195,13 @@ class UserDetailedData extends Component {
 							{userRecord.email ? userRecord.email : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Phone number">
-							{userRecord.phone_number ? userRecord.phone_number : "n/a"}
+							{userRecord.phoneNumber ? userRecord.phoneNumber : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Chat id">
 							{userRecord.chat_id ? userRecord.chat_id : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Wallet address">
-							{userRecord.wallet_addr ? userRecord.wallet_addr : "n/a"}
+							{userRecord.walletAddr ? userRecord.walletAddr : "n/a"}
 						</Descriptions.Item>
 						<Descriptions.Item label="Status">
 							{userRecord.status ? userRecord.status : "n/a"}
@@ -302,5 +303,6 @@ export default connect(
 	{
 		unblockUser,
 		getUserSettlementData,
+		updateUserStatus,
 	}
 )(UserDetailedData);
