@@ -116,7 +116,6 @@ class ActiveRequests extends Component {
 		try {
 			const { balanceAssets, balanceOnyxCash, disableRequest, walletAddress } = this.props;
 			const fiatBalance = await getFiatAmount(walletAddress, requestAsset);
-			console.log(fiatBalance, requestAmount);
 
 			if (requestTypeCode === operationType.withdraw && fiatBalance < requestAmount) {
 				showNotification({
@@ -139,18 +138,22 @@ class ActiveRequests extends Component {
 
 			this.setState({ requestId, activeAction: aa.accept });
 
-			const allow = balanceAssets.some(
-				balance =>
-					(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
-					(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
-			);
-			if (!allow) {
-				showNotification({
-					type: "error",
-					msg: "Request cannot be accepted. Insufficient amount of asset.",
+			if (!requestTypeCode === operationType.withdraw) {
+				const allow = balanceAssets.some(balance => {
+					return (
+						(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
+						(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
+					);
 				});
-				return;
+				if (!allow) {
+					showNotification({
+						type: "error",
+						msg: "Request cannot be accepted. Insufficient amount of asset.",
+					});
+					return;
+				}
 			}
+
 			await acceptRequest(requestId);
 			disableRequest(requestId);
 			showNotification({
