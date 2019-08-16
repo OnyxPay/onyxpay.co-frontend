@@ -7,6 +7,7 @@ import Countdown from "components/Countdown";
 import { h24Mc } from "api/constants";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
+import { styles } from "../../styles";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
@@ -86,6 +87,7 @@ export default function renderPerformerColumns({
 	getColumnSearchProps,
 	defaultFilterValue,
 	acceptRequest,
+	showSelectedUserDataModal,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -132,7 +134,19 @@ export default function renderPerformerColumns({
 				title: "Client",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
-					return record.request ? `${record.sender.firstName} ${record.sender.lastName}` : null;
+					if (record.sender) {
+						return (
+							<Button
+								type="link"
+								style={styles.btnLink}
+								onClick={() => showSelectedUserDataModal(record.sender)}
+							>
+								{`${record.sender.firstName} ${record.sender.lastName}`}
+							</Button>
+						);
+					}
+					return null;
+					// return record.request ? `${record.sender.firstName} ${record.sender.lastName}` : null;
 				},
 			},
 			{

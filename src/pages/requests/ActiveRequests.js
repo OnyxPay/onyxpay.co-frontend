@@ -279,6 +279,9 @@ class ActiveRequests extends Component {
 				defaultFilterValue: idParsedFromURL,
 				requestsType: parseRequestType(location),
 				requestsStatus: "active",
+				showSelectedUserDataModal: selectedUserData => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
+				},
 			});
 		}
 
