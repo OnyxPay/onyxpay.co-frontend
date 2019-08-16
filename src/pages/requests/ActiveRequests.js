@@ -22,7 +22,7 @@ import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
 import { handleTableChange, getColumnSearchProps } from "./table";
-import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
+import { getOpRequests, GET_OPERATION_REQUESTS, disableRequest } from "redux/requests";
 import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
@@ -113,14 +113,17 @@ class ActiveRequests extends Component {
 	handleAcceptRequest = async (requestId, requestAmount, requestAsset) => {
 		// agent accepts deposit or withdraw request
 		try {
-			const { balanceAssets, balanceOnyxCash } = this.props;
-			const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
-			if (isAssetBlocked) {
-				showNotification({
-					type: "error",
-					msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
-				});
-				return;
+			const { balanceAssets, balanceOnyxCash, disableRequest } = this.props;
+			if (requestAsset !== "OnyxCash") {
+				const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
+				if (isAssetBlocked) {
+					showNotification({
+						type: "error",
+						msg:
+							"Request cannot be accepted. Asset is blocked for technical works. Try again later.",
+					});
+					return;
+				}
 			}
 
 			this.setState({ requestId, activeAction: aa.accept });
@@ -138,11 +141,11 @@ class ActiveRequests extends Component {
 				return;
 			}
 			await acceptRequest(requestId);
+			disableRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have accepted the request",
 			});
-			this.fetch();
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -166,13 +169,14 @@ class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs deposit and client withdraw request
 		try {
+			const { disableRequest } = this.props;
 			this.setState({ requestId, activeAction: aa.perform });
 			await performRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have performed the request",
 			});
-			this.fetch();
+			disableRequest(requestId);
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -185,11 +189,11 @@ class ActiveRequests extends Component {
 		try {
 			this.setState({ requestId, activeAction: aa.cancelAccepted });
 			await cancelAcceptedRequest(requestId);
+			this.props.disableRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have cancelled the request, the assets will be sent back on your address.",
 			});
-			this.fetch();
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -203,11 +207,11 @@ class ActiveRequests extends Component {
 			try {
 				this.setState({ requestId, activeAction: aa.complain });
 				await complain(requestId);
+				this.props.disableRequest(requestId);
 				showNotification({
 					type: "success",
 					msg: "You have complained on the request",
 				});
-				this.fetch();
 			} catch (e) {
 				handleBcError(e);
 			} finally {
@@ -225,7 +229,7 @@ class ActiveRequests extends Component {
 		try {
 			this.setState({ requestId, activeAction: aa.cancel });
 			await cancelRequest(requestId);
-			this.fetch();
+			this.props.disableRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have canceled the request",
@@ -285,6 +289,7 @@ class ActiveRequests extends Component {
 					isRequestClosed: false,
 					isUserInitiator: user.role === roles.c || isAgentInitiator,
 				})}
+
 				<Table
 					columns={columns}
 					rowKey={record => record.id}
@@ -297,6 +302,9 @@ class ActiveRequests extends Component {
 						setState: this.setState,
 					})}
 					className="ovf-auto tbody-white"
+					rowClassName={(record, rowIndex) => {
+						if (record._isDisabled) return "table-row-disabled";
+					}}
 				/>
 				<ChoosePerformerModal
 					isModalVisible={this.state.SEND_REQ_TO_AGENT}
@@ -334,7 +342,7 @@ function operationNameToType(name) {
 			return operationType.deposit;
 		case "withdraw":
 			return operationType.withdraw;
-		case "deposit-onyx-cash":
+		case "buy_onyx_cash":
 			return operationType.buyOnyxCache;
 		default:
 			return 0;
@@ -349,9 +357,9 @@ function mapStateToProps(state, ownProps) {
 	if (state.opRequests.items) {
 		items = state.opRequests.items.filter(el => {
 			if (el.request) {
-				return el.request.type_code === requestType;
+				return el.request.typeCode === requestType;
 			} else {
-				return el.type_code === requestType;
+				return el.typeCode === requestType;
 			}
 		});
 	}
@@ -370,7 +378,7 @@ ActiveRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getOpRequests }
+		{ push, getOpRequests, disableRequest }
 	)
 )(ActiveRequests);
 

@@ -10,6 +10,7 @@ import { choosePerformer } from "api/requests";
 import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
 import { handleBcError } from "api/network";
+import { disableRequest } from "redux/requests";
 const { Option } = Select;
 
 class ChoosePerformer extends Component {
@@ -35,7 +36,13 @@ class ChoosePerformer extends Component {
 	}
 
 	handleFormSubmit = async (values, formActions) => {
-		const { requestId, isSendingMessage, fetchRequests, openedRequestData } = this.props;
+		const {
+			requestId,
+			isSendingMessage,
+			fetchRequests,
+			openedRequestData,
+			disableRequest,
+		} = this.props;
 		const { selectedRows } = this.state;
 
 		if (isSendingMessage) {
@@ -56,8 +63,9 @@ class ChoosePerformer extends Component {
 		} else {
 			try {
 				const performer = selectedRows[0].receiver;
-				await choosePerformer(requestId, performer.wallet_addr);
+				await choosePerformer(requestId, performer.walletAddr);
 				formActions.resetForm();
+				disableRequest(requestId);
 				if (openedRequestData.type === "withdraw") {
 					showNotification({
 						type: "success",
@@ -78,13 +86,11 @@ class ChoosePerformer extends Component {
 						desc: `Send ${convertAmountToStr(
 							openedRequestData.amount,
 							8
-						)} FIAT ${assetSymbol} to agent ${performer.first_name} ${
-							performer.last_name
+						)} FIAT ${assetSymbol} to agent ${performer.firstName} ${
+							performer.lastName
 						} settlement account or hand over the cash by hand`,
 					});
 				}
-
-				fetchRequests();
 				this.handleClose();
 			} catch (e) {
 				handleBcError(e);
@@ -174,7 +180,7 @@ class ChoosePerformer extends Component {
 			this.setState({ loading: true });
 			const res = await searchUsers(params);
 			pagination.total = res.total;
-			const performers = res.items.filter(performer => performer.wallet_addr !== accountAddress);
+			const performers = res.items.filter(performer => performer.walletAddr !== accountAddress);
 			this.setState({
 				loading: false,
 				users: { items: performers, total: res.total },
@@ -271,6 +277,7 @@ class ChoosePerformer extends Component {
 										onChange={this.handleTableChange}
 										isSendingMessage={isSendingMessage}
 										showUserSettlementsModal={showUserSettlementsModal}
+										requestId={this.props.requestId}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>
@@ -307,9 +314,12 @@ class ChoosePerformer extends Component {
 	}
 }
 
-export default connect(state => {
-	return {
-		user: state.user,
-		accountAddress: state.wallet.defaultAccountAddress,
-	};
-})(ChoosePerformer);
+export default connect(
+	state => {
+		return {
+			user: state.user,
+			accountAddress: state.wallet.defaultAccountAddress,
+		};
+	},
+	{ disableRequest }
+)(ChoosePerformer);

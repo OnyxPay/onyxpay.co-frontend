@@ -40,7 +40,7 @@ function ConfirmUpgradeModalContent({ expectedPosition, user }) {
 	const amount = expectedPosition && expectedPosition === roles.a ? 500 : 100000;
 	return (
 		<div>
-			This also means on {user.wallet_addr} address will be sent <strong>{amount}</strong> OnyxCash
+			This also means on {user.walletAddr} address will be sent <strong>{amount}</strong> OnyxCash
 		</div>
 	);
 }
@@ -48,7 +48,7 @@ function ConfirmUpgradeModalContent({ expectedPosition, user }) {
 class UserUpgradeRequests extends Component {
 	state = {
 		isReasonToRejectModalVisible: false,
-		request_id: null,
+		requestId: null,
 		pagination: { current: 1, pageSize: 20 },
 		fetchingRequests: false,
 		loadingUpgradeUser: false,
@@ -60,13 +60,13 @@ class UserUpgradeRequests extends Component {
 		this.fetchRequests();
 	};
 
-	handleUpgrade = async (wallet_addr, role, id) => {
+	handleUpgrade = async (walletAddr, role, id) => {
 		try {
 			this.setState({
 				loadingUpgradeUser: true,
-				request_id: id,
+				requestId: id,
 			});
-			const res = await upgradeUser(wallet_addr, role);
+			const res = await upgradeUser(walletAddr, role);
 			if (res.Error === 0) {
 				showNotification({
 					type: "success",
@@ -89,29 +89,29 @@ class UserUpgradeRequests extends Component {
 	};
 
 	handleRejectRequest = async reason => {
-		const { request_id } = this.state;
-		const res = await rejectRequest(request_id, reason);
+		const { requestId } = this.state;
+		const res = await rejectRequest(requestId, reason);
 		if (!res.error) {
 			showNotification({
 				type: "success",
-				msg: `You rejected request with id ${request_id}`,
+				msg: `You rejected request with id ${requestId}`,
 			});
 			this.hideModal();
 			this.fetchRequests();
 		}
 	};
 
-	showModal = async request_id => {
+	showModal = async requestId => {
 		this.setState({
 			isReasonToRejectModalVisible: true,
-			request_id: request_id,
+			requestId: requestId,
 		});
 	};
 
 	hideModal = () => {
 		this.setState({
 			isReasonToRejectModalVisible: false,
-			request_id: null,
+			requestId: null,
 		});
 	};
 
@@ -167,8 +167,8 @@ class UserUpgradeRequests extends Component {
 		const that = this;
 		if (record.expected_position && record.user) {
 			confirm({
-				title: `Are you sure you want to upgrade ${record.user.role} ${record.user.first_name} ${
-					record.user.last_name
+				title: `Are you sure you want to upgrade ${record.user.role} ${record.user.firstName} ${
+					record.user.lastName
 				} to ${record.expected_position} ?`,
 				content: (
 					<ConfirmUpgradeModalContent
@@ -182,7 +182,7 @@ class UserUpgradeRequests extends Component {
 				okButtonProps: { type: "primary " },
 				cancelButtonProps: { type: "default " },
 				onOk() {
-					that.handleUpgrade(record.user.wallet_addr, record.expected_position, record.id);
+					that.handleUpgrade(record.user.walletAddr, record.expected_position, record.id);
 				},
 			});
 		} else {
@@ -196,14 +196,14 @@ class UserUpgradeRequests extends Component {
 			pagination,
 			requestsData,
 			loadingUpgradeUser,
-			request_id,
+			requestId,
 		} = this.state;
 
 		const columns = [
 			{
 				title: "User name",
 				dataIndex: "user",
-				render: res => <span>{res.first_name + " " + res.last_name}</span>,
+				render: res => <span>{res.firstName + " " + res.lastName}</span>,
 			},
 			{
 				title: "Registration date",
@@ -227,17 +227,17 @@ class UserUpgradeRequests extends Component {
 			},
 			{
 				title: "Phone",
-				dataIndex: "user.phone_number",
+				dataIndex: "user.phoneNumber",
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "user.wallet_addr",
+				dataIndex: "user.walletAddr",
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Created at",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
 			},
 			{
@@ -251,7 +251,7 @@ class UserUpgradeRequests extends Component {
 									type="primary"
 									onClick={() => this.showUpgradeConfirmationModal(res)}
 									style={style.button}
-									loading={res.id === request_id && loadingUpgradeUser}
+									loading={res.id === requestId && loadingUpgradeUser}
 								>
 									Confirm
 								</Button>

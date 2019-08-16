@@ -13,6 +13,7 @@ export const GET_OPERATION_REQUESTS_REQUEST = "GET_OPERATION_REQUESTS_REQUEST";
 export const GET_OPERATION_REQUESTS_SUCCESS = "GET_OPERATION_REQUESTS_SUCCESS";
 export const GET_OPERATION_REQUESTS_FAILURE = "GET_OPERATION_REQUESTS_FAILURE";
 export const GET_OPERATION_REQUESTS = "GET_OPERATION_REQUESTS";
+export const DISABLE_OPERATION_REQ = "DISABLE_OPERATION_REQ";
 
 const initState = {
 	items: [],
@@ -35,16 +36,17 @@ const makerAcceptationPredicate = (payload, type, notification) => {
 			type === wsEvents.acceptRequestMaker
 				? operationMessageStatus.accepted
 				: operationMessageStatus.opened;
-		if (item.request_id === payload.requestId) {
+		if (item.requestId === payload.requestId) {
 			let newItem = item;
 			let message = item.type + " " + notification;
 			showNotification({ type: "success", msg: message });
-			newItem.operation_messages = item.operation_messages.map(message => {
+			newItem.operationMessages = item.operationMessages.map(message => {
 				if (message.id === payload.messageId) {
 					return {
 						...message,
-						status_code: status,
+						statusCode: status,
 						status: operationMessageStatusNames[status],
+						_isDisabled: false,
 					};
 				}
 				return message;
@@ -61,12 +63,13 @@ const takerAcceptationPredicate = (payload, type, notification) => {
 			type === wsEvents.acceptRequestTaker
 				? operationMessageStatus.accepted
 				: operationMessageStatus.opened;
-		if (item.request.request_id === payload.requestId) {
+		if (item.request.requestId === payload.requestId) {
 			let message = item.request.type + " " + notification;
 			showNotification({ type: "success", msg: message });
 			let newItem = item;
-			newItem.status_code = status;
+			newItem.statusCode = status;
 			newItem.status = operationMessageStatusNames[status];
+			newItem._isDisabled = false;
 			return newItem;
 		}
 		return item;
@@ -75,16 +78,17 @@ const takerAcceptationPredicate = (payload, type, notification) => {
 
 const chooseRequestMakerPredicate = payload => {
 	return item => {
-		if (item.request_id === payload.requestId) {
+		if (item.requestId === payload.requestId) {
 			let message = item.type + " request with id (" + item.id + ") is chosen";
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
-				status_code: payload.status,
+				statusCode: payload.status,
 				status: requestStatusNames[payload.status],
 				taker: payload.taker,
-				taker_addr: payload.takerAddr,
-				choose_timestamp: payload.chooseTimestamp,
+				takerAddr: payload.takerAddr,
+				chooseTimestamp: payload.chooseTimestamp,
+				_isDisabled: false,
 			};
 		}
 		return item;
@@ -93,17 +97,18 @@ const chooseRequestMakerPredicate = payload => {
 
 const chooseRequestTakerPredicate = payload => {
 	return item => {
-		if (item.request.request_id === payload.requestId) {
-			let message = item.type + " request with id (" + item.id + ") is chosen successfully";
+		if (item.request.requestId === payload.requestId) {
+			let message =
+				item.request.type + " request with id (" + item.request.id + ") is chosen successfully";
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
 				request: {
 					...item.request,
-					status_code: payload.status,
+					statusCode: payload.status,
 					status: requestStatusNames[payload.status],
-					taker_addr: payload.takerAddr,
-					choose_timestamp: payload.chooseTimestamp,
+					takerAddr: payload.takerAddr,
+					chooseTimestamp: payload.chooseTimestamp,
 				},
 			};
 		}
@@ -118,7 +123,7 @@ const saveRequestPredicate = payload => {
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
-				status_code: payload.status,
+				statusCode: payload.status,
 				status: requestStatusNames[payload.status],
 				requestId: payload.requestId,
 			};
@@ -129,14 +134,14 @@ const saveRequestPredicate = payload => {
 
 const handleComplainStatusPredicate = payload => {
 	return item => {
-		if (item.request.request_id === payload.requestId) {
+		if (item.request.requestId === payload.requestId) {
 			let message = item.type + " request with id (" + item.id + ") is complained";
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
 				request: {
 					...item.request,
-					status_code: payload.status,
+					statusCode: payload.status,
 					status: requestStatusNames[payload.status],
 				},
 			};
@@ -147,24 +152,41 @@ const handleComplainStatusPredicate = payload => {
 
 const changeRequestStatusMakerPredicate = payload => {
 	return item => {
-		if (item.request_id === payload.requestId) {
+		if (item.requestId === payload.requestId) {
 			let message =
 				item.type + " request with id (" + item.id + ") is " + requestStatusNames[payload.status];
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
-				status_code: payload.status,
+				statusCode: payload.status,
 				status: requestStatusNames[payload.status],
+				_isDisabled: false,
 			};
 		}
 		return item;
 	};
 };
+
 export const opRequestsReducer = (state = initState, action) => {
 	let pred;
 	switch (action.type) {
 		case GET_OPERATION_REQUESTS_SUCCESS:
 			return { items: action.payload.items, total: action.payload.total };
+		case DISABLE_OPERATION_REQ:
+			const modifiedItems = state.items.map(req => {
+				if (req.request && req.request.requestId) {
+					if (req.request.requestId === action.payload.requestId) {
+						req._isDisabled = true;
+					}
+				} else if (req.requestId) {
+					if (req.requestId === action.payload.requestId) {
+						req._isDisabled = true;
+					}
+				}
+				return req;
+			});
+
+			return { total: state.total, items: modifiedItems };
 
 		case wsEvents.cancelAcceptationMaker:
 			pred = makerAcceptationPredicate(
@@ -216,7 +238,7 @@ export const opRequestsReducer = (state = initState, action) => {
 			} else {
 				// remove request from the list
 				let takerItems = state.items.filter(
-					item => item.request.request_id !== action.payload.requestId
+					item => item.request.requestId !== action.payload.requestId
 				);
 				return { ...state, items: takerItems };
 			}
@@ -226,7 +248,7 @@ export const opRequestsReducer = (state = initState, action) => {
 				pred = changeRequestStatusMakerPredicate(action.payload);
 			} else {
 				// remove request from the list
-				let makerItems = state.items.filter(item => item.request_id !== action.payload.requestId);
+				let makerItems = state.items.filter(item => item.requestId !== action.payload.requestId);
 				return { ...state, items: makerItems };
 			}
 			break;
@@ -251,9 +273,22 @@ export const getOpRequests = ({
 		} else {
 			data = await getMessages(params, requestType, fetchActive);
 		}
-		dispatch({ type: GET_OPERATION_REQUESTS_SUCCESS, payload: data });
+
+		dispatch({
+			type: GET_OPERATION_REQUESTS_SUCCESS,
+			payload: data,
+		});
 	} catch (e) {
 		console.log(e);
 		dispatch({ type: GET_OPERATION_REQUESTS_FAILURE });
 	}
+};
+
+export const disableRequest = requestId => {
+	console.log("requestId", requestId);
+
+	return {
+		type: DISABLE_OPERATION_REQ,
+		payload: { requestId },
+	};
 };

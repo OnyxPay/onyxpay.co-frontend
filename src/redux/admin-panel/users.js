@@ -14,7 +14,7 @@ export const adminUsersReducer = (state = [], action) => {
 				if (user.user_id === action.payload.userId) {
 					return {
 						...user,
-						status_code: action.payload.status,
+						statusCode: action.payload.status,
 						status: action.payload.status === 1 ? "active" : "blocked",
 					};
 				}

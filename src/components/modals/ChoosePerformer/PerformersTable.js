@@ -1,10 +1,12 @@
 import React from "react";
+import { connect } from "react-redux";
 import { getLocalTime } from "../../../utils";
 import { Button, Tooltip, Table } from "antd";
 import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
 import { sortValues } from "utils";
 
 function PerformersTable({
+	opRequests,
 	data,
 	loading,
 	selectedRowKeys,
@@ -13,36 +15,37 @@ function PerformersTable({
 	onChange,
 	isSendingMessage,
 	showUserSettlementsModal,
+	requestId,
 }) {
 	let columns = [];
 	if (isSendingMessage) {
 		columns = [
 			{
 				title: "First name",
-				dataIndex: "first_name",
+				dataIndex: "firstName",
 				sorter: true,
 				width: 160,
-				...getColumnSearchProps()("first_name"),
+				...getColumnSearchProps()("firstName"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "last_name",
+				dataIndex: "lastName",
 				sorter: true,
 				width: 160,
-				...getColumnSearchProps()("last_name"),
+				...getColumnSearchProps()("lastName"),
 			},
 			{
 				title: "Registered",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				sorter: true,
 				render: (text, record, index) => {
-					return <span>{getLocalTime(record.created_at)}</span>;
+					return <span>{getLocalTime(record.createdAt)}</span>;
 				},
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "wallet_addr",
-				...getColumnSearchProps()("wallet_addr"),
+				dataIndex: "walletAddr",
+				...getColumnSearchProps()("walletAddr"),
 			},
 			{
 				title: "Actions",
@@ -63,46 +66,46 @@ function PerformersTable({
 		columns = [
 			{
 				title: "First name",
-				dataIndex: "receiver.first_name",
+				dataIndex: "receiver.firstName",
 				sorter: (a, b) => {
-					const nameA = a.receiver.first_name.toLowerCase();
-					const nameB = b.receiver.first_name.toLowerCase();
+					const nameA = a.receiver.firstName.toLowerCase();
+					const nameB = b.receiver.firstName.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
-				...getColumnSearchProps()("first_name"),
-				...getOnColumnFilterProp("receiver.first_name"),
+				...getColumnSearchProps()("firstName"),
+				...getOnColumnFilterProp("receiver.firstName"),
 			},
 			{
 				title: "Last name",
-				dataIndex: "receiver.last_name",
+				dataIndex: "receiver.lastName",
 				sorter: (a, b) => {
-					const nameA = a.receiver.last_name.toLowerCase();
-					const nameB = b.receiver.last_name.toLowerCase();
+					const nameA = a.receiver.lastName.toLowerCase();
+					const nameB = b.receiver.lastName.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["descend", "ascend"],
-				...getColumnSearchProps()("last_name"),
-				...getOnColumnFilterProp("receiver.last_name"),
+				...getColumnSearchProps()("lastName"),
+				...getOnColumnFilterProp("receiver.lastName"),
 			},
 			{
 				title: "Registered",
-				dataIndex: "created_at",
+				dataIndex: "createdAt",
 				sorter: (a, b) => {
-					const dateA = new Date(a.receiver.created_at).getTime();
-					const dateB = new Date(b.receiver.created_at).getTime();
+					const dateA = new Date(a.receiver.createdAt).getTime();
+					const dateB = new Date(b.receiver.createdAt).getTime();
 					return sortValues(dateA, dateB);
 				},
 				sortDirections: ["descend", "ascend"],
 				render: (text, record, index) => {
-					return <span>{getLocalTime(record.receiver.created_at)}</span>;
+					return <span>{getLocalTime(record.receiver.createdAt)}</span>;
 				},
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "receiver.wallet_addr",
-				...getColumnSearchProps()("wallet_addr"),
-				...getOnColumnFilterProp("receiver.wallet_addr"),
+				dataIndex: "receiver.walletAddr",
+				...getColumnSearchProps()("walletAddr"),
+				...getOnColumnFilterProp("receiver.walletAddr"),
 			},
 			{
 				title: "Actions",
@@ -126,6 +129,13 @@ function PerformersTable({
 		selectedRowKeys,
 		onChange: onSelectedRowKeysChange,
 	};
+	let request = opRequests.items.find(el => el.id === requestId);
+	// remove agents received message from the list
+	if (request && data && request.operationMessages.length && isSendingMessage) {
+		data.items = data.items.filter(el =>
+			request.operationMessages.find(item => el.walletAddr !== item.receiver.walletAddr)
+		);
+	}
 
 	return (
 		<>
@@ -144,4 +154,10 @@ function PerformersTable({
 	);
 }
 
-export default PerformersTable;
+function mapStateToProps(state, ownProps) {
+	return {
+		opRequests: state.opRequests,
+	};
+}
+
+export default connect(mapStateToProps)(PerformersTable);
