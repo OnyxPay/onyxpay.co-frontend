@@ -215,7 +215,8 @@ export default function renderPerformerColumns({
 											acceptRequest(
 												record.request.requestId,
 												record.request.amount,
-												record.request.asset
+												record.request.asset,
+												record.request.typeCode
 											)
 										}
 									>
