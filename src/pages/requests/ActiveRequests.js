@@ -114,13 +114,16 @@ class ActiveRequests extends Component {
 		// agent accepts deposit or withdraw request
 		try {
 			const { balanceAssets, balanceOnyxCash, disableRequest } = this.props;
-			const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
-			if (isAssetBlocked) {
-				showNotification({
-					type: "error",
-					msg: "Request cannot be accepted. Asset is blocked for technical works. Try again later.",
-				});
-				return;
+			if (requestAsset !== "OnyxCash") {
+				const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
+				if (isAssetBlocked) {
+					showNotification({
+						type: "error",
+						msg:
+							"Request cannot be accepted. Asset is blocked for technical works. Try again later.",
+					});
+					return;
+				}
 			}
 
 			this.setState({ requestId, activeAction: aa.accept });
@@ -191,7 +194,6 @@ class ActiveRequests extends Component {
 				type: "success",
 				msg: "You have cancelled the request, the assets will be sent back on your address.",
 			});
-			this.fetch();
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -354,10 +356,6 @@ function mapStateToProps(state, ownProps) {
 	// we are filtering unnecessary types of requests to handle unnecessary websocket events
 	if (state.opRequests.items) {
 		items = state.opRequests.items.filter(el => {
-			console.log(el);
-			console.log("requestType", requestType);
-			console.log("__________");
-
 			if (el.request) {
 				return el.request.typeCode === requestType;
 			} else {

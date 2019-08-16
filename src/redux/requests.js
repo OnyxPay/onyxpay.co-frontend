@@ -13,7 +13,7 @@ export const GET_OPERATION_REQUESTS_REQUEST = "GET_OPERATION_REQUESTS_REQUEST";
 export const GET_OPERATION_REQUESTS_SUCCESS = "GET_OPERATION_REQUESTS_SUCCESS";
 export const GET_OPERATION_REQUESTS_FAILURE = "GET_OPERATION_REQUESTS_FAILURE";
 export const GET_OPERATION_REQUESTS = "GET_OPERATION_REQUESTS";
-export const DISABLE_REQUEST = "DISABLE_REQUEST";
+export const DISABLE_OPERATION_REQ = "DISABLE_OPERATION_REQ";
 
 const initState = {
 	items: [],
@@ -172,21 +172,21 @@ export const opRequestsReducer = (state = initState, action) => {
 	switch (action.type) {
 		case GET_OPERATION_REQUESTS_SUCCESS:
 			return { items: action.payload.items, total: action.payload.total };
-		case DISABLE_REQUEST:
-			const testDataItems = state.items.map(req => {
-				if (req.request && req.request.request_id) {
-					if (req.request.request_id === action.payload.requestId) {
+		case DISABLE_OPERATION_REQ:
+			const modifiedItems = state.items.map(req => {
+				if (req.request && req.request.requestId) {
+					if (req.request.requestId === action.payload.requestId) {
 						req._isDisabled = true;
 					}
-				} else if (req.request_id) {
-					if (req.request_id === action.payload.requestId) {
+				} else if (req.requestId) {
+					if (req.requestId === action.payload.requestId) {
 						req._isDisabled = true;
 					}
 				}
 				return req;
 			});
 
-			return { ...state.total, items: testDataItems };
+			return { total: state.total, items: modifiedItems };
 
 		case wsEvents.cancelAcceptationMaker:
 			pred = makerAcceptationPredicate(
@@ -288,7 +288,7 @@ export const disableRequest = requestId => {
 	console.log("requestId", requestId);
 
 	return {
-		type: DISABLE_REQUEST,
+		type: DISABLE_OPERATION_REQ,
 		payload: { requestId },
 	};
 };
