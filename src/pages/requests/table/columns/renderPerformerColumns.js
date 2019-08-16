@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Tooltip } from "antd";
 import { getLocalTime } from "utils";
 import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
@@ -88,6 +88,7 @@ export default function renderPerformerColumns({
 	defaultFilterValue,
 	acceptRequest,
 	showSelectedUserDataModal,
+	showUserSettlementsModal,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -146,9 +147,26 @@ export default function renderPerformerColumns({
 						);
 					}
 					return null;
-					// return record.request ? `${record.sender.firstName} ${record.sender.lastName}` : null;
 				},
 			},
+			requestsType === "withdraw"
+				? {
+						title: "Settl. acc",
+						render: (text, record, index) => {
+							return record.sender ? (
+								<Tooltip title="See settlement accounts">
+									<Button
+										shape="round"
+										icon="account-book"
+										onClick={e => showUserSettlementsModal(record.sender.id)}
+									/>
+								</Tooltip>
+							) : (
+								"n/a"
+							);
+						},
+				  }
+				: { className: "hidden-column" },
 			{
 				title: "Countdown",
 				render: (text, record, index) => {

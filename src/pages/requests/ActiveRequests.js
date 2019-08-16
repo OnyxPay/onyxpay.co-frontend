@@ -282,6 +282,9 @@ class ActiveRequests extends Component {
 				showSelectedUserDataModal: selectedUserData => {
 					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
 				},
+				showUserSettlementsModal: settlementsId => {
+					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
+				},
 			});
 		}
 
