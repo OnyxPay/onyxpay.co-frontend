@@ -340,7 +340,7 @@ function operationNameToType(name) {
 			return operationType.deposit;
 		case "withdraw":
 			return operationType.withdraw;
-		case "deposit-onyx-cash":
+		case "buy_onyx_cash":
 			return operationType.buyOnyxCache;
 		default:
 			return 0;
@@ -355,6 +355,8 @@ function mapStateToProps(state, ownProps) {
 	if (state.opRequests.items) {
 		items = state.opRequests.items.filter(el => {
 			console.log(el);
+			console.log("requestType", requestType);
+			console.log("__________");
 
 			if (el.request) {
 				return el.request.typeCode === requestType;
