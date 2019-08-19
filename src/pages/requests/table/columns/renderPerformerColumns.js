@@ -302,7 +302,7 @@ export default function renderPerformerColumns({
 				},
 			},
 			{
-				title: "Client",
+				title: "Customer",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
 					return record.sender ? `${record.sender.firstName} ${record.sender.lastName}` : null;
