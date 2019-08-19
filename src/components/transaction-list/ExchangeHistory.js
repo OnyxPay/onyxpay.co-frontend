@@ -50,6 +50,7 @@ function ExchangeHistory(props) {
 				rowKey={"trxHast"}
 				fetchData={getExchangeHistory}
 				emptyTableMessage={"You haven't performed any exchange transactions yet."}
+				className="exchange-history-table"
 			/>
 		</>
 	);
