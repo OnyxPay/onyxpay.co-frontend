@@ -75,6 +75,35 @@ function renderCancelBtn(
 	}
 }
 
+function renderAcceptBtn(record, isAcceptActive, acceptRequest) {
+	if (record.status !== "accepted" && record.request.statusCode !== requestStatus.choose) {
+		if (isAcceptActive) {
+			return (
+				<Button type="primary" loading={true} disabled={true}>
+					Accept
+				</Button>
+			);
+		} else {
+			return (
+				<Popconfirm
+					title="Sure to accept?"
+					onConfirm={() =>
+						acceptRequest(
+							record.request.requestId,
+							record.request.amount,
+							record.request.asset,
+							record.request.typeCode
+						)
+					}
+				>
+					<Button type="primary">Accept</Button>
+				</Popconfirm>
+			);
+		}
+	}
+	return null;
+}
+
 export default function renderPerformerColumns({
 	activeRequestId,
 	activeAction,
@@ -203,27 +232,7 @@ export default function renderPerformerColumns({
 
 					return (
 						<>
-							{record.status !== "accepted" &&
-								(isAcceptActive ? (
-									<Button type="primary" loading={true} disabled={true}>
-										Accept
-									</Button>
-								) : (
-									<Popconfirm
-										title="Sure to accept?"
-										onConfirm={() =>
-											acceptRequest(
-												record.request.requestId,
-												record.request.amount,
-												record.request.asset,
-												record.request.typeCode
-											)
-										}
-									>
-										<Button type="primary">Accept</Button>
-									</Popconfirm>
-								))}
-
+							{renderAcceptBtn(record, isAcceptActive, acceptRequest)}
 							{record.status !== "accepted" &&
 								(isAcceptActive || isCancelAcceptedRequestActive ? (
 									<Button type="danger" disabled={true}>
