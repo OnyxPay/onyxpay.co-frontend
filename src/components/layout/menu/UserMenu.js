@@ -26,38 +26,39 @@ class UserMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="/deposit">
-						<Link to="/deposit">Deposit</Link>
-					</Menu.Item>
+					<SubMenu
+						key="deposit"
+						title={
+							<span className="ant-menu-item-content">
+								<span>Deposit</span>
+							</span>
+						}
+					>
+						<Menu.Item key="/active-requests/deposit">
+							<Link to="/active-requests/deposit">Active deposit requests</Link>
+						</Menu.Item>
+						<Menu.Item key="/closed-requests/deposit">
+							<Link to="/closed-requests/deposit">Closed deposit requests</Link>
+						</Menu.Item>
+					</SubMenu>
 					<Menu.Item key="/send-asset">
 						<Link to="/send-asset">Send</Link>
 					</Menu.Item>
-					<Menu.Item key="/withdraw">
-						<Link to="/withdraw">Withdraw</Link>
-					</Menu.Item>
-				</SubMenu>
-				<SubMenu
-					key="active-requests"
-					title={
-						<span className="ant-menu-item-content">
-							<Icon type="pull-request" />
-							<span>Requests</span>
-						</span>
-					}
-				>
-					<Menu.Item key="/active-requests/deposit">
-						<Link to="/active-requests/deposit">Active deposit requests</Link>
-					</Menu.Item>
-					<Menu.Item key="/active-requests/withdraw">
-						<Link to="/active-requests/withdraw">Active withdraw requests</Link>
-					</Menu.Item>
-
-					<Menu.Item key="/closed-requests/deposit">
-						<Link to="/closed-requests/deposit">Closed deposit requests</Link>
-					</Menu.Item>
-					<Menu.Item key="/closed-requests/withdraw">
-						<Link to="/closed-requests/withdraw">Closed withdraw requests</Link>
-					</Menu.Item>
+					<SubMenu
+						key="withdraw"
+						title={
+							<span className="ant-menu-item-content">
+								<span>Withdraw</span>
+							</span>
+						}
+					>
+						<Menu.Item key="/active-requests/withdraw">
+							<Link to="/active-requests/withdraw">Active withdraw requests</Link>
+						</Menu.Item>
+						<Menu.Item key="/closed-requests/withdraw">
+							<Link to="/closed-requests/withdraw">Closed withdraw requests</Link>
+						</Menu.Item>
+					</SubMenu>
 				</SubMenu>
 				<Menu.Item key="/exchange">
 					<Link to="/exchange" className="ant-menu-item-content">
