@@ -22,6 +22,7 @@ import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 import { Link } from "react-router-dom";
 import { createLoadingSelector } from "selectors/loading";
 import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
+import { getFee } from "../../api/assets";
 
 const { Option } = Select;
 
@@ -63,19 +64,32 @@ class Withdraw extends Component {
 		return isEnough;
 	}
 
-	calcMaxAmount(assetSymbol) {
+	async calcMaxAmount(assetSymbol) {
 		const { assets } = this.props;
-		const asset = assets.find(asset => asset.symbol === assetSymbol);
-		return convertAmountToStr(asset.amount, 8);
+		if (assets.length) {
+			try {
+				const asset = assets.find(asset => asset.symbol === assetSymbol);
+				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "withdraw");
+				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
+				let maxAmount = (convertAmountToStr(asset.amount, 8) / (1 + maxAmountFeePercent)).toFixed(
+					8
+				);
+				let updatedFee = (await getFee(assetSymbol, maxAmount.toString(), "withdraw")) / 10 ** 8;
+				const updatedAmountFeePercent = parseFloat((updatedFee / maxAmount).toFixed(8));
+				if (maxAmountFeePercent !== updatedAmountFeePercent) {
+					maxAmount = (maxAmount / (1 + updatedAmountFeePercent)).toFixed(8);
+					updatedFee = (await getFee(assetSymbol, maxAmount.toString(), "withdraw")) / 10 ** 8;
+				}
+				return maxAmount;
+			} catch (e) {
+				showBcError(e.message);
+				return 0;
+			}
+		}
 	}
 
-	isAmountNotOverMax = (amount, assetSymbol) => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
-		return amount <= maxAmount;
-	};
-
-	handleMaxAmount = (assetSymbol, setFieldValue) => e => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
+	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol);
 		setFieldValue("amount", maxAmount);
 	};
 
@@ -83,22 +97,22 @@ class Withdraw extends Component {
 		const { push } = this.props;
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
-			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
-			const isAmountNotOverMax = this.isAmountNotOverMax(values.amount, values.asset_symbol);
-
 			if (isBlocked) {
-				formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
 			}
+			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnoughAmount) {
-				formActions.setFieldError("amount", "min amount is 1 oUSD");
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", "min amount is 1 oUSD");
+			}
+			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
+			if (maxAmount < values.amount) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", `max ${maxAmount}`);
 			}
 
-			if (!isAmountNotOverMax) {
-				const maxAmount = this.calcMaxAmount(values.asset_symbol);
-				formActions.setFieldError("amount", `max ${maxAmount}`);
-			}
-
-			if (!isBlocked && isEnoughAmount && isAmountNotOverMax) {
+			if (!isBlocked && isEnoughAmount) {
 				const res = await createRequest(values, "withdraw");
 				if (!res.error) {
 					showNotification({
@@ -118,9 +132,9 @@ class Withdraw extends Component {
 			} else if (e instanceof TimeoutError) {
 				showTimeoutNotification();
 			}
+		} finally {
+			formActions.setSubmitting(false);
 		}
-
-		formActions.setSubmitting(false);
 	};
 
 	handleAssetChange = setFieldValue => async (value, option) => {
