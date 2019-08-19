@@ -48,9 +48,7 @@ class Home extends Component {
 					<Card title="Recent Transactions">
 						<OperationsWidget />
 					</Card>
-				) : (
-					""
-				)}
+				) : null}
 				<ConfirmEmailModal isModalVisible={isConfirmEmailModalVisible} hideModal={this.hideModal} />
 			</>
 		);
