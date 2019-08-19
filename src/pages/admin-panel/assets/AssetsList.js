@@ -9,6 +9,7 @@ import SetExchangeRates from "components/modals/admin/SetExchangeRates";
 import { TimeoutError } from "promise-timeout";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
+import { getAssetData } from "api/assets";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
@@ -117,10 +118,12 @@ class AssetsList extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	componentDidMount() {
+	async componentDidMount() {
 		const { getAssetsList, getExchangeRates } = this.props;
 		getExchangeRates();
 		getAssetsList();
+		const data = await getAssetData();
+		console.log(data);
 	}
 
 	showModalAddAsset = type => () => {
@@ -251,6 +254,13 @@ class AssetsList extends Component {
 				key: "sell",
 				width: "20%",
 				render: record => renderExchangeRate(record, exchangeRates, "sell"),
+			},
+			{
+				title: "Status",
+				dataIndex: "status",
+				key: "status",
+				width: "20%",
+				render: record => console.log(record),
 			},
 			{
 				title: "Action",

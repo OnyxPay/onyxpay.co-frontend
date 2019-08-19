@@ -14,6 +14,7 @@ import {
 import { timeout /* TimeoutError */ } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
+import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 
 export async function sendAsset(values) {
 	const { pk, accountAddress } = await unlockWalletAccount();
@@ -159,4 +160,23 @@ export async function setFiatAmount(tokenId, amount) {
 	);
 
 	return addSignAndSendTrx(serializedTrx, pk);
+}
+
+export async function getAssetData(params) {
+	const client = getRestClient();
+
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("assets", {
+			headers: {
+				...authHeaders,
+			},
+			params: {
+				...params,
+			},
+		});
+		return data.items;
+	} catch (error) {
+		return handleReqError(error);
+	}
 }
