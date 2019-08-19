@@ -19,6 +19,7 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+import { getSettlementsByUserId } from "api/settlement-accounts";
 
 const { Option } = Select;
 
@@ -28,7 +29,12 @@ class Withdraw extends Component {
 	};
 
 	async componentDidMount() {
-		const { getExchangeRates } = this.props;
+		const { getExchangeRates, getSettlementsList, user } = this.props;
+		const data = await getSettlementsByUserId(user.id);
+		if (!data.items.length) {
+			alert(1);
+		}
+		console.log(data);
 		getExchangeRates();
 		const counter = await getActiveRequestsCounter();
 		if (process.env.NODE_ENV === "development") {
@@ -255,5 +261,6 @@ export default connect(
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
 		push,
+		getSettlementsList: Actions.settlements.getSettlementsList,
 	}
 )(Withdraw);
