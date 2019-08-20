@@ -150,8 +150,7 @@ export function renderPerformBtn(
 			record.request &&
 			record.request.takerAddr === walletAddress &&
 			record.request.statusCode !== requestStatus.completed &&
-			record.request.statusCode !== requestStatus.complained &&
-			!isTimeUp(record.request.chooseTimestamp, h24Mc)
+			record.request.statusCode !== requestStatus.complained
 		) {
 			btn = getButton(record.request.requestId);
 		} else {
