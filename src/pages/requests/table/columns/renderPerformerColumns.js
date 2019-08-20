@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Tooltip } from "antd";
 import { getLocalTime } from "utils";
 import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
@@ -7,6 +7,7 @@ import Countdown from "components/Countdown";
 import { h24Mc } from "api/constants";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
+import { styles } from "../../styles";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
@@ -86,6 +87,8 @@ export default function renderPerformerColumns({
 	getColumnSearchProps,
 	defaultFilterValue,
 	acceptRequest,
+	showSelectedUserDataModal,
+	showUserSettlementsModal,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -132,9 +135,38 @@ export default function renderPerformerColumns({
 				title: "Client",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
-					return record.request ? `${record.sender.firstName} ${record.sender.lastName}` : null;
+					if (record.sender) {
+						return (
+							<Button
+								type="link"
+								style={styles.btnLink}
+								onClick={() => showSelectedUserDataModal(record.sender)}
+							>
+								{`${record.sender.firstName} ${record.sender.lastName}`}
+							</Button>
+						);
+					}
+					return null;
 				},
 			},
+			requestsType === "withdraw"
+				? {
+						title: "Settl. acc",
+						render: (text, record, index) => {
+							return record.sender ? (
+								<Tooltip title="See settlement accounts">
+									<Button
+										shape="round"
+										icon="account-book"
+										onClick={e => showUserSettlementsModal(record.sender.id)}
+									/>
+								</Tooltip>
+							) : (
+								"n/a"
+							);
+						},
+				  }
+				: { className: "hidden-column" },
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
@@ -183,7 +215,8 @@ export default function renderPerformerColumns({
 											acceptRequest(
 												record.request.requestId,
 												record.request.amount,
-												record.request.asset
+												record.request.asset,
+												record.request.typeCode
 											)
 										}
 									>

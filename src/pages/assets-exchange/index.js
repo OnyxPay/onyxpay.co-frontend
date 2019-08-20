@@ -372,7 +372,7 @@ class AssetsExchange extends Component {
 
 	openNotification = (type, description) => {
 		showNotification({
-			type: [type],
+			type: type,
 			msg: type === "success" ? "Exchange operation successful" : "Exchange operation failed",
 		});
 	};
