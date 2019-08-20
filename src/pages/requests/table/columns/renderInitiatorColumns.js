@@ -193,6 +193,7 @@ export default function renderInitiatorColumns({
 							{/* Send request to performers */}
 							{record.status === "opened" && (
 								<Button
+									type="primary"
 									disabled={isCancelRequestActive}
 									onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 										requestId: record.id,
@@ -208,6 +209,7 @@ export default function renderInitiatorColumns({
 								isAgentAccepted(record.operationMessages) &&
 								record.status === "opened" && (
 									<Button
+										type="primary"
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 											requestId: record.requestId,
 											isSendingMessage: false,
