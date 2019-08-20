@@ -218,7 +218,7 @@ class ChoosePerformer extends Component {
 				onCancel={this.handleClose}
 				footer={null}
 				destroyOnClose={true}
-				className="send-to-agents-modal"
+				className="choose-performer-modal"
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
@@ -288,6 +288,7 @@ class ChoosePerformer extends Component {
 											htmlType="submit"
 											disabled={!selectedRowKeys.length || isSubmitting}
 											loading={isSubmitting}
+											style={{ marginRight: 10 }}
 										>
 											{isSendingMessage ? "Send request" : "Choose"}
 										</Button>
@@ -296,7 +297,7 @@ class ChoosePerformer extends Component {
 												type="primary"
 												key="allAgent"
 												onClick={() => this.handleSendAllAgents()}
-												style={{ marginLeft: 10 }}
+												className="send-to-all-performers-btn"
 											>
 												Send to all agents
 											</Button>
