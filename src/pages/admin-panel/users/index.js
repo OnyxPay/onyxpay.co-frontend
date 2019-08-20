@@ -9,6 +9,7 @@ import { convertAmountToStr } from "utils/number";
 import { downgradeUser } from "api/admin/user-upgrade";
 import { handleBcError } from "api/network";
 import { showNotification } from "components/notification";
+import { formattingRoleUser } from "components/layout/User";
 
 class Users extends Component {
 	state = {
@@ -61,6 +62,7 @@ class Users extends Component {
 	});
 
 	handleSearch = (selectedKeys, confirm) => {
+		debugger;
 		confirm();
 		this.setState({ searchText: selectedKeys[0] });
 	};
@@ -261,7 +263,7 @@ class Users extends Component {
 				dataIndex: "role",
 				key: "role",
 				...this.getColumnSearchProps("role"),
-				render: res => (res ? res : "n/a"),
+				render: res => (res ? formattingRoleUser(res) : "n/a"),
 			},
 			{
 				title: "Country",
