@@ -190,15 +190,6 @@ export default function renderInitiatorColumns({
 
 					return (
 						<>
-							{/* Cancel request */}
-							{renderCancelBtn(
-								record,
-								requestsType,
-								cancelRequest,
-								isComplainActive,
-								isCancelRequestActive
-							)}
-
 							{/* Send request to performers */}
 							{record.status === "opened" && (
 								<Button
@@ -229,6 +220,14 @@ export default function renderInitiatorColumns({
 										{requestsType === "buy_onyx_cash" ? "Choose super-agent" : "Choose agent"}
 									</Button>
 								)}
+							{/* Cancel request */}
+							{renderCancelBtn(
+								record,
+								requestsType,
+								cancelRequest,
+								isComplainActive,
+								isCancelRequestActive
+							)}
 
 							{/* Complain on request */}
 							{record.takerAddr &&
