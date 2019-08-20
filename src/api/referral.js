@@ -20,6 +20,24 @@ export const getReferralsList = async params => {
 	}
 };
 
+export const getRewardsList = async params => {
+	const client = getRestClient();
+	const authHeaders = getAuthHeaders();
+	try {
+		const { data } = await client.get("/rewards", {
+			headers: {
+				...authHeaders,
+			},
+			params: {
+				...params,
+			},
+		});
+		return data;
+	} catch (er) {
+		return handleReqError(er);
+	}
+};
+
 export async function addReferral(referrer, pk, accountAddress) {
 	const referrerAddress = new Crypto.Address(referrer);
 
