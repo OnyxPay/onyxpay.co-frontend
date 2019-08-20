@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, Row, Col, Alert } from "antd";
+import { Card, Button, Input, Form, Select, Row, Col, Alert, Modal, Icon } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -20,19 +20,25 @@ import {
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 import { getSettlementsByUserId } from "api/settlement-accounts";
+import AddSettlementModal from "components/modals/AddSettlementModal";
+import { Redirect } from "react-router-dom";
 
 const { Option } = Select;
 
 class Withdraw extends Component {
 	state = {
 		activeRequestsError: false,
+		showSettlements: false,
+		visible: false,
 	};
 
 	async componentDidMount() {
-		const { getExchangeRates, getSettlementsList, user } = this.props;
+		const { getExchangeRates, user } = this.props;
 		const data = await getSettlementsByUserId(user.id);
 		if (!data.items.length) {
-			alert(1);
+			this.setState({
+				visible: true,
+			});
 		}
 		console.log(data);
 		getExchangeRates();
@@ -117,10 +123,27 @@ class Withdraw extends Component {
 		setFieldValue("asset_symbol", value);
 	};
 
+	hideModal = type => () => {
+		this.setState({ showSettlements: false });
+	};
+
+	showModal = type => () => {
+		this.setState({ showSettlements: true });
+	};
+
+	handleOk = () => {
+		this.setState({ visible: false });
+	};
+
+	handleCancel = () => {
+		this.setState({ visible: false });
+		return <Redirect to={"/"} />;
+	};
+
 	render() {
 		const { assets } = this.props;
 		const { activeRequestsError } = this.state;
-
+		console.log(this.state.visible);
 		return (
 			<>
 				<PageTitle>Withdraw</PageTitle>
@@ -245,6 +268,25 @@ class Withdraw extends Component {
 						}}
 					</Formik>
 				</Card>
+				<Modal
+					title="Fill settlement account"
+					visible={this.state.visible}
+					onOk={() => this.handleOk()}
+					onCancel={() => this.handleCancel()}
+				>
+					<p>
+						To upgrade to the position of agent or super agent you should input your settlement
+						account. This information will be used for automatically sending to the user that is
+						going to make the deposit.
+					</p>
+					<Button type="primary" onClick={this.showModal()}>
+						<Icon type="plus" /> Add new settlement account
+					</Button>
+				</Modal>
+				<AddSettlementModal
+					isModalVisible={this.state.showSettlements}
+					hideModal={this.hideModal()}
+				/>
 			</>
 		);
 	}
