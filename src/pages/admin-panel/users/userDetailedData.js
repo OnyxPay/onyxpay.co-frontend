@@ -20,7 +20,6 @@ class UserDetailedData extends Component {
 
 	componentDidMount = async () => {
 		const { getUserSettlementData, userRecord } = this.props;
-		console.log(userRecord);
 
 		if (userRecord.is_settlements_exists) {
 			this.setState({
@@ -54,7 +53,6 @@ class UserDetailedData extends Component {
 				user_id: userId,
 				loadingBlockUser: true,
 			});
-			console.log("about to block user");
 			await blockUser(wallet_addr, reason, duration);
 
 			if (await isBlockedUser(wallet_addr)) {
@@ -117,7 +115,6 @@ class UserDetailedData extends Component {
 		});
 	};
 
-	// res.is_settlements_exists
 	render() {
 		const { userRecord, userSettlement } = this.props;
 		const { loadingBlockUser, loadingUnblockUser, assetBalances } = this.state;
@@ -133,7 +130,6 @@ class UserDetailedData extends Component {
 				dataIndex: "account_number",
 				key: "account_number",
 				width: "10%",
-				className: "nowrap-col",
 			},
 			{
 				title: "Brief notes",
