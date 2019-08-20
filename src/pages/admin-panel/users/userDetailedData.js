@@ -9,6 +9,7 @@ import { showNotification } from "components/notification";
 import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
 import { convertAmountToStr } from "utils/number";
 import { updateUserStatus } from "redux/admin-panel/users";
+import { async } from "q";
 
 class UserDetailedData extends Component {
 	state = {
@@ -19,6 +20,18 @@ class UserDetailedData extends Component {
 	};
 
 	componentDidMount = async () => {
+		this.setSettlementData();
+		this.setAssetBalances();
+	};
+
+	async componentDidUpdate(prevProps, prevState) {
+		if (JSON.stringify(prevProps.userRecord) !== JSON.stringify(this.props.userRecord)) {
+			this.setSettlementData();
+			this.setAssetBalances();
+		}
+	}
+
+	setSettlementData = async () => {
 		const { getUserSettlementData, userRecord } = this.props;
 
 		if (userRecord.is_settlements_exists) {
@@ -32,6 +45,12 @@ class UserDetailedData extends Component {
 				loadingSettlementData: false,
 			});
 		}
+	};
+
+	setAssetBalances = async () => {
+		const { userRecord } = this.props;
+
+		this.setSettlementData();
 		if (userRecord.assets_balances !== null) {
 			let balancesList = [];
 			for (let asset in userRecord.assets_balances) {
