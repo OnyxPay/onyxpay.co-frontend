@@ -75,12 +75,12 @@ function renderCancelBtn(
 	}
 }
 
-function renderAcceptBtn(record, isAcceptActive, acceptRequest) {
+function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
 	if (record.status !== "accepted" && record.request.statusCode !== requestStatus.choose) {
-		if (isAcceptActive) {
+		if (isConfirmActive) {
 			return (
 				<Button type="primary" loading={true} disabled={true}>
-					Accept
+					Confirm
 				</Button>
 			);
 		} else {
@@ -88,7 +88,7 @@ function renderAcceptBtn(record, isAcceptActive, acceptRequest) {
 				<Popconfirm
 					title="Sure to accept?"
 					onConfirm={() =>
-						acceptRequest(
+						confirmRequest(
 							record.request.requestId,
 							record.request.amount,
 							record.request.asset,
@@ -96,7 +96,7 @@ function renderAcceptBtn(record, isAcceptActive, acceptRequest) {
 						)
 					}
 				>
-					<Button type="primary">Accept</Button>
+					<Button type="primary">Confirm</Button>
 				</Popconfirm>
 			);
 		}
@@ -115,7 +115,7 @@ export default function renderPerformerColumns({
 	requestsType, // deposit | withdraw | depositOnyxCash
 	getColumnSearchProps,
 	defaultFilterValue,
-	acceptRequest,
+	confirmRequest,
 	showSelectedUserDataModal,
 	showUserSettlementsModal,
 }) {
@@ -221,8 +221,8 @@ export default function renderPerformerColumns({
 						return null;
 					}
 					if (record._isDisabled) return "n/a";
-					const isAcceptActive =
-						record.request.requestId === activeRequestId && activeAction === aa.accept;
+					const isConfirmActive =
+						record.request.requestId === activeRequestId && activeAction === aa.confirm;
 
 					const isPerformActive =
 						record.request.requestId === activeRequestId && activeAction === aa.perform;
@@ -232,9 +232,9 @@ export default function renderPerformerColumns({
 
 					return (
 						<>
-							{renderAcceptBtn(record, isAcceptActive, acceptRequest)}
+							{renderConfirmBtn(record, isConfirmActive, confirmRequest)}
 							{record.status !== "accepted" &&
-								(isAcceptActive || isCancelAcceptedRequestActive ? (
+								(isConfirmActive || isCancelAcceptedRequestActive ? (
 									<Button type="danger" disabled={true}>
 										Hide
 									</Button>
