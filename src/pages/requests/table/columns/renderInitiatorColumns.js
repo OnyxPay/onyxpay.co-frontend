@@ -9,6 +9,12 @@ import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
 import { styles } from "../../styles";
 
+function punishForCancelation(trxCreated, thresholdToPunishInHr) {
+	const timePassedMs = new Date().getTime() - new Date(trxCreated).getTime();
+	const timePassedInHr = timePassedMs / (60 * 60 * 1000);
+	return timePassedInHr < thresholdToPunishInHr;
+}
+
 function isAgentAccepted(operationMessages) {
 	// check if at least one potential performer is accepted the request
 	return operationMessages.some(mg => mg.statusCode === operationMessageStatus.accepted);
@@ -57,6 +63,9 @@ function renderCancelBtn(
 	isCancelRequestActive
 ) {
 	let btn = null;
+
+	const punish = punishForCancelation(record.trx_timestamp, 72);
+
 	if (requestsType === "withdraw") {
 		if (record.status === "opened") {
 			btn = (
@@ -66,6 +75,7 @@ function renderCancelBtn(
 					handleCancel={e => {
 						return cancelRequest(record.requestId);
 					}}
+					punish={punish}
 				/>
 			);
 		}
@@ -81,6 +91,7 @@ function renderCancelBtn(
 					handleCancel={e => {
 						return cancelRequest(record.requestId);
 					}}
+					punish={punish}
 				/>
 			);
 		}
