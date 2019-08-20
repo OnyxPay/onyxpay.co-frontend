@@ -191,7 +191,7 @@ class UserDetailedData extends Component {
 					visible={this.props.visible}
 					onOk={() => this.props.hideModal(false)}
 					onCancel={() => this.props.hideModal(false)}
-					className="large-modal"
+					style={{ width: "100%" }}
 				>
 					<Descriptions layout="vertical">
 						<Descriptions.Item label="First Name">
