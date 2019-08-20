@@ -47,6 +47,8 @@ class ActiveRequests extends Component {
 			activeAction: "",
 			idParsedFromURL: "",
 			openedRequestData: {}, // to choose performer
+			selectedUserData: {},
+			selectedUserDataType: "",
 		};
 		this.setState = this.setState.bind(this);
 		this.searchInput = "";
@@ -274,8 +276,8 @@ class ActiveRequests extends Component {
 				showUserSettlementsModal: settlementsId => {
 					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
 				},
-				showSelectedUserDataModal: selectedUserData => {
-					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
+				showSelectedUserDataModal: (selectedUserData, selectedUserDataType) => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData, selectedUserDataType })();
 				},
 				performRequest: this.performRequest,
 				cancelRequest: this.cancelRequest,
@@ -293,8 +295,8 @@ class ActiveRequests extends Component {
 				defaultFilterValue: idParsedFromURL,
 				requestsType: parseRequestType(location),
 				requestsStatus: "active",
-				showSelectedUserDataModal: selectedUserData => {
-					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
+				showSelectedUserDataModal: (selectedUserData, selectedUserDataType) => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData, selectedUserDataType })();
 				},
 				showUserSettlementsModal: settlementsId => {
 					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
@@ -347,7 +349,8 @@ class ActiveRequests extends Component {
 				<ShowUserDataModal
 					visible={this.state.SELECTED_USER_DATA}
 					hideModal={this.hideModal(modals.SELECTED_USER_DATA)}
-					data={[this.state.selectedUserData]}
+					data={this.state.selectedUserData ? [this.state.selectedUserData] : null}
+					selectedUserDataType={this.state.selectedUserDataType}
 				/>
 			</>
 		);

@@ -169,7 +169,7 @@ export default function renderPerformerColumns({
 							<Button
 								type="link"
 								style={styles.btnLink}
-								onClick={() => showSelectedUserDataModal(record.sender)}
+								onClick={() => showSelectedUserDataModal(record.sender, "initiator")}
 							>
 								{`${record.sender.firstName} ${record.sender.lastName}`}
 							</Button>
