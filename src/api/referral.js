@@ -2,6 +2,24 @@ import { ParameterType, utils, Crypto } from "ontology-ts-sdk";
 import { createAndSignTrxViaGasCompensator, addSignAndSendTrx } from "./bc";
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 
+export const getRewardsAmount = async params => {
+	const client = getRestClient();
+	const authHeaders = getAuthHeaders();
+	try {
+		const { data } = await client.get("/total-rewards", {
+			headers: {
+				...authHeaders,
+			},
+			params: {
+				...params,
+			},
+		});
+		return data;
+	} catch (er) {
+		return handleReqError(er);
+	}
+};
+
 export const getReferralsList = async params => {
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
