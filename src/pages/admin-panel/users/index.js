@@ -1,14 +1,7 @@
 import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
-import UserSettlement from "./userSettlement";
-import { roleCodes } from "api/constants";
-import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
-import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
-import { convertAmountToStr } from "utils/number";
-import { downgradeUser } from "api/admin/user-upgrade";
-import { handleBcError } from "api/network";
-import { showNotification } from "components/notification";
+import { getUsersData } from "redux/admin-panel/users";
 import { formatUserRole } from "utils";
 import UserDetailedData from "./userDetailedData";
 
