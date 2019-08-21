@@ -242,7 +242,7 @@ class UserDetailedData extends Component {
 					<Divider>Balances</Divider>
 					<Table
 						columns={balanceColumns}
-						rowKey={data => data.symbol}
+						rowKey={record => record.id}
 						dataSource={assetBalances}
 						pagination={false}
 						locale={{ emptyText: "User has no assets" }}
@@ -300,9 +300,9 @@ class UserDetailedData extends Component {
 
 					<Table
 						columns={settlementColumns}
-						rowKey={data => data.id}
+						rowKey="id"
 						dataSource={userSettlement}
-						className="ovf-auto"
+						// className="ovf-auto"
 						pagination={false}
 						loading={this.state.loadingSettlementData}
 						locale={{ emptyText: "User has no settlement accounts" }}

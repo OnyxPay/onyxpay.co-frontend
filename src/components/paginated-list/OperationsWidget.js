@@ -1,7 +1,7 @@
 import React from "react";
 import { getOperationHistory } from "api/transactions-history";
 import { convertAmountToStr } from "utils/number";
-import PaginationTable from "./PaginationTable";
+import PaginatedTable from "./PaginatedTable";
 
 const operationHistoryColumns = [
 	{
@@ -51,11 +51,11 @@ const operationHistoryColumns = [
 function OperationsWidget(props) {
 	return (
 		<>
-			<PaginationTable
+			<PaginatedTable
 				columns={operationHistoryColumns}
-				rowKey={"operationId"}
+				rowKey="operationId"
 				fetchData={getOperationHistory}
-				emptyTableMessage={"You haven't performed any operations yet."}
+				emptyTableMessage="You haven't performed any operations yet."
 			/>
 		</>
 	);

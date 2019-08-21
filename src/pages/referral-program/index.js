@@ -9,15 +9,15 @@ class ReferralProgram extends Component {
 	render() {
 		return (
 			<>
-				<div>
+				<div className="referral-page">
 					<PageTitle>Referral Program Info</PageTitle>
 					<ReferralReward />
 
-					<Card title={"Referrals list"} style={{ marginTop: "1em" }}>
+					<Card title={"Referrals list"} className="card-table-container">
 						<ReferralsList />
 					</Card>
 
-					<Card title={"Rewarded transactions list"} style={{ marginTop: "1em" }}>
+					<Card title={"Rewarded transactions list"} className="card-table-container">
 						<RewardedTransactionsList />
 					</Card>
 				</div>

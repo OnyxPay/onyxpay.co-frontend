@@ -1,7 +1,7 @@
 import React from "react";
 import { getExchangeHistory } from "api/transactions-history";
 import { convertAmountToStr } from "utils/number";
-import PaginationTable from "components/paginated-list/PaginationTable";
+import PaginatedTable from "components/paginated-list/PaginatedTable";
 
 const exchangeHistoryColumns = [
 	{
@@ -45,9 +45,9 @@ const exchangeHistoryColumns = [
 function ExchangeHistory(props) {
 	return (
 		<>
-			<PaginationTable
+			<PaginatedTable
 				columns={exchangeHistoryColumns}
-				rowKey={"trxHast"}
+				rowKey="trxHast"
 				fetchData={getExchangeHistory}
 				emptyTableMessage={"You haven't performed any exchange transactions yet."}
 				className="exchange-history-table"

@@ -6,7 +6,7 @@ import { convertAmountToStr } from "utils/number";
 import { roles } from "api/constants";
 import { Row, Col, Card, Button, Modal, Typography, Table } from "antd";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const Amount = styled.div`
 	font-size: 34px;
@@ -89,6 +89,7 @@ class ReferralReward extends Component {
 						<Table
 							columns={referralRewardByAssetColumns}
 							dataSource={this.state.rewards}
+							rowKey={record => record.symbol}
 							pagination={false}
 						/>
 					</Modal>

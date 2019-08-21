@@ -1,7 +1,7 @@
 import React from "react";
 import { getRewardsList } from "api/referral";
 import { convertAmountToStr } from "utils/number";
-import PaginationTable from "./PaginationTable";
+import PaginatedTable from "./PaginatedTable";
 
 let referralsTableColumns = [
 	{
@@ -27,11 +27,11 @@ let referralsTableColumns = [
 function RewardedTransactionsList(props) {
 	return (
 		<>
-			<PaginationTable
+			<PaginatedTable
 				columns={referralsTableColumns}
-				rowKey={"id"}
+				rowKey="id"
 				fetchData={getRewardsList}
-				emptyTableMessage={"You don't have any rewarded transactions yet."}
+				emptyTableMessage="You don't have any rewarded transactions yet."
 			/>
 		</>
 	);

@@ -1,6 +1,6 @@
 import React from "react";
 import { getReferralsList } from "api/referral";
-import PaginationTable from "./PaginationTable";
+import PaginatedTable from "./PaginatedTable";
 
 let referralsTableColumns = [
 	{
@@ -33,11 +33,11 @@ let referralsTableColumns = [
 function ReferralsList(props) {
 	return (
 		<>
-			<PaginationTable
+			<PaginatedTable
 				columns={referralsTableColumns}
-				rowKey={"addr"}
+				rowKey="addr"
 				fetchData={getReferralsList}
-				emptyTableMessage={"You don't have any referrals yet."}
+				emptyTableMessage="You don't have any referrals yet."
 			/>
 		</>
 	);

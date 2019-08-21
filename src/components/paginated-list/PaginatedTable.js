@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "antd";
 
-class PaginationTable extends Component {
+class PaginatedTable extends Component {
 	state = {
 		pagination: { current: 1, pageSize: 10 },
 		transactionListData: [],
@@ -87,4 +87,4 @@ class PaginationTable extends Component {
 	}
 }
 
-export default PaginationTable;
+export default PaginatedTable;
