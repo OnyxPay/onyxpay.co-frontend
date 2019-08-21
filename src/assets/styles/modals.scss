@@ -84,10 +84,9 @@
 		}
 	}
 
-	.choose-performer-modal {
-		.admin__user-data-modal {
-			width: calc(100vw - 16px) !important;
-		}
+	.choose-performer-modal,
+	.admin__user-data-modal {
+		width: calc(100vw - 16px) !important;
 	}
 }
 
