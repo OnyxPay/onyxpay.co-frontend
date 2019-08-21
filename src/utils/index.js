@@ -71,3 +71,17 @@ export function sortValues(valA, valB) {
 	}
 	return 0;
 }
+
+export function formatUserRole(role) {
+	if (role === "user") {
+		return "User";
+	} else if (role === "agent") {
+		return "Agent";
+	} else if (role === "superagent") {
+		return "Super agent";
+	} else if (role === "super_admin") {
+		return "Super admin";
+	} else if (role === "support") {
+		return "Support";
+	}
+}

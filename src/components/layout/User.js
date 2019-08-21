@@ -1,6 +1,7 @@
 import React from "react";
 import { Typography, Avatar, Tooltip } from "antd";
 import styled from "styled-components";
+import { formatUserRole } from "utils/index";
 const { Text } = Typography;
 
 const Wrapper = styled.div`
@@ -41,20 +42,6 @@ const Wrapper = styled.div`
 	}
 `;
 
-export function formattingRoleUser(role) {
-	if (role === "user") {
-		return "User";
-	} else if (role === "agent") {
-		return "Agent";
-	} else if (role === "superagent") {
-		return "Super agent";
-	} else if (role === "super_admin") {
-		return "Super admin";
-	} else if (role === "support") {
-		return "Support";
-	}
-}
-
 export default function User({ firstName, lastName, role }) {
 	if (firstName || lastName) {
 		return (
@@ -65,7 +52,7 @@ export default function User({ firstName, lastName, role }) {
 							<div>
 								{firstName} {lastName}
 							</div>
-							<div>role: {formattingRoleUser(role)}</div>
+							<div>role: {formatUserRole(role)}</div>
 						</>
 					}
 					placement="right"
@@ -75,7 +62,7 @@ export default function User({ firstName, lastName, role }) {
 					<Avatar size="large" icon="user" />
 					<Text ellipsis={true}>
 						{firstName} {lastName}
-						<p className="user-role">role: {formattingRoleUser(role)}</p>
+						<p className="user-role">role: {formatUserRole(role)}</p>
 					</Text>
 				</Tooltip>
 			</Wrapper>
