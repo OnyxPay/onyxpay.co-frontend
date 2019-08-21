@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { PageTitle } from "../components";
+import OperationsWidget from "components/paginated-list/OperationsWidget";
 import { userStatus } from "api/constants";
-import OperationsWidget from "components/transaction-list/OperationsWidget";
 import { Card } from "antd";
 import Balance from "../components/balance/Balance";
 import ConfirmEmailModal from "../components/modals/ConfirmEmail";
