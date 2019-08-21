@@ -67,16 +67,18 @@ class CancelRequest extends Component {
 			);
 		}
 
-		return (
+		return isActionActive || disabled ? (
+			<Button type="danger" loading={isActionActive} disabled={true}>
+				Cancel
+			</Button>
+		) : (
 			<Popover
 				content={content}
 				trigger="click"
 				visible={this.state.visible}
 				onVisibleChange={this.handleVisibleChange}
 			>
-				<Button type="danger" loading={isActionActive} disabled={isActionActive || disabled}>
-					Cancel
-				</Button>
+				<Button type="danger">Cancel</Button>
 			</Popover>
 		);
 	}

@@ -221,6 +221,7 @@ export default function renderInitiatorColumns({
 								record.status === "opened" && (
 									<Button
 										type="primary"
+										disabled={isCancelRequestActive}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 											requestId: record.requestId,
 											isSendingMessage: false,
