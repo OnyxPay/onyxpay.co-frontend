@@ -1,8 +1,16 @@
 import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
+import UserSettlement from "./userSettlement";
+import { roleCodes } from "api/constants";
+import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
+import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
+import { convertAmountToStr } from "utils/number";
+import { downgradeUser } from "api/admin/user-upgrade";
+import { handleBcError } from "api/network";
+import { showNotification } from "components/notification";
+import { formatUserRole } from "utils";
 import UserDetailedData from "./userDetailedData";
-import { getUsersData } from "redux/admin-panel/users";
 
 class Users extends Component {
 	state = {
@@ -148,7 +156,7 @@ class Users extends Component {
 				dataIndex: "role",
 				key: "role",
 				...this.getColumnSearchProps("role"),
-				render: res => (res ? res : "n/a"),
+				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
 				title: "Country",
