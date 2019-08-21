@@ -11,6 +11,7 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+import { formatUserRole } from "utils";
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -213,12 +214,12 @@ class UserUpgradeRequests extends Component {
 			{
 				title: "Current role",
 				dataIndex: "existing_position",
-				render: res => (res ? res : "n/a"),
+				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
 				title: "Expected role",
 				dataIndex: "expected_position",
-				render: res => (res ? res : "n/a"),
+				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
 				title: "Email",

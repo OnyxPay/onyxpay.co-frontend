@@ -67,7 +67,9 @@ class PaginationTable extends Component {
 	};
 
 	render() {
-		const { columns, rowKey, emptyTableMessage } = this.props;
+		const { columns, rowKey, emptyTableMessage, className = "" } = this.props;
+		const classNames = ["ovf-auto", ...className.split(" ")];
+
 		return (
 			<>
 				<Table
@@ -78,7 +80,7 @@ class PaginationTable extends Component {
 					rowKey={rowKey}
 					locale={{ emptyText: emptyTableMessage }}
 					loading={this.state.loading}
-					className="transactions-table"
+					className={classNames.join(" ")}
 				/>
 			</>
 		);

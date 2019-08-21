@@ -49,7 +49,7 @@ export function renderPageTitle({ requestType, isRequestClosed, isUserInitiator 
 
 export const aa = {
 	// active action
-	accept: "accept",
+	confirm: "confirm",
 	perform: "perform",
 	cancelAccepted: "cancelAccepted",
 	complain: "complain",

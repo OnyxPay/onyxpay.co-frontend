@@ -8,6 +8,7 @@ import { ContractAddressError } from "utils/custom-error";
 
 export async function blockUser(userAccountAddress, reason, duration) {
 	const { pk, accountAddress } = await unlockWalletAccount();
+	console.log(accountAddress, userAccountAddress, reason, duration);
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
@@ -27,6 +28,7 @@ export async function blockUser(userAccountAddress, reason, duration) {
 			value: duration,
 		},
 	];
+	console.log(params);
 
 	const serializedTrx = await createAndSignTrxViaGasCompensator(
 		"OnyxPay",
@@ -47,12 +49,8 @@ export async function unblockUser(userAccountAddress) {
 			type: ParameterType.ByteArray,
 			value: utils.reverseHex(cryptoAddress(userAccountAddress).toHexString()),
 		},
-		{
-			label: "userId",
-			type: ParameterType.ByteArray,
-			value: utils.reverseHex(cryptoAddress(userAccountAddress).toHexString()),
-		},
 	];
+	console.log(params);
 
 	const serializedTrx = await createAndSignTrxViaGasCompensator(
 		"OnyxPay",
