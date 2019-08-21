@@ -9,7 +9,6 @@ import { showNotification } from "components/notification";
 import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
 import { convertAmountToStr } from "utils/number";
 import { updateUserStatus } from "redux/admin-panel/users";
-import { async } from "q";
 
 class UserDetailedData extends Component {
 	state = {
@@ -191,7 +190,7 @@ class UserDetailedData extends Component {
 					visible={this.props.visible}
 					onOk={() => this.props.hideModal(false)}
 					onCancel={() => this.props.hideModal(false)}
-					style={{ width: "100%" }}
+					className="admin__user-data-modal"
 				>
 					<Descriptions layout="vertical">
 						<Descriptions.Item label="First Name">
