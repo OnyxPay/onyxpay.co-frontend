@@ -36,7 +36,7 @@ class Deposit extends Component {
 		if (process.env.NODE_ENV === "development") {
 			console.log("activeRequestsCounter", counter);
 		}
-		if (counter > 10) {
+		if (counter >= 10) {
 			this.setState({ activeRequestsError: true });
 		}
 	}
