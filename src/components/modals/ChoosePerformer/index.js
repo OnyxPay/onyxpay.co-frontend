@@ -25,7 +25,7 @@ class ChoosePerformer extends Component {
 			selectedRows: [],
 			selectedRowKeys: [],
 			pagination: { current: 1, pageSize: 20 },
-			country: null,
+			country: this.props.user && this.props.user.countryId,
 		};
 	}
 
@@ -121,11 +121,14 @@ class ChoosePerformer extends Component {
 				},
 			},
 			() => {
-				for (const filter in filters) {
-					filters[filter] = filters[filter][0];
+				const filtersCopy = { ...filters };
+				for (const filter in filtersCopy) {
+					if (filtersCopy[filter]) {
+						filtersCopy[filter] = filtersCopy[filter][0];
+					}
 				}
 				this.fetchUsers({
-					...filters,
+					...filtersCopy,
 					sort_field: sorter.field,
 					sort: sorOrder,
 					country: country,
@@ -168,14 +171,14 @@ class ChoosePerformer extends Component {
 	};
 
 	async fetchUsers(opts = {}) {
-		const { user, performer, accountAddress } = this.props;
-		const { pagination } = this.state;
+		const { performer, accountAddress } = this.props;
+		const { pagination, country } = this.state;
 		try {
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				role: performer,
-				country: user.countryId,
+				country: country,
 				...opts,
 			};
 
@@ -187,7 +190,6 @@ class ChoosePerformer extends Component {
 				loading: false,
 				users: { items: performers, total: res.total },
 				pagination,
-				country: user.countryId,
 			});
 		} catch (e) {}
 	}
@@ -298,6 +300,7 @@ class ChoosePerformer extends Component {
 										isSendingMessage={isSendingMessage}
 										showUserSettlementsModal={showUserSettlementsModal}
 										requestId={this.props.requestId}
+										key={this.state.country}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>

@@ -13,7 +13,7 @@ function handleReset(clearFilters, dataIndex) {
 export function getColumnSearchProps() {
 	let searchInput;
 	return dataIndex => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+		filterDropdown: ({ setSelectedKeys, selectedKeys = [], confirm, clearFilters }) => {
 			return (
 				<div style={{ padding: 8 }}>
 					<Input
