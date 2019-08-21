@@ -1,6 +1,7 @@
 import React from "react";
 import { Typography, Avatar, Tooltip } from "antd";
 import styled from "styled-components";
+import { formatUserRole } from "utils/index";
 const { Text } = Typography;
 
 const Wrapper = styled.div`
@@ -51,7 +52,7 @@ export default function User({ firstName, lastName, role }) {
 							<div>
 								{firstName} {lastName}
 							</div>
-							<div>role: {role}</div>
+							<div>role: {formatUserRole(role)}</div>
 						</>
 					}
 					placement="right"
@@ -61,7 +62,7 @@ export default function User({ firstName, lastName, role }) {
 					<Avatar size="large" icon="user" />
 					<Text ellipsis={true}>
 						{firstName} {lastName}
-						<p className="user-role">role: {role}</p>
+						<p className="user-role">role: {formatUserRole(role)}</p>
 					</Text>
 				</Tooltip>
 			</Wrapper>

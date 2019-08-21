@@ -63,13 +63,12 @@ export class ResolvedComplaint extends Component {
 		const { pagination } = this.state;
 		const columns = [
 			{
-				title: "Request type",
-				dataIndex: "type",
-				render: (text, record, index) => (text ? text : "n/a"),
+				title: "Id",
+				dataIndex: "id",
 			},
 			{
-				title: "Request id",
-				dataIndex: "requestId",
+				title: "Request type",
+				dataIndex: "type",
 				render: (text, record, index) => (text ? text : "n/a"),
 			},
 			{

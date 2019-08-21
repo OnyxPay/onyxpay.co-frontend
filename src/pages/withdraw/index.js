@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Card, Button, Input, Form, Select, Row, Col, Alert } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
-import Actions from "../../redux/actions";
+import Actions from "redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
 import { createRequest, getActiveRequestsCounter } from "api/requests";
@@ -19,23 +19,40 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+import { Link } from "react-router-dom";
+import { createLoadingSelector } from "selectors/loading";
+import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
+import { getFee } from "../../api/assets";
 
 const { Option } = Select;
 
 class Withdraw extends Component {
 	state = {
 		activeRequestsError: false,
+		settlementsError: false,
 	};
 
 	async componentDidMount() {
-		const { getExchangeRates } = this.props;
+		const { getExchangeRates, getSettlementsList } = this.props;
 		getExchangeRates();
+		getSettlementsList();
 		const counter = await getActiveRequestsCounter();
 		if (process.env.NODE_ENV === "development") {
 			console.log("activeRequestsCounter", counter);
 		}
-		if (counter > 10) {
+		if (counter >= 10) {
 			this.setState({ activeRequestsError: true });
+		}
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		const { isSettlementsFetching, settlements } = this.props;
+		const { settlementsError } = this.state;
+
+		if (prevProps.isSettlementsFetching && !isSettlementsFetching && !settlements.length) {
+			this.setState({ settlementsError: true });
+		} else if (prevProps.settlements.length !== settlements.length && settlementsError) {
+			this.setState({ settlementsError: false });
 		}
 	}
 
@@ -47,19 +64,32 @@ class Withdraw extends Component {
 		return isEnough;
 	}
 
-	calcMaxAmount(assetSymbol) {
+	async calcMaxAmount(assetSymbol) {
 		const { assets } = this.props;
-		const asset = assets.find(asset => asset.symbol === assetSymbol);
-		return convertAmountToStr(asset.amount, 8);
+		if (assets.length) {
+			try {
+				const asset = assets.find(asset => asset.symbol === assetSymbol);
+				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "withdraw");
+				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
+				let maxAmount = (convertAmountToStr(asset.amount, 8) / (1 + maxAmountFeePercent)).toFixed(
+					8
+				);
+				let updatedFee = (await getFee(assetSymbol, maxAmount.toString(), "withdraw")) / 10 ** 8;
+				const updatedAmountFeePercent = parseFloat((updatedFee / maxAmount).toFixed(8));
+				if (maxAmountFeePercent !== updatedAmountFeePercent) {
+					maxAmount = (maxAmount / (1 + updatedAmountFeePercent)).toFixed(8);
+					updatedFee = (await getFee(assetSymbol, maxAmount.toString(), "withdraw")) / 10 ** 8;
+				}
+				return maxAmount;
+			} catch (e) {
+				showBcError(e.message);
+				return 0;
+			}
+		}
 	}
 
-	isAmountNotOverMax = (amount, assetSymbol) => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
-		return amount <= maxAmount;
-	};
-
-	handleMaxAmount = (assetSymbol, setFieldValue) => e => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
+	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol);
 		setFieldValue("amount", maxAmount);
 	};
 
@@ -67,22 +97,22 @@ class Withdraw extends Component {
 		const { push } = this.props;
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
-			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
-			const isAmountNotOverMax = this.isAmountNotOverMax(values.amount, values.asset_symbol);
-
 			if (isBlocked) {
-				formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
 			}
+			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnoughAmount) {
-				formActions.setFieldError("amount", "min amount is 1 oUSD");
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", "min amount is 1 oUSD");
+			}
+			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
+			if (maxAmount < values.amount) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", `max ${maxAmount}`);
 			}
 
-			if (!isAmountNotOverMax) {
-				const maxAmount = this.calcMaxAmount(values.asset_symbol);
-				formActions.setFieldError("amount", `max ${maxAmount}`);
-			}
-
-			if (!isBlocked && isEnoughAmount && isAmountNotOverMax) {
+			if (!isBlocked && isEnoughAmount) {
 				const res = await createRequest(values, "withdraw");
 				if (!res.error) {
 					showNotification({
@@ -102,9 +132,9 @@ class Withdraw extends Component {
 			} else if (e instanceof TimeoutError) {
 				showTimeoutNotification();
 			}
+		} finally {
+			formActions.setSubmitting(false);
 		}
-
-		formActions.setSubmitting(false);
 	};
 
 	handleAssetChange = setFieldValue => async (value, option) => {
@@ -113,7 +143,9 @@ class Withdraw extends Component {
 
 	render() {
 		const { assets } = this.props;
-		const { activeRequestsError } = this.state;
+		const { activeRequestsError, settlementsError } = this.state;
+
+		const isFormDisabled = settlementsError || activeRequestsError;
 
 		return (
 			<>
@@ -175,7 +207,7 @@ class Withdraw extends Component {
 													filterOption={(input, option) =>
 														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 													}
-													disabled={activeRequestsError || isSubmitting}
+													disabled={isFormDisabled || isSubmitting}
 												>
 													{assets.map((asset, index) => {
 														return (
@@ -204,12 +236,12 @@ class Withdraw extends Component {
 														value={values.amount}
 														onChange={handleChange}
 														onBlur={handleBlur}
-														disabled={activeRequestsError || isSubmitting}
+														disabled={isFormDisabled || isSubmitting}
 														step="any"
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
-														disabled={activeRequestsError || isSubmitting}
+														disabled={isFormDisabled || isSubmitting}
 													>
 														max
 													</Button>
@@ -221,12 +253,25 @@ class Withdraw extends Component {
 										<Button
 											type="primary"
 											htmlType="submit"
-											disabled={activeRequestsError || isSubmitting}
+											disabled={isFormDisabled || isSubmitting}
 											loading={isSubmitting}
 										>
 											Create withdraw request
 										</Button>
 									</TextAligner>
+									{settlementsError && (
+										<Alert
+											style={{ marginTop: 16 }}
+											message={
+												<div>
+													To create a withdraw request you should have at least one settlement
+													account. Please,&nbsp;
+													<Link to="/settlement-accounts">create one</Link>.
+												</div>
+											}
+											type="error"
+										/>
+									)}
 									{activeRequestsError && (
 										<Alert
 											style={{ marginTop: 16 }}
@@ -244,16 +289,21 @@ class Withdraw extends Component {
 	}
 }
 
+const loadingSelector = createLoadingSelector([FETCH_SETTLEMENTS_LIST]);
+
 export default connect(
 	state => {
 		return {
 			user: state.user,
 			assets: state.balance.assets,
 			exchangeRates: state.assets.rates,
+			settlements: state.settlements,
+			isSettlementsFetching: loadingSelector(state),
 		};
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
+		getSettlementsList: Actions.settlements.getSettlementsList,
 		push,
 	}
 )(Withdraw);
