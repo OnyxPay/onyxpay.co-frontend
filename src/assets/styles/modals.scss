@@ -56,7 +56,9 @@
 	}
 }
 
-.choose-performer-modal {
+
+.choose-performer-moda,
+.admin__user-data-modal {
 	width: 900px !important;
 }
 
@@ -84,6 +86,7 @@
 	}
 
 	.choose-performer-modal {
+	.admin__user-data-modal {
 		width: calc(100vw - 16px) !important;
 	}
 }
