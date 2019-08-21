@@ -129,31 +129,3 @@ export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
 
 	return addSignAndSendTrx(serializedTrx, pk);
 }
-
-export async function setFiatAmount(tokenId, amount) {
-	const { pk, accountAddress } = await unlockWalletAccount();
-
-	const params = [
-		{
-			label: "agent",
-			type: ParameterType.ByteArray,
-			value: utils.reverseHex(accountAddress.toHexString()),
-		},
-		{
-			label: "tokenId",
-			type: ParameterType.String,
-			value: tokenId,
-		},
-		{ label: "buyRate", type: ParameterType.Integer, value: convertAmountFromStr(amount) },
-	];
-
-	console.log(params);
-
-	const serializedTrx = await createAndSignTrxViaGasCompensator(
-		"Exchange",
-		"SetFiatAmount",
-		params
-	);
-
-	return addSignAndSendTrx(serializedTrx, pk);
-}
