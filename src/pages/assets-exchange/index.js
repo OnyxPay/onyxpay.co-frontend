@@ -47,7 +47,6 @@ const assetsColumns = [
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
-		width: "9em",
 	},
 ];
 
@@ -630,7 +629,7 @@ class AssetsExchange extends Component {
 					</Row>
 					<Divider />
 					<Row gutter={48} className="exchange-tables">
-						<Col md={48} lg={24}>
+						<Col lg={24} xl={12}>
 							<Table
 								columns={assetsColumns}
 								dataSource={this.state.assetsData}
