@@ -3,13 +3,12 @@ import { connect } from "react-redux";
 import { Card, Button, Table, Icon, Input } from "antd";
 import Actions from "redux/actions";
 import { blockAsset } from "api/admin/assets";
-import { isAssetBlocked } from "api/assets";
 import AddNewAsset from "components/modals/admin/AddNewAsset";
 import SetExchangeRates from "components/modals/admin/SetExchangeRates";
 import { TimeoutError } from "promise-timeout";
 import { showNotification, showTimeoutNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
-import { getAssetData } from "api/assets";
+import { getAssetsData } from "api/assets";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
@@ -18,8 +17,7 @@ const modals = {
 
 const style = {
 	button: {
-		marginRight: 8,
-		marginBottom: 5,
+		marginRight: 10,
 	},
 };
 
@@ -56,13 +54,13 @@ class AssetsList extends Component {
 		super(props);
 		this.state = {
 			loadingBlockedAsset: false,
-			loadingIsBlockedAsset: false,
 			ADD_ASSETS_MODAL: false,
 			ADD_SET_EXCHANGE_RATES: false,
-			data: null,
 			pagination: { pageSize: 20 },
 			symbolKey: null,
 			tokenId: null,
+			assetsStatus: null,
+			disableBtn: false,
 		};
 	}
 
@@ -122,8 +120,10 @@ class AssetsList extends Component {
 		const { getAssetsList, getExchangeRates } = this.props;
 		getExchangeRates();
 		getAssetsList();
-		const data = await getAssetData();
-		console.log(data);
+		const assetsData = await getAssetsData();
+		this.setState({
+			assetsStatus: assetsData,
+		});
 	}
 
 	showModalAddAsset = type => () => {
@@ -165,6 +165,9 @@ class AssetsList extends Component {
 					type: "success",
 					msg: "Asset was successfully blocked",
 				});
+				this.setState({
+					disableBtn: true,
+				});
 			}
 		} catch (e) {
 			if (e instanceof TimeoutError) {
@@ -182,31 +185,48 @@ class AssetsList extends Component {
 		}
 	};
 
-	handleCheckAssetBlocked = async (asset_symbol, key) => {
-		this.setState({
-			symbolKey: key,
-			loadingIsBlockedAsset: true,
-		});
-		const res = await isAssetBlocked(asset_symbol);
-		this.setState({
-			loadingIsBlockedAsset: false,
-		});
-		if (res) {
-			showNotification({
-				type: "success",
-				msg: "Asset is blocked",
-			});
-		} else {
-			showNotification({
-				type: "success",
-				msg: "Asset isn't blocked",
-			});
+	checkUserStatus = symbol => {
+		const { assetsStatus } = this.state;
+		const { data } = this.props;
+		let res, status;
+		if (assetsStatus !== null) {
+			for (let i = 0; i < assetsStatus.length; i++) {
+				if (assetsStatus[i].name === symbol) {
+					res = assetsStatus[i].status;
+					if (res === 1) {
+						status = "active";
+					} else {
+						status = "blocked";
+					}
+					break;
+				}
+			}
 		}
+
+		for (let i = 0; i < data.length; i++) {
+			if (data[i].symbol === symbol) {
+				data[i].status = status;
+				break;
+			}
+		}
+		if (!status) {
+			return "n/a";
+		}
+		return status;
+	};
+
+	refreshTable = async () => {
+		const { getAssetsList } = this.props;
+		getAssetsList();
+		const assetsData = await getAssetsData();
+		this.setState({
+			assetsStatus: assetsData,
+		});
 	};
 
 	render() {
 		const {
-			loadingIsBlockedAsset,
+			disableBtn,
 			pagination,
 			loadingBlockedAsset,
 			symbolKey,
@@ -260,36 +280,33 @@ class AssetsList extends Component {
 				dataIndex: "status",
 				key: "status",
 				width: "20%",
-				render: record => console.log(record),
+				render: (text, record, index) => this.checkUserStatus(record.symbol),
 			},
 			{
 				title: "Action",
 				key: "action",
 				width: "45%",
 				dataIndex: "",
-				render: res => (
+				render: (text, record, index) => (
 					<>
-						<Button
-							type="danger"
-							loading={res.key === symbolKey && loadingBlockedAsset}
-							onClick={() => this.handleBlockAsset(res.symbol, res.key)}
-							style={style.button}
-						>
-							Block asset
-						</Button>
+						{record.status === "active" && (
+							<Button
+								type="danger"
+								loading={record.key === symbolKey && loadingBlockedAsset}
+								onClick={() => this.handleBlockAsset(record.symbol, record.key)}
+								style={style.button}
+								disabled={disableBtn && record.key === symbolKey}
+							>
+								Block asset
+							</Button>
+						)}
+
 						<Button
 							type="primary"
-							onClick={this.showModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES, res.symbol)}
+							onClick={this.showModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES, record.symbol)}
 							style={style.button}
 						>
 							Set exchange rates
-						</Button>
-						<Button
-							loading={res.key === symbolKey && loadingIsBlockedAsset}
-							onClick={() => this.handleCheckAssetBlocked(res.symbol, res.key)}
-							style={style.button}
-						>
-							Is blocked asset
 						</Button>
 					</>
 				),
@@ -300,8 +317,15 @@ class AssetsList extends Component {
 			<>
 				<Card>
 					<div style={{ marginBottom: 30 }}>
-						<Button type="primary" onClick={this.showModalAddAsset(modals.ADD_ASSETS_MODAL)}>
+						<Button
+							type="primary"
+							style={style.button}
+							onClick={this.showModalAddAsset(modals.ADD_ASSETS_MODAL)}
+						>
 							<Icon type="plus" /> Add new asset
+						</Button>
+						<Button type="primary" onClick={this.refreshTable}>
+							<Icon type="reload" /> Refresh
 						</Button>
 					</div>
 

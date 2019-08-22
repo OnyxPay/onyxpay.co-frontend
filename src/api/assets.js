@@ -159,7 +159,7 @@ export async function setFiatAmount(tokenId, amount) {
 	return addSignAndSendTrx(serializedTrx, pk);
 }
 
-export async function getAssetData(params) {
+export async function getAssetsData(params) {
 	const client = getRestClient();
 
 	try {
