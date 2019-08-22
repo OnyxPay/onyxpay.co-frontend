@@ -15,7 +15,7 @@ export const GET_OPERATION_MESSAGES_SUCCESS = "GET_OPERATION_MESSAGES_SUCCESS";
 export const GET_OPERATION_REQUESTS_FAILURE = "GET_OPERATION_REQUESTS_FAILURE";
 export const GET_OPERATION_MESSAGES_FAILURE = "GET_OPERATION_MESSAGES_FAILURE";
 export const GET_OPERATION_REQUESTS = "GET_OPERATION_REQUESTS";
-export const GET_MESSAGES_REQUESTS = "GET_MESSAGES_REQUESTS";
+export const GET_OPERATION_MESSAGES = "GET_OPERATION_MESSAGES";
 export const DISABLE_OPERATION_REQ = "DISABLE_OPERATION_REQ";
 
 const initState = {
@@ -177,31 +177,29 @@ const changeRequestStatusMakerPredicate = payload => {
 	};
 };
 
+function disableOperationReq(state, action) {
+	const modifiedItems = state.items.map(req => {
+		if (req.request && req.request.requestId) {
+			if (req.request.requestId === action.payload.requestId) {
+				req._isDisabled = true;
+			}
+		} else if (req.requestId) {
+			if (req.requestId === action.payload.requestId) {
+				req._isDisabled = true;
+			}
+		}
+		return req;
+	});
+
+	return { ...state, items: modifiedItems };
+}
 export const opRequestsReducer = (state = initState, action) => {
 	let pred;
 	switch (action.type) {
 		case GET_OPERATION_REQUESTS_SUCCESS:
-			return {
-				items: action.payload.items,
-				total: action.payload.total,
-				fetchActive: action.fetchActive,
-				isInitiator: action.isInitiator,
-			};
+			return action.payload;
 		case DISABLE_OPERATION_REQ:
-			const modifiedItems = state.items.map(req => {
-				if (req.request && req.request.requestId) {
-					if (req.request.requestId === action.payload.requestId) {
-						req._isDisabled = true;
-					}
-				} else if (req.requestId) {
-					if (req.requestId === action.payload.requestId) {
-						req._isDisabled = true;
-					}
-				}
-				return req;
-			});
-
-			return { ...state, items: modifiedItems };
+			return disableOperationReq(state, action);
 
 		case wsEvents.cancelAcceptationMaker:
 			pred = makerAcceptationPredicate(
@@ -253,15 +251,24 @@ export const opRequestsReducer = (state = initState, action) => {
 	return enumerateItems(state, pred, action.type);
 };
 
+export const ownOpRequests = (state = initState, action) => {
+	switch (action.type) {
+		case GET_OPERATION_REQUESTS_SUCCESS:
+			return action.payload;
+		default:
+			return state;
+	}
+};
+
 export const opMessagesReducer = (state = initState, action) => {
 	let pred;
 	switch (action.type) {
 		case GET_OPERATION_MESSAGES_SUCCESS:
-			return {
-				items: action.payload.items,
-				total: action.payload.total,
-				fetchActive: action.fetchActive,
-			};
+			return action.payload;
+
+		case DISABLE_OPERATION_REQ:
+			return disableOperationReq(state, action);
+
 		case wsEvents.acceptRequestTaker:
 			pred = takerAcceptationPredicate(
 				action.payload,

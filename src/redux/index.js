@@ -13,7 +13,7 @@ import { sessionReducer } from "./session";
 import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/users";
 import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
-import { opRequestsReducer, opMessagesReducer } from "./requests";
+import { opRequestsReducer, opMessagesReducer, ownOpRequests } from "./requests";
 
 export default history =>
 	combineReducers({
@@ -34,4 +34,5 @@ export default history =>
 		globalLoading: loadingReducer,
 		opRequests: opRequestsReducer,
 		opMessages: opMessagesReducer,
+		ownOpRequests: ownOpRequests,
 	});

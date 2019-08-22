@@ -11,7 +11,7 @@ function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: state.opRequests,
+		data: state.ownOpRequests,
 		isFetching: loadingSelector(state),
 		balanceAssets: state.balance.assets,
 		balanceOnyxCash: state.balance.onyxCash,

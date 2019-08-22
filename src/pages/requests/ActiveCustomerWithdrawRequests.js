@@ -4,9 +4,9 @@ import { connect } from "react-redux";
 import ActiveRequests from "pages/requests/ActiveRequests";
 import { createLoadingSelector } from "selectors/loading";
 import { push } from "connected-react-router";
-import { getOpMessages, GET_MESSAGES_REQUESTS, disableRequest } from "redux/requests";
+import { getOpMessages, GET_OPERATION_MESSAGES, disableRequest } from "redux/requests";
 
-const loadingSelector = createLoadingSelector([GET_MESSAGES_REQUESTS]);
+const loadingSelector = createLoadingSelector([GET_OPERATION_MESSAGES]);
 function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
