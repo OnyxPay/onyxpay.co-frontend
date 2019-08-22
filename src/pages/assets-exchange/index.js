@@ -100,7 +100,12 @@ class AssetsExchange extends Component {
 	}
 
 	getAssetsForSellData() {
-		return this.getAssetsForTypeData("sell");
+		const { user } = this.props;
+
+		let assetsForSell = this.getAssetsForTypeData("sell");
+		return user.role === roles.sa
+			? assetsForSell.filter(asset => asset.name !== onyxCashSymbol)
+			: assetsForSell;
 	}
 
 	fillAssetsData = async () => {
