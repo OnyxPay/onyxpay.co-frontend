@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Tooltip } from "antd";
 import { getLocalTime } from "utils";
 import { convertAmountToStr } from "utils/number";
 import { requestStatus, operationMessageStatus } from "api/constants";
@@ -7,6 +7,7 @@ import Countdown from "components/Countdown";
 import { h24Mc } from "api/constants";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
+import { styles } from "../../styles";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
@@ -74,6 +75,35 @@ function renderCancelBtn(
 	}
 }
 
+function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
+	if (record.status !== "accepted" && record.request.statusCode !== requestStatus.choose) {
+		if (isConfirmActive) {
+			return (
+				<Button type="primary" loading={true} disabled={true}>
+					Confirm
+				</Button>
+			);
+		} else {
+			return (
+				<Popconfirm
+					title="Sure to accept?"
+					onConfirm={() =>
+						confirmRequest(
+							record.request.requestId,
+							record.request.amount,
+							record.request.asset,
+							record.request.typeCode
+						)
+					}
+				>
+					<Button type="primary">Confirm</Button>
+				</Popconfirm>
+			);
+		}
+	}
+	return null;
+}
+
 export default function renderPerformerColumns({
 	activeRequestId,
 	activeAction,
@@ -85,7 +115,9 @@ export default function renderPerformerColumns({
 	requestsType, // deposit | withdraw | depositOnyxCash
 	getColumnSearchProps,
 	defaultFilterValue,
-	acceptRequest,
+	confirmRequest,
+	showSelectedUserDataModal,
+	showUserSettlementsModal,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -132,9 +164,38 @@ export default function renderPerformerColumns({
 				title: "Client",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
-					return record.request ? `${record.sender.firstName} ${record.sender.lastName}` : null;
+					if (record.sender) {
+						return (
+							<Button
+								type="link"
+								style={styles.btnLink}
+								onClick={() => showSelectedUserDataModal(record.sender, "initiator")}
+							>
+								{`${record.sender.firstName} ${record.sender.lastName}`}
+							</Button>
+						);
+					}
+					return null;
 				},
 			},
+			requestsType === "withdraw"
+				? {
+						title: "Settl. acc",
+						render: (text, record, index) => {
+							return record.sender ? (
+								<Tooltip title="See settlement accounts">
+									<Button
+										shape="round"
+										icon="account-book"
+										onClick={e => showUserSettlementsModal(record.sender.id)}
+									/>
+								</Tooltip>
+							) : (
+								"n/a"
+							);
+						},
+				  }
+				: { className: "hidden-column" },
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
@@ -160,8 +221,8 @@ export default function renderPerformerColumns({
 						return null;
 					}
 					if (record._isDisabled) return "n/a";
-					const isAcceptActive =
-						record.request.requestId === activeRequestId && activeAction === aa.accept;
+					const isConfirmActive =
+						record.request.requestId === activeRequestId && activeAction === aa.confirm;
 
 					const isPerformActive =
 						record.request.requestId === activeRequestId && activeAction === aa.perform;
@@ -171,28 +232,9 @@ export default function renderPerformerColumns({
 
 					return (
 						<>
+							{renderConfirmBtn(record, isConfirmActive, confirmRequest)}
 							{record.status !== "accepted" &&
-								(isAcceptActive ? (
-									<Button type="primary" loading={true} disabled={true}>
-										Accept
-									</Button>
-								) : (
-									<Popconfirm
-										title="Sure to accept?"
-										onConfirm={() =>
-											acceptRequest(
-												record.request.requestId,
-												record.request.amount,
-												record.request.asset
-											)
-										}
-									>
-										<Button type="primary">Accept</Button>
-									</Popconfirm>
-								))}
-
-							{record.status !== "accepted" &&
-								(isAcceptActive || isCancelAcceptedRequestActive ? (
+								(isConfirmActive || isCancelAcceptedRequestActive ? (
 									<Button type="danger" disabled={true}>
 										Hide
 									</Button>
@@ -260,7 +302,7 @@ export default function renderPerformerColumns({
 				},
 			},
 			{
-				title: "Client",
+				title: "Customer",
 				dataIndex: "sender.addr",
 				render: (text, record, index) => {
 					return record.sender ? `${record.sender.firstName} ${record.sender.lastName}` : null;

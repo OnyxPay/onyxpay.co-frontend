@@ -6,7 +6,6 @@ import ProfileEditor from "./ProfileEditor";
 import WalletAddress from "./WalletAddress";
 import SettlementCard from "../../pages/settlements/SettlementCard";
 import DeleteAccount from "./DeleteAccount";
-import SetFiatAmount from "./SetFiatAmount";
 
 class Profile extends Component {
 	render() {
@@ -23,7 +22,6 @@ class Profile extends Component {
 					<ProfileEditor />
 				</Card>
 				<SettlementCard />
-				<SetFiatAmount />
 				<DeleteAccount />
 			</>
 		);

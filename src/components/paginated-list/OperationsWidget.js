@@ -1,7 +1,7 @@
 import React from "react";
 import { getOperationHistory } from "api/transactions-history";
 import { convertAmountToStr } from "utils/number";
-import TransactionsTable from "components/transaction-list/TransactionsTable";
+import PaginatedTable from "./PaginatedTable";
 
 const operationHistoryColumns = [
 	{
@@ -11,13 +11,13 @@ const operationHistoryColumns = [
 		render: operationType => (operationType ? operationType : "n/a"),
 	},
 	{
-		title: "From",
+		title: "Requester",
 		dataIndex: "sender",
 		key: "from",
 		render: sender => (sender ? sender.firstName + " " + sender.lastName : "n/a"),
 	},
 	{
-		title: "To",
+		title: "Performer",
 		dataIndex: "receiver",
 		key: "to",
 		render: receiver => (receiver ? receiver.firstName + " " + receiver.lastName : "n/a"),
@@ -51,11 +51,11 @@ const operationHistoryColumns = [
 function OperationsWidget(props) {
 	return (
 		<>
-			<TransactionsTable
+			<PaginatedTable
 				columns={operationHistoryColumns}
-				rowKey={"operationId"}
+				rowKey="operationId"
 				fetchData={getOperationHistory}
-				emptyTableMessage={"You haven't performed any operations yet."}
+				emptyTableMessage="You haven't performed any operations yet."
 			/>
 		</>
 	);

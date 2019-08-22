@@ -13,7 +13,7 @@ import {
 	Divider,
 	Tag,
 } from "antd";
-import ExchangeHistory from "components/transaction-list/ExchangeHistory";
+import ExchangeHistory from "components/paginated-list/ExchangeHistory";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";
@@ -372,7 +372,7 @@ class AssetsExchange extends Component {
 
 	openNotification = (type, description) => {
 		showNotification({
-			type: [type],
+			type: type,
 			msg: type === "success" ? "Exchange operation successful" : "Exchange operation failed",
 		});
 	};

@@ -30,18 +30,28 @@ function enumerateItems(state, pred) {
 	return state;
 }
 
+function wsEventTypeToStatus(type) {
+	switch (type) {
+		case wsEvents.acceptRequestTaker:
+		case wsEvents.acceptRequestMaker:
+			return operationMessageStatus.accepted;
+		case wsEvents.cancelAcceptationTaker:
+		case wsEvents.cancelAcceptationMaker:
+			return operationMessageStatus.canceled;
+		default:
+			return operationMessageStatus.opened;
+	}
+}
+
 const makerAcceptationPredicate = (payload, type, notification) => {
 	return item => {
-		const status =
-			type === wsEvents.acceptRequestMaker
-				? operationMessageStatus.accepted
-				: operationMessageStatus.opened;
+		const status = wsEventTypeToStatus(type);
 		if (item.requestId === payload.requestId) {
 			let newItem = item;
 			let message = item.type + " " + notification;
 			showNotification({ type: "success", msg: message });
 			newItem.operationMessages = item.operationMessages.map(message => {
-				if (message.id === payload.messageId) {
+				if (message.receiver.user_id === payload.receiverUserId) {
 					return {
 						...message,
 						statusCode: status,
@@ -59,10 +69,7 @@ const makerAcceptationPredicate = (payload, type, notification) => {
 
 const takerAcceptationPredicate = (payload, type, notification) => {
 	return item => {
-		const status =
-			type === wsEvents.acceptRequestTaker
-				? operationMessageStatus.accepted
-				: operationMessageStatus.opened;
+		const status = wsEventTypeToStatus(type);
 		if (item.request.requestId === payload.requestId) {
 			let message = item.request.type + " " + notification;
 			showNotification({ type: "success", msg: message });

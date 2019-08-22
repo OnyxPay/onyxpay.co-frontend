@@ -8,17 +8,15 @@ import { TextAligner } from "../../components/styled";
 import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
-import { convertAmountToStr, minus } from "../../utils/number";
-import {
-	showNotification,
-	showBcError,
-	showTimeoutNotification,
-	trimAddress,
-} from "components/notification";
+import { convertAmountToStr } from "../../utils/number";
+import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AssetsBalance from "components/balance/AssetsBalance";
 import { handleBcError } from "api/network";
+import { checkUserRole } from "api/admin/users";
+import { roles } from "api/constants";
+import { trimAddress } from "utils";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -43,10 +41,21 @@ class SendAsset extends Component {
 			try {
 				const asset = assets.find(asset => asset.symbol === assetSymbol);
 				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
-				if (updateFee) {
-					this.setState({ fee: fee / 10 ** 8 });
+				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
+				let amountToSend = (
+					convertAmountToStr(asset.amount, 8) /
+					(1 + maxAmountFeePercent)
+				).toFixed(8);
+				let updatedFee = (await getFee(assetSymbol, amountToSend.toString(), "send")) / 10 ** 8;
+				const updatedAmountFeePercent = parseFloat((updatedFee / amountToSend).toFixed(8));
+				if (maxAmountFeePercent !== updatedAmountFeePercent) {
+					amountToSend = (amountToSend / (1 + updatedAmountFeePercent)).toFixed(8);
+					updatedFee = (await getFee(assetSymbol, amountToSend.toString(), "send")) / 10 ** 8;
 				}
-				return minus(asset.amount, fee) / 10 ** 8;
+				if (updateFee) {
+					this.setState({ fee: updatedFee });
+				}
+				return amountToSend;
 			} catch (e) {
 				showBcError(e.message);
 				return 0;
@@ -74,6 +83,25 @@ class SendAsset extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		try {
+			const { user } = this.props;
+			if (user && user.role === roles.c) {
+				// user can't send to agents or super-agents
+				const isReceiverAgentPromise = checkUserRole(values.receiver_address, "IsAgent");
+				const isReceiverSuperAgentPromise = checkUserRole(values.receiver_address, "IsSuperAgent");
+				const [isReceiverAgent, isReceiverSuperAgent] = await Promise.all([
+					isReceiverAgentPromise,
+					isReceiverSuperAgentPromise,
+				]);
+
+				if (isReceiverAgent || isReceiverSuperAgent) {
+					formActions.setSubmitting(false);
+					return formActions.setFieldError(
+						"receiver_address",
+						"assets cannot be sent to Agents or Super agents"
+					);
+				}
+			}
+
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);

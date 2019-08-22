@@ -1,14 +1,9 @@
 import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
-import UserSettlement from "./userSettlement";
-import { roleCodes } from "api/constants";
-import { blockedUsersData, getUsersData, updateUserStatus } from "redux/admin-panel/users";
-import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
-
-import { downgradeUser } from "api/admin/user-upgrade";
-import { handleBcError } from "api/network";
-import { showNotification } from "components/notification";
+import { getUsersData } from "redux/admin-panel/users";
+import { formatUserRole } from "utils";
+import UserDetailedData from "./userDetailedData";
 
 class Users extends Component {
 	state = {
@@ -17,10 +12,8 @@ class Users extends Component {
 		visible: false,
 		settlement: [],
 		loadingTableData: false,
-		user_id: null,
+		activeRecord: null,
 		pagination: { current: 1, pageSize: 20 },
-		loadingBlockUser: false,
-		loadingUnblockUser: false,
 	};
 
 	getColumnSearchProps = dataIndex => ({
@@ -70,9 +63,9 @@ class Users extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	showSettlement(dataIndex) {
+	showDetailedUserData(userRecord) {
 		this.setState({
-			user_id: dataIndex,
+			activeRecord: userRecord,
 			visible: true,
 		});
 	}
@@ -121,117 +114,19 @@ class Users extends Component {
 		} catch (e) {}
 	}
 
-	handleBlockUser = async (walletAddr, reason, duration, userId) => {
-		try {
-			const { updateUserStatus } = this.props;
-			this.setState({
-				user_id: userId,
-				loadingBlockUser: true,
-			});
-			await blockUser(walletAddr, reason, duration);
-
-			if (await isBlockedUser(walletAddr)) {
-				updateUserStatus(userId, 2);
-				showNotification({
-					type: "success",
-					msg: "User was successfully blocked",
-				});
-			}
-		} catch (e) {
-			handleBcError(e);
-		} finally {
-			this.setState({
-				loadingBlockUser: false,
-			});
-		}
-	};
-
-	handleUnblockUser = async (walletAddr, userId) => {
-		try {
-			const { updateUserStatus } = this.props;
-			this.setState({
-				user_id: userId,
-				loadingUnblockUser: true,
-			});
-			await unblockUser(walletAddr);
-			updateUserStatus(userId, 1);
-			showNotification({
-				type: "success",
-				msg: "User was successfully unblocked",
-			});
-		} catch (e) {
-			handleBcError(e);
-		} finally {
-			this.setState({
-				loadingUnblockUser: false,
-			});
-		}
-	};
-
-	handleDowngrade = async (walletAddr, role, id) => {
-		try {
-			this.setState({
-				loadingDowngradeUser: true,
-				requestId: id,
-			});
-			const res = await downgradeUser(walletAddr, role);
-			if (res.Error === 0) {
-				showNotification({
-					type: "success",
-					msg: "User was successfully downgraded",
-				});
-			}
-			this.fetchUsers();
-		} catch (e) {
-			handleBcError(e);
-		}
-		this.setState({
-			loadingDowngradeUser: false,
-		});
-	};
-
 	render() {
 		const { adminUsers } = this.props;
-		const { loadingTableData, pagination, loadingBlockUser, loadingUnblockUser } = this.state;
+		const { loadingTableData, pagination } = this.state;
 		if (!adminUsers) return null;
 		const columns = [
 			{
 				title: "Actions",
-				render: res => (
+				key: "actions",
+				render: userRecord => (
 					<div>
-						{res.statusCode === 1 ? (
-							<Button
-								type="danger"
-								icon="user-delete"
-								loading={res.user_id === this.state.user_id && loadingBlockUser}
-								onClick={() => this.handleBlockUser(res.walletAddr, 1, 10, res.user_id)}
-							>
-								Block
-							</Button>
-						) : null}
-						{res.statusCode === 2 ? (
-							<Button
-								type="primary"
-								icon="user-add"
-								loading={res.user_id === this.state.user_id && loadingUnblockUser}
-								onClick={() => this.handleUnblockUser(res.walletAddr, res.user_id)}
-							>
-								Unblock
-							</Button>
-						) : null}
-						{res.role_code !== roleCodes.user ? (
-							<Button
-								type="danger"
-								onClick={() => this.handleDowngrade(res.walletAddr, res.role, res.id, res)}
-							>
-								Downgrade
-							</Button>
-						) : null}
-						{res.is_settlements_exists ? (
-							<Button icon="account-book" onClick={() => this.showSettlement(res.user_id)}>
-								Settlement accounts
-							</Button>
-						) : null}
+						<Button icon="account-book" onClick={() => this.showDetailedUserData(userRecord)}>
+							Detailed data
+						</Button>
 					</div>
 				),
 			},
@@ -250,18 +145,11 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Registration date",
-				dataIndex: "createdAt",
-				key: "createdAt",
-				...this.getColumnSearchProps("createdAt"),
-				render: res => (res ? new Date(res).toDateString() : "n/a"),
-			},
-			{
 				title: "Role",
 				dataIndex: "role",
 				key: "role",
 				...this.getColumnSearchProps("role"),
-				render: res => (res ? res : "n/a"),
+				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
 				title: "Country",
@@ -271,38 +159,10 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Email",
-				dataIndex: "email",
-				key: "email",
-				...this.getColumnSearchProps("email"),
-				render: res => (res ? res : "n/a"),
-			},
-			{
 				title: "Phone number",
 				dataIndex: "phoneNumber",
 				key: "phoneNumber",
 				...this.getColumnSearchProps("phoneNumber"),
-				render: res => (res ? res : "n/a"),
-			},
-			{
-				title: "Balances",
-				dataIndex: "assets_balances",
-				key: "assets_balances",
-				...this.getColumnSearchProps("assets_balances"),
-				render: res => {
-					let balances = "";
-					for (let asset in res) {
-						balances += asset + ": " + res[asset] + "\n";
-					}
-
-					return balances;
-				},
-			},
-			{
-				title: "Chat id",
-				dataIndex: "chat_id",
-				key: "chat_id",
-				...this.getColumnSearchProps("chat_id"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
@@ -319,36 +179,6 @@ class Users extends Component {
 				...this.getColumnSearchProps("status"),
 				render: res => (res ? res : "n/a"),
 			},
-			{
-				title: "Total remuneration",
-				dataIndex: "remuneration",
-				key: "remuneration",
-				...this.getColumnSearchProps("remuneration"),
-				render: res => (res ? res : "n/a"),
-			},
-			{
-				title: "Other data",
-				dataIndex: "count",
-				key: "count",
-				undefined,
-				render: res => {
-					if (
-						res.hasOwnProperty("operations_successful") &&
-						res.hasOwnProperty("operations_unsuccessful")
-					) {
-						return (
-							"Number of successful/unsuccessful operations: " +
-							res.operations_successful +
-							"/" +
-							res.operations_unsuccessful
-						);
-					}
-					if (res.requests_canceled !== undefined) {
-						return "Number of canceled customer requests: " + res.requests_canceled;
-					}
-					return "";
-				},
-			},
 		];
 
 		return (
@@ -363,10 +193,10 @@ class Users extends Component {
 					loading={loadingTableData}
 				/>
 				{this.state.visible && (
-					<UserSettlement
+					<UserDetailedData
 						hideModal={this.hideModal}
 						visible={this.state.visible}
-						userId={this.state.user_id}
+						userRecord={this.state.activeRecord}
 					/>
 				)}
 			</>
@@ -381,9 +211,6 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		unblockUser,
-		blockedUsersData,
 		getUsersData,
-		updateUserStatus,
 	}
 )(Users);

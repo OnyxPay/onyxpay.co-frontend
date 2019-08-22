@@ -149,6 +149,7 @@ export async function getRejectionCounter(userId) {
 }
 
 export async function acceptRequest(requestId) {
+	// confirmRequest in UI
 	// performer accepts
 	const { pk, accountAddress } = await unlockWalletAccount();
 	const params = [
