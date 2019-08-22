@@ -63,7 +63,7 @@ function PerformersTable({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
-					return (
+					return record.is_settlements_exists && record.user_id ? (
 						<Tooltip title="See settlement accounts">
 							<Button
 								shape="round"
@@ -71,7 +71,7 @@ function PerformersTable({
 								onClick={e => showUserSettlementsModal(record.user_id)}
 							/>
 						</Tooltip>
-					);
+					) : null;
 				},
 			},
 		];
@@ -123,7 +123,9 @@ function PerformersTable({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
-					return (
+					return record.receiver &&
+						record.receiver.user_id &&
+						record.receiver.is_settlements_exists ? (
 						<Tooltip title="See settlement accounts">
 							<Button
 								shape="round"
@@ -131,7 +133,7 @@ function PerformersTable({
 								onClick={e => showUserSettlementsModal(record.receiver.user_id)}
 							/>
 						</Tooltip>
-					);
+					) : null;
 				},
 			},
 		];
