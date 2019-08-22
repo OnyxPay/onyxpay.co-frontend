@@ -9,6 +9,12 @@ const { TextArea } = Input;
 class AddSettlementModal extends Component {
 	handleFormSubmit = async (values, formActions) => {
 		const { add, hideModal } = this.props;
+		if (values.brief_notes === "") {
+			delete values.brief_notes;
+		}
+		if (values.description === "") {
+			delete values.description;
+		}
 		const res = await add(values);
 		console.log(res);
 		if (res && res.error && res.error.data) {
