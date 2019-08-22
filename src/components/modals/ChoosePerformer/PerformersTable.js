@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { getLocalTime } from "../../../utils";
 import { Button, Tooltip, Table } from "antd";
 import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
-import { sortValues } from "utils";
+import { sortValues, trimAddress } from "utils";
 
 function PerformersTable({
 	opRequests,
@@ -43,8 +43,24 @@ function PerformersTable({
 				},
 			},
 			{
+				title: "Operations",
+				children: [
+					{
+						title: "Successful",
+						dataIndex: "count.operations_successful",
+					},
+					{
+						title: "Unsuccessful",
+						dataIndex: "count.operations_unsuccessful",
+					},
+				],
+			},
+			{
 				title: "Wallet address",
 				dataIndex: "walletAddr",
+				render: (text, record, index) => {
+					return record.walletAddr ? trimAddress(record.walletAddr, false) : "n/a";
+				},
 				...getColumnSearchProps()("walletAddr"),
 			},
 			{

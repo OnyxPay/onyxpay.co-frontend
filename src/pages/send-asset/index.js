@@ -9,18 +9,14 @@ import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr } from "../../utils/number";
-import {
-	showNotification,
-	showBcError,
-	showTimeoutNotification,
-	trimAddress,
-} from "components/notification";
+import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AssetsBalance from "components/balance/AssetsBalance";
 import { handleBcError } from "api/network";
 import { checkUserRole } from "api/admin/users";
 import { roles } from "api/constants";
+import { trimAddress } from "utils";
 
 const { Option } = Select;
 const { Text } = Typography;
