@@ -1,6 +1,5 @@
 import { notification } from "antd";
 import { parseBcError } from "utils/blockchain";
-import { isBase58Address } from "utils/validate";
 
 /* 
 type:
@@ -47,12 +46,4 @@ export function showGasCompensationError() {
 		msg: "Gas compensation error",
 		desc: "Something went wrong at the gas compensation server",
 	});
-}
-
-export function trimAddress(addr) {
-	const sliceSize = 5;
-	if (!isBase58Address(addr)) {
-		return addr;
-	}
-	return addr.slice(0, sliceSize) + "..." + addr.slice(addr.length - sliceSize, addr.length);
 }
