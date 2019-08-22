@@ -176,12 +176,23 @@ class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs deposit and client withdraw request
 		try {
-			const { disableRequest } = this.props;
+			const { disableRequest, location, data } = this.props;
 			this.setState({ requestId, activeAction: aa.perform });
-			await performRequest(requestId);
+
+			// await performRequest(requestId);
+			const requestType = parseRequestType(location);
+			let msgText;
+			if (requestType === "deposit" || requestType === "buy_onyx_cash") {
+				const opRequest = data.items.find(req => req.request.requestId === requestId);
+				msgText = `Deposit was successful to customer ${opRequest.sender.firstName} ${
+					opRequest.sender.lastName
+				}`;
+			} else if (requestType === "withdraw") {
+				msgText = "Withdraw was successful";
+			}
 			showNotification({
 				type: "success",
-				msg: "You have performed the request",
+				msg: msgText,
 			});
 			disableRequest(requestId);
 		} catch (e) {

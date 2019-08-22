@@ -113,18 +113,23 @@ export function renderPerformBtn(
 	let btn;
 
 	function getButton(requestId) {
+		let btnText;
+		if (requestsType === "deposit" || requestsType === "buy_onyx_cash") {
+			btnText = "Perform Deposit";
+		} else {
+			btnText = "Perform Withdraw";
+		}
+
 		if (isPerformActive) {
 			return (
 				<Button type="primary" loading={true} disabled={true}>
-					{requestsType === "deposit" ? "Perform Deposit" : "Perform"}
+					{btnText}
 				</Button>
 			);
 		} else {
 			return (
 				<Popconfirm title="Sure to perform?" onConfirm={() => performRequest(requestId)}>
-					<Button type="primary">
-						{requestsType === "deposit" ? "Perform Deposit" : "Perform"}
-					</Button>
+					<Button type="primary">{btnText}</Button>
 				</Popconfirm>
 			);
 		}
