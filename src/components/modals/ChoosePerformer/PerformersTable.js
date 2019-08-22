@@ -1,12 +1,9 @@
 import React from "react";
-import { connect } from "react-redux";
-import { getLocalTime } from "../../../utils";
 import { Button, Tooltip, Table } from "antd";
 import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
-import { sortValues, trimAddress } from "utils";
+import { sortValues, trimAddress, getLocalTime } from "utils";
 
 function PerformersTable({
-	opRequests,
 	data,
 	loading,
 	selectedRowKeys,
@@ -145,13 +142,6 @@ function PerformersTable({
 		selectedRowKeys,
 		onChange: onSelectedRowKeysChange,
 	};
-	let request = opRequests.items.find(el => el.id === requestId);
-	// remove agents received message from the list
-	if (request && data && request.operationMessages.length && isSendingMessage) {
-		data.items = data.items.filter(el =>
-			request.operationMessages.find(item => el.walletAddr !== item.receiver.walletAddr)
-		);
-	}
 
 	return (
 		<>
@@ -170,10 +160,4 @@ function PerformersTable({
 	);
 }
 
-function mapStateToProps(state, ownProps) {
-	return {
-		opRequests: state.opRequests,
-	};
-}
-
-export default connect(mapStateToProps)(PerformersTable);
+export default PerformersTable;

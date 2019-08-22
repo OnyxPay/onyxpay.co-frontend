@@ -45,7 +45,7 @@ class ActiveRequests extends Component {
 			operationMessages: [],
 			activeAction: "",
 			idParsedFromURL: "",
-			openedRequestData: {}, // to choose performer
+			openedRequestData: {}, // set after ChoosePerformerModal is opened
 			selectedUserData: {},
 			selectedUserDataType: "",
 		};

@@ -171,7 +171,7 @@ class ChoosePerformer extends Component {
 	};
 
 	async fetchUsers(opts = {}) {
-		const { performer, accountAddress } = this.props;
+		const { performer, accountAddress, isSendingMessage, openedRequestData } = this.props;
 		const { pagination, country } = this.state;
 		try {
 			const params = {
@@ -185,7 +185,25 @@ class ChoosePerformer extends Component {
 			this.setState({ loading: true });
 			const res = await searchUsers(params);
 			pagination.total = res.total;
-			const performers = res.items.filter(performer => performer.walletAddr !== accountAddress);
+			let performers;
+
+			if (
+				isSendingMessage &&
+				openedRequestData.operationMessages &&
+				openedRequestData.operationMessages.length
+			) {
+				// remove agents received message from the list
+				performers = res.items.filter(el =>
+					openedRequestData.operationMessages.find(
+						item => el.walletAddr !== item.receiver.walletAddr
+					)
+				);
+			} else {
+				performers = res.items.filter(performer => performer.walletAddr !== accountAddress);
+			}
+
+			// TODO: pagination may be incorrect because of filtration, fix it!
+
 			this.setState({
 				loading: false,
 				users: { items: performers, total: res.total },
