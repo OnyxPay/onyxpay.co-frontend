@@ -90,8 +90,8 @@ class AddSettlementModal extends Component {
 
 								<Form.Item
 									label="Description"
-									//validateStatus={errors.description && touched.description ? "error" : ""}
-									//help={errors.description && touched.description ? errors.description : ""}
+									validateStatus={errors.description && touched.description ? "error" : ""}
+									help={errors.description && touched.description ? errors.description : ""}
 									className="ant-form-item"
 								>
 									<TextArea
@@ -106,8 +106,8 @@ class AddSettlementModal extends Component {
 
 								<Form.Item
 									label="Brief notes"
-									//validateStatus={errors.brief_notes && touched.brief_notes ? "error" : ""}
-									//help={errors.brief_notes && touched.brief_notes ? errors.brief_notes : ""}
+									validateStatus={errors.brief_notes && touched.brief_notes ? "error" : ""}
+									help={errors.brief_notes && touched.brief_notes ? errors.brief_notes : ""}
 									className="ant-form-item"
 								>
 									<Input
