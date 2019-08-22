@@ -4,9 +4,9 @@ import { connect } from "react-redux";
 import ActiveRequests from "pages/requests/ActiveRequests";
 import { createLoadingSelector } from "selectors/loading";
 import { push } from "connected-react-router";
-import { getOpRequests, GET_OPERATION_REQUESTS, disableRequest } from "redux/requests";
+import { getOwnOpRequests, GET_OWN_OPERATION_REQUESTS } from "redux/ownRequests";
 
-const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
+const loadingSelector = createLoadingSelector([GET_OWN_OPERATION_REQUESTS]);
 function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
@@ -22,7 +22,7 @@ var ActiveOwnDepositRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getOpRequests, disableRequest }
+		{ push, getOpRequests: getOwnOpRequests }
 	)
 )(ActiveRequests);
 

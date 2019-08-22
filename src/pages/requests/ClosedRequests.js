@@ -10,7 +10,7 @@ import { parseRequestType, renderPageTitle, isThisAgentInitiator } from "./commo
 import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 
-import { getOpMessages, GET_OPERATION_MESSAGES } from "redux/requests";
+import { getOpMessages, GET_OPERATION_MESSAGES } from "redux/messages";
 
 class ClosedRequests extends Component {
 	state = {
