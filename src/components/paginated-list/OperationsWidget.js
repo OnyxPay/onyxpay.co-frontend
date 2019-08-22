@@ -3,12 +3,19 @@ import { getOperationHistory } from "api/transactions-history";
 import { convertAmountToStr } from "utils/number";
 import PaginatedTable from "./PaginatedTable";
 
+const checkOperationType = operationType => {
+	if (operationType === "buy_onyx_cash") {
+		return "deposit onyxcash";
+	}
+	return operationType;
+};
+
 const operationHistoryColumns = [
 	{
 		title: "Operation type",
 		dataIndex: "operationType",
 		key: "operationType",
-		render: operationType => (operationType ? operationType : "n/a"),
+		render: operationType => (operationType ? checkOperationType(operationType) : "n/a"),
 	},
 	{
 		title: "Requester",
