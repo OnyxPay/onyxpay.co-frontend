@@ -3,8 +3,8 @@ import { Formik } from "formik";
 import { Modal, Button, Input, Form, Descriptions } from "antd";
 import { TextAligner } from "./../../styled";
 import { setAssetExchangeRates } from "api/assets";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { handleBcError } from "api/network";
+import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
 
 class SetExchangeRates extends Component {
@@ -22,15 +22,7 @@ class SetExchangeRates extends Component {
 			getExchangeRates();
 			resetForm();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-				setSubmitting(false);
-			}
+			handleBcError(e);
 		} finally {
 			hideModal();
 		}

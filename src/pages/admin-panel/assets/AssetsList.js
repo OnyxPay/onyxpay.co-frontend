@@ -1,14 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Table, Icon, Input } from "antd";
+import { Card, Button, Table, Icon } from "antd";
 import Actions from "redux/actions";
 import { blockAsset } from "api/admin/assets";
 import AddNewAsset from "components/modals/admin/AddNewAsset";
 import SetExchangeRates from "components/modals/admin/SetExchangeRates";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
 import { getAssetsData } from "api/assets";
+import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
+import { handleBcError } from "api/network";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
@@ -63,48 +64,6 @@ class AssetsList extends Component {
 			disableBtn: false,
 		};
 	}
-
-	getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-			<div style={{ padding: 8 }}>
-				<Input
-					ref={node => {
-						this.searchInput = node;
-					}}
-					placeholder={`Search ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-					onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
-					style={{ width: 188, marginBottom: 8, display: "block" }}
-				/>
-				<Button
-					type="primary"
-					onClick={() => this.handleSearch(selectedKeys, confirm)}
-					icon="search"
-					size="small"
-					style={{ width: 90, marginRight: 8 }}
-				>
-					Search
-				</Button>
-				<Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-					Reset
-				</Button>
-			</div>
-		),
-		filterIcon: filtered => (
-			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
-		),
-		onFilter: (value, record) =>
-			record[dataIndex]
-				.toString()
-				.toLowerCase()
-				.includes(value.toLowerCase()),
-		onFilterDropdownVisibleChange: visible => {
-			if (visible) {
-				setTimeout(() => this.searchInput.select());
-			}
-		},
-	});
 
 	handleSearch = (selectedKeys, confirm) => {
 		confirm();
@@ -170,14 +129,7 @@ class AssetsList extends Component {
 				});
 			}
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({
 				loadingBlockedAsset: false,
@@ -185,7 +137,7 @@ class AssetsList extends Component {
 		}
 	};
 
-	checkUserStatus = symbol => {
+	checkAssetStatus = symbol => {
 		const { assetsStatus } = this.state;
 		const { data } = this.props;
 		let res, status;
@@ -259,7 +211,8 @@ class AssetsList extends Component {
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["ascend", "descend"],
-				...this.getColumnSearchProps("symbol"),
+				...getColumnSearchProps()("symbol"),
+				...getOnColumnFilterProp("symbol"),
 			},
 			{
 				title: "Buy price",
@@ -280,7 +233,7 @@ class AssetsList extends Component {
 				dataIndex: "status",
 				key: "status",
 				width: "20%",
-				render: (text, record, index) => this.checkUserStatus(record.symbol),
+				render: (text, record, index) => this.checkAssetStatus(record.symbol),
 			},
 			{
 				title: "Action",
@@ -294,7 +247,6 @@ class AssetsList extends Component {
 								type="danger"
 								loading={record.key === symbolKey && loadingBlockedAsset}
 								onClick={() => this.handleBlockAsset(record.symbol, record.key)}
-								style={style.button}
 								disabled={disableBtn && record.key === symbolKey}
 							>
 								Block asset
@@ -304,7 +256,6 @@ class AssetsList extends Component {
 						<Button
 							type="primary"
 							onClick={this.showModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES, record.symbol)}
-							style={style.button}
 						>
 							Set exchange rates
 						</Button>
@@ -333,7 +284,7 @@ class AssetsList extends Component {
 						rowKey={data => data.key}
 						columns={columns}
 						dataSource={data}
-						style={{ overflowX: "auto" }}
+						className="ovf-auto"
 						pagination={pagination}
 						loading={loadingAssetsList || loadingExchangeRates}
 					/>

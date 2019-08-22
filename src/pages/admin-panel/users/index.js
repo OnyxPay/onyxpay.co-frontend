@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon } from "antd";
+import { Table, Button } from "antd";
 import { connect } from "react-redux";
 import { getUsersData } from "redux/admin-panel/users";
 import { formatUserRole } from "utils";
 import UserDetailedData from "./userDetailedData";
+import { getColumnSearchProps } from "components/table/common";
 
 class Users extends Component {
 	state = {
@@ -15,43 +16,6 @@ class Users extends Component {
 		activeRecord: null,
 		pagination: { current: 1, pageSize: 20 },
 	};
-
-	getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-			<div style={{ padding: 8 }}>
-				<Input
-					ref={node => {
-						this.searchInput = node;
-					}}
-					placeholder={`Search ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-					onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
-					style={{ width: 188, marginBottom: 8, display: "block" }}
-				/>
-				<Button
-					type="primary"
-					onClick={() => this.handleSearch(selectedKeys, confirm)}
-					icon="search"
-					size="small"
-					style={{ width: 90, marginRight: 8 }}
-				>
-					Search
-				</Button>
-				<Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-					Reset
-				</Button>
-			</div>
-		),
-		filterIcon: filtered => (
-			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
-		),
-		onFilterDropdownVisibleChange: visible => {
-			if (visible) {
-				setTimeout(() => this.searchInput.select());
-			}
-		},
-	});
 
 	handleSearch = (selectedKeys, confirm) => {
 		confirm();
@@ -134,49 +98,49 @@ class Users extends Component {
 				title: "First name",
 				dataIndex: "firstName",
 				key: "firstName",
-				...this.getColumnSearchProps("firstName"),
+				...getColumnSearchProps()("firstName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Last name",
 				dataIndex: "lastName",
 				key: "lastName",
-				...this.getColumnSearchProps("lastName"),
+				...getColumnSearchProps()("lastName"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Role",
 				dataIndex: "role",
 				key: "role",
-				...this.getColumnSearchProps("role"),
+				...getColumnSearchProps()("role"),
 				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
 				title: "Country",
 				dataIndex: "country",
 				key: "country",
-				...this.getColumnSearchProps("country"),
+				...getColumnSearchProps()("country"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Phone number",
 				dataIndex: "phoneNumber",
 				key: "phoneNumber",
-				...this.getColumnSearchProps("phoneNumber"),
+				...getColumnSearchProps()("phoneNumber"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Wallet address",
 				dataIndex: "walletAddr",
 				key: "walletAddr",
-				...this.getColumnSearchProps("walletAddr"),
+				...getColumnSearchProps()("walletAddr"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Status",
 				dataIndex: "status",
 				key: "status",
-				...this.getColumnSearchProps("status"),
+				...getColumnSearchProps()("status"),
 				render: res => (res ? res : "n/a"),
 			},
 		];
