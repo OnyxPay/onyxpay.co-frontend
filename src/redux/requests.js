@@ -11,8 +11,11 @@ import {
 
 export const GET_OPERATION_REQUESTS_REQUEST = "GET_OPERATION_REQUESTS_REQUEST";
 export const GET_OPERATION_REQUESTS_SUCCESS = "GET_OPERATION_REQUESTS_SUCCESS";
+export const GET_OPERATION_MESSAGES_SUCCESS = "GET_OPERATION_MESSAGES_SUCCESS";
 export const GET_OPERATION_REQUESTS_FAILURE = "GET_OPERATION_REQUESTS_FAILURE";
+export const GET_OPERATION_MESSAGES_FAILURE = "GET_OPERATION_MESSAGES_FAILURE";
 export const GET_OPERATION_REQUESTS = "GET_OPERATION_REQUESTS";
+export const GET_MESSAGES_REQUESTS = "GET_MESSAGES_REQUESTS";
 export const DISABLE_OPERATION_REQ = "DISABLE_OPERATION_REQ";
 
 const initState = {
@@ -20,10 +23,10 @@ const initState = {
 	total: null,
 };
 
-function enumerateItems(state, pred) {
-	if (state.items) {
+function enumerateItems(state, pred, type) {
+	if (state.items && state.fetchActive) {
 		let items = state.items.map(el => {
-			return pred(el);
+			return pred(el, state);
 		});
 		return { ...state, items: items };
 	}
@@ -178,7 +181,12 @@ export const opRequestsReducer = (state = initState, action) => {
 	let pred;
 	switch (action.type) {
 		case GET_OPERATION_REQUESTS_SUCCESS:
-			return { items: action.payload.items, total: action.payload.total };
+			return {
+				items: action.payload.items,
+				total: action.payload.total,
+				fetchActive: action.fetchActive,
+				isInitiator: action.isInitiator,
+			};
 		case DISABLE_OPERATION_REQ:
 			const modifiedItems = state.items.map(req => {
 				if (req.request && req.request.requestId) {
@@ -193,7 +201,7 @@ export const opRequestsReducer = (state = initState, action) => {
 				return req;
 			});
 
-			return { total: state.total, items: modifiedItems };
+			return { ...state, items: modifiedItems };
 
 		case wsEvents.cancelAcceptationMaker:
 			pred = makerAcceptationPredicate(
@@ -207,28 +215,8 @@ export const opRequestsReducer = (state = initState, action) => {
 			pred = makerAcceptationPredicate(action.payload, action.type, "request is accepted");
 			break;
 
-		case wsEvents.acceptRequestTaker:
-			pred = takerAcceptationPredicate(
-				action.payload,
-				action.type,
-				"request was accepted successfully"
-			);
-			break;
-
-		case wsEvents.cancelAcceptationTaker:
-			pred = takerAcceptationPredicate(
-				action.payload,
-				action.type,
-				"request was canceled successfully"
-			);
-			break;
-
 		case wsEvents.chooseAgentMaker:
 			pred = chooseRequestMakerPredicate(action.payload);
-			break;
-
-		case wsEvents.chooseAgentTaker:
-			pred = chooseRequestTakerPredicate(action.payload);
 			break;
 
 		case wsEvents.saveRequest:
@@ -262,28 +250,55 @@ export const opRequestsReducer = (state = initState, action) => {
 		default:
 			return state;
 	}
-	return enumerateItems(state, pred);
+	return enumerateItems(state, pred, action.type);
+};
+
+export const opMessagesReducer = (state = initState, action) => {
+	let pred;
+	switch (action.type) {
+		case GET_OPERATION_MESSAGES_SUCCESS:
+			return {
+				items: action.payload.items,
+				total: action.payload.total,
+				fetchActive: action.fetchActive,
+			};
+		case wsEvents.acceptRequestTaker:
+			pred = takerAcceptationPredicate(
+				action.payload,
+				action.type,
+				"request was accepted successfully"
+			);
+			break;
+
+		case wsEvents.cancelAcceptationTaker:
+			pred = takerAcceptationPredicate(
+				action.payload,
+				action.type,
+				"request was canceled successfully"
+			);
+			break;
+
+		case wsEvents.chooseAgentTaker:
+			pred = chooseRequestTakerPredicate(action.payload);
+			break;
+
+		default:
+			return state;
+	}
+	return enumerateItems(state, pred, action.type);
 };
 
 export const getOpRequests = ({
 	params = {}, // get params
-	requestType, // deposit | withdraw | buy_onyx_cash
 	fetchActive, // true | false
-	isInitiator, // true | false
 }) => async dispatch => {
 	dispatch({ type: GET_OPERATION_REQUESTS_REQUEST });
-
 	try {
-		let data;
-		if (isInitiator) {
-			data = await getRequests(params);
-		} else {
-			data = await getMessages(params, requestType, fetchActive);
-		}
-
+		let data = await getRequests(params);
 		dispatch({
 			type: GET_OPERATION_REQUESTS_SUCCESS,
 			payload: data,
+			fetchActive: fetchActive,
 		});
 	} catch (e) {
 		console.log(e);
@@ -291,9 +306,27 @@ export const getOpRequests = ({
 	}
 };
 
-export const disableRequest = requestId => {
-	console.log("requestId", requestId);
+export const getOpMessages = ({
+	params = {}, // get params
+	requestType, // deposit | withdraw | buy_onyx_cash
+	fetchActive, // true | false
+}) => async dispatch => {
+	dispatch({ type: GET_OPERATION_REQUESTS_REQUEST });
+	try {
+		let data = await getMessages(params, requestType, fetchActive);
 
+		dispatch({
+			type: GET_OPERATION_MESSAGES_SUCCESS,
+			payload: data,
+			fetchActive: fetchActive,
+		});
+	} catch (e) {
+		console.log(e);
+		dispatch({ type: GET_OPERATION_MESSAGES_FAILURE });
+	}
+};
+
+export const disableRequest = requestId => {
 	return {
 		type: DISABLE_OPERATION_REQ,
 		payload: { requestId },

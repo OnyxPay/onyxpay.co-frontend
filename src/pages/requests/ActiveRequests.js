@@ -1,10 +1,6 @@
 import React, { Component } from "react";
-import { compose } from "redux";
-import { withRouter } from "react-router-dom";
-import { connect } from "react-redux";
 import { Table } from "antd";
 import queryString from "query-string";
-import { push } from "connected-react-router";
 import {
 	acceptRequest,
 	performRequest,
@@ -16,13 +12,11 @@ import { hideMessage } from "api/operation-messages";
 import ChoosePerformerModal from "components/modals/ChoosePerformer";
 import { roles, operationType } from "api/constants";
 import { showNotification } from "components/notification";
-import { createLoadingSelector } from "selectors/loading";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
 import { handleTableChange, getColumnSearchProps } from "./table";
-import { getOpRequests, GET_OPERATION_REQUESTS, disableRequest } from "redux/requests";
 import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
@@ -34,7 +28,7 @@ const modals = {
 	SELECTED_USER_DATA: "SELECTED_USER_DATA",
 };
 
-class ActiveRequests extends Component {
+export default class ActiveRequests extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -110,7 +104,6 @@ class ActiveRequests extends Component {
 			}
 		}
 	};
-
 	handleAcceptRequest = async (requestId, requestAmount, requestAsset, requestTypeCode) => {
 		// agent accepts deposit or withdraw request
 		try {
@@ -353,53 +346,3 @@ class ActiveRequests extends Component {
 		);
 	}
 }
-
-const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
-
-function operationNameToType(name) {
-	switch (name) {
-		case "deposit":
-			return operationType.deposit;
-		case "withdraw":
-			return operationType.withdraw;
-		case "buy_onyx_cash":
-			return operationType.buyOnyxCache;
-		default:
-			return 0;
-	}
-}
-
-function mapStateToProps(state, ownProps) {
-	const requestName = parseRequestType(ownProps.location);
-	const requestType = operationNameToType(requestName);
-	let items = [];
-	// we are filtering unnecessary types of requests to handle unnecessary websocket events
-	if (state.opRequests.items) {
-		items = state.opRequests.items.filter(el => {
-			if (el.request) {
-				return el.request.typeCode === requestType;
-			} else {
-				return el.typeCode === requestType;
-			}
-		});
-	}
-
-	return {
-		user: state.user,
-		walletAddress: state.wallet.defaultAccountAddress,
-		data: { ...state.opRequests, items: items },
-		isFetching: loadingSelector(state),
-		balanceAssets: state.balance.assets,
-		balanceOnyxCash: state.balance.onyxCash,
-	};
-}
-
-ActiveRequests = compose(
-	withRouter,
-	connect(
-		mapStateToProps,
-		{ push, getOpRequests, disableRequest }
-	)
-)(ActiveRequests);
-
-export default ActiveRequests;
