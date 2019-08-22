@@ -106,7 +106,7 @@ export function isBase58Address(address) {
 }
 
 export function isLatinChars(value) {
-	return /^[A-Za-z0-9]+$/i.test(value);
+	return /^[A-Za-z0-9 -]+$/i.test(value);
 }
 
 export function countDecimals(value) {
