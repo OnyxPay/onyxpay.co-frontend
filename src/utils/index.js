@@ -1,4 +1,5 @@
 import { h24Mc, h12Mc } from "api/constants";
+import { isBase58Address } from "utils/validate";
 
 export function isCookieAvailable(name) {
 	return document.cookie.split(";").filter(item => {
@@ -84,4 +85,12 @@ export function formatUserRole(role) {
 	} else if (role === "support") {
 		return "Support";
 	}
+}
+
+export function trimAddress(addr, validate = true) {
+	const sliceSize = 5;
+	if (validate && !isBase58Address(addr)) {
+		return addr;
+	}
+	return addr.slice(0, sliceSize) + "..." + addr.slice(addr.length - sliceSize, addr.length);
 }
