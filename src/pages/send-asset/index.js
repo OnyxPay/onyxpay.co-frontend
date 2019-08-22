@@ -19,6 +19,8 @@ import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AssetsBalance from "components/balance/AssetsBalance";
 import { handleBcError } from "api/network";
+import { checkUserRole } from "api/admin/users";
+import { roles } from "api/constants";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -85,6 +87,25 @@ class SendAsset extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		try {
+			const { user } = this.props;
+			if (user && user.role === roles.c) {
+				// user can't send to agents or super-agents
+				const isReceiverAgentPromise = checkUserRole(values.receiver_address, "IsAgent");
+				const isReceiverSuperAgentPromise = checkUserRole(values.receiver_address, "IsSuperAgent");
+				const [isReceiverAgent, isReceiverSuperAgent] = await Promise.all([
+					isReceiverAgentPromise,
+					isReceiverSuperAgentPromise,
+				]);
+
+				if (isReceiverAgent || isReceiverSuperAgent) {
+					formActions.setSubmitting(false);
+					return formActions.setFieldError(
+						"receiver_address",
+						"assets cannot be sent to Agents or Super agents"
+					);
+				}
+			}
+
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
