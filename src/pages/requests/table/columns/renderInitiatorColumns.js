@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Popconfirm, Tooltip } from "antd";
 import { convertAmountToStr } from "utils/number";
 import { getLocalTime, getPerformerName, is24hOver, is12hOver } from "utils";
-import { h24Mc, operationMessageStatus } from "api/constants";
+import { h24Mc, operationMessageStatus, requestStatus } from "api/constants";
 import Countdown from "components/Countdown";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
@@ -189,7 +189,11 @@ export default function renderInitiatorColumns({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
+					if (record.statusCode === requestStatus.complained) {
+						return null;
+					}
 					if (record._isDisabled) return "n/a";
+
 					const isComplainActive =
 						record.requestId === activeRequestId && activeAction === aa.complain;
 
@@ -247,7 +251,6 @@ export default function renderInitiatorColumns({
 							{/* Complain on request */}
 							{record.takerAddr &&
 								record.chooseTimestamp &&
-								record.status !== "complained" &&
 								!is24hOver(record.chooseTimestamp) &&
 								renderComplainButton(record, handleComplain, isComplainActive)}
 

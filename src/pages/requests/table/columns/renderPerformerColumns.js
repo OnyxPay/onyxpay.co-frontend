@@ -41,6 +41,7 @@ function renderCancelBtn(
 			buttonType = "confirm";
 		}
 	} else if (
+		requestsType !== "withdraw" &&
 		record.status === "accepted" &&
 		record.request.takerAddr === walletAddress &&
 		isTimeUp(record.request.chooseTimestamp, h24Mc)
@@ -203,7 +204,7 @@ export default function renderPerformerColumns({
 					if (record.request) {
 						return record.request.takerAddr &&
 							record.request.takerAddr === walletAddress &&
-							record.request.statusСode !== requestStatus.complained &&
+							record.request.statusCode !== requestStatus.complained &&
 							record.request.chooseTimestamp ? (
 							<Countdown date={new Date(record.request.chooseTimestamp).getTime() + h24Mc} />
 						) : (
@@ -219,8 +220,11 @@ export default function renderPerformerColumns({
 				render: (text, record, index) => {
 					if (!record.request) {
 						return null;
+					} else if (record.request.statusCode === requestStatus.complained) {
+						return null;
 					}
 					if (record._isDisabled) return "n/a";
+
 					const isConfirmActive =
 						record.request.requestId === activeRequestId && activeAction === aa.confirm;
 
@@ -258,7 +262,8 @@ export default function renderPerformerColumns({
 								record,
 								cancelAcceptedRequest,
 								walletAddress,
-								isCancelAcceptedRequestActive
+								isCancelAcceptedRequestActive,
+								requestsType
 							)}
 						</>
 					);
