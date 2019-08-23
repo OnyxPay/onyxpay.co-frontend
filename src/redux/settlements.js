@@ -1,9 +1,12 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
-import { startLoading, finishLoading } from "./loading";
 import { showNotification } from "components/notification";
 const client = getRestClient();
 
-export const INIT_SETTLEMENTS_LIST = "INIT_SETTLEMENTS_LIST";
+export const FETCH_SETTLEMENTS_LIST_REQUEST = "FETCH_SETTLEMENTS_LIST_REQUEST";
+export const FETCH_SETTLEMENTS_LIST_SUCCESS = "FETCH_SETTLEMENTS_LIST_SUCCESS";
+export const FETCH_SETTLEMENTS_LIST_FAILURE = "FETCH_SETTLEMENTS_LIST_FAILURE";
+export const FETCH_SETTLEMENTS_LIST = "FETCH_SETTLEMENTS_LIST";
+
 export const ADD_SETTLEMENT = "ADD_SETTLEMENT";
 export const DELETE_SETTLEMENT = "DELETE_SETTLEMENT";
 
@@ -11,7 +14,7 @@ const initialState = [];
 
 export const settlementsReducer = (state = initialState, action) => {
 	switch (action.type) {
-		case INIT_SETTLEMENTS_LIST:
+		case FETCH_SETTLEMENTS_LIST_SUCCESS:
 			return action.payload;
 		case ADD_SETTLEMENT:
 			return [...state, action.payload];
@@ -22,15 +25,10 @@ export const settlementsReducer = (state = initialState, action) => {
 	}
 };
 
-export const setSettlements = settlementsList => ({
-	type: INIT_SETTLEMENTS_LIST,
-	payload: settlementsList,
-});
-
 export const getSettlementsList = () => {
 	return async dispatch => {
 		const authHeader = getAuthHeaders();
-		dispatch(startLoading());
+		dispatch({ type: FETCH_SETTLEMENTS_LIST_REQUEST });
 
 		try {
 			const { data } = await client.get("settlements", {
@@ -38,11 +36,15 @@ export const getSettlementsList = () => {
 					...authHeader,
 				},
 			});
-			dispatch(setSettlements(data.items));
-			dispatch(finishLoading());
+			dispatch({
+				type: FETCH_SETTLEMENTS_LIST_SUCCESS,
+				payload: data.items,
+			});
 		} catch (error) {
 			handleReqError(error);
-			dispatch(finishLoading());
+			dispatch({
+				type: FETCH_SETTLEMENTS_LIST_FAILURE,
+			});
 		}
 	};
 };

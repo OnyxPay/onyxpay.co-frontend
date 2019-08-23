@@ -89,6 +89,11 @@ let Profile = Loadable({
 	loading: Loader,
 });
 
+let ReferralProgram = Loadable({
+	loader: () => import(/* webpackChunkName: "ReferralProgram" */ "./pages/referral-program"),
+	loading: Loader,
+});
+
 let UserUpgradeRequests = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "Users" */ "./pages/admin-panel/requests/UserUpgradeRequests"),
@@ -155,6 +160,7 @@ ActiveOwnDepositRequests = All(ActiveOwnDepositRequests);
 ActiveOwnWithdrawRequests = All(ActiveOwnWithdrawRequests);
 ClosedOpRequests = All(ClosedOpRequests);
 Deposit = All(Deposit);
+ReferralProgram = All(ReferralProgram);
 
 class App extends Component {
 	componentDidMount() {
@@ -222,6 +228,7 @@ class App extends Component {
 					<Route path="/admin/requests/complaints/resolve" exact component={ResolvedComplaints} />
 					<Route path="/login" exact component={Login} />
 					<Route path="/profile" exact component={Profile} />
+					<Route path="/referral-program" exact component={ReferralProgram} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
 					{this.getAdditionalRoutes()}
