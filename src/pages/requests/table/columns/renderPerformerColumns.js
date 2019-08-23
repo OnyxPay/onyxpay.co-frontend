@@ -32,20 +32,45 @@ function renderCancelBtn(
 	let confirmText;
 	let buttonType;
 
-	if (record.status === "accepted" && record.request.takerAddr !== walletAddress) {
-		buttonText = isAnotherSelected ? "Return assets" : "Cancel acceptation";
+	if (record.status === "accepted" && !record.request.takerAddr) {
+		// performer are not selected
+		buttonText = "Cancel acceptation";
 		if (isCancelAcceptedRequestActive) {
 			buttonType = "default";
 		} else {
-			confirmText = isAnotherSelected ? "Sure to return assets?" : "Sure to cancel acceptation?";
+			confirmText = "Sure to cancel acceptation?";
+			buttonType = "confirm";
+		}
+	} else if (record.status === "accepted" && isAnotherSelected && requestsType !== "withdraw") {
+		// another is selected as performer of deposit (for withdraw this doesn't make sense)
+		buttonText = "Return assets";
+		if (isCancelAcceptedRequestActive) {
+			buttonType = "default";
+		} else {
+			confirmText = "Sure to return assets?";
 			buttonType = "confirm";
 		}
 	} else if (
-		requestsType !== "withdraw" &&
 		record.status === "accepted" &&
 		record.request.takerAddr === walletAddress &&
-		isTimeUp(record.request.chooseTimestamp, h24Mc)
+		isTimeUp(record.request.chooseTimestamp, h24Mc) &&
+		requestsType !== "withdraw"
 	) {
+		// deposit request is timed out ?
+		buttonText = "Return assets";
+		if (isCancelAcceptedRequestActive) {
+			buttonType = "default";
+		} else {
+			confirmText = "Sure to return assets?";
+			buttonType = "confirm";
+		}
+	} else if (
+		record.status === "accepted" &&
+		record.request.takerAddr === walletAddress &&
+		record.request.statusCode === requestStatus.rejected &&
+		requestsType !== "withdraw"
+	) {
+		// initiator canceled deposit request after performer was selected
 		buttonText = "Return assets";
 		if (isCancelAcceptedRequestActive) {
 			buttonType = "default";
