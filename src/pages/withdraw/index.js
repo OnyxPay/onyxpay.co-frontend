@@ -10,7 +10,6 @@ import { createRequest, getActiveRequestsCounter } from "api/requests";
 import { TimeoutError } from "promise-timeout";
 import { convertAmountToStr } from "utils/number";
 import { isAssetBlocked } from "api/assets";
-import AssetsBalance from "components/balance/AssetsBalance";
 import { countDecimals } from "utils/validate";
 import {
 	showNotification,
@@ -23,6 +22,7 @@ import { Link } from "react-router-dom";
 import { createLoadingSelector } from "selectors/loading";
 import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
 import { getFee } from "../../api/assets";
+import AvailableBalance from "components/balance/AvailableBalance";
 
 const { Option } = Select;
 
@@ -150,7 +150,6 @@ class Withdraw extends Component {
 		return (
 			<>
 				<PageTitle>Withdraw</PageTitle>
-				<AssetsBalance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -218,6 +217,7 @@ class Withdraw extends Component {
 													})}
 												</Select>
 											</Form.Item>
+											<AvailableBalance assetSymbol={values.asset_symbol} />
 										</Col>
 
 										<Col lg={12} md={24}>

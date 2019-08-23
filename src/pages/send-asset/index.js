@@ -12,7 +12,7 @@ import { convertAmountToStr } from "../../utils/number";
 import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
-import AssetsBalance from "components/balance/AssetsBalance";
+import AvailableBalance from "components/balance/AvailableBalance";
 import { handleBcError } from "api/network";
 import { checkUserRole } from "api/admin/users";
 import { roles } from "api/constants";
@@ -186,7 +186,6 @@ class SendAsset extends Component {
 		return (
 			<>
 				<PageTitle>Send assets</PageTitle>
-				<AssetsBalance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -349,6 +348,7 @@ class SendAsset extends Component {
 												You have no assets to send at the moment. Please, make a deposit.
 											</Text>
 										)}
+										{values.asset_symbol && <AvailableBalance assetSymbol={values.asset_symbol} />}
 									</Row>
 									<TextAligner align="right" mobile="left" className="send-assets__button-wrapper">
 										<Button
