@@ -11,6 +11,7 @@ import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 
 import { getOpMessages, GET_OPERATION_MESSAGES } from "redux/messages";
+import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
 class ClosedRequests extends Component {
 	state = {
@@ -53,7 +54,7 @@ class ClosedRequests extends Component {
 	fetch = (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, location, getOpMessages } = this.props;
+			const { user, location, getOpMessages, getOpRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
@@ -64,15 +65,15 @@ class ClosedRequests extends Component {
 				params.type = requestType;
 				params.status = "rejected,completed";
 				params.user = "maker";
-				getOpMessages({ params, requestType, fetchActive: false, isInitiator: true });
+				getOpRequests({ params, fetchActive: false });
 			} else {
 				let isAgentInitiator = isThisAgentInitiator(user.role, location);
 				if (isAgentInitiator) {
 					params.status = "rejected,completed";
 					params.user = "maker";
-					getOpMessages({ params, requestType, fetchActive: false, isInitiator: true });
+					getOpRequests({ params, fetchActive: false });
 				} else {
-					getOpMessages({ params, requestType, fetchActive: false, isInitiator: false });
+					getOpMessages({ params, requestType, fetchActive: false });
 				}
 			}
 		}
@@ -116,7 +117,7 @@ class ClosedRequests extends Component {
 	}
 }
 
-const loadingSelector = createLoadingSelector([GET_OPERATION_MESSAGES]);
+const loadingSelector = createLoadingSelector([GET_OPERATION_MESSAGES, GET_OPERATION_REQUESTS]);
 
 function mapStateToProps(state, ownProps) {
 	return {
@@ -131,7 +132,7 @@ ClosedRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getOpMessages }
+		{ push, getOpMessages, getOpRequests }
 	)
 )(ClosedRequests);
 

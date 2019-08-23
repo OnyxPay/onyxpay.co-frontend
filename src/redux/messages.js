@@ -8,11 +8,11 @@ import {
 } from "api/constants";
 import { initState, enumerateItems, wsEventTypeToStatus } from "./requestsCommon";
 
+import { DISABLE_OPERATION_REQ } from "./requests";
 export const GET_OPERATION_MESSAGES_SUCCESS = "GET_OPERATION_MESSAGES_SUCCESS";
 export const GET_OPERATION_MESSAGES_FAILURE = "GET_OPERATION_MESSAGES_FAILURE";
+export const GET_OPERATION_MESSAGES_REQUEST = "GET_OPERATION_MESSAGES_REQUEST";
 export const GET_OPERATION_MESSAGES = "GET_OPERATION_MESSAGES";
-export const DISABLE_OPERATION_REQ = "DISABLE_OPERATION_REQ";
-export const GET_OPERATION_REQUESTS = "GET_OPERATION_REQUESTS";
 
 const takerAcceptationPredicate = (payload, type, notification) => {
 	return item => {
@@ -141,7 +141,7 @@ export const getOpMessages = ({
 	requestType, // deposit | withdraw | buy_onyx_cash
 	fetchActive, // true | false
 }) => async dispatch => {
-	dispatch({ type: GET_OPERATION_REQUESTS });
+	dispatch({ type: GET_OPERATION_MESSAGES_REQUEST });
 	try {
 		let data = await getMessages(params, requestType, fetchActive);
 
@@ -154,11 +154,4 @@ export const getOpMessages = ({
 		console.log(e);
 		dispatch({ type: GET_OPERATION_MESSAGES_FAILURE });
 	}
-};
-
-export const disableRequest = requestId => {
-	return {
-		type: DISABLE_OPERATION_REQ,
-		payload: { requestId },
-	};
 };

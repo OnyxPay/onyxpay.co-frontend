@@ -91,16 +91,16 @@ export default class ActiveRequests extends Component {
 			params.status = "pending,opened,choose,complained";
 			params.user = "maker";
 			// deposit | withdraw
-			getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
+			getOpRequests({ params, fetchActive: true });
 		} else {
 			let isAgentInitiator = isThisAgentInitiator(user.role, location);
 			if (isAgentInitiator) {
 				params.type = requestType;
 				params.status = "pending,opened,choose,complained";
 				params.user = "maker";
-				getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
+				getOpRequests({ params, fetchActive: true });
 			} else {
-				getOpRequests({ params, requestType, fetchActive: true, isInitiator: false });
+				getOpRequests({ params, fetchActive: true });
 			}
 		}
 	};
