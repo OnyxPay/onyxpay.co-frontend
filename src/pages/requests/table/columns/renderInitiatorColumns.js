@@ -209,6 +209,7 @@ export default function renderInitiatorColumns({
 									onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 										requestId: record.id,
 										isSendingMessage: true,
+										openedRequestData: record,
 									})}
 								>
 									{requestsType === "buy_onyx_cash" ? "Send to super-agents" : "Send to agents"}
@@ -221,6 +222,7 @@ export default function renderInitiatorColumns({
 								record.status === "opened" && (
 									<Button
 										type="primary"
+										disabled={isCancelRequestActive}
 										onClick={showModal(modals.SEND_REQ_TO_AGENT, {
 											requestId: record.requestId,
 											isSendingMessage: false,

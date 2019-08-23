@@ -11,13 +11,13 @@ const operationHistoryColumns = [
 		render: operationType => (operationType ? operationType : "n/a"),
 	},
 	{
-		title: "From",
+		title: "Requester",
 		dataIndex: "sender",
 		key: "from",
 		render: sender => (sender ? sender.firstName + " " + sender.lastName : "n/a"),
 	},
 	{
-		title: "To",
+		title: "Performer",
 		dataIndex: "receiver",
 		key: "to",
 		render: receiver => (receiver ? receiver.firstName + " " + receiver.lastName : "n/a"),

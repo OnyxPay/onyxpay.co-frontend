@@ -87,3 +87,32 @@ export async function isBlockedUser(userAccountAddress) {
 	}
 	return true;
 }
+
+export async function checkUserRole(userAccountAddress, role = "IsAgent") {
+	// role === IsAgent | IsSuperAgent
+	const userAddress = utils.reverseHex(cryptoAddress(userAccountAddress).toHexString());
+	const store = getStore();
+	const address = await store.dispatch(resolveContractAddress("OnyxPay"));
+	if (!address) {
+		throw new ContractAddressError("Unable to get address of OnyxPay smart-contract");
+	}
+
+	const trx = createTrx({
+		funcName: role,
+		params: [
+			{
+				label: "userAddress",
+				type: ParameterType.ByteArray,
+				value: userAddress,
+			},
+		],
+		contractAddress: address,
+	});
+
+	const res = await sendTrx(trx, true, false);
+
+	if (res.Result.Result === "00") {
+		return false;
+	}
+	return true;
+}
