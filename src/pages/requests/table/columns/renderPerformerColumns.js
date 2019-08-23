@@ -130,6 +130,43 @@ function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
 	return null;
 }
 
+function renderHideBtn(
+	record,
+	hideRequest,
+	requestsType,
+	walletAddress,
+	isConfirmActive,
+	isCancelAcceptedRequestActive
+) {
+	if (
+		(record.status !== "accepted" &&
+			record.request &&
+			record.request.statusCode !== requestStatus.choose) ||
+		(record.request &&
+			record.request.statusCode === requestStatus.choose &&
+			record.request.takerAddr !== walletAddress &&
+			requestsType === "withdraw")
+	) {
+		if (isConfirmActive || isCancelAcceptedRequestActive) {
+			return (
+				<Button type="danger" disabled={true}>
+					Hide
+				</Button>
+			);
+		} else {
+			return (
+				<Popconfirm
+					title="Sure to hide?"
+					onConfirm={() => hideRequest(record.id)} // messageId
+				>
+					<Button type="danger">Hide</Button>
+				</Popconfirm>
+			);
+		}
+	}
+	return null;
+}
+
 export default function renderPerformerColumns({
 	activeRequestId,
 	activeAction,
@@ -262,20 +299,15 @@ export default function renderPerformerColumns({
 					return (
 						<>
 							{renderConfirmBtn(record, isConfirmActive, confirmRequest)}
-							{record.status !== "accepted" &&
-								(isConfirmActive || isCancelAcceptedRequestActive ? (
-									<Button type="danger" disabled={true}>
-										Hide
-									</Button>
-								) : (
-									<Popconfirm
-										title="Sure to hide?"
-										onConfirm={() => hideRequest(record.id)} // messageId
-									>
-										<Button type="danger">Hide</Button>
-									</Popconfirm>
-								))}
 
+							{renderHideBtn(
+								record,
+								hideRequest,
+								requestsType,
+								walletAddress,
+								isConfirmActive,
+								isCancelAcceptedRequestActive
+							)}
 							{renderPerformBtn(
 								record,
 								performRequest,
