@@ -14,7 +14,7 @@ import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/u
 import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
 import { opRequestsReducer } from "./requests";
-
+import { opMessagesReducer } from "./messages";
 export default history =>
 	combineReducers({
 		router: connectRouter(history),
@@ -33,4 +33,5 @@ export default history =>
 		assets: assetsReducer,
 		globalLoading: loadingReducer,
 		opRequests: opRequestsReducer,
+		opMessages: opMessagesReducer,
 	});

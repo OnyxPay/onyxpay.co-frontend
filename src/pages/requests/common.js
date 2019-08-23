@@ -6,9 +6,11 @@ export function parseRequestType({ pathname }) {
 	switch (pathname) {
 		case "/active-requests/deposit":
 		case "/closed-requests/deposit":
+		case "/active-customer-requests/deposit":
 			return "deposit";
 		case "/active-requests/withdraw":
 		case "/closed-requests/withdraw":
+		case "/active-customer-requests/withdraw":
 			return "withdraw";
 		case "/active-requests/deposit-onyx-cash":
 		case "/closed-requests/deposit-onyx-cash":

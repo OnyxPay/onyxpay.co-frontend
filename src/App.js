@@ -100,9 +100,27 @@ let UserUpgradeRequests = Loadable({
 	loading: Loader,
 });
 
-let ActiveOpRequests = Loadable({
+let ActiveCustomerDepositRequests = Loadable({
 	loader: () =>
-		import(/* webpackChunkName: "ActiveOpRequests" */ "./pages/requests/ActiveRequests"),
+		import(/* webpackChunkName: "ActiveCustomerDepositRequests" */ "./pages/requests/ActiveCustomerDepositRequests"),
+	loading: Loader,
+});
+
+let ActiveCustomerWithdrawRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ActiveCustomerWithdrawRequests" */ "./pages/requests/ActiveCustomerWithdrawRequests"),
+	loading: Loader,
+});
+
+let ActiveOwnDepositRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ActiveOwnDepositRequests" */ "./pages/requests/ActiveOwnDepositRequests"),
+	loading: Loader,
+});
+
+let ActiveOwnWithdrawRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ActiveCustomerWithdrawRequests" */ "./pages/requests/ActiveOwnWithdrawRequests"),
 	loading: Loader,
 });
 
@@ -136,7 +154,10 @@ Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdmin(Complaints);
 ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
 Assets = AdminAndSuperAdmin(Assets);
-ActiveOpRequests = All(ActiveOpRequests);
+ActiveCustomerDepositRequests = All(ActiveCustomerDepositRequests);
+ActiveCustomerWithdrawRequests = All(ActiveCustomerWithdrawRequests);
+ActiveOwnDepositRequests = All(ActiveOwnDepositRequests);
+ActiveOwnWithdrawRequests = All(ActiveOwnWithdrawRequests);
 ClosedOpRequests = All(ClosedOpRequests);
 Deposit = All(Deposit);
 ReferralProgram = All(ReferralProgram);
@@ -157,13 +178,27 @@ class App extends Component {
 					<Route path="/withdraw" exact component={Withdraw} />
 					<Route path="/deposit-onyx-cash" exact component={Deposit} />
 					{/* Agent initiator || Super agent initiator */}
-					<Route path="/active-requests/deposit-onyx-cash" exact component={ActiveOpRequests} />
+					<Route
+						path="/active-requests/deposit-onyx-cash"
+						exact
+						component={ActiveOwnDepositRequests}
+					/>
 					<Route path="/closed-requests/deposit-onyx-cash" exact component={ClosedOpRequests} />
+					<Route
+						path="/active-customer-requests/deposit"
+						exact
+						component={ActiveCustomerDepositRequests}
+					/>
+					<Route
+						path="/active-customer-requests/withdraw"
+						exact
+						component={ActiveCustomerWithdrawRequests}
+					/>
 					{/* Super agent performer */}
 					<Route
 						path="/active-customer-requests/deposit-onyx-cash"
 						exact
-						component={ActiveOpRequests}
+						component={ActiveCustomerDepositRequests}
 					/>
 					<Route
 						path="/closed-customer-requests/deposit-onyx-cash"
@@ -171,8 +206,8 @@ class App extends Component {
 						component={ClosedOpRequests}
 					/>
 					{/* Agent performer || client initiator */}
-					<Route path="/active-requests/deposit" exact component={ActiveOpRequests} />
-					<Route path="/active-requests/withdraw" exact component={ActiveOpRequests} />
+					<Route path="/active-requests/deposit" exact component={ActiveOwnDepositRequests} />
+					<Route path="/active-requests/withdraw" exact component={ActiveOwnWithdrawRequests} />
 					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
 					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
 				</>

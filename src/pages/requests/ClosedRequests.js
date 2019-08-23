@@ -10,6 +10,7 @@ import { parseRequestType, renderPageTitle, isThisAgentInitiator } from "./commo
 import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 
+import { getOpMessages, GET_OPERATION_MESSAGES } from "redux/messages";
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
 class ClosedRequests extends Component {
@@ -53,7 +54,7 @@ class ClosedRequests extends Component {
 	fetch = (opts = {}) => {
 		if (this._isMounted) {
 			const { pagination } = this.state;
-			const { user, location, getOpRequests } = this.props;
+			const { user, location, getOpMessages, getOpRequests } = this.props;
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
@@ -64,15 +65,15 @@ class ClosedRequests extends Component {
 				params.type = requestType;
 				params.status = "rejected,completed";
 				params.user = "maker";
-				getOpRequests({ params, requestType, fetchActive: false, isInitiator: true });
+				getOpRequests({ params, fetchActive: false });
 			} else {
 				let isAgentInitiator = isThisAgentInitiator(user.role, location);
 				if (isAgentInitiator) {
 					params.status = "rejected,completed";
 					params.user = "maker";
-					getOpRequests({ params, requestType, fetchActive: false, isInitiator: true });
+					getOpRequests({ params, fetchActive: false });
 				} else {
-					getOpRequests({ params, requestType, fetchActive: false, isInitiator: false });
+					getOpMessages({ params, requestType, fetchActive: false });
 				}
 			}
 		}
@@ -116,13 +117,13 @@ class ClosedRequests extends Component {
 	}
 }
 
-const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
+const loadingSelector = createLoadingSelector([GET_OPERATION_MESSAGES, GET_OPERATION_REQUESTS]);
 
 function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: state.opRequests,
+		data: state.opMessages,
 		isFetching: loadingSelector(state),
 	};
 }
@@ -131,7 +132,7 @@ ClosedRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getOpRequests }
+		{ push, getOpMessages, getOpRequests }
 	)
 )(ClosedRequests);
 

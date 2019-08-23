@@ -47,11 +47,11 @@ class AgentMenu extends Component {
 							</span>
 						}
 					>
-						<Menu.Item key="/active-requests/deposit">
-							<Link to="/active-requests/deposit">Active deposit requests</Link>
+						<Menu.Item key="/active-customer-requests/deposit">
+							<Link to="/active-customer-requests/deposit">Active deposit requests</Link>
 						</Menu.Item>
-						<Menu.Item key="/active-requests/withdraw">
-							<Link to="/active-requests/withdraw">Active withdraw requests</Link>
+						<Menu.Item key="/active-customer-requests/withdraw">
+							<Link to="/active-customer-requests/withdraw">Active withdraw requests</Link>
 						</Menu.Item>
 
 						<Menu.Item key="/closed-requests/deposit">
