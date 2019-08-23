@@ -15,7 +15,6 @@ import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
 import { opRequestsReducer } from "./requests";
 import { opMessagesReducer } from "./messages";
-import { ownOpReducer } from "./ownRequests";
 export default history =>
 	combineReducers({
 		router: connectRouter(history),
@@ -35,5 +34,4 @@ export default history =>
 		globalLoading: loadingReducer,
 		opRequests: opRequestsReducer,
 		opMessages: opMessagesReducer,
-		ownOpRequests: ownOpReducer,
 	});

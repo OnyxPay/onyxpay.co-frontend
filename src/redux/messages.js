@@ -2,8 +2,8 @@ import { getMessages } from "api/operation-messages";
 import { showNotification } from "components/notification.js";
 import {
 	wsEvents,
-	requestStatusNames,
 	operationMessageStatusNames,
+	requestStatusNames,
 	requestStatus,
 } from "api/constants";
 import { initState, enumerateItems, wsEventTypeToStatus } from "./requestsCommon";
@@ -45,22 +45,6 @@ const chooseRequestTakerPredicate = payload => {
 					takerAddr: payload.takerAddr,
 					chooseTimestamp: payload.chooseTimestamp,
 				},
-			};
-		}
-		return item;
-	};
-};
-
-const saveRequestPredicate = payload => {
-	return item => {
-		if (item.trx_hash === payload.trxHash) {
-			let message = item.type + " request with id (" + item.id + ") is openned successfully";
-			showNotification({ type: "success", msg: message });
-			return {
-				...item,
-				statusCode: payload.status,
-				status: requestStatusNames[payload.status],
-				requestId: payload.requestId,
 			};
 		}
 		return item;
@@ -135,10 +119,6 @@ export const opMessagesReducer = (state = initState, action) => {
 			pred = chooseRequestTakerPredicate(action.payload);
 			break;
 
-		case wsEvents.saveRequest:
-			pred = saveRequestPredicate(action.payload);
-			break;
-
 		case wsEvents.changeRequestStatusTaker:
 			if (action.payload.status === requestStatus.complained) {
 				pred = handleComplainStatusPredicate(action.payload);
@@ -153,7 +133,7 @@ export const opMessagesReducer = (state = initState, action) => {
 		default:
 			return state;
 	}
-	return enumerateItems(state, pred, action.type);
+	return enumerateItems(state, pred);
 };
 
 export const getOpMessages = ({

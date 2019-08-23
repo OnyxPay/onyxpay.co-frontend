@@ -4,14 +4,14 @@ import { connect } from "react-redux";
 import ActiveRequests from "pages/requests/ActiveRequests";
 import { createLoadingSelector } from "selectors/loading";
 import { push } from "connected-react-router";
-import { getOwnOpRequests, GET_OWN_OPERATION_REQUESTS } from "redux/ownRequests";
+import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
 
-const loadingSelector = createLoadingSelector([GET_OWN_OPERATION_REQUESTS]);
+const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
 function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: state.ownOpRequests,
+		data: state.opRequests,
 		isFetching: loadingSelector(state),
 		balanceAssets: state.balance.assets,
 		balanceOnyxCash: state.balance.onyxCash,
@@ -22,7 +22,7 @@ var ActiveOwnDepositRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getOpRequests: getOwnOpRequests }
+		{ push, getOpRequests }
 	)
 )(ActiveRequests);
 

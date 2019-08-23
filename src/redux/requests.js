@@ -90,6 +90,23 @@ function disableOperationReq(state, action) {
 
 	return { ...state, items: modifiedItems };
 }
+
+const saveRequestPredicate = payload => {
+	return item => {
+		if (item.trx_hash === payload.trxHash) {
+			let message = item.type + " request with id (" + item.id + ") is openned successfully";
+			showNotification({ type: "success", msg: message });
+			return {
+				...item,
+				statusCode: payload.status,
+				status: requestStatusNames[payload.status],
+				requestId: payload.requestId,
+			};
+		}
+		return item;
+	};
+};
+
 export const opRequestsReducer = (state = initState, action) => {
 	let pred;
 	switch (action.type) {
@@ -104,6 +121,10 @@ export const opRequestsReducer = (state = initState, action) => {
 				action.type,
 				"request acceptation was canceled"
 			);
+			break;
+
+		case wsEvents.saveRequest:
+			pred = saveRequestPredicate(action.payload);
 			break;
 
 		case wsEvents.acceptRequestMaker:
@@ -126,7 +147,7 @@ export const opRequestsReducer = (state = initState, action) => {
 		default:
 			return state;
 	}
-	return enumerateItems(state, pred, action.type);
+	return enumerateItems(state, pred);
 };
 
 export const getOpRequests = ({

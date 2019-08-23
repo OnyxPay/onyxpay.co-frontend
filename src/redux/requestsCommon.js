@@ -5,8 +5,8 @@ export const initState = {
 	total: null,
 };
 
-export function enumerateItems(state, pred, type) {
-	if (state.items && state.fetchActive) {
+export function enumerateItems(state, pred) {
+	if (state.items) {
 		let items = state.items.map(el => {
 			return pred(el, state);
 		});
