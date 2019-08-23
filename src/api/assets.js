@@ -172,7 +172,7 @@ export async function getAssetsData(params) {
 				...params,
 			},
 		});
-		return data.items;
+		return data;
 	} catch (error) {
 		return handleReqError(error);
 	}

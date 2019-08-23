@@ -9,7 +9,7 @@ import { convertAmountToStr } from "utils/number";
 
 class SetExchangeRates extends Component {
 	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
-		const { hideModal, getExchangeRates, tokenId } = this.props;
+		const { hideModal, tokenId } = this.props;
 		const { assets_buy, asset_sell } = values;
 		try {
 			const res = await setAssetExchangeRates(tokenId, asset_sell, assets_buy);
@@ -19,10 +19,10 @@ class SetExchangeRates extends Component {
 					msg: "Successfully set exchange rate",
 				});
 			}
-			getExchangeRates();
 			resetForm();
 		} catch (e) {
 			handleBcError(e);
+			setSubmitting(false);
 		} finally {
 			hideModal();
 		}

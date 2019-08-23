@@ -10,17 +10,24 @@ import { convertAmountToStr } from "utils/number";
 import { getAssetsData } from "api/assets";
 import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
 import { handleBcError } from "api/network";
+import styled from "styled-components";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
 	ADD_SET_EXCHANGE_RATES: "ADD_SET_EXCHANGE_RATES",
 };
 
-const style = {
-	button: {
-		marginRight: 10,
-	},
-};
+const ButtonContainer = styled.div`
+	margin-bottom: 30px;
+	button:first-child {
+		margin-right: 10px;
+	}
+	@media (max-width: 620px) {
+		button:first-child {
+			margin-bottom: 10px;
+		}
+	}
+`;
 
 function sortValues(valA, valB) {
 	if (valA < valB) {
@@ -32,36 +39,20 @@ function sortValues(valA, valB) {
 	return 0;
 }
 
-function renderExchangeRate(record, exchangeRates, name) {
-	let res;
-	for (let i = 0; i < exchangeRates.length; i++) {
-		if (exchangeRates[i].symbol === record.symbol) {
-			if (name === "buy") {
-				res = convertAmountToStr(exchangeRates[i].buy, 8);
-			} else if (name === "sell") {
-				res = convertAmountToStr(exchangeRates[i].sell, 8);
-			}
-			break;
-		}
-	}
-	if (!res) {
-		return "n/a";
-	}
-	return res;
-}
-
 class AssetsList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			searchText: "",
 			loadingBlockedAsset: false,
 			ADD_ASSETS_MODAL: false,
 			ADD_SET_EXCHANGE_RATES: false,
-			pagination: { pageSize: 20 },
 			symbolKey: null,
 			tokenId: null,
-			assetsStatus: null,
+			assetsData: null,
 			disableBtn: false,
+			loadingTableData: false,
+			pagination: { current: 1, pageSize: 20 },
 		};
 	}
 
@@ -76,13 +67,7 @@ class AssetsList extends Component {
 	};
 
 	async componentDidMount() {
-		const { getAssetsList, getExchangeRates } = this.props;
-		getExchangeRates();
-		getAssetsList();
-		const assetsData = await getAssetsData();
-		this.setState({
-			assetsStatus: assetsData,
-		});
+		await this.fetchAssets();
 	}
 
 	showModalAddAsset = type => () => {
@@ -93,18 +78,7 @@ class AssetsList extends Component {
 		this.setState({ ADD_ASSETS_MODAL: false });
 	};
 
-	showModalSetExchangeRates = (type, symbol) => () => {
-		let buyPrice, sellPrice;
-		let { exchangeRates } = this.props;
-
-		for (let item of exchangeRates) {
-			if (item.symbol === symbol) {
-				buyPrice = item.buy;
-				sellPrice = item.sell;
-				break;
-			}
-		}
-
+	showModalSetExchangeRates = (symbol, buyPrice, sellPrice) => () => {
 		this.setState({ tokenId: symbol, buyPrice, sellPrice, ADD_SET_EXCHANGE_RATES: true });
 	};
 
@@ -137,44 +111,52 @@ class AssetsList extends Component {
 		}
 	};
 
-	checkAssetStatus = symbol => {
-		const { assetsStatus } = this.state;
-		const { data } = this.props;
-		let res, status;
-		if (assetsStatus !== null) {
-			for (let i = 0; i < assetsStatus.length; i++) {
-				if (assetsStatus[i].name === symbol) {
-					res = assetsStatus[i].status;
-					if (res === 1) {
-						status = "active";
-					} else {
-						status = "blocked";
-					}
-					break;
-				}
-			}
-		}
-
-		for (let i = 0; i < data.length; i++) {
-			if (data[i].symbol === symbol) {
-				data[i].status = status;
-				break;
-			}
-		}
-		if (!status) {
+	checkAssetStatus = status => {
+		if (status === 1) {
+			return "active";
+		} else if (status === 2) {
+			return "blocked";
+		} else {
 			return "n/a";
 		}
-		return status;
 	};
 
 	refreshTable = async () => {
-		const { getAssetsList } = this.props;
-		getAssetsList();
-		const assetsData = await getAssetsData();
-		this.setState({
-			assetsStatus: assetsData,
-		});
+		await this.fetchAssets();
 	};
+
+	handleTableChange = (pagination, filters) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				for (const filter in filters) {
+					filters[filter] = filters[filter][0];
+				}
+				this.fetchAssets(filters);
+			}
+		);
+	};
+
+	async fetchAssets(opts = {}) {
+		try {
+			this.setState({ loadingTableData: true });
+			const { pagination } = this.state;
+			const params = {
+				pageSize: pagination.pageSize,
+				pageNum: pagination.current,
+				...opts,
+			};
+			const assetsData = await getAssetsData(params);
+			pagination.total = assetsData.total;
+			this.setState({ assetsData: assetsData.items, pagination, loadingTableData: false });
+		} catch (e) {}
+	}
 
 	render() {
 		const {
@@ -187,53 +169,46 @@ class AssetsList extends Component {
 			tokenId,
 			buyPrice,
 			sellPrice,
+			assetsData,
+			loadingTableData,
 		} = this.state;
-		const {
-			data,
-			exchangeRates,
-			loadingAssetsList,
-			loadingExchangeRates,
-			getExchangeRates,
-			getAssetsList,
-		} = this.props;
-		if (!data.length && !exchangeRates.length) {
+		const { getAssetsList } = this.props;
+		if (assetsData === null) {
 			return null;
 		}
 		const columns = [
 			{
 				title: "Assets name",
-				key: "symbol",
+				key: "name",
 				width: "15%",
-				dataIndex: "symbol",
+				dataIndex: "name",
 				sorter: (a, b) => {
-					const nameA = a.symbol.toLowerCase();
-					const nameB = b.symbol.toLowerCase();
+					const nameA = a.name.toLowerCase();
+					const nameB = b.name.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["ascend", "descend"],
-				...getColumnSearchProps()("symbol"),
-				...getOnColumnFilterProp("symbol"),
+				...getColumnSearchProps()("name"),
+				...getOnColumnFilterProp("name"),
 			},
 			{
 				title: "Buy price",
-				dataIndex: "",
 				key: "buyPrice",
 				width: "20%",
-				render: record => renderExchangeRate(record, exchangeRates, "buy"),
+				render: record => convertAmountToStr(record.buyPrice, 8),
 			},
 			{
 				title: "Sell price",
-				dataIndex: "",
-				key: "sell",
+				key: "sellPrice",
 				width: "20%",
-				render: record => renderExchangeRate(record, exchangeRates, "sell"),
+				render: record => convertAmountToStr(record.sellPrice, 8),
 			},
 			{
 				title: "Status",
 				dataIndex: "status",
 				key: "status",
 				width: "20%",
-				render: (text, record, index) => this.checkAssetStatus(record.symbol),
+				render: (text, record, index) => this.checkAssetStatus(record.status),
 			},
 			{
 				title: "Action",
@@ -242,12 +217,12 @@ class AssetsList extends Component {
 				dataIndex: "",
 				render: (text, record, index) => (
 					<>
-						{record.status === "active" && (
+						{record.status === 1 && (
 							<Button
 								type="danger"
-								loading={record.key === symbolKey && loadingBlockedAsset}
-								onClick={() => this.handleBlockAsset(record.symbol, record.key)}
-								disabled={disableBtn && record.key === symbolKey}
+								loading={record.id === symbolKey && loadingBlockedAsset}
+								onClick={() => this.handleBlockAsset(record.name, record.id)}
+								disabled={disableBtn && record.id === symbolKey}
 							>
 								Block asset
 							</Button>
@@ -255,7 +230,12 @@ class AssetsList extends Component {
 
 						<Button
 							type="primary"
-							onClick={this.showModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES, record.symbol)}
+							onClick={this.showModalSetExchangeRates(
+								record.name,
+								record.buyPrice,
+								record.sellPrice,
+								modals.ADD_SET_EXCHANGE_RATES
+							)}
 						>
 							Set exchange rates
 						</Button>
@@ -267,26 +247,23 @@ class AssetsList extends Component {
 		return (
 			<>
 				<Card>
-					<div style={{ marginBottom: 30 }}>
-						<Button
-							type="primary"
-							style={style.button}
-							onClick={this.showModalAddAsset(modals.ADD_ASSETS_MODAL)}
-						>
+					<ButtonContainer>
+						<Button type="primary" onClick={this.showModalAddAsset(modals.ADD_ASSETS_MODAL)}>
 							<Icon type="plus" /> Add new asset
 						</Button>
 						<Button type="primary" onClick={this.refreshTable}>
 							<Icon type="reload" /> Refresh
 						</Button>
-					</div>
+					</ButtonContainer>
 
 					<Table
-						rowKey={data => data.key}
+						rowKey={assetsData => assetsData.id}
 						columns={columns}
-						dataSource={data}
+						dataSource={assetsData}
 						className="ovf-auto"
-						pagination={pagination}
-						loading={loadingAssetsList || loadingExchangeRates}
+						onChange={this.handleTableChange}
+						pagination={{ ...pagination }}
+						loading={loadingTableData}
 					/>
 				</Card>
 
@@ -302,7 +279,6 @@ class AssetsList extends Component {
 					tokenId={tokenId}
 					buyPrice={buyPrice}
 					sellPrice={sellPrice}
-					getExchangeRates={getExchangeRates}
 				/>
 			</>
 		);
