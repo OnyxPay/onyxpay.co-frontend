@@ -38,7 +38,8 @@ for (let status in requestStatus) {
 }
 
 function ConfirmUpgradeModalContent({ expectedPosition, user }) {
-	const amount = expectedPosition && expectedPosition === roles.a ? 500 : 100000;
+	let amount = expectedPosition && expectedPosition === roles.a ? 500 : 110000;
+
 	return (
 		<div>
 			This also means on {user.walletAddr} address will be sent <strong>{amount}</strong> OnyxCash
