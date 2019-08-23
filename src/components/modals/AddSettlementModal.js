@@ -9,6 +9,12 @@ const { TextArea } = Input;
 class AddSettlementModal extends Component {
 	handleFormSubmit = async (values, formActions) => {
 		const { add, hideModal } = this.props;
+		if (values.brief_notes === "") {
+			delete values.brief_notes;
+		}
+		if (values.description === "") {
+			delete values.description;
+		}
 		const res = await add(values);
 		console.log(res);
 		if (res && res.error && res.error.data) {
@@ -47,12 +53,6 @@ class AddSettlementModal extends Component {
 						}
 						if (!values.account_name) {
 							errors.account_name = "required";
-						}
-						if (!values.description) {
-							errors.description = "required";
-						}
-						if (!values.brief_notes) {
-							errors.brief_notes = "required";
 						}
 						return errors;
 					}}
@@ -98,7 +98,6 @@ class AddSettlementModal extends Component {
 									label="Description"
 									validateStatus={errors.description && touched.description ? "error" : ""}
 									help={errors.description && touched.description ? errors.description : ""}
-									required
 									className="ant-form-item"
 								>
 									<TextArea
@@ -115,7 +114,6 @@ class AddSettlementModal extends Component {
 									label="Brief notes"
 									validateStatus={errors.brief_notes && touched.brief_notes ? "error" : ""}
 									help={errors.brief_notes && touched.brief_notes ? errors.brief_notes : ""}
-									required
 									className="ant-form-item"
 								>
 									<Input
