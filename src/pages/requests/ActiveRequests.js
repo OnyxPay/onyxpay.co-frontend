@@ -179,7 +179,7 @@ class ActiveRequests extends Component {
 			const { disableRequest, location, data } = this.props;
 			this.setState({ requestId, activeAction: aa.perform });
 
-			// await performRequest(requestId);
+			await performRequest(requestId);
 			const requestType = parseRequestType(location);
 			let msgText;
 			if (requestType === "deposit" || requestType === "buy_onyx_cash") {

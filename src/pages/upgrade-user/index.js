@@ -203,7 +203,7 @@ class UpgradeUser extends Component {
 			return (
 				<div>
 					<Title level={4} style={StepTitleCss}>
-						Purchase OnyxCash.
+						Purchase OnyxCash
 					</Title>
 					<p>
 						Please purchase an amount of OnyxCash equal to{" "}
