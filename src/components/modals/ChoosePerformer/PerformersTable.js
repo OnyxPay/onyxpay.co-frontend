@@ -1,12 +1,9 @@
 import React from "react";
-import { connect } from "react-redux";
-import { getLocalTime } from "../../../utils";
 import { Button, Tooltip, Table } from "antd";
 import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
-import { sortValues } from "utils";
+import { sortValues, trimAddress, getLocalTime } from "utils";
 
 function PerformersTable({
-	opRequests,
 	data,
 	loading,
 	selectedRowKeys,
@@ -43,14 +40,30 @@ function PerformersTable({
 				},
 			},
 			{
+				title: "Operations",
+				children: [
+					{
+						title: "Successful",
+						dataIndex: "count.operations_successful",
+					},
+					{
+						title: "Unsuccessful",
+						dataIndex: "count.operations_unsuccessful",
+					},
+				],
+			},
+			{
 				title: "Wallet address",
 				dataIndex: "walletAddr",
+				render: (text, record, index) => {
+					return record.walletAddr ? trimAddress(record.walletAddr, false) : "n/a";
+				},
 				...getColumnSearchProps()("walletAddr"),
 			},
 			{
 				title: "Actions",
 				render: (text, record, index) => {
-					return (
+					return record.is_settlements_exists && record.user_id ? (
 						<Tooltip title="See settlement accounts">
 							<Button
 								shape="round"
@@ -58,7 +71,7 @@ function PerformersTable({
 								onClick={e => showUserSettlementsModal(record.user_id)}
 							/>
 						</Tooltip>
-					);
+					) : null;
 				},
 			},
 		];
@@ -110,7 +123,9 @@ function PerformersTable({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
-					return (
+					return record.receiver &&
+						record.receiver.user_id &&
+						record.receiver.is_settlements_exists ? (
 						<Tooltip title="See settlement accounts">
 							<Button
 								shape="round"
@@ -118,7 +133,7 @@ function PerformersTable({
 								onClick={e => showUserSettlementsModal(record.receiver.user_id)}
 							/>
 						</Tooltip>
-					);
+					) : null;
 				},
 			},
 		];
@@ -129,13 +144,6 @@ function PerformersTable({
 		selectedRowKeys,
 		onChange: onSelectedRowKeysChange,
 	};
-	let request = opRequests.items.find(el => el.id === requestId);
-	// remove agents received message from the list
-	if (request && data && request.operationMessages.length && isSendingMessage) {
-		data.items = data.items.filter(el =>
-			request.operationMessages.find(item => el.walletAddr !== item.receiver.walletAddr)
-		);
-	}
 
 	return (
 		<>
@@ -154,10 +162,4 @@ function PerformersTable({
 	);
 }
 
-function mapStateToProps(state, ownProps) {
-	return {
-		opRequests: state.opRequests,
-	};
-}
-
-export default connect(mapStateToProps)(PerformersTable);
+export default PerformersTable;

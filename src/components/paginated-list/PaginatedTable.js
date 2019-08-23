@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "antd";
 
-class TransactionsTable extends Component {
+class PaginatedTable extends Component {
 	state = {
 		pagination: { current: 1, pageSize: 10 },
 		transactionListData: [],
@@ -67,7 +67,9 @@ class TransactionsTable extends Component {
 	};
 
 	render() {
-		const { columns, rowKey, emptyTableMessage } = this.props;
+		const { columns, rowKey, emptyTableMessage, className = "" } = this.props;
+		const classNames = ["ovf-auto", ...className.split(" ")];
+
 		return (
 			<>
 				<Table
@@ -78,11 +80,11 @@ class TransactionsTable extends Component {
 					rowKey={rowKey}
 					locale={{ emptyText: emptyTableMessage }}
 					loading={this.state.loading}
-					className="transactions-table"
+					className={classNames.join(" ")}
 				/>
 			</>
 		);
 	}
 }
 
-export default TransactionsTable;
+export default PaginatedTable;

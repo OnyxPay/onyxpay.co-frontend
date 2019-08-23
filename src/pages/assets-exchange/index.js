@@ -13,7 +13,7 @@ import {
 	Divider,
 	Tag,
 } from "antd";
-import ExchangeHistory from "components/transaction-list/ExchangeHistory";
+import ExchangeHistory from "components/paginated-list/ExchangeHistory";
 import Actions from "../../redux/actions";
 import { convertAmountToStr } from "../../utils/number";
 import { PageTitle } from "../../components";

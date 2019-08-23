@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Modal, Select, Form, Button } from "antd";
+import { Modal, Select, Form, Button, Typography } from "antd";
 import { getData as getCountriesData } from "country-list";
 import { Formik } from "formik";
 import PerformersTable from "./PerformersTable";
@@ -11,7 +11,9 @@ import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
 import { handleBcError } from "api/network";
 import { disableRequest } from "redux/requests";
+import { roles } from "api/constants";
 const { Option } = Select;
+const { Text } = Typography;
 
 class ChoosePerformer extends Component {
 	state = this.getInitialState();
@@ -23,7 +25,7 @@ class ChoosePerformer extends Component {
 			selectedRows: [],
 			selectedRowKeys: [],
 			pagination: { current: 1, pageSize: 20 },
-			country: null,
+			country: this.props.user && this.props.user.countryId,
 		};
 	}
 
@@ -119,11 +121,14 @@ class ChoosePerformer extends Component {
 				},
 			},
 			() => {
-				for (const filter in filters) {
-					filters[filter] = filters[filter][0];
+				const filtersCopy = { ...filters };
+				for (const filter in filtersCopy) {
+					if (filtersCopy[filter]) {
+						filtersCopy[filter] = filtersCopy[filter][0];
+					}
 				}
 				this.fetchUsers({
-					...filters,
+					...filtersCopy,
 					sort_field: sorter.field,
 					sort: sorOrder,
 					country: country,
@@ -166,26 +171,43 @@ class ChoosePerformer extends Component {
 	};
 
 	async fetchUsers(opts = {}) {
-		const { user, performer, accountAddress } = this.props;
-		const { pagination } = this.state;
+		const { performer, accountAddress, isSendingMessage, openedRequestData } = this.props;
+		const { pagination, country } = this.state;
 		try {
 			const params = {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				role: performer,
-				country: user.countryId,
+				country: country,
 				...opts,
 			};
 
 			this.setState({ loading: true });
 			const res = await searchUsers(params);
 			pagination.total = res.total;
-			const performers = res.items.filter(performer => performer.walletAddr !== accountAddress);
+			let performers;
+
+			if (
+				isSendingMessage &&
+				openedRequestData.operationMessages &&
+				openedRequestData.operationMessages.length
+			) {
+				// remove agents received message from the list
+				performers = res.items.filter(el =>
+					openedRequestData.operationMessages.find(
+						item => el.walletAddr !== item.receiver.walletAddr
+					)
+				);
+			} else {
+				performers = res.items.filter(performer => performer.walletAddr !== accountAddress);
+			}
+
+			// TODO: pagination may be incorrect because of filtration, fix it!
+
 			this.setState({
 				loading: false,
 				users: { items: performers, total: res.total },
 				pagination,
-				country: user.countryId,
 			});
 		} catch (e) {}
 	}
@@ -209,6 +231,18 @@ class ChoosePerformer extends Component {
 		} = this.props;
 		const { loading, users, selectedRowKeys } = this.state;
 
+		let tipText, sendToAllPerformersBtnText;
+
+		if (user && user.role === roles.c) {
+			tipText =
+				'This page allows you to select your preferred agent or agents together with the countries they are located in. Click on "Send to all agents" button to send the request to all agents, or select agents by hand with check-boxes and click on "Send request" button.';
+			sendToAllPerformersBtnText = "Send to all agents";
+		} else {
+			tipText =
+				'This page allows you to select your preferred super-agent or super-agents together with the countries they are located in. Click on "Send to all super-agents" button to send the request to all super-agents, or select super-agents by hand with check-boxes and click on "Send request" button.';
+			sendToAllPerformersBtnText = "Send to all super-agents";
+		}
+
 		return (
 			<Modal
 				title={
@@ -218,8 +252,14 @@ class ChoosePerformer extends Component {
 				onCancel={this.handleClose}
 				footer={null}
 				destroyOnClose={true}
-				className="send-to-agents-modal"
+				className="choose-performer-modal"
 			>
+				{isSendingMessage && (
+					<Text type="secondary" style={{ display: "block", marginBottom: 12 }}>
+						{tipText}
+					</Text>
+				)}
+
 				<Formik
 					onSubmit={this.handleFormSubmit}
 					initialValues={{ country: user ? user.countryId : "" }}
@@ -278,6 +318,7 @@ class ChoosePerformer extends Component {
 										isSendingMessage={isSendingMessage}
 										showUserSettlementsModal={showUserSettlementsModal}
 										requestId={this.props.requestId}
+										key={this.state.country}
 									/>
 									<div className="ant-modal-custom-footer">
 										<Button key="back" onClick={this.handleClose} style={{ marginRight: 10 }}>
@@ -288,6 +329,7 @@ class ChoosePerformer extends Component {
 											htmlType="submit"
 											disabled={!selectedRowKeys.length || isSubmitting}
 											loading={isSubmitting}
+											style={{ marginRight: 10 }}
 										>
 											{isSendingMessage ? "Send request" : "Choose"}
 										</Button>
@@ -296,13 +338,11 @@ class ChoosePerformer extends Component {
 												type="primary"
 												key="allAgent"
 												onClick={() => this.handleSendAllAgents()}
-												style={{ marginLeft: 10 }}
+												className="send-to-all-performers-btn"
 											>
-												Send to all agents
+												{sendToAllPerformersBtnText}
 											</Button>
-										) : (
-											""
-										)}
+										) : null}
 									</div>
 								</form>
 							</div>

@@ -115,65 +115,77 @@ class ComplaintsList extends Component {
 		} = this.state;
 		const columns = [
 			{
+				title: "Id",
+				dataIndex: "id",
+			},
+			{
 				title: "Type request",
 				dataIndex: "type",
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Name initiator",
-				render: res => (
-					<Button style={styles.btnLink} type="link" onClick={() => this.showUserData(res.maker)}>
-						<span>{res.maker.firstName + " " + res.maker.lastName}</span>
+				render: (text, record, index) => (
+					<Button
+						style={styles.btnLink}
+						type="link"
+						onClick={() => this.showUserData(record.maker)}
+					>
+						<span>{record.maker.firstName + " " + record.maker.lastName}</span>
 					</Button>
 				),
 			},
 			{
 				title: "Name performer",
-				render: res => (
-					<Button style={styles.btnLink} type="link" onClick={() => this.showUserData(res.taker)}>
-						<span>{res.taker.firstName + " " + res.taker.lastName}</span>
+				render: (text, record, index) => (
+					<Button
+						style={styles.btnLink}
+						type="link"
+						onClick={() => this.showUserData(record.taker)}
+					>
+						<span>{record.taker.firstName + " " + record.taker.lastName}</span>
 					</Button>
 				),
 			},
 			{
 				title: "Asset",
 				dataIndex: "asset",
-				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Amount",
 				dataIndex: "amount",
-				render: res => (res ? convertAmountToStr(res, 8) : "n/a"),
+				render: (text, record, index) =>
+					record.amount ? convertAmountToStr(record.amount, 8) : "n/a",
 			},
 			{
 				title: "Created",
 				dataIndex: "createdAt",
-				render: res => (res ? new Date(res).toLocaleString() : "n/a"),
+				render: (text, record, index) =>
+					record.createdAt ? new Date(record.createdAt).toLocaleString() : "n/a",
 			},
 			{
 				title: "Action",
 				key: "action",
 				width: "30%",
-				dataIndex: "",
-				render: res => (
+				render: (text, record, index) => (
 					<>
 						<Button
 							type="primary"
 							onClick={() =>
-								this.handleComplainedRequests(res.requestId, "winnerClient", res.maker.id)
+								this.handleComplainedRequests(record.requestId, "winnerClient", record.maker.id)
 							}
-							loading={res.maker.id === userId && res.requestId === requestId && loadingSolve}
-							disabled={res.requestId === requestId && loadingSolve}
+							loading={record.maker.id === userId && record.requestId === requestId && loadingSolve}
+							disabled={record.requestId === requestId && loadingSolve}
 						>
 							Winner initiator
 						</Button>
 						<Button
 							type="primary"
 							onClick={() =>
-								this.handleComplainedRequests(res.requestId, "winnerAgent", res.taker.id)
+								this.handleComplainedRequests(record.requestId, "winnerAgent", record.taker.id)
 							}
-							loading={res.taker.id === userId && res.requestId === requestId && loadingSolve}
-							disabled={res.requestId === requestId && loadingSolve}
+							loading={record.taker.id === userId && record.requestId === requestId && loadingSolve}
+							disabled={record.requestId === requestId && loadingSolve}
 						>
 							Winner performer
 						</Button>

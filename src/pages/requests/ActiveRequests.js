@@ -20,7 +20,6 @@ import { handleTableChange, getColumnSearchProps } from "./table";
 import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
-import { getFiatAmount } from "api/balance";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -40,7 +39,9 @@ export default class ActiveRequests extends Component {
 			operationMessages: [],
 			activeAction: "",
 			idParsedFromURL: "",
-			openedRequestData: {}, // to choose performer
+			openedRequestData: {}, // set after ChoosePerformerModal is opened
+			selectedUserData: {},
+			selectedUserDataType: "",
 		};
 		this.setState = this.setState.bind(this);
 		this.searchInput = "";
@@ -104,32 +105,25 @@ export default class ActiveRequests extends Component {
 			}
 		}
 	};
-	handleAcceptRequest = async (requestId, requestAmount, requestAsset, requestTypeCode) => {
-		// agent accepts deposit or withdraw request
-		try {
-			const { balanceAssets, balanceOnyxCash, disableRequest, walletAddress } = this.props;
-			const fiatBalance = await getFiatAmount(walletAddress, requestAsset);
 
-			if (requestTypeCode === operationType.withdraw && fiatBalance < requestAmount) {
-				showNotification({
-					type: "error",
-					msg: "Insufficient fiat amount. Please update.",
-				});
-				return;
-			}
+	handleConfirmRequest = async (requestId, requestAmount, requestAsset, requestTypeCode) => {
+		// agent confirms deposit or withdraw request
+		try {
+			const { balanceAssets, balanceOnyxCash, disableRequest } = this.props;
+
 			if (requestAsset !== "OnyxCash") {
 				const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
 				if (isAssetBlocked) {
 					showNotification({
 						type: "error",
 						msg:
-							"Request cannot be accepted. Asset is blocked for technical works. Try again later.",
+							"Request cannot be confirmed. Asset is blocked for technical works. Try again later.",
 					});
 					return;
 				}
 			}
 
-			this.setState({ requestId, activeAction: aa.accept });
+			this.setState({ requestId, activeAction: aa.confirm });
 
 			if (!requestTypeCode === operationType.withdraw) {
 				const allow = balanceAssets.some(balance => {
@@ -141,7 +135,7 @@ export default class ActiveRequests extends Component {
 				if (!allow) {
 					showNotification({
 						type: "error",
-						msg: "Request cannot be accepted. Insufficient amount of asset.",
+						msg: "Request cannot be confirmed. Insufficient amount of asset.",
 					});
 					return;
 				}
@@ -151,7 +145,7 @@ export default class ActiveRequests extends Component {
 			disableRequest(requestId);
 			showNotification({
 				type: "success",
-				msg: "You have accepted the request",
+				msg: "You have confirmed the request",
 			});
 		} catch (e) {
 			handleBcError(e);
@@ -267,8 +261,8 @@ export default class ActiveRequests extends Component {
 				showUserSettlementsModal: settlementsId => {
 					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
 				},
-				showSelectedUserDataModal: selectedUserData => {
-					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
+				showSelectedUserDataModal: (selectedUserData, selectedUserDataType) => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData, selectedUserDataType })();
 				},
 				performRequest: this.performRequest,
 				cancelRequest: this.cancelRequest,
@@ -279,15 +273,15 @@ export default class ActiveRequests extends Component {
 				activeAction,
 				walletAddress,
 				hideRequest: this.hideRequest,
-				acceptRequest: this.handleAcceptRequest,
+				confirmRequest: this.handleConfirmRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
 				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
 				defaultFilterValue: idParsedFromURL,
 				requestsType: parseRequestType(location),
 				requestsStatus: "active",
-				showSelectedUserDataModal: selectedUserData => {
-					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData })();
+				showSelectedUserDataModal: (selectedUserData, selectedUserDataType) => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData, selectedUserDataType })();
 				},
 				showUserSettlementsModal: settlementsId => {
 					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
@@ -340,7 +334,8 @@ export default class ActiveRequests extends Component {
 				<ShowUserDataModal
 					visible={this.state.SELECTED_USER_DATA}
 					hideModal={this.hideModal(modals.SELECTED_USER_DATA)}
-					data={[this.state.selectedUserData]}
+					data={this.state.selectedUserData ? [this.state.selectedUserData] : null}
+					selectedUserDataType={this.state.selectedUserDataType}
 				/>
 			</>
 		);
