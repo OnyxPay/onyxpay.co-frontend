@@ -151,3 +151,5 @@ export const h24Mc = 24 * 60 * 60 * 1000;
 export const refreshBalanceEveryMsec = 30000;
 
 export const gasCompensatorTimeout = 30000;
+
+export const supportEmail = "support@onyxPay.co";

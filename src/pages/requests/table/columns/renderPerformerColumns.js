@@ -8,6 +8,7 @@ import { h24Mc } from "api/constants";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
 import { styles } from "../../styles";
+import SupportLink from "components/SupportLink";
 
 function isAnotherPerformerSelected(record, walletAddress) {
 	if (
@@ -283,7 +284,7 @@ export default function renderPerformerColumns({
 					if (!record.request) {
 						return null;
 					} else if (record.request.statusCode === requestStatus.complained) {
-						return null;
+						return <SupportLink />;
 					}
 					if (record._isDisabled) return "n/a";
 

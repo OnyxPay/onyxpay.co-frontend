@@ -8,6 +8,7 @@ import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
 import { styles } from "../../styles";
+import SupportLink from "components/SupportLink";
 
 function punishForCancelation(trxCreated, thresholdToPunishInHr) {
 	const timePassedMs = new Date().getTime() - new Date(trxCreated).getTime();
@@ -190,8 +191,9 @@ export default function renderInitiatorColumns({
 				title: "Actions",
 				render: (text, record, index) => {
 					if (record.statusCode === requestStatus.complained) {
-						return null;
+						return <SupportLink />;
 					}
+
 					if (record._isDisabled) return "n/a";
 
 					const isComplainActive =
