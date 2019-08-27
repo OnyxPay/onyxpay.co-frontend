@@ -184,6 +184,7 @@ class ChoosePerformer extends Component {
 				pageNum: pagination.current,
 				role: performer,
 				country: country,
+				status: "active",
 				...opts,
 			};
 
