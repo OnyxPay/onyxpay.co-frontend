@@ -162,7 +162,6 @@ class SendAsset extends Component {
 
 	handleAmountChange = (values, formActions) => async value => {
 		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
-		// fix
 		if (isEnteredEnoughAmount) {
 			this.debouncedGetFee(values.asset_symbol, value);
 		} else {
