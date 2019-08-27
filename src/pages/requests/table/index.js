@@ -138,7 +138,7 @@ export function renderPerformBtn(
 			if (isPerformerAgent) {
 				confirmText = "Are you sure you want to perform the withdrawal request?";
 			} else {
-				confirmText = `Please, confirm you have received ${convertAmountToStr(
+				confirmText = `Please confirm you have received ${convertAmountToStr(
 					record.amount,
 					8
 				)} fiat ${record.asset} from ${record.taker.firstName} ${
