@@ -2,6 +2,7 @@ import React from "react";
 import { Input, Button, Icon, Popconfirm } from "antd";
 import { requestStatus, operationMessageStatus } from "api/constants";
 import { h24Mc } from "api/constants";
+import { convertAmountToStr } from "utils/number";
 
 export function handleTableChange({ fetchData, paginationState, setState }) {
 	return function(pagination, filters, sorter) {
@@ -108,16 +109,42 @@ export function renderPerformBtn(
 	performRequest,
 	walletAddress,
 	requestsType,
-	isPerformActive
+	isPerformActive,
+	isPerformerAgent
 ) {
 	let btn;
 
 	function getButton(requestId) {
 		let btnText;
-		if (requestsType === "deposit" || requestsType === "buy_onyx_cash") {
+		let confirmText;
+		if (requestsType === "deposit") {
 			btnText = "Perform Deposit";
+			confirmText = `Are you sure you want to deposit ${convertAmountToStr(
+				record.request.amount,
+				8
+			)} ${record.request.asset} into ${record.sender.firstName} ${
+				record.sender.lastName
+			}'s customer account?`;
+		} else if (requestsType === "buy_onyx_cash") {
+			btnText = "Perform Deposit";
+			confirmText = `Are you sure you want to deposit ${convertAmountToStr(
+				record.request.amount,
+				8
+			)} ${record.request.asset} into ${record.sender.firstName} ${
+				record.sender.lastName
+			}'s Agent/Super agent account?`;
 		} else {
 			btnText = "Perform Withdraw";
+			if (isPerformerAgent) {
+				confirmText = "Are you sure you want to perform the withdrawal request?";
+			} else {
+				confirmText = `Please, confirm you have received ${convertAmountToStr(
+					record.amount,
+					8
+				)} fiat ${record.asset} from ${record.taker.firstName} ${
+					record.taker.lastName
+				}'s Agent account`;
+			}
 		}
 
 		if (isPerformActive) {
@@ -128,7 +155,7 @@ export function renderPerformBtn(
 			);
 		} else {
 			return (
-				<Popconfirm title="Sure to perform?" onConfirm={() => performRequest(requestId)}>
+				<Popconfirm title={confirmText} onConfirm={() => performRequest(requestId)}>
 					<Button type="primary">{btnText}</Button>
 				</Popconfirm>
 			);

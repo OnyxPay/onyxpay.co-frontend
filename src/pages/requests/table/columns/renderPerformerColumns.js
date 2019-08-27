@@ -313,7 +313,8 @@ export default function renderPerformerColumns({
 								performRequest,
 								walletAddress,
 								requestsType,
-								isPerformActive
+								isPerformActive,
+								true
 							)}
 							{renderCancelBtn(
 								record,
