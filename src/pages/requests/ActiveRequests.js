@@ -26,6 +26,7 @@ import { getOpRequests, GET_OPERATION_REQUESTS, disableRequest } from "redux/req
 import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
+import { convertAmountToStr } from "utils/number";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -182,13 +183,30 @@ class ActiveRequests extends Component {
 			await performRequest(requestId);
 			const requestType = parseRequestType(location);
 			let msgText;
+
+			const opRequest = data.items.find(req => {
+				if (req.request) {
+					return req.request.requestId === requestId;
+				} else {
+					return req.requestId === requestId;
+				}
+			});
+
 			if (requestType === "deposit" || requestType === "buy_onyx_cash") {
-				const opRequest = data.items.find(req => req.request.requestId === requestId);
-				msgText = `Deposit was successful to customer ${opRequest.sender.firstName} ${
+				msgText = `Deposit was successful to ${opRequest.sender.firstName} ${
 					opRequest.sender.lastName
-				}`;
+				}'s account`;
 			} else if (requestType === "withdraw") {
-				msgText = "Withdraw was successful";
+				if (opRequest.maker) {
+					msgText = `Withdrawal of ${convertAmountToStr(opRequest.amount, 8)} ${
+						opRequest.asset
+					} from your account was successful`;
+				} else if (opRequest.sender) {
+					const { firstName, lastName } = opRequest.sender;
+					msgText = `Withdrawal from ${firstName} ${lastName}'s account was successful`;
+				} else {
+					msgText = "Withdrawal was successful";
+				}
 			}
 			showNotification({
 				type: "success",
