@@ -193,17 +193,29 @@ class ActiveRequests extends Component {
 			});
 
 			if (requestType === "deposit" || requestType === "buy_onyx_cash") {
-				msgText = `Deposit was successful to ${opRequest.sender.firstName} ${
-					opRequest.sender.lastName
-				}'s account`;
+				if (opRequest.request && opRequest.sender) {
+					const { firstName, lastName } = opRequest.sender;
+					const { amount, asset } = opRequest.request;
+					msgText = `Congratulations! You have successfully deposited ${convertAmountToStr(
+						amount,
+						8
+					)} ${asset} to ${firstName} ${lastName}'s account`;
+				} else {
+					msgText = "Deposit was successful";
+				}
 			} else if (requestType === "withdraw") {
 				if (opRequest.maker) {
-					msgText = `Withdrawal of ${convertAmountToStr(opRequest.amount, 8)} ${
-						opRequest.asset
-					} from your account was successful`;
-				} else if (opRequest.sender) {
+					msgText = `Congratulations! You have successfully withdrawn ${convertAmountToStr(
+						opRequest.amount,
+						8
+					)} ${opRequest.asset} from your account`;
+				} else if (opRequest.sender && opRequest.request) {
 					const { firstName, lastName } = opRequest.sender;
-					msgText = `Withdrawal from ${firstName} ${lastName}'s account was successful`;
+					const { amount, asset } = opRequest.request;
+					msgText = `Withdrawal of ${convertAmountToStr(
+						amount,
+						8
+					)} ${asset} from ${firstName} ${lastName}'s account was successful`;
 				} else {
 					msgText = "Withdrawal was successful";
 				}
