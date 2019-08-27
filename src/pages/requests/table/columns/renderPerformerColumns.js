@@ -211,6 +211,11 @@ export default function renderPerformerColumns({
 					if (record.request) {
 						if (isAnotherPerformerSelected(record, walletAddress)) {
 							return "request wasn't selected";
+						} else if (
+							record.request.takerAddr &&
+							record.request.statusCode === requestStatus.choose
+						) {
+							return "waiting for perform";
 						}
 						return record.request.status;
 					} else {

@@ -135,6 +135,9 @@ export default function renderInitiatorColumns({
 				dataIndex: "status",
 				render: (text, record, index) => {
 					if (record._isDisabled) return "wait...";
+					if (record.takerAddr && record.statusCode === requestStatus.choose) {
+						return "waiting for perform";
+					}
 					return record.status;
 				},
 			},
