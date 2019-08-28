@@ -248,7 +248,7 @@ class Withdraw extends Component {
 													})}
 												</Select>
 											</Form.Item>
-											<AvailableBalance assetSymbol={values.asset_symbol} />
+											{!isFormDisabled && <AvailableBalance assetSymbol={values.asset_symbol} />}
 										</Col>
 
 										<Col lg={12} md={24}>
