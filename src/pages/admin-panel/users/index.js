@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
 import { getUsersData } from "redux/admin-panel/users";
+import { showNotification } from "components/notification";
 import { formatUserRole } from "utils";
+import { roles, userStatus, userStatusNames } from "api/constants";
 import UserDetailedData from "./userDetailedData";
 
 class Users extends Component {
@@ -91,7 +93,8 @@ class Users extends Component {
 			},
 			() => {
 				for (const filter in filters) {
-					filters[filter] = filters[filter][0];
+					filters[filter] =
+						filters[filter].length > 1 ? filters[filter].join(",") : filters[filter][0];
 				}
 				this.fetchUsers(filters);
 			}
@@ -111,13 +114,52 @@ class Users extends Component {
 			const res = await getUsersData(params);
 			pagination.total = res.adminUsers.total;
 			this.setState({ pagination, loadingTableData: false });
-		} catch (e) {}
+		} catch (e) {
+			this.setState({ loadingTableData: false });
+			showNotification({
+				type: "error",
+				msg: "An error occurred when fetching data",
+			});
+		}
 	}
 
 	render() {
 		const { adminUsers } = this.props;
 		const { loadingTableData, pagination } = this.state;
 		if (!adminUsers) return null;
+		const roleColumnFilters = [
+			{
+				text: "User",
+				value: roles.c,
+			},
+			{
+				text: "Agent",
+				value: roles.a,
+			},
+			{
+				text: "Super Agent",
+				value: roles.sa,
+			},
+		];
+		const statusColumnFilters = [
+			{
+				text: "Waiting",
+				value: userStatusNames[userStatus.wait],
+			},
+			{
+				text: "Active",
+				value: userStatusNames[userStatus.active],
+			},
+			{
+				text: "Blocked",
+				value: userStatusNames[userStatus.blocked],
+			},
+			{
+				text: "Deleted",
+				value: userStatusNames[userStatus.deleted],
+			},
+		];
+
 		const columns = [
 			{
 				title: "Actions",
@@ -148,7 +190,8 @@ class Users extends Component {
 				title: "Role",
 				dataIndex: "role",
 				key: "role",
-				...this.getColumnSearchProps("role"),
+				filters: roleColumnFilters,
+				filterMultiple: false,
 				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
@@ -176,7 +219,8 @@ class Users extends Component {
 				title: "Status",
 				dataIndex: "status",
 				key: "status",
-				...this.getColumnSearchProps("status"),
+				filters: statusColumnFilters,
+				filterMultiple: false,
 				render: res => (res ? res : "n/a"),
 			},
 		];
