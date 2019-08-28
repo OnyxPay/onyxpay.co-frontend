@@ -83,7 +83,6 @@ class AssetsExchange extends Component {
 
 		for (let i in assetsData) {
 			let item = assetsData[i];
-
 			if (type === "buy" && item.buyPrice) {
 				res.push(item);
 			} else if (type === "sell" && item.sellPrice) {
@@ -153,6 +152,7 @@ class AssetsExchange extends Component {
 
 		let assetsForBuyData = this.getAssetsForBuyData();
 		let assetsForSellData = this.getAssetsForSellData();
+		console.log(assetsForBuyData, assetsForSellData);
 
 		let defaultAssetToSellName = "";
 		let defaultAssetToBuyName = "";
@@ -167,7 +167,7 @@ class AssetsExchange extends Component {
 			defaultAssetToBuyName = defaultAssetToBuy.name;
 			selectedCorrectDefaultAssets = true;
 		} else if (user.role === roles.sa) {
-			if (assetsForSellData.length >= 2) {
+			if (assetsForSellData.length >= 1) {
 				const defaultAssetToBuy = assetsForBuyData[0];
 				const defaultAssetToSell = assetsForSellData.find(
 					record => record.name !== defaultAssetToBuy.name
