@@ -35,11 +35,11 @@ function renderCancelBtn(
 
 	if (record.status === "accepted" && !record.request.takerAddr) {
 		// performer are not selected
-		buttonText = "Cancel acceptation";
+		buttonText = "Cancel confirmation";
 		if (isCancelAcceptedRequestActive) {
 			buttonType = "default";
 		} else {
-			confirmText = "Sure to cancel acceptation?";
+			confirmText = "Sure to cancel confirmation?";
 			buttonType = "confirm";
 		}
 	} else if (record.status === "accepted" && isAnotherSelected && requestsType !== "withdraw") {

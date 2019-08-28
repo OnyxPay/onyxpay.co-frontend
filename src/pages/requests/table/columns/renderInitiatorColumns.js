@@ -253,15 +253,15 @@ export default function renderInitiatorColumns({
 								isCancelRequestActive
 							)}
 
+							{/* Perform withdraw request */}
+							{requestsType === "withdraw" &&
+								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
+
 							{/* Complain on request */}
 							{record.takerAddr &&
 								record.chooseTimestamp &&
 								!is24hOver(record.chooseTimestamp) &&
 								renderComplainButton(record, handleComplain, isComplainActive)}
-
-							{/* Perform withdraw request */}
-							{requestsType === "withdraw" &&
-								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
 						</>
 					);
 				},
