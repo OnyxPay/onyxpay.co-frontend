@@ -235,7 +235,7 @@ class Deposit extends Component {
 									{activeRequestsError && (
 										<Alert
 											style={{ marginTop: 16 }}
-											message="Limit of active requests(10) is exceeded. To create new requests you should resolve some of the old ones"
+											message="Limit of active deposit and withdraw requests (10) is exceeded. To create new requests you should resolve some of the old ones."
 											type="error"
 										/>
 									)}
