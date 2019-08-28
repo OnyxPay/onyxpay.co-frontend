@@ -18,7 +18,6 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
-import AssetsBalance from "components/balance/AssetsBalance";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -117,7 +116,6 @@ class Deposit extends Component {
 		return (
 			<>
 				<PageTitle>Deposit</PageTitle>
-				<AssetsBalance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -155,7 +153,7 @@ class Deposit extends Component {
 							setFieldError,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit}>
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={12} md={24}>
 											<Form.Item
@@ -222,7 +220,7 @@ class Deposit extends Component {
 											</Form.Item>
 										</Col>
 									</Row>
-									<TextAligner align="right" mobile="left">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"

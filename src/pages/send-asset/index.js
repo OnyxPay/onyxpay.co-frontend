@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, Row, Col, Typography, InputNumber } from "antd";
+import { Card, Button, Input, Form, Select, Row, Col, Typography, InputNumber, Alert } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -12,7 +12,7 @@ import { convertAmountToStr } from "../../utils/number";
 import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
-import AssetsBalance from "components/balance/AssetsBalance";
+import AvailableBalance from "components/balance/AvailableBalance";
 import { handleBcError } from "api/network";
 import { checkUserRole, isBlockedUser } from "api/admin/users";
 import { roles } from "api/constants";
@@ -194,7 +194,6 @@ class SendAsset extends Component {
 		return (
 			<>
 				<PageTitle>Send assets</PageTitle>
-				<AssetsBalance />
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -239,7 +238,7 @@ class SendAsset extends Component {
 							const allowToSubmitForm =
 								values.receiver_address && values.asset_symbol && values.amount ? true : false;
 							return (
-								<form onSubmit={handleSubmit} className="send-assets__form">
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={8} md={24}>
 											<Form.Item
@@ -300,6 +299,9 @@ class SendAsset extends Component {
 														: null}
 												</Select>
 											</Form.Item>
+											{values.asset_symbol && (
+												<AvailableBalance assetSymbol={values.asset_symbol} />
+											)}
 										</Col>
 
 										<Col lg={8} md={24}>
@@ -347,18 +349,7 @@ class SendAsset extends Component {
 											)}
 										</Col>
 									</Row>
-									<Row>
-										{availableAssetsToSend.length !== 0 ? (
-											<Text type="secondary">
-												Min available amount to send is equivalent of 1 USD
-											</Text>
-										) : (
-											<Text type="danger">
-												You have no assets to send at the moment. Please, make a deposit.
-											</Text>
-										)}
-									</Row>
-									<TextAligner align="right" mobile="left" className="send-assets__button-wrapper">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"
@@ -368,6 +359,15 @@ class SendAsset extends Component {
 											Send
 										</Button>
 									</TextAligner>
+									<Alert
+										style={{ marginTop: 16 }}
+										message={
+											availableAssetsToSend.length !== 0
+												? "Min available amount to send is equivalent of 1 USD"
+												: "You have no assets to send at the moment. Please, make a deposit."
+										}
+										type={availableAssetsToSend.length !== 0 ? "info" : "error"}
+									/>
 								</form>
 							);
 						}}
