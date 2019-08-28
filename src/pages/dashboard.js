@@ -26,7 +26,7 @@ class Home extends Component {
 
 	isUserVerified() {
 		const { user } = this.props;
-		return user.status === 1 ? true : false;
+		return user.status !== userStatus.wait ? true : false;
 	}
 
 	showModal = () => {
