@@ -52,7 +52,7 @@ class AvailableBalance extends Component {
 		}
 
 		return (
-			<Text strong style={{ display: "block" }}>
+			<Text strong style={{ display: "block", margin: "-12px 0px 12px" }}>
 				Available balance: {balance} {symbol}
 			</Text>
 		);
