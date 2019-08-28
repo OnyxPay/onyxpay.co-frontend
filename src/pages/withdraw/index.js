@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, Row, Col, Alert } from "antd";
+import { Card, Button, Input, Form, Select, Row, Col, Alert, Typography, InputNumber } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "redux/actions";
@@ -23,14 +23,21 @@ import { createLoadingSelector } from "selectors/loading";
 import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
 import { getFee } from "../../api/assets";
 import AvailableBalance from "components/balance/AvailableBalance";
+import { debounce } from "lodash";
 
+const { Text } = Typography;
 const { Option } = Select;
 
 class Withdraw extends Component {
-	state = {
-		activeRequestsError: false,
-		settlementsError: false,
-	};
+	constructor(props) {
+		super(props);
+		this.debouncedGetFee = debounce(this.debouncedGetFee.bind(this), 500);
+		this.state = {
+			fee: null,
+			activeRequestsError: false,
+			settlementsError: false,
+		};
+	}
 
 	async componentDidMount() {
 		const { getExchangeRates, getSettlementsList } = this.props;
@@ -56,7 +63,7 @@ class Withdraw extends Component {
 		}
 	}
 
-	isEnoughAmount(amount, assetSymbol) {
+	isEnteredEnoughAmount(amount, assetSymbol) {
 		const { exchangeRates } = this.props;
 		const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
 		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
@@ -64,7 +71,7 @@ class Withdraw extends Component {
 		return isEnough;
 	}
 
-	async calcMaxAmount(assetSymbol) {
+	async calcMaxAmount(assetSymbol, updateFee) {
 		const { assets } = this.props;
 		if (assets.length) {
 			try {
@@ -80,6 +87,9 @@ class Withdraw extends Component {
 					maxAmount = (maxAmount / (1 + updatedAmountFeePercent)).toFixed(8);
 					updatedFee = (await getFee(assetSymbol, maxAmount.toString(), "withdraw")) / 10 ** 8;
 				}
+				if (updateFee) {
+					this.setState({ fee: updatedFee });
+				}
 				return maxAmount;
 			} catch (e) {
 				showBcError(e.message);
@@ -89,7 +99,7 @@ class Withdraw extends Component {
 	}
 
 	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
-		const maxAmount = await this.calcMaxAmount(assetSymbol);
+		const maxAmount = await this.calcMaxAmount(assetSymbol, true);
 		setFieldValue("amount", maxAmount);
 	};
 
@@ -101,18 +111,20 @@ class Withdraw extends Component {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
 			}
-			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
-			if (!isEnoughAmount) {
+			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
+
+			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", "min amount is 1 oUSD");
 			}
 			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
-			if (maxAmount < values.amount) {
+
+			if (Number(maxAmount) < Number(values.amount)) {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", `max ${maxAmount}`);
 			}
 
-			if (!isBlocked && isEnoughAmount) {
+			if (!isBlocked && isEnteredEnoughAmount) {
 				const res = await createRequest(values, "withdraw");
 				if (!res.error) {
 					showNotification({
@@ -141,9 +153,28 @@ class Withdraw extends Component {
 		setFieldValue("asset_symbol", value);
 	};
 
+	debouncedGetFee(assetSymbol, amount) {
+		getFee(assetSymbol, amount, "send").then(fee => {
+			this.setState({ fee: fee / 10 ** 8 });
+		});
+	}
+
+	handleAmountChange = (values, formActions) => async value => {
+		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
+
+		if (isEnteredEnoughAmount) {
+			this.debouncedGetFee(values.asset_symbol, value);
+		} else {
+			if (this.state.fee) {
+				this.setState({ fee: null });
+			}
+		}
+		formActions.setFieldValue("amount", value);
+	};
+
 	render() {
 		const { assets } = this.props;
-		const { activeRequestsError, settlementsError } = this.state;
+		const { activeRequestsError, settlementsError, fee } = this.state;
 
 		const isFormDisabled = settlementsError || activeRequestsError;
 
@@ -162,7 +193,7 @@ class Withdraw extends Component {
 							if (!values.asset_symbol) {
 								errors.asset_symbol = "required";
 							}
-							if (!values.amount) {
+							if (values.amount === null || values.amount === "") {
 								errors.amount = "required";
 							} else if (values.amount <= 0) {
 								errors.amount = "only positive values are allowed";
@@ -184,7 +215,7 @@ class Withdraw extends Component {
 							setFieldError,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit}>
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={12} md={24}>
 											<Form.Item
@@ -229,15 +260,19 @@ class Withdraw extends Component {
 												help={errors.amount && touched.amount ? errors.amount : ""}
 											>
 												<Input.Group compact style={{ display: "flex" }}>
-													<Input
+													<InputNumber
 														name="amount"
-														type="number"
 														placeholder="Enter an amount"
 														value={values.amount}
-														onChange={handleChange}
+														min={0}
+														step={1}
+														onChange={this.handleAmountChange(values, {
+															setFieldError,
+															setFieldValue,
+														})}
 														onBlur={handleBlur}
 														disabled={isFormDisabled || isSubmitting}
-														step="any"
+														style={{ width: "100%" }}
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
@@ -247,9 +282,17 @@ class Withdraw extends Component {
 													</Button>
 												</Input.Group>
 											</Form.Item>
+											{fee && values.amount && (
+												<Text
+													type="secondary"
+													style={{ display: "block", margin: "-12px 0 12px 0" }}
+												>
+													fee will be {fee}
+												</Text>
+											)}
 										</Col>
 									</Row>
-									<TextAligner align="right" mobile="left">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"

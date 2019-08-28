@@ -52,33 +52,3 @@ export async function getMessages(params, requestType, fetchActive) {
 		return handleReqError(error);
 	}
 }
-
-export async function getMessagesForActiveRequests(params, requestType = "deposit") {
-	try {
-		const authHeaders = getAuthHeaders();
-		const { data } = await client.get(`operation-messages/${requestType}/active-requests`, {
-			headers: {
-				...authHeaders,
-			},
-			params,
-		});
-		return data;
-	} catch (error) {
-		return handleReqError(error);
-	}
-}
-
-export async function getMessagesForClosedRequests(params, requestType = "deposit") {
-	try {
-		const authHeaders = getAuthHeaders();
-		const { data } = await client.get(`operation-messages/${requestType}/close-requests`, {
-			headers: {
-				...authHeaders,
-			},
-			params,
-		});
-		return data;
-	} catch (error) {
-		return handleReqError(error);
-	}
-}

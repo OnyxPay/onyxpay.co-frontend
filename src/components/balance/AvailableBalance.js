@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Typography } from "antd";
 import { convertAmountToStr } from "utils/number";
 import { roles, OnyxCashDecimals } from "api/constants";
+import { isEqual } from "lodash";
 
 const { Text } = Typography;
 
@@ -21,10 +22,7 @@ class AvailableBalance extends Component {
 		const { assets } = this.props.balance;
 		const { assetSymbol } = this.props;
 
-		if (
-			assets.length !== prevProps.balance.assets.length ||
-			assetSymbol !== prevProps.assetSymbol
-		) {
+		if (!isEqual(assets, prevProps.balance.assets) || assetSymbol !== prevProps.assetSymbol) {
 			this.handleAssetsBalance(assetSymbol);
 		}
 	}

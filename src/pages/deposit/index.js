@@ -153,7 +153,7 @@ class Deposit extends Component {
 							setFieldError,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit}>
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={12} md={24}>
 											<Form.Item
@@ -195,7 +195,7 @@ class Deposit extends Component {
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
 													{!activeRequestsError &&
-														"You will be able to send to the agent only chosen fiat currency"}
+														"Only selected fiat currency can be sent to the agent"}
 												</Text>
 											) : null}
 										</Col>
@@ -220,7 +220,7 @@ class Deposit extends Component {
 											</Form.Item>
 										</Col>
 									</Row>
-									<TextAligner align="right" mobile="left">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"

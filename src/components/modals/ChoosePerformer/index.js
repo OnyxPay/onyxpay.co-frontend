@@ -12,6 +12,7 @@ import { convertAmountToStr } from "utils/number";
 import { handleBcError } from "api/network";
 import { disableRequest } from "redux/requests";
 import { roles } from "api/constants";
+import { formatUserRole } from "utils";
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -71,7 +72,7 @@ class ChoosePerformer extends Component {
 				if (openedRequestData.type === "withdraw") {
 					showNotification({
 						type: "success",
-						msg: "You successfully chosen an agent",
+						msg: "You have successfully chosen the Agent",
 						desc:
 							"Next, you should wait until fiat money is coming, and then finalize the request by clicking on the 'Perform' button",
 					});
@@ -81,14 +82,18 @@ class ChoosePerformer extends Component {
 					if (splittedAssetSymbol[0] === "o") {
 						assetSymbol = splittedAssetSymbol.slice(1).join("");
 					}
+					const performerRole =
+						openedRequestData.type === "deposit"
+							? formatUserRole("agent")
+							: formatUserRole("superagent");
 
 					showNotification({
 						type: "success",
-						msg: "You successfully chosen an agent",
+						msg: `You have successfully chosen the ${performerRole}`,
 						desc: `Send ${convertAmountToStr(
 							openedRequestData.amount,
 							8
-						)} FIAT ${assetSymbol} to agent ${performer.firstName} ${
+						)} ${assetSymbol} or equivalent in FIAT to ${performerRole} ${performer.firstName} ${
 							performer.lastName
 						} settlement account or hand over the cash by hand`,
 					});
@@ -179,6 +184,7 @@ class ChoosePerformer extends Component {
 				pageNum: pagination.current,
 				role: performer,
 				country: country,
+				status: "active",
 				...opts,
 			};
 

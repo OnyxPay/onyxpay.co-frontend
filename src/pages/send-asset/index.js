@@ -14,7 +14,7 @@ import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AvailableBalance from "components/balance/AvailableBalance";
 import { handleBcError } from "api/network";
-import { checkUserRole } from "api/admin/users";
+import { checkUserRole, isBlockedUser } from "api/admin/users";
 import { roles } from "api/constants";
 import { trimAddress } from "utils";
 
@@ -102,6 +102,15 @@ class SendAsset extends Component {
 				}
 			}
 
+			const isReceiverBlocked = await isBlockedUser(values.receiver_address);
+			if (isReceiverBlocked) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError(
+					"receiver_address",
+					"assets cannot be sent to a blocked account"
+				);
+			}
+
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
@@ -153,7 +162,6 @@ class SendAsset extends Component {
 
 	handleAmountChange = (values, formActions) => async value => {
 		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
-		// fix
 		if (isEnteredEnoughAmount) {
 			this.debouncedGetFee(values.asset_symbol, value);
 		} else {
@@ -230,7 +238,7 @@ class SendAsset extends Component {
 							const allowToSubmitForm =
 								values.receiver_address && values.asset_symbol && values.amount ? true : false;
 							return (
-								<form onSubmit={handleSubmit} className="send-assets__form">
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={8} md={24}>
 											<Form.Item
@@ -350,7 +358,7 @@ class SendAsset extends Component {
 										)}
 										{values.asset_symbol && <AvailableBalance assetSymbol={values.asset_symbol} />}
 									</Row>
-									<TextAligner align="right" mobile="left" className="send-assets__button-wrapper">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"
