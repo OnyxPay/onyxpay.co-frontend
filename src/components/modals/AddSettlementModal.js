@@ -26,12 +26,28 @@ class AddSettlementModal extends Component {
 		}
 	};
 
+	handleAddValuesForEdit = () => {
+		const { settlementData, editAccount } = this.props;
+		let obj;
+		if (editAccount) {
+			settlementData.map(item => {
+				return (obj = {
+					account_number: item.account_number,
+					account_name: item.account_name,
+					description: item.description,
+					brief_notes: item.brief_notes,
+				});
+			});
+		}
+		return obj;
+	};
+
 	render() {
-		const { isModalVisible, hideModal } = this.props;
+		const { isModalVisible, hideModal, addAccount, editAccount } = this.props;
 
 		return (
 			<Modal
-				title="Add New Settlement Account"
+				title={addAccount ? "Add New Settlement Account" : "Edit Settlement Account"}
 				visible={isModalVisible}
 				onCancel={hideModal}
 				footer={null}
@@ -40,12 +56,16 @@ class AddSettlementModal extends Component {
 			>
 				<Formik
 					onSubmit={this.handleFormSubmit}
-					initialValues={{
-						account_number: "",
-						account_name: "",
-						description: "",
-						brief_notes: "",
-					}}
+					initialValues={
+						addAccount
+							? {
+									account_number: "",
+									account_name: "",
+									description: "",
+									brief_notes: "",
+							  }
+							: this.handleAddValuesForEdit()
+					}
 					validate={values => {
 						let errors = {};
 						if (!values.account_number) {
@@ -74,7 +94,7 @@ class AddSettlementModal extends Component {
 										value={values.account_number}
 										onChange={handleChange}
 										onBlur={handleBlur}
-										disabled={isSubmitting}
+										disabled={isSubmitting || editAccount}
 									/>
 								</Form.Item>
 
@@ -131,7 +151,7 @@ class AddSettlementModal extends Component {
 										disabled={isSubmitting}
 										loading={isSubmitting}
 									>
-										Add
+										{addAccount ? "Add" : "Save"}
 									</Button>
 								</div>
 							</form>

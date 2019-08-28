@@ -13,6 +13,8 @@ const modals = {
 class SettlementCard extends Component {
 	state = {
 		ADD_SETTLEMENT_MODAL: false,
+		addAccount: false,
+		editAccount: false,
 	};
 
 	componentDidMount() {
@@ -25,12 +27,17 @@ class SettlementCard extends Component {
 		deleteAccount(key);
 	};
 
-	showModal = type => () => {
+	showModal = (type, settlementData) => () => {
+		if (type === "edit") {
+			this.setState({ editAccount: true, settlementData });
+		} else {
+			this.setState({ addAccount: true });
+		}
 		this.setState({ ADD_SETTLEMENT_MODAL: true });
 	};
 
 	hideModal = type => () => {
-		this.setState({ ADD_SETTLEMENT_MODAL: false });
+		this.setState({ ADD_SETTLEMENT_MODAL: false, editAccount: false, addAccount: false });
 	};
 
 	render() {
@@ -63,12 +70,23 @@ class SettlementCard extends Component {
 				key: "action",
 				render: record =>
 					settlements.length >= 1 ? (
-						<Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
-							<Button type="danger">
-								<Icon type="delete" />
-								Delete
-							</Button>
-						</Popconfirm>
+						<>
+							<Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
+								<Button type="danger">
+									<Icon type="delete" />
+									Delete
+								</Button>
+							</Popconfirm>
+							<Popconfirm
+								title="Sure to edit?"
+								onConfirm={this.showModal("edit", record, modals.ADD_SETTLEMENTS_MODAL)}
+							>
+								<Button type="primary">
+									<Icon type="edit" />
+									Edit
+								</Button>
+							</Popconfirm>
+						</>
 					) : null,
 			},
 		];
@@ -77,7 +95,7 @@ class SettlementCard extends Component {
 			<>
 				<Card style={{ marginBottom: 24 }}>
 					<div style={{ marginBottom: 30 }}>
-						<Button type="primary" onClick={this.showModal(modals.ADD_SETTLEMENTS_MODAL)}>
+						<Button type="primary" onClick={this.showModal("add", modals.ADD_SETTLEMENTS_MODAL)}>
 							<Icon type="plus" /> Add new settlement account
 						</Button>
 					</div>
@@ -94,6 +112,9 @@ class SettlementCard extends Component {
 				<AddSettlementModal
 					isModalVisible={this.state.ADD_SETTLEMENT_MODAL}
 					hideModal={this.hideModal(modals.ADD_SETTLEMENT_MODAL)}
+					addAccount={this.state.addAccount}
+					editAccount={this.state.editAccount}
+					settlementData={[this.state.settlementData]}
 				/>
 			</>
 		);
