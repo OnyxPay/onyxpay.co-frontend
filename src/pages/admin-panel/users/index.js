@@ -6,6 +6,7 @@ import { showNotification } from "components/notification";
 import { formatUserRole } from "utils";
 import { roles, userStatus, userStatusNames } from "api/constants";
 import UserDetailedData from "./userDetailedData";
+import ShowUserData from "components/modals/ShowUserData";
 
 class Users extends Component {
 	state = {
@@ -82,7 +83,7 @@ class Users extends Component {
 		await this.fetchUsers();
 	};
 
-	handleTableChange = (pagination, filters) => {
+	handleTableChange = (pagination, filters, sorter) => {
 		this.setState(
 			{
 				pagination: {
@@ -92,11 +93,16 @@ class Users extends Component {
 				},
 			},
 			() => {
+				let opts = [];
 				for (const filter in filters) {
-					filters[filter] =
+					opts[filter] =
 						filters[filter].length > 1 ? filters[filter].join(",") : filters[filter][0];
 				}
-				this.fetchUsers(filters);
+				if (Object.keys(sorter).length) {
+					opts["sort_field"] = sorter.field;
+					opts["sort"] = sorter.order === "ascend" ? "asc" : "desc";
+				}
+				this.fetchUsers(opts);
 			}
 		);
 	};
@@ -178,6 +184,7 @@ class Users extends Component {
 				key: "firstName",
 				...this.getColumnSearchProps("firstName"),
 				render: res => (res ? res : "n/a"),
+				sorter: true,
 			},
 			{
 				title: "Last name",
@@ -185,6 +192,7 @@ class Users extends Component {
 				key: "lastName",
 				...this.getColumnSearchProps("lastName"),
 				render: res => (res ? res : "n/a"),
+				sorter: true,
 			},
 			{
 				title: "Role",
