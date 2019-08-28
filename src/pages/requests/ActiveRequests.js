@@ -20,6 +20,7 @@ import { handleTableChange, getColumnSearchProps } from "./table";
 import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
+import { convertAmountToStr } from "utils/number";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -170,12 +171,52 @@ export default class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs deposit and client withdraw request
 		try {
-			const { disableRequest } = this.props;
+			const { disableRequest, location, data } = this.props;
 			this.setState({ requestId, activeAction: aa.perform });
+
 			await performRequest(requestId);
+			const requestType = parseRequestType(location);
+			let msgText;
+
+			const opRequest = data.items.find(req => {
+				if (req.request) {
+					return req.request.requestId === requestId;
+				} else {
+					return req.requestId === requestId;
+				}
+			});
+
+			if (requestType === "deposit" || requestType === "buy_onyx_cash") {
+				if (opRequest.request && opRequest.sender) {
+					const { firstName, lastName } = opRequest.sender;
+					const { amount, asset } = opRequest.request;
+					msgText = `Congratulations! You have successfully deposited ${convertAmountToStr(
+						amount,
+						8
+					)} ${asset} to ${firstName} ${lastName}'s account`;
+				} else {
+					msgText = "Deposit was successful";
+				}
+			} else if (requestType === "withdraw") {
+				if (opRequest.maker) {
+					msgText = `Congratulations! You have successfully withdrawn ${convertAmountToStr(
+						opRequest.amount,
+						8
+					)} ${opRequest.asset} from your account`;
+				} else if (opRequest.sender && opRequest.request) {
+					const { firstName, lastName } = opRequest.sender;
+					const { amount, asset } = opRequest.request;
+					msgText = `Withdrawal of ${convertAmountToStr(
+						amount,
+						8
+					)} ${asset} from ${firstName} ${lastName}'s account was successful`;
+				} else {
+					msgText = "Withdrawal was successful";
+				}
+			}
 			showNotification({
 				type: "success",
-				msg: "You have performed the request",
+				msg: msgText,
 			});
 			disableRequest(requestId);
 		} catch (e) {

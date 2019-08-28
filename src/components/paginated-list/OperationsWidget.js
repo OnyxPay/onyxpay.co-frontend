@@ -18,7 +18,7 @@ const operationHistoryColumns = [
 		render: operationType => (operationType ? checkOperationType(operationType) : "n/a"),
 	},
 	{
-		title: "Requester",
+		title: "Initiator",
 		dataIndex: "sender",
 		key: "from",
 		render: sender => (sender ? sender.firstName + " " + sender.lastName : "n/a"),

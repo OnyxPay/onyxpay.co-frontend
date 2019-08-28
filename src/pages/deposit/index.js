@@ -197,7 +197,7 @@ class Deposit extends Component {
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
 													{!activeRequestsError &&
-														"You will be able to send to the agent only chosen fiat currency"}
+														"Only selected fiat currency can be sent to the agent"}
 												</Text>
 											) : null}
 										</Col>

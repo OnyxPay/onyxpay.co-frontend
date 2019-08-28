@@ -14,7 +14,7 @@ import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AssetsBalance from "components/balance/AssetsBalance";
 import { handleBcError } from "api/network";
-import { checkUserRole } from "api/admin/users";
+import { checkUserRole, isBlockedUser } from "api/admin/users";
 import { roles } from "api/constants";
 import { trimAddress } from "utils";
 
@@ -102,6 +102,15 @@ class SendAsset extends Component {
 				}
 			}
 
+			const isReceiverBlocked = await isBlockedUser(values.receiver_address);
+			if (isReceiverBlocked) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError(
+					"receiver_address",
+					"assets cannot be sent to a blocked account"
+				);
+			}
+
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
@@ -153,7 +162,6 @@ class SendAsset extends Component {
 
 	handleAmountChange = (values, formActions) => async value => {
 		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
-		// fix
 		if (isEnteredEnoughAmount) {
 			this.debouncedGetFee(values.asset_symbol, value);
 		} else {

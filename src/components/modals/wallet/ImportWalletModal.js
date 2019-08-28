@@ -126,7 +126,7 @@ class ImportWalletModal extends Component {
 				try {
 					const wallet = getWallet(JSON.parse(data)).toJsonObj();
 					this.setState({ uploadedWallet: wallet }, () => {
-						if (this.state.uploadedWallet.accounts.length === 1) {
+						if (this.state.uploadedWallet.accounts.length) {
 							setFieldValue(
 								"wallet_account_address",
 								this.state.uploadedWallet.accounts[0].address
@@ -270,11 +270,7 @@ class ImportWalletModal extends Component {
 															showSearch
 															name="wallet_account_address"
 															optionFilterProp="children"
-															value={
-																uploadedWallet && uploadedWallet.accounts.length === 1
-																	? uploadedWallet.accounts[0].address
-																	: values.wallet_account_address
-															}
+															value={values.wallet_account_address}
 															onChange={this.handleAccountChange(setFieldValue)}
 															filterOption={(input, option) =>
 																option.props.children.toLowerCase().indexOf(input.toLowerCase()) >=

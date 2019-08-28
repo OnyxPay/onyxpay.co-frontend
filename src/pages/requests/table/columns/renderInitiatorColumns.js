@@ -2,12 +2,13 @@ import React from "react";
 import { Button, Popconfirm, Tooltip } from "antd";
 import { convertAmountToStr } from "utils/number";
 import { getLocalTime, getPerformerName, is24hOver, is12hOver } from "utils";
-import { h24Mc, operationMessageStatus } from "api/constants";
+import { h24Mc, operationMessageStatus, requestStatus } from "api/constants";
 import Countdown from "components/Countdown";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
 import { styles } from "../../styles";
+import SupportLink from "components/SupportLink";
 
 function punishForCancelation(trxCreated, thresholdToPunishInHr) {
 	const timePassedMs = new Date().getTime() - new Date(trxCreated).getTime();
@@ -134,6 +135,9 @@ export default function renderInitiatorColumns({
 				dataIndex: "status",
 				render: (text, record, index) => {
 					if (record._isDisabled) return "wait...";
+					if (record.takerAddr && record.statusCode === requestStatus.choose) {
+						return "waiting for perform";
+					}
 					return record.status;
 				},
 			},
@@ -189,7 +193,12 @@ export default function renderInitiatorColumns({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
+					if (record.statusCode === requestStatus.complained) {
+						return <SupportLink />;
+					}
+
 					if (record._isDisabled) return "n/a";
+
 					const isComplainActive =
 						record.requestId === activeRequestId && activeAction === aa.complain;
 
@@ -247,7 +256,6 @@ export default function renderInitiatorColumns({
 							{/* Complain on request */}
 							{record.takerAddr &&
 								record.chooseTimestamp &&
-								record.status !== "complained" &&
 								!is24hOver(record.chooseTimestamp) &&
 								renderComplainButton(record, handleComplain, isComplainActive)}
 

@@ -82,7 +82,8 @@ export async function isBlockedUser(userAccountAddress) {
 	});
 
 	const res = await sendTrx(trx, true, false);
-	if (res.Result.Result === "") {
+
+	if (res.Result.Result === "00") {
 		return false;
 	}
 	return true;
