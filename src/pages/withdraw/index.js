@@ -109,19 +109,19 @@ class Withdraw extends Component {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
 			if (isBlocked) {
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
+				return formActions.setFieldError("asset_symbol", "Asset is blocked at the moment");
 			}
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("amount", "min amount is 1 oUSD");
+				return formActions.setFieldError("amount", "Min amount is 1 oUSD");
 			}
 			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
 
 			if (Number(maxAmount) < Number(values.amount)) {
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("amount", `max ${maxAmount}`);
+				return formActions.setFieldError("amount", `Max amount is ${maxAmount}`);
 			}
 
 			if (!isBlocked && isEnteredEnoughAmount) {
@@ -191,14 +191,14 @@ class Withdraw extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.asset_symbol) {
-								errors.asset_symbol = "required";
+								errors.asset_symbol = "Required";
 							}
 							if (values.amount === null || values.amount === "") {
-								errors.amount = "required";
+								errors.amount = "Required";
 							} else if (values.amount <= 0) {
-								errors.amount = "only positive values are allowed";
+								errors.amount = "Only positive values are allowed";
 							} else if (countDecimals(values.amount) > 8) {
-								errors.amount = "max number of decimal places is 8";
+								errors.amount = "Max number of decimal places is 8";
 							}
 							return errors;
 						}}

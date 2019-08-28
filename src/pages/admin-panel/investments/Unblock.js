@@ -28,10 +28,10 @@ class UnblockInvestor extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.user_name) {
-								errors.user_name = "required";
+								errors.user_name = "Required";
 							}
 							if (!values.user_password) {
-								errors.user_password = "required";
+								errors.user_password = "Required";
 							}
 							return errors;
 						}}
