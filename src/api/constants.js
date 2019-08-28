@@ -13,7 +13,7 @@ if (process.env.REACT_APP_TAG === "prod") {
 	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
 	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
 } else {
-	reactAppBackendUrl = "10.100.3.189";
+	reactAppBackendUrl = "localhost:8443";
 	syncNodeUrl = "cepheus5.onyxpay.co";
 	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
 	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
