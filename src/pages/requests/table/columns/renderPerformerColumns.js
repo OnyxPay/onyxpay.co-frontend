@@ -113,7 +113,7 @@ function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
 		} else {
 			return (
 				<Popconfirm
-					title="Sure to accept?"
+					title="Sure?"
 					onConfirm={() =>
 						confirmRequest(
 							record.request.requestId,
