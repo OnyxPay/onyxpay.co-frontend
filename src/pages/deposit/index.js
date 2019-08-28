@@ -189,15 +189,6 @@ class Deposit extends Component {
 													<Input name="asset_symbol" disabled={true} value={values.asset_symbol} />
 												)}
 											</Form.Item>
-											{user.role === roles.c ? (
-												<Text
-													type="secondary"
-													style={{ display: "block", margin: "-12px 0 12px 0" }}
-												>
-													{!activeRequestsError &&
-														"Only selected fiat currency can be sent to the agent"}
-												</Text>
-											) : null}
 										</Col>
 
 										<Col lg={12} md={24}>
@@ -237,6 +228,14 @@ class Deposit extends Component {
 											type="error"
 										/>
 									)}
+
+									{user.role === roles.c && !activeRequestsError ? (
+										<Alert
+											style={{ marginTop: 16 }}
+											message="Only selected fiat currency can be sent to the agent"
+											type="info"
+										/>
+									) : null}
 								</form>
 							);
 						}}

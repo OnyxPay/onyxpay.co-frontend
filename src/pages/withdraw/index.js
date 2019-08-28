@@ -322,7 +322,7 @@ class Withdraw extends Component {
 											type="error"
 										/>
 									)}
-									{assets.length && (
+									{assets.length && !activeRequestsError && (
 										<Alert
 											style={{ marginTop: 16 }}
 											message="The fiat payment from the agent can be sent only in the selected currency."
