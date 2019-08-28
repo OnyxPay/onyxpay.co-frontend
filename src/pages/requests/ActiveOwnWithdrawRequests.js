@@ -5,6 +5,7 @@ import ActiveRequests from "pages/requests/ActiveRequests";
 import { createLoadingSelector } from "selectors/loading";
 import { push } from "connected-react-router";
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
+import { disableRequest } from "redux/requests";
 
 const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
 function mapStateToProps(state, ownProps) {
@@ -22,7 +23,7 @@ var ActiveOwnWithdrawRequests = compose(
 	withRouter,
 	connect(
 		mapStateToProps,
-		{ push, getOpRequests: getOpRequests }
+		{ push, getOpRequests: getOpRequests, disableRequest }
 	)
 )(ActiveRequests);
 
