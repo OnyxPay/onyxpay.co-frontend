@@ -2,6 +2,8 @@ import React from "react";
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { showNotification } from "../components/notification";
 import { push } from "connected-react-router";
+import SupportLink from "components/SupportLink";
+
 const client = getRestClient();
 
 export const SIGN_UP = "SIGN_UP";
@@ -79,7 +81,7 @@ export const login = values => async (dispatch, getState) => {
 				desc: (
 					<>
 						Please,&nbsp;
-						<a href="mailto:support@onyxpay.co">contact support</a>
+						<SupportLink />
 					</>
 				),
 			});
