@@ -97,7 +97,7 @@ class SendAsset extends Component {
 					formActions.setSubmitting(false);
 					return formActions.setFieldError(
 						"receiver_address",
-						"assets cannot be sent to Agents or Super agents"
+						"Assets cannot be sent to Agents or Super agents"
 					);
 				}
 			}
@@ -107,14 +107,14 @@ class SendAsset extends Component {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError(
 					"receiver_address",
-					"assets cannot be sent to a blocked account"
+					"Assets cannot be sent to a blocked account"
 				);
 			}
 
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("amount", "min amount is 1 oUSD");
+				return formActions.setFieldError("amount", "Min amount is 1 oUSD");
 			}
 			const isEnteredAmountOverBalance = await this.isEnteredAmountOverBalance(
 				values.amount,
@@ -123,7 +123,7 @@ class SendAsset extends Component {
 			if (isEnteredAmountOverBalance) {
 				const maxAmount = await this.calcMaxAmount(values.asset_symbol);
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("amount", `max ${maxAmount}`);
+				return formActions.setFieldError("amount", `Max amount is ${maxAmount}`);
 			}
 			if (isEnteredEnoughAmount && !isEnteredAmountOverBalance) {
 				await sendAsset(values);
@@ -205,19 +205,19 @@ class SendAsset extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.receiver_address) {
-								errors.receiver_address = "required";
+								errors.receiver_address = "Required";
 							} else if (!isBase58Address(values.receiver_address)) {
 								errors.receiver_address = "Recipient's address should be in base58 format";
 							}
 							if (!values.asset_symbol) {
-								errors.asset_symbol = "required";
+								errors.asset_symbol = "Required";
 							}
 							if (values.amount === null || values.amount === "") {
-								errors.amount = "required";
+								errors.amount = "Required";
 							} else if (values.amount <= 0) {
-								errors.amount = "only positive values are allowed";
+								errors.amount = "Only positive values are allowed";
 							} else if (countDecimals(values.amount) > 8) {
-								errors.amount = "max number of decimal places is 8";
+								errors.amount = "Max number of decimal places is 8";
 							}
 
 							return errors;

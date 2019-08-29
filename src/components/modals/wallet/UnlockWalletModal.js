@@ -29,7 +29,7 @@ class UnlockWalletModal extends Component {
 			hideModal();
 		} catch (error) {
 			if (error === 53000) {
-				formActions.setFieldError("password", "account's password is not correct");
+				formActions.setFieldError("password", "Account's password is not correct");
 			}
 		} finally {
 			formActions.setSubmitting(false);
@@ -59,7 +59,7 @@ class UnlockWalletModal extends Component {
 						validate={({ password }) => {
 							let errors = {};
 							if (!password) {
-								errors.password = "required";
+								errors.password = "Required";
 							}
 
 							return errors;

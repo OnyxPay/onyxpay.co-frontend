@@ -158,9 +158,7 @@ export default function renderInitiatorColumns({
 						>
 							{getPerformerName(record.takerAddr, record.taker)}
 						</Button>
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
@@ -174,9 +172,7 @@ export default function renderInitiatorColumns({
 								onClick={e => showUserSettlementsModal(record.taker.id)}
 							/>
 						</Tooltip>
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
@@ -185,9 +181,7 @@ export default function renderInitiatorColumns({
 					if (record._isDisabled) return "n/a";
 					return record.takerAddr && record.chooseTimestamp && record.status !== "complained" ? (
 						<Countdown date={new Date(record.chooseTimestamp).getTime() + h24Mc} />
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
@@ -253,15 +247,15 @@ export default function renderInitiatorColumns({
 								isCancelRequestActive
 							)}
 
+							{/* Perform withdraw request */}
+							{requestsType === "withdraw" &&
+								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
+
 							{/* Complain on request */}
 							{record.takerAddr &&
 								record.chooseTimestamp &&
 								!is24hOver(record.chooseTimestamp) &&
 								renderComplainButton(record, handleComplain, isComplainActive)}
-
-							{/* Perform withdraw request */}
-							{requestsType === "withdraw" &&
-								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
 						</>
 					);
 				},

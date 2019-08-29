@@ -130,6 +130,11 @@ let ClosedOpRequests = Loadable({
 	loading: Loader,
 });
 
+let DevOptions = Loadable({
+	loader: () => import(/* webpackChunkName: "DevOptions" */ "./pages/admin-panel/devOptions"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization([roles.c]);
 // const AgentAndSuperAgent = Authorization([roles.a, roles.sa]);
@@ -161,6 +166,7 @@ ActiveOwnWithdrawRequests = All(ActiveOwnWithdrawRequests);
 ClosedOpRequests = All(ClosedOpRequests);
 Deposit = All(Deposit);
 ReferralProgram = All(ReferralProgram);
+DevOptions = AdminAndSuperAdmin(DevOptions);
 
 class App extends Component {
 	componentDidMount() {
@@ -210,6 +216,9 @@ class App extends Component {
 					<Route path="/active-requests/withdraw" exact component={ActiveOwnWithdrawRequests} />
 					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
 					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
+
+					{/* only for development and testing, should not be rendered in prod */}
+					<Route path="/admin/dev" exact component={DevOptions} />
 				</>
 			);
 		}

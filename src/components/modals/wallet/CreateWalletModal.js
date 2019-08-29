@@ -77,7 +77,7 @@ class CreateWalletModal extends Component {
 		const { setWallet } = this.props;
 
 		if (generatedMnemonics !== mnemonics) {
-			formActions.setFieldError("mnemonics", "mnemonic don't match");
+			formActions.setFieldError("mnemonics", "Mnemonic don't match");
 		} else {
 			// save wallet
 			setWallet(wallet);
@@ -134,9 +134,9 @@ class CreateWalletModal extends Component {
 								validate={({ password, password_confirm, terms_confirm }) => {
 									let errors = {};
 									if (!password) {
-										errors.password = "required";
+										errors.password = "Required";
 									} else if (!password_confirm) {
-										errors.password_confirm = "required";
+										errors.password_confirm = "Required";
 									} else {
 										errors = samePassword({ password, password_confirm });
 									}
@@ -264,9 +264,9 @@ class CreateWalletModal extends Component {
 								validate={({ mnemonics }) => {
 									let errors = {};
 									if (!mnemonics) {
-										errors.mnemonics = "required";
+										errors.mnemonics = "Required";
 									} else if (!isMnemonicsValid(mnemonics)) {
-										errors.mnemonics = "mnemonic phrase is not valid";
+										errors.mnemonics = "Mnemonic phrase is not valid";
 									}
 									return errors;
 								}}

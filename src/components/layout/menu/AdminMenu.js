@@ -54,6 +54,15 @@ class AdminMenu extends Component {
 						</Link>
 					</Menu.Item>
 				</SubMenu>
+
+				{process.env.REACT_APP_TAG !== "prod" && (
+					<Menu.Item key="/admin/dev">
+						<Link to="/admin/dev" className="ant-menu-item-content">
+							<Icon type="tool" />
+							<span>Dev options</span>
+						</Link>
+					</Menu.Item>
+				)}
 			</Menu>
 		);
 	}

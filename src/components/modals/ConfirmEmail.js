@@ -80,7 +80,7 @@ class ConfirmEmailModal extends Component {
 							validate={values => {
 								let errors = {};
 								if (!values.email) {
-									errors.email = "required";
+									errors.email = "Required";
 								} else if (!isEmailValid(values.email)) {
 									errors.email = "Enter valid email";
 								}
