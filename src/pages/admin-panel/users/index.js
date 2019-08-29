@@ -93,14 +93,14 @@ class Users extends Component {
 				},
 			},
 			() => {
-				let opts = [];
+				let opts = {};
 				for (const filter in filters) {
 					opts[filter] =
 						filters[filter].length > 1 ? filters[filter].join(",") : filters[filter][0];
 				}
 				if (Object.keys(sorter).length) {
-					opts["sort_field"] = sorter.field;
-					opts["sort"] = sorter.order === "ascend" ? "asc" : "desc";
+					opts.sort_field = sorter.field;
+					opts.sort = sorter.order === "ascend" ? "asc" : "desc";
 				}
 				this.fetchUsers(opts);
 			}
