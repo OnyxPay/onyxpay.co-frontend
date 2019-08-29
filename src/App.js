@@ -17,11 +17,6 @@ let Dashboard = Loadable({
 	loading: Loader,
 });
 
-let Investments = Loadable({
-	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/investments"),
-	loading: Loader,
-});
-
 let Complaints = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/requests/ComplaintsList"),
@@ -155,7 +150,6 @@ Withdraw = User(Withdraw);
 Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
-Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdmin(Complaints);
 ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
 Assets = AdminAndSuperAdmin(Assets);
@@ -229,7 +223,6 @@ class App extends Component {
 			<Layout simplified={["/login"]}>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
-					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
