@@ -67,7 +67,7 @@ class AgentMenu extends Component {
 						title={
 							<span className="ant-menu-item-content">
 								<Icon type="team" />
-								<span>Customer requests</span>
+								<span>Agents requests</span>
 							</span>
 						}
 					>
