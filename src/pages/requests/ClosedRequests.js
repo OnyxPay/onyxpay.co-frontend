@@ -12,6 +12,7 @@ import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 
 import { getOpMessages, GET_OPERATION_MESSAGES } from "redux/messages";
 import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
+import { createClosedRequestsDataSelector } from "selectors/requests";
 
 class ClosedRequests extends Component {
 	state = {
@@ -61,6 +62,7 @@ class ClosedRequests extends Component {
 				...opts,
 			};
 			const requestType = parseRequestType(location);
+
 			if (user.role === roles.c) {
 				params.type = requestType;
 				params.status = "rejected,completed";
@@ -123,7 +125,11 @@ function mapStateToProps(state, ownProps) {
 	return {
 		user: state.user,
 		walletAddress: state.wallet.defaultAccountAddress,
-		data: state.opMessages,
+		data: createClosedRequestsDataSelector(
+			state,
+			ownProps.user.role === roles.c,
+			isThisAgentInitiator(ownProps.user.role, ownProps.location)
+		),
 		isFetching: loadingSelector(state),
 	};
 }

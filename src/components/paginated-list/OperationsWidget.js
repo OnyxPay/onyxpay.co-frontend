@@ -62,6 +62,7 @@ function OperationsWidget(props) {
 				columns={operationHistoryColumns}
 				rowKey="operationId"
 				fetchData={getOperationHistory}
+				passedOpts={{ status: "completed" }}
 				emptyTableMessage="You haven't performed any operations yet."
 			/>
 		</>
