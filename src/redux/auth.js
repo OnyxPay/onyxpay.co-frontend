@@ -79,7 +79,7 @@ export const login = values => async (dispatch, getState) => {
 				desc: (
 					<>
 						Please,&nbsp;
-						<a href="mailto:support@onyxpay.co">contact the support</a>
+						<a href="mailto:support@onyxpay.co">contact support</a>
 					</>
 				),
 			});
