@@ -1,17 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import {
-	Card,
-	Button,
-	Input,
-	Form,
-	Select,
-	Row,
-	Col,
-	message,
-	Typography,
-	InputNumber,
-} from "antd";
+import { Card, Button, Input, Form, Select, Row, Col, Typography, InputNumber, Alert } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -19,10 +8,16 @@ import { TextAligner } from "../../components/styled";
 import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
-import { convertAmountToStr, minus } from "../../utils/number";
+import { convertAmountToStr } from "../../utils/number";
 import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
+import AvailableBalance from "components/balance/AvailableBalance";
+import { handleBcError } from "api/network";
+import { checkUserRole, isBlockedUser } from "api/admin/users";
+import { roles } from "api/constants";
+import { trimAddress } from "utils";
+
 const { Option } = Select;
 const { Text } = Typography;
 
@@ -46,10 +41,21 @@ class SendAsset extends Component {
 			try {
 				const asset = assets.find(asset => asset.symbol === assetSymbol);
 				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "send");
-				if (updateFee) {
-					this.setState({ fee: fee / 10 ** 8 });
+				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
+				let amountToSend = (
+					convertAmountToStr(asset.amount, 8) /
+					(1 + maxAmountFeePercent)
+				).toFixed(8);
+				let updatedFee = (await getFee(assetSymbol, amountToSend.toString(), "send")) / 10 ** 8;
+				const updatedAmountFeePercent = parseFloat((updatedFee / amountToSend).toFixed(8));
+				if (maxAmountFeePercent !== updatedAmountFeePercent) {
+					amountToSend = (amountToSend / (1 + updatedAmountFeePercent)).toFixed(8);
+					updatedFee = (await getFee(assetSymbol, amountToSend.toString(), "send")) / 10 ** 8;
 				}
-				return minus(asset.amount, fee) / 10 ** 8;
+				if (updateFee) {
+					this.setState({ fee: updatedFee });
+				}
+				return amountToSend;
 			} catch (e) {
 				showBcError(e.message);
 				return 0;
@@ -77,6 +83,34 @@ class SendAsset extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		try {
+			const { user } = this.props;
+			if (user && user.role === roles.c) {
+				// user can't send to agents or super-agents
+				const isReceiverAgentPromise = checkUserRole(values.receiver_address, "IsAgent");
+				const isReceiverSuperAgentPromise = checkUserRole(values.receiver_address, "IsSuperAgent");
+				const [isReceiverAgent, isReceiverSuperAgent] = await Promise.all([
+					isReceiverAgentPromise,
+					isReceiverSuperAgentPromise,
+				]);
+
+				if (isReceiverAgent || isReceiverSuperAgent) {
+					formActions.setSubmitting(false);
+					return formActions.setFieldError(
+						"receiver_address",
+						"assets cannot be sent to Agents or Super agents"
+					);
+				}
+			}
+
+			const isReceiverBlocked = await isBlockedUser(values.receiver_address);
+			if (isReceiverBlocked) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError(
+					"receiver_address",
+					"assets cannot be sent to a blocked account"
+				);
+			}
+
 			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
@@ -97,9 +131,9 @@ class SendAsset extends Component {
 				showNotification({
 					type: "success",
 					msg: "Success",
-					desc: `You have successfully sent ${values.amount} ${values.asset_symbol} to ${
-						values.receiver_address
-					} address`,
+					desc: `You have successfully sent ${values.amount} ${
+						values.asset_symbol
+					} to ${trimAddress(values.receiver_address)} address`,
 				});
 				refreshBalance();
 			}
@@ -109,7 +143,7 @@ class SendAsset extends Component {
 				showTimeoutNotification();
 				refreshBalance();
 			} else {
-				message.error(e.message);
+				handleBcError(e);
 			}
 		}
 
@@ -128,7 +162,6 @@ class SendAsset extends Component {
 
 	handleAmountChange = (values, formActions) => async value => {
 		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
-		// fix
 		if (isEnteredEnoughAmount) {
 			this.debouncedGetFee(values.asset_symbol, value);
 		} else {
@@ -205,7 +238,7 @@ class SendAsset extends Component {
 							const allowToSubmitForm =
 								values.receiver_address && values.asset_symbol && values.amount ? true : false;
 							return (
-								<form onSubmit={handleSubmit} className="send-assets__form">
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={8} md={24}>
 											<Form.Item
@@ -228,7 +261,7 @@ class SendAsset extends Component {
 													onChange={handleChange}
 													onBlur={handleBlur}
 													disabled={!availableAssetsToSend.length || isSubmitting}
-													autocomplete="new-password"
+													autoComplete="new-password"
 												/>
 											</Form.Item>
 										</Col>
@@ -266,6 +299,9 @@ class SendAsset extends Component {
 														: null}
 												</Select>
 											</Form.Item>
+											{values.asset_symbol && (
+												<AvailableBalance assetSymbol={values.asset_symbol} />
+											)}
 										</Col>
 
 										<Col lg={8} md={24}>
@@ -313,18 +349,7 @@ class SendAsset extends Component {
 											)}
 										</Col>
 									</Row>
-									<Row>
-										{availableAssetsToSend.length !== 0 ? (
-											<Text type="secondary">
-												Min available amount to send is equivalent of 1 USD
-											</Text>
-										) : (
-											<Text type="danger">
-												You have no assets to send at the moment. Please, make a deposit.
-											</Text>
-										)}
-									</Row>
-									<TextAligner align="right" mobile="left" className="send-assets__button-wrapper">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"
@@ -334,6 +359,15 @@ class SendAsset extends Component {
 											Send
 										</Button>
 									</TextAligner>
+									<Alert
+										style={{ marginTop: 16 }}
+										message={
+											availableAssetsToSend.length !== 0
+												? "Min available amount to send is equivalent of 1 USD"
+												: "You have no assets to send at the moment. Please, make a deposit."
+										}
+										type={availableAssetsToSend.length !== 0 ? "info" : "error"}
+									/>
 								</form>
 							);
 						}}

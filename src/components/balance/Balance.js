@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Button, message } from "antd";
+import { Row, Col, Button } from "antd";
 import { BalanceCard } from "./Card";
 import { convertAmountToStr, convertAsset, addAmounts } from "../../utils/number";
 import { OnyxCashDecimals, roles } from "../../api/constants";
@@ -57,19 +57,18 @@ class Balance extends Component {
 				};
 			});
 		} catch (e) {
-			message.error(e.message);
+			console.log(e.message);
 		}
 	}
 
-	calcTotalAmount(arr, amount) {
+	calcTotalAmount(arr, amount = 0) {
 		if (arr.length) {
 			const result = arr.reduce((total, asset) => {
 				return addAmounts(total, asset.asset_converted);
 			}, 0);
-
 			return addAmounts(result, amount);
 		} else {
-			return 0;
+			return amount;
 		}
 	}
 

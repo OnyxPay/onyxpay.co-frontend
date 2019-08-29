@@ -101,12 +101,12 @@ export async function checkUserRole(userAccountAddress, type) {
 	return !!parseInt(get(response, "Result.Result", "0"), 16);
 }
 
-export const rejectRequest = async (request_id, reason) => {
+export const rejectRequest = async (requestId, reason) => {
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
 	try {
 		return await client.put(
-			`/admin/upgrade-request/${request_id}/reject`,
+			`/admin/upgrade-request/${requestId}/reject`,
 			{ reason: reason },
 			{
 				headers: {

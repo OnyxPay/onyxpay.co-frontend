@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { push } from "connected-react-router";
 import { Formik } from "formik";
-import { Modal, Button, Form, Input, Select, message } from "antd";
+import { Modal, Button, Form, Input, Select } from "antd";
 import Actions from "../../redux/actions";
 import { unlockWalletAccount } from "../../api/wallet";
 import { ErrorText } from "../styled";
@@ -12,11 +12,12 @@ import { generateTokenTimeStamp } from "../../utils";
 import { getData as getCountriesData } from "country-list";
 import { isLatinChars, isBase58Address } from "../../utils/validate";
 import { addReferral } from "api/referral";
+import { showNotification } from "components/notification";
 
 const { Option } = Select;
 
 function areBcErrors(data) {
-	const keysToCheck = ["public_key", "wallet_addr"];
+	const keysToCheck = ["public_key", "walletAddr"];
 	return keysToCheck.some(key => data.hasOwnProperty(key));
 }
 
@@ -31,8 +32,8 @@ class RegistrationModal extends Component {
 
 	getInitialFormValues = () => {
 		return {
-			first_name: "",
-			last_name: "",
+			firstName: "",
+			lastName: "",
 			country_id: "",
 			referral_wallet: localStorage.getItem("rcode") || "",
 		};
@@ -45,7 +46,7 @@ class RegistrationModal extends Component {
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
 			values.public_key = publicKey.key;
-			values.wallet_addr = accountAddress.toBase58();
+			values.walletAddr = accountAddress.toBase58();
 			values.signed_msg = signature.serializeHex();
 
 			const res = await signUp(values);
@@ -62,7 +63,10 @@ class RegistrationModal extends Component {
 				if (values.referral_wallet) {
 					await addReferral(values.referral_wallet, pk, accountAddress);
 				}
-				message.success(text.modals.registration.reg_success, 5);
+				showNotification({
+					type: "success",
+					msg: text.modals.registration.reg_success,
+				});
 				formActions.resetForm();
 				push("/");
 			}
@@ -103,19 +107,19 @@ class RegistrationModal extends Component {
 					initialValues={this.getInitialFormValues()}
 					validate={values => {
 						let errors = {};
-						if (!values.first_name) {
-							errors.first_name = "required";
-						} else if (values.first_name.length < 2) {
-							errors.first_name = "min length 2";
-						} else if (!isLatinChars(values.first_name)) {
-							errors.first_name = "First name must contain only Latin letters";
+						if (!values.firstName) {
+							errors.firstName = "required";
+						} else if (values.firstName.length < 2) {
+							errors.firstName = "min length 2";
+						} else if (!isLatinChars(values.firstName)) {
+							errors.firstName = "First name must contain only Latin letters";
 						}
-						if (!values.last_name) {
-							errors.last_name = "required";
-						} else if (values.last_name.length < 2) {
-							errors.last_name = "min length 2";
-						} else if (!isLatinChars(values.last_name)) {
-							errors.last_name = "Last name must contain only Latin letters";
+						if (!values.lastName) {
+							errors.lastName = "required";
+						} else if (values.lastName.length < 2) {
+							errors.lastName = "min length 2";
+						} else if (!isLatinChars(values.lastName)) {
+							errors.lastName = "Last name must contain only Latin letters";
 						}
 						if (!values.country_id) {
 							errors.country_id = "required";
@@ -142,13 +146,13 @@ class RegistrationModal extends Component {
 								<Form.Item
 									label="First name"
 									required
-									validateStatus={errors.first_name && touched.first_name ? "error" : ""}
-									help={errors.first_name && touched.first_name ? errors.first_name : ""}
+									validateStatus={errors.firstName && touched.firstName ? "error" : ""}
+									help={errors.firstName && touched.firstName ? errors.firstName : ""}
 								>
 									<Input
-										name="first_name"
+										name="firstName"
 										placeholder="Enter your first name"
-										value={values.first_name}
+										value={values.firstName}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}
@@ -158,13 +162,13 @@ class RegistrationModal extends Component {
 								<Form.Item
 									label="Last name"
 									required
-									validateStatus={errors.last_name && touched.last_name ? "error" : ""}
-									help={errors.last_name && touched.last_name ? errors.last_name : ""}
+									validateStatus={errors.lastName && touched.lastName ? "error" : ""}
+									help={errors.lastName && touched.lastName ? errors.lastName : ""}
 								>
 									<Input
-										name="last_name"
+										name="lastName"
 										placeholder="Enter your last name"
-										value={values.last_name}
+										value={values.lastName}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}

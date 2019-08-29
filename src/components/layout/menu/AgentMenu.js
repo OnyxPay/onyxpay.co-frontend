@@ -47,11 +47,11 @@ class AgentMenu extends Component {
 							</span>
 						}
 					>
-						<Menu.Item key="/active-requests/deposit">
-							<Link to="/active-requests/deposit">Active deposit requests</Link>
+						<Menu.Item key="/active-customer-requests/deposit">
+							<Link to="/active-customer-requests/deposit">Active deposit requests</Link>
 						</Menu.Item>
-						<Menu.Item key="/active-requests/withdraw">
-							<Link to="/active-requests/withdraw">Active withdraw requests</Link>
+						<Menu.Item key="/active-customer-requests/withdraw">
+							<Link to="/active-customer-requests/withdraw">Active withdraw requests</Link>
 						</Menu.Item>
 
 						<Menu.Item key="/closed-requests/deposit">
@@ -84,13 +84,6 @@ class AgentMenu extends Component {
 					<Link to="/exchange" className="ant-menu-item-content">
 						<Icon type="wallet" />
 						<span>Assets Exchange</span>
-					</Link>
-				</Menu.Item>
-
-				<Menu.Item key="/settlement-accounts">
-					<Link to="/settlement-accounts" className="ant-menu-item-content">
-						<Icon type="pay-circle" />
-						<span>Settlement accounts</span>
 					</Link>
 				</Menu.Item>
 			</Menu>

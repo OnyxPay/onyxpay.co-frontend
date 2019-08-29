@@ -1,31 +1,34 @@
 import React, { Component } from "react";
-import { compose } from "redux";
-import { withRouter } from "react-router-dom";
-import { connect } from "react-redux";
 import { Table } from "antd";
 import queryString from "query-string";
-import { push } from "connected-react-router";
-import { TimeoutError } from "promise-timeout";
-import { acceptRequest, performRequest, cancelAcceptedRequest, complain } from "api/requests";
+import {
+	acceptRequest,
+	performRequest,
+	cancelAcceptedRequest,
+	complain,
+	cancelRequest,
+} from "api/requests";
 import { hideMessage } from "api/operation-messages";
 import ChoosePerformerModal from "components/modals/ChoosePerformer";
-import { roles } from "api/constants";
-import { showNotification, showTimeoutNotification } from "components/notification";
-import { createLoadingSelector } from "selectors/loading";
+import { roles, operationType } from "api/constants";
+import { showNotification } from "components/notification";
 import UserSettlementsModal from "components/modals/UserSettlementsModal";
 import renderInitiatorColumns from "./table/columns/renderInitiatorColumns";
 import renderPerformerColumns from "./table/columns/renderPerformerColumns";
 import { renderPageTitle, aa, parseRequestType, isThisAgentInitiator } from "./common";
 import { handleTableChange, getColumnSearchProps } from "./table";
-
-import { getOpRequests, GET_OPERATION_REQUESTS } from "redux/requests";
+import { handleBcError } from "api/network";
+import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
+import ShowUserDataModal from "components/modals/ShowUserData";
+import { convertAmountToStr } from "utils/number";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
 	USER_SETTLEMENT_ACCOUNTS: "USER_SETTLEMENT_ACCOUNTS",
+	SELECTED_USER_DATA: "SELECTED_USER_DATA",
 };
 
-class ActiveRequests extends Component {
+export default class ActiveRequests extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -37,7 +40,9 @@ class ActiveRequests extends Component {
 			operationMessages: [],
 			activeAction: "",
 			idParsedFromURL: "",
-			openedRequestData: {}, // to choose performer
+			openedRequestData: {}, // set after ChoosePerformerModal is opened
+			selectedUserData: {},
+			selectedUserDataType: "",
 		};
 		this.setState = this.setState.bind(this);
 		this.searchInput = "";
@@ -97,30 +102,54 @@ class ActiveRequests extends Component {
 				params.user = "maker";
 				getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
 			} else {
-				getOpRequests({ params, requestType, fetchActive: true, isInitiator: false });
+				getOpRequests({ params, requestType, fetchActive: true, isInitiator: true });
 			}
 		}
 	};
 
-	acceptRequest = async requestId => {
-		// agent accepts deposit or withdraw request
+	handleConfirmRequest = async (requestId, requestAmount, requestAsset, requestTypeCode) => {
+		// agent confirms deposit or withdraw request
 		try {
-			this.setState({ requestId, activeAction: aa.accept });
+			const { balanceAssets, balanceOnyxCash, disableRequest } = this.props;
+
+			if (requestAsset !== "OnyxCash") {
+				const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
+				if (isAssetBlocked) {
+					showNotification({
+						type: "error",
+						msg:
+							"Request cannot be confirmed. Asset is blocked for technical works. Try again later.",
+					});
+					return;
+				}
+			}
+
+			this.setState({ requestId, activeAction: aa.confirm });
+
+			if (!requestTypeCode === operationType.withdraw) {
+				const allow = balanceAssets.some(balance => {
+					return (
+						(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
+						(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
+					);
+				});
+				if (!allow) {
+					showNotification({
+						type: "error",
+						msg: "Request cannot be confirmed. Insufficient amount of asset.",
+					});
+					return;
+				}
+			}
+
 			await acceptRequest(requestId);
+			disableRequest(requestId);
 			showNotification({
 				type: "success",
-				msg: "You have accepted the request",
+				msg: "You have confirmed the request",
 			});
-			this.fetch();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
 		}
@@ -142,22 +171,56 @@ class ActiveRequests extends Component {
 	performRequest = async requestId => {
 		// agent performs deposit and client withdraw request
 		try {
+			const { disableRequest, location, data } = this.props;
 			this.setState({ requestId, activeAction: aa.perform });
+
 			await performRequest(requestId);
+			const requestType = parseRequestType(location);
+			let msgText;
+
+			const opRequest = data.items.find(req => {
+				if (req.request) {
+					return req.request.requestId === requestId;
+				} else {
+					return req.requestId === requestId;
+				}
+			});
+
+			if (requestType === "deposit" || requestType === "buy_onyx_cash") {
+				if (opRequest.request && opRequest.sender) {
+					const { firstName, lastName } = opRequest.sender;
+					const { amount, asset } = opRequest.request;
+					msgText = `Congratulations! You have successfully deposited ${convertAmountToStr(
+						amount,
+						8
+					)} ${asset} to ${firstName} ${lastName}'s account`;
+				} else {
+					msgText = "Deposit was successful";
+				}
+			} else if (requestType === "withdraw") {
+				if (opRequest.maker) {
+					msgText = `Congratulations! You have successfully withdrawn ${convertAmountToStr(
+						opRequest.amount,
+						8
+					)} ${opRequest.asset} from your account`;
+				} else if (opRequest.sender && opRequest.request) {
+					const { firstName, lastName } = opRequest.sender;
+					const { amount, asset } = opRequest.request;
+					msgText = `Withdrawal of ${convertAmountToStr(
+						amount,
+						8
+					)} ${asset} from ${firstName} ${lastName}'s account was successful`;
+				} else {
+					msgText = "Withdrawal was successful";
+				}
+			}
 			showNotification({
 				type: "success",
-				msg: "You have performed the request",
+				msg: msgText,
 			});
-			this.fetch();
+			disableRequest(requestId);
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
 		}
@@ -168,20 +231,13 @@ class ActiveRequests extends Component {
 		try {
 			this.setState({ requestId, activeAction: aa.cancelAccepted });
 			await cancelAcceptedRequest(requestId);
+			this.props.disableRequest(requestId);
 			showNotification({
 				type: "success",
 				msg: "You have cancelled the request, the assets will be sent back on your address.",
 			});
-			this.fetch();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-			}
+			handleBcError(e);
 		} finally {
 			this.setState({ requestId: null, activeAction: "" });
 		}
@@ -192,19 +248,14 @@ class ActiveRequests extends Component {
 		if (canComplain) {
 			try {
 				this.setState({ requestId, activeAction: aa.complain });
-				const res = await complain(requestId);
-				console.log("complained", res);
-
+				await complain(requestId);
+				this.props.disableRequest(requestId);
 				showNotification({
 					type: "success",
 					msg: "You have complained on the request",
 				});
-				this.fetch();
 			} catch (e) {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
+				handleBcError(e);
 			} finally {
 				this.setState({ requestId: null, activeAction: "" });
 			}
@@ -213,6 +264,22 @@ class ActiveRequests extends Component {
 				type: "info",
 				msg: "A complaint can only be filed 12 hours after the selection of the performer",
 			});
+		}
+	};
+
+	cancelRequest = async requestId => {
+		try {
+			this.setState({ requestId, activeAction: aa.cancel });
+			await cancelRequest(requestId);
+			this.props.disableRequest(requestId);
+			showNotification({
+				type: "success",
+				msg: "You have canceled the request",
+			});
+		} catch (e) {
+			handleBcError(e);
+		} finally {
+			this.setState({ requestId: null, activeAction: "" });
 		}
 	};
 
@@ -232,10 +299,14 @@ class ActiveRequests extends Component {
 				handleComplain: this.handleComplain,
 				requestsType: parseRequestType(location),
 				requestsStatus: "active",
-				showUserSettlementsModal: settlementsId =>
-					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
-						settlementsId,
-					})(),
+				showUserSettlementsModal: settlementsId => {
+					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
+				},
+				showSelectedUserDataModal: (selectedUserData, selectedUserDataType) => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData, selectedUserDataType })();
+				},
+				performRequest: this.performRequest,
+				cancelRequest: this.cancelRequest,
 			});
 		} else {
 			columns = renderPerformerColumns({
@@ -243,13 +314,19 @@ class ActiveRequests extends Component {
 				activeAction,
 				walletAddress,
 				hideRequest: this.hideRequest,
-				acceptRequest: this.acceptRequest,
+				confirmRequest: this.handleConfirmRequest,
 				cancelAcceptedRequest: this.cancelAcceptedRequest,
 				performRequest: this.performRequest,
 				getColumnSearchProps: getColumnSearchProps(this.setState, this.searchInput),
 				defaultFilterValue: idParsedFromURL,
 				requestsType: parseRequestType(location),
 				requestsStatus: "active",
+				showSelectedUserDataModal: (selectedUserData, selectedUserDataType) => {
+					this.showModal(modals.SELECTED_USER_DATA, { selectedUserData, selectedUserDataType })();
+				},
+				showUserSettlementsModal: settlementsId => {
+					this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId })();
+				},
 			});
 		}
 
@@ -260,6 +337,7 @@ class ActiveRequests extends Component {
 					isRequestClosed: false,
 					isUserInitiator: user.role === roles.c || isAgentInitiator,
 				})}
+
 				<Table
 					columns={columns}
 					rowKey={record => record.id}
@@ -272,6 +350,9 @@ class ActiveRequests extends Component {
 						setState: this.setState,
 					})}
 					className="ovf-auto tbody-white"
+					rowClassName={(record, rowIndex) => {
+						if (record._isDisabled) return "table-row-disabled";
+					}}
 				/>
 				<ChoosePerformerModal
 					isModalVisible={this.state.SEND_REQ_TO_AGENT}
@@ -280,11 +361,9 @@ class ActiveRequests extends Component {
 					isSendingMessage={this.state.isSendingMessage}
 					operationMessages={this.state.operationMessages}
 					fetchRequests={this.fetch}
-					showUserSettlementsModal={settlementsId =>
-						this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, {
-							settlementsId,
-						})()
-					}
+					showUserSettlementsModal={settlementsId => {
+						this.showModal(modals.USER_SETTLEMENT_ACCOUNTS, { settlementsId: [settlementsId] })();
+					}}
 					performer={user.role === roles.c ? roles.a : roles.sa}
 					openedRequestData={openedRequestData}
 				/>
@@ -293,28 +372,13 @@ class ActiveRequests extends Component {
 					hideModal={this.hideModal(modals.USER_SETTLEMENT_ACCOUNTS)}
 					userId={this.state.settlementsId}
 				/>
+				<ShowUserDataModal
+					visible={this.state.SELECTED_USER_DATA}
+					hideModal={this.hideModal(modals.SELECTED_USER_DATA)}
+					data={this.state.selectedUserData ? [this.state.selectedUserData] : null}
+					selectedUserDataType={this.state.selectedUserDataType}
+				/>
 			</>
 		);
 	}
 }
-
-const loadingSelector = createLoadingSelector([GET_OPERATION_REQUESTS]);
-
-function mapStateToProps(state, ownProps) {
-	return {
-		user: state.user,
-		walletAddress: state.wallet.defaultAccountAddress,
-		data: state.opRequests,
-		isFetching: loadingSelector(state),
-	};
-}
-
-ActiveRequests = compose(
-	withRouter,
-	connect(
-		mapStateToProps,
-		{ push, getOpRequests }
-	)
-)(ActiveRequests);
-
-export default ActiveRequests;

@@ -3,15 +3,13 @@ import { connect } from "react-redux";
 import { Card, Button, Popconfirm, Table, Icon } from "antd";
 import AddSettlementModal from "../../components/modals/AddSettlementModal";
 import Actions from "../../redux/actions";
+import { createLoadingSelector } from "selectors/loading";
+import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
 
 const modals = {
 	ADD_SETTLEMENTS_MODAL: "ADD_SETTLEMENTS_MODAL",
 };
 
-let columns = [];
-
-// TODO: add h scroll for table
-// test api calls and actions
 class SettlementCard extends Component {
 	state = {
 		ADD_SETTLEMENT_MODAL: false,
@@ -38,7 +36,7 @@ class SettlementCard extends Component {
 	render() {
 		const { settlements, loading } = this.props;
 
-		columns = [
+		const columns = [
 			{
 				title: "Account Number",
 				key: "account_number",
@@ -77,7 +75,7 @@ class SettlementCard extends Component {
 
 		return (
 			<>
-				<Card>
+				<Card style={{ marginBottom: 24 }}>
 					<div style={{ marginBottom: 30 }}>
 						<Button type="primary" onClick={this.showModal(modals.ADD_SETTLEMENTS_MODAL)}>
 							<Icon type="plus" /> Add new settlement account
@@ -89,7 +87,7 @@ class SettlementCard extends Component {
 						columns={columns}
 						loading={loading}
 						dataSource={settlements}
-						style={{ overflowX: "auto" }}
+						className="ovf-auto"
 					/>
 				</Card>
 
@@ -102,16 +100,17 @@ class SettlementCard extends Component {
 	}
 }
 
+const loadingSelector = createLoadingSelector([FETCH_SETTLEMENTS_LIST]);
+
 export default connect(
 	state => {
 		return {
 			settlements: state.settlements,
-			loading: state.loading,
+			loading: loadingSelector(state),
 		};
 	},
 	{
 		deleteAccount: Actions.settlements.deleteAccount,
-		startLoading: Actions.loading.startLoading,
 		getSettlementsList: Actions.settlements.getSettlementsList,
 	}
 )(SettlementCard);

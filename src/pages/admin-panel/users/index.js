@@ -1,23 +1,13 @@
 import React, { Component } from "react";
-import { Table, Input, Button, Icon, message, notification } from "antd";
+import { Table, Input, Button, Icon } from "antd";
 import { connect } from "react-redux";
-import UserSettlement from "./userSettlement";
-import { roleCodes } from "api/constants";
-import {
-	unblockUser,
-	blockedUsersData,
-	blockUser,
-	isBlockedUser,
-	getUsersData,
-	updateUserStatus,
-} from "redux/admin-panel/users";
+import { getUsersData } from "redux/admin-panel/users";
+import { showNotification } from "components/notification";
+import { formatUserRole } from "utils";
+import { roles, userStatus, userStatusNames } from "api/constants";
+import UserDetailedData from "./userDetailedData";
+import ShowUserData from "components/modals/ShowUserData";
 
-import { downgradeUser } from "api/admin/user-upgrade";
-
-import { TimeoutError } from "promise-timeout";
-const styles = {
-	btn: { marginRight: 8 },
-};
 class Users extends Component {
 	state = {
 		searchText: "",
@@ -25,10 +15,8 @@ class Users extends Component {
 		visible: false,
 		settlement: [],
 		loadingTableData: false,
-		user_id: null,
+		activeRecord: null,
 		pagination: { current: 1, pageSize: 20 },
-		loadingBlockUser: false,
-		loadingUnblockUser: false,
 	};
 
 	getColumnSearchProps = dataIndex => ({
@@ -78,9 +66,9 @@ class Users extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	showSettlement(dataIndex) {
+	showDetailedUserData(userRecord) {
 		this.setState({
-			user_id: dataIndex,
+			activeRecord: userRecord,
 			visible: true,
 		});
 	}
@@ -95,7 +83,7 @@ class Users extends Component {
 		await this.fetchUsers();
 	};
 
-	handleTableChange = (pagination, filters) => {
+	handleTableChange = (pagination, filters, sorter) => {
 		this.setState(
 			{
 				pagination: {
@@ -105,12 +93,16 @@ class Users extends Component {
 				},
 			},
 			() => {
-				console.log(filters);
-
+				let opts = {};
 				for (const filter in filters) {
-					filters[filter] = filters[filter][0];
+					opts[filter] =
+						filters[filter].length > 1 ? filters[filter].join(",") : filters[filter][0];
 				}
-				this.fetchUsers(filters);
+				if (Object.keys(sorter).length) {
+					opts.sort_field = sorter.field;
+					opts.sort = sorter.order === "ascend" ? "asc" : "desc";
+				}
+				this.fetchUsers(opts);
 			}
 		);
 	};
@@ -128,152 +120,87 @@ class Users extends Component {
 			const res = await getUsersData(params);
 			pagination.total = res.adminUsers.total;
 			this.setState({ pagination, loadingTableData: false });
-		} catch (e) {}
-	}
-
-	blockUser = async (wallet_addr, reason, duration, userId) => {
-		const { blockUser, isBlockedUser, updateUserStatus } = this.props;
-		this.setState({
-			user_id: userId,
-			loadingBlockUser: true,
-		});
-		const res = await blockUser(wallet_addr, reason, duration);
-		if (!res) {
-			this.setState({
-				loadingBlockUser: false,
-			});
-			return false;
-		}
-		await isBlockedUser(wallet_addr);
-
-		updateUserStatus(userId, 2);
-
-		this.setState({
-			loadingBlockUser: false,
-		});
-	};
-
-	unblockUser = async (wallet_addr, userId) => {
-		const { unblockUser, updateUserStatus } = this.props;
-		this.setState({
-			user_id: userId,
-			loadingUnblockUser: true,
-		});
-		await unblockUser(wallet_addr);
-
-		updateUserStatus(userId, 1);
-
-		this.setState({
-			loadingUnblockUser: false,
-		});
-	};
-
-	handleDowngrade = async (wallet_addr, role, id) => {
-		try {
-			this.setState({
-				loadingDowngradeUser: true,
-				request_id: id,
-			});
-			const res = await downgradeUser(wallet_addr, role);
-			if (res.Error === 0) {
-				message.success("User was successfully downgrade");
-			}
-			this.fetchUsers();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
-			}
+			this.setState({ loadingTableData: false });
+			showNotification({
+				type: "error",
+				msg: "An error occurred when fetching data",
+			});
 		}
-		this.setState({
-			loadingDowngradeUser: false,
-		});
-	};
+	}
 
 	render() {
 		const { adminUsers } = this.props;
-		const { loadingTableData, pagination, loadingBlockUser, loadingUnblockUser } = this.state;
+		const { loadingTableData, pagination } = this.state;
 		if (!adminUsers) return null;
+		const roleColumnFilters = [
+			{
+				text: "User",
+				value: roles.c,
+			},
+			{
+				text: "Agent",
+				value: roles.a,
+			},
+			{
+				text: "Super Agent",
+				value: roles.sa,
+			},
+		];
+		const statusColumnFilters = [
+			{
+				text: "Waiting",
+				value: userStatusNames[userStatus.wait],
+			},
+			{
+				text: "Active",
+				value: userStatusNames[userStatus.active],
+			},
+			{
+				text: "Blocked",
+				value: userStatusNames[userStatus.blocked],
+			},
+			{
+				text: "Deleted",
+				value: userStatusNames[userStatus.deleted],
+			},
+		];
+
 		const columns = [
 			{
 				title: "Actions",
-				render: res => (
+				key: "actions",
+				render: userRecord => (
 					<div>
-						{res.status_code === 1 ? (
-							<Button
-								style={styles.btn}
-								type="danger"
-								icon="user-delete"
-								loading={res.user_id === this.state.user_id && loadingBlockUser}
-								onClick={() => this.blockUser(res.wallet_addr, 1, 10, res.user_id)}
-							>
-								Block
-							</Button>
-						) : null}
-						{res.status_code === 2 ? (
-							<Button
-								style={styles.btn}
-								type="primary"
-								icon="user-add"
-								loading={res.user_id === this.state.user_id && loadingUnblockUser}
-								onClick={() => this.unblockUser(res.wallet_addr, res.user_id)}
-							>
-								Unblock
-							</Button>
-						) : null}
-						{res.role_code !== roleCodes.user ? (
-							<Button
-								style={styles.btn}
-								type="danger"
-								onClick={() => this.handleDowngrade(res.wallet_addr, res.role, res.id, res)}
-							>
-								Downgrade
-							</Button>
-						) : null}
-						{res.is_settlements_exists ? (
-							<Button
-								style={styles.btn}
-								icon="account-book"
-								onClick={() => this.showSettlement(res.user_id)}
-							>
-								Settlement accounts
-							</Button>
-						) : null}
+						<Button icon="account-book" onClick={() => this.showDetailedUserData(userRecord)}>
+							Detailed data
+						</Button>
 					</div>
 				),
 			},
 			{
 				title: "First name",
-				dataIndex: "first_name",
-				key: "first_name",
-				...this.getColumnSearchProps("first_name"),
+				dataIndex: "firstName",
+				key: "firstName",
+				...this.getColumnSearchProps("firstName"),
 				render: res => (res ? res : "n/a"),
+				sorter: true,
 			},
 			{
 				title: "Last name",
-				dataIndex: "last_name",
-				key: "last_name",
-				...this.getColumnSearchProps("last_name"),
+				dataIndex: "lastName",
+				key: "lastName",
+				...this.getColumnSearchProps("lastName"),
 				render: res => (res ? res : "n/a"),
-			},
-			{
-				title: "Registration date",
-				dataIndex: "created_at",
-				key: "created_at",
-				...this.getColumnSearchProps("created_at"),
-				render: res => (res ? new Date(res).toDateString() : "n/a"),
+				sorter: true,
 			},
 			{
 				title: "Role",
 				dataIndex: "role",
 				key: "role",
-				...this.getColumnSearchProps("role"),
-				render: res => (res ? res : "n/a"),
+				filters: roleColumnFilters,
+				filterMultiple: false,
+				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
 				title: "Country",
@@ -283,83 +210,26 @@ class Users extends Component {
 				render: res => (res ? res : "n/a"),
 			},
 			{
-				title: "Email",
-				dataIndex: "email",
-				key: "email",
-				...this.getColumnSearchProps("email"),
-				render: res => (res ? res : "n/a"),
-			},
-			{
 				title: "Phone number",
-				dataIndex: "phone_number",
-				key: "phone_number",
-				...this.getColumnSearchProps("phone_number"),
-				render: res => (res ? res : "n/a"),
-			},
-			{
-				title: "Balances",
-				dataIndex: "assets_balances",
-				key: "assets_balances",
-				...this.getColumnSearchProps("assets_balances"),
-				render: res => {
-					let balances = "";
-					for (let asset in res) {
-						balances += asset + ": " + res[asset] + "\n";
-					}
-
-					return balances;
-				},
-			},
-			{
-				title: "Chat id",
-				dataIndex: "chat_id",
-				key: "chat_id",
-				...this.getColumnSearchProps("chat_id"),
+				dataIndex: "phoneNumber",
+				key: "phoneNumber",
+				...this.getColumnSearchProps("phoneNumber"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Wallet address",
-				dataIndex: "wallet_addr",
-				key: "wallet_addr",
-				...this.getColumnSearchProps("wallet_addr"),
+				dataIndex: "walletAddr",
+				key: "walletAddr",
+				...this.getColumnSearchProps("walletAddr"),
 				render: res => (res ? res : "n/a"),
 			},
 			{
 				title: "Status",
 				dataIndex: "status",
 				key: "status",
-				...this.getColumnSearchProps("status"),
+				filters: statusColumnFilters,
+				filterMultiple: false,
 				render: res => (res ? res : "n/a"),
-			},
-			{
-				title: "Total remuneration",
-				dataIndex: "remuneration",
-				key: "remuneration",
-				...this.getColumnSearchProps("remuneration"),
-				render: res => (res ? res : "n/a"),
-			},
-			{
-				title: "Other data",
-				dataIndex: "count",
-				key: "count",
-				undefined,
-				render: res => {
-					if (
-						res.hasOwnProperty("operations_successful") &&
-						res.hasOwnProperty("operations_unsuccessful")
-					) {
-						return (
-							"Number of successful/unsuccessful operations: " +
-							res.operations_successful +
-							"/" +
-							res.operations_unsuccessful
-						);
-					}
-					if (res.requests_canceled !== undefined) {
-						return "Number of canceled customer requests: " + res.requests_canceled;
-					}
-					return "";
-				},
 			},
 		];
 
@@ -367,7 +237,7 @@ class Users extends Component {
 			<>
 				<Table
 					columns={columns}
-					rowKey={adminUsers => adminUsers.user_id}
+					rowKey={record => record.user_id}
 					dataSource={adminUsers}
 					className="usersTable ovf-auto"
 					onChange={this.handleTableChange}
@@ -375,10 +245,10 @@ class Users extends Component {
 					loading={loadingTableData}
 				/>
 				{this.state.visible && (
-					<UserSettlement
+					<UserDetailedData
 						hideModal={this.hideModal}
 						visible={this.state.visible}
-						userId={this.state.user_id}
+						userRecord={this.state.activeRecord}
 					/>
 				)}
 			</>
@@ -393,11 +263,6 @@ const mapStateToProps = state => ({
 export default connect(
 	mapStateToProps,
 	{
-		unblockUser,
-		blockedUsersData,
-		blockUser,
-		isBlockedUser,
 		getUsersData,
-		updateUserStatus,
 	}
 )(Users);

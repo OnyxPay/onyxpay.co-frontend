@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Redirect } from "react-router-dom";
-import { roles } from "../api/constants";
+import { roles, userStatus } from "../api/constants";
 import { getUserData } from "../redux/user";
 
 /**
@@ -34,14 +34,13 @@ function Authorization(allowedRoles) {
 							}}
 						/>
 					);
-				} else if (allowedRoles.includes(user.role) && user.status === 1) {
-					// user is confirmed
-					return <WrappedComponent {...this.props} />;
 				} else if (
 					allowedRoles.includes(user.role) &&
-					user.status !== 1 &&
-					location.pathname === "/"
+					(user.status === userStatus.active || user.status === userStatus.blocked)
 				) {
+					// user is confirmed
+					return <WrappedComponent {...this.props} />;
+				} else if (allowedRoles.includes(user.role) && location.pathname === "/") {
 					// user is unconfirmed show Confirmation modal
 					return <WrappedComponent {...this.props} />;
 				} else if (user.role === roles.adm || user.role === roles.sadm) {

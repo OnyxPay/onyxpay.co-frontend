@@ -26,7 +26,7 @@ const AvatarContainer = styled.div`
 	}
 `;
 
-function getMenuItem(linkRole, title, userRole) {
+function getUpgradeMenuItem(linkRole, title, userRole) {
 	if (
 		userRole === roles.sa ||
 		userRole === roles.adm ||
@@ -47,13 +47,26 @@ function getMenuItem(linkRole, title, userRole) {
 	}
 }
 
+function getReferralLinkMenuItem(userRole) {
+	if (userRole === roles.c || userRole === roles.a || userRole === roles.sa) {
+		return (
+			<Menu.Item>
+				<Link to={"/referral-program"}>
+					<UpgradeLink>Referral Program</UpgradeLink>
+				</Link>
+			</Menu.Item>
+		);
+	}
+}
+
 const DropdownMenu = ({ logOut, user }) => {
 	let menu;
 	if (user) {
 		menu = (
 			<Menu style={{ minWidth: 160 }}>
-				{getMenuItem("agent", "Upgrade to Agent", user.role)}
-				{getMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
+				{getUpgradeMenuItem("agent", "Upgrade to Agent", user.role)}
+				{getUpgradeMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
+				{getReferralLinkMenuItem(user.role)}
 				<Menu.Item>
 					<Link to={"/profile"}>
 						<UpgradeLink>Profile</UpgradeLink>

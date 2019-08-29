@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, Typography, Row, Col } from "antd";
+import { Card, Button, Input, Form, Select, Typography, Row, Col, Alert } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
-import { createRequest } from "../../api/requests";
+import { createRequest, getActiveRequestsCounter } from "api/requests";
 import { TimeoutError } from "promise-timeout";
-import { isAssetBlocked } from "../../api/assets";
-import { countDecimals } from "../../utils/validate";
+import { isAssetBlocked } from "api/assets";
+import { countDecimals } from "utils/validate";
 import { roles, onyxCashSymbol } from "api/constants";
 import {
 	showNotification,
@@ -23,10 +23,21 @@ const { Option } = Select;
 const { Text } = Typography;
 
 class Deposit extends Component {
-	componentDidMount() {
+	state = {
+		activeRequestsError: false,
+	};
+
+	async componentDidMount() {
 		const { getAssetsList, getExchangeRates } = this.props;
 		getAssetsList();
 		getExchangeRates();
+		const counter = await getActiveRequestsCounter();
+		if (process.env.NODE_ENV === "development") {
+			console.log("activeRequestsCounter", counter);
+		}
+		if (counter >= 10) {
+			this.setState({ activeRequestsError: true });
+		}
 	}
 
 	isEnoughAmount(amount, assetSymbol) {
@@ -100,11 +111,11 @@ class Deposit extends Component {
 
 	render() {
 		const { assets, user } = this.props;
+		const { activeRequestsError } = this.state;
 
 		return (
 			<>
 				<PageTitle>Deposit</PageTitle>
-
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -142,7 +153,7 @@ class Deposit extends Component {
 							setFieldError,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit}>
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={12} md={24}>
 											<Form.Item
@@ -164,7 +175,7 @@ class Deposit extends Component {
 														filterOption={(input, option) =>
 															option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 														}
-														disabled={isSubmitting}
+														disabled={activeRequestsError || isSubmitting}
 													>
 														{assets.map((asset, index) => {
 															return (
@@ -183,7 +194,8 @@ class Deposit extends Component {
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
-													You will be able to send to the agent only chosen fiat currency
+													{!activeRequestsError &&
+														"Only selected fiat currency can be sent to the agent"}
 												</Text>
 											) : null}
 										</Col>
@@ -202,22 +214,29 @@ class Deposit extends Component {
 													value={values.amount}
 													onChange={handleChange}
 													onBlur={handleBlur}
-													disabled={isSubmitting}
+													disabled={activeRequestsError || isSubmitting}
 													step="any"
 												/>
 											</Form.Item>
 										</Col>
 									</Row>
-									<TextAligner align="right" mobile="left">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"
-											disabled={isSubmitting}
+											disabled={activeRequestsError || isSubmitting}
 											loading={isSubmitting}
 										>
 											Create deposit request
 										</Button>
 									</TextAligner>
+									{activeRequestsError && (
+										<Alert
+											style={{ marginTop: 16 }}
+											message="Limit of active requests(10) is exceeded. To create new requests you should resolve some of the old ones"
+											type="error"
+										/>
+									)}
 								</form>
 							);
 						}}

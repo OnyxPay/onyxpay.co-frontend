@@ -88,6 +88,7 @@ class Login extends Component {
 
 	handleClearWallet = () => {
 		const { clearWallet, logOut, user } = this.props;
+		console.log("handleClearWallet", user);
 		clearWallet();
 		if (user) {
 			logOut();
@@ -113,7 +114,7 @@ class Login extends Component {
 			const res = await login({
 				public_key: publicKey.key,
 				signed_msg: signature.serializeHex(),
-				wallet_addr: accountAddress.value,
+				walletAddr: accountAddress.value,
 			});
 
 			if (res && res.error) {

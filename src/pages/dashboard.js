@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { PageTitle, TransactionsTable } from "../components";
+import { PageTitle } from "../components";
+import OperationsWidget from "components/paginated-list/OperationsWidget";
+import { userStatus } from "api/constants";
 import { Card } from "antd";
 import Balance from "../components/balance/Balance";
 import ConfirmEmailModal from "../components/modals/ConfirmEmail";
@@ -24,7 +26,7 @@ class Home extends Component {
 
 	isUserVerified() {
 		const { user } = this.props;
-		return user.status === 1 ? true : false;
+		return user.status !== userStatus.wait ? true : false;
 	}
 
 	showModal = () => {
@@ -42,9 +44,11 @@ class Home extends Component {
 			<>
 				<PageTitle>Dashboard</PageTitle>
 				<Balance />
-				<Card title="Recent Transactions">
-					<TransactionsTable />
-				</Card>
+				{this.props.user.status === userStatus.active ? (
+					<Card title="Recent Transactions">
+						<OperationsWidget />
+					</Card>
+				) : null}
 				<ConfirmEmailModal isModalVisible={isConfirmEmailModalVisible} hideModal={this.hideModal} />
 			</>
 		);

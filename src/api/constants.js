@@ -1,18 +1,28 @@
-export const syncNodeUrl = process.env.REACT_APP_SYNC_NODE_URL;
+let syncNodeUrl;
+let reactAppBackendUrl;
+let headAddress;
+let compensatorUrl;
+if (process.env.REACT_APP_TAG === "prod") {
+	reactAppBackendUrl = "www.onyxpay.co";
+	syncNodeUrl = "andromeda-sync.onyxpay.co";
+	headAddress = "9a54f5d022fe964d32881a7ed8fe36795ec37c27";
+	compensatorUrl = "https://andromeda-compensator.onyxpay.co/api";
+} else if (process.env.REACT_APP_TAG === "preprod") {
+	reactAppBackendUrl = "preprod.onyxpay.co";
+	syncNodeUrl = "cepheus5.onyxpay.co";
+	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
+	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
+} else {
+	reactAppBackendUrl = "10.100.3.189";
+	syncNodeUrl = "cepheus5.onyxpay.co";
+	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
+	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
+}
+
 export const bcEndpoints = {
 	ws: "wss://" + syncNodeUrl + ":20335",
 	rest: "https://" + syncNodeUrl + ":20334",
 };
-
-let reactAppBackendUrl;
-if (process.env.REACT_APP_TAG === "prod") {
-	reactAppBackendUrl = "www.onyxpay.co";
-} else if (process.env.REACT_APP_TAG === "preprod") {
-	reactAppBackendUrl = "preprod.onyxpay.co";
-} else {
-	reactAppBackendUrl = "10.100.3.189";
-}
-
 export const backEndRestEndpoint = "https://" + reactAppBackendUrl + "/api/v1/";
 export const wssBackEnd = "wss://" + reactAppBackendUrl;
 
@@ -21,10 +31,20 @@ export const wsEvents = {
 	rejectUpgradeRequest: "REJECT_UPGRADE_REQUEST",
 	phoneNumberIsChanged: "PHONE_NUMBER_IS_CHANGED",
 	upgradeUser: "UPDATE_USER",
+	saveRequest: "SAVE_REQUEST",
+	chooseAgentMaker: "CHOOSE_AGENT_MAKER",
+	chooseAgentTaker: "CHOOSE_AGENT_TAKER",
+	newMessage: "NEW_MESSAGE",
+	acceptRequestMaker: "ACCEPT_REQUEST_MAKER",
+	acceptRequestTaker: "ACCEPT_REQUEST_TAKER",
+	changeRequestStatusMaker: "CHANGE_REQUEST_STATUS_MAKER",
+	changeRequestStatusTaker: "CHANGE_REQUEST_STATUS_TAKER",
+	cancelAcceptationMaker: "CANCEL_ACCEPTATION_MAKER",
+	cancelAcceptationTaker: "CANCEL_ACCEPTATION_TAKER",
 };
 
-export const gasCompensatorEndpoint = "https://cepheus-compensator.onyxpay.co/api";
-export const addressOfHead = "87fd9b3718308de50fd639c9b9a411835936766a";
+export const gasCompensatorEndpoint = compensatorUrl;
+export const addressOfHead = headAddress;
 export const BackendUrl = reactAppBackendUrl;
 
 export const OnyxCashDecimals = 8;
@@ -83,6 +103,17 @@ export const requestStatus = {
 	closed: 7, //  not set at back-end now
 };
 
+export const requestStatusNames = {
+	0: "pending",
+	1: "opened",
+	2: "choose",
+	3: "rejected",
+	4: "canceled",
+	5: "complained",
+	6: "completed",
+	7: "closed",
+};
+
 export const UpgradeRequestStatus = {
 	Opened: 1,
 	Completed: 2,
@@ -112,6 +143,16 @@ export const userStatusNames = {
 	[userStatus.deleted]: "deleted",
 };
 
+export const operationType = {
+	deposit: 1,
+	withdraw: 2,
+	buyOnyxCache: 3,
+};
+
 export const h12Mc = 12 * 60 * 60 * 1000;
 export const h24Mc = 24 * 60 * 60 * 1000;
 export const refreshBalanceEveryMsec = 30000;
+
+export const gasCompensatorTimeout = 30000;
+
+export const supportEmail = "support@onyxPay.co";

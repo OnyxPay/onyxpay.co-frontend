@@ -14,8 +14,8 @@ import { adminUsersReducer, setUserSettlementDataReducer } from "./admin-panel/u
 import { assetsReducer } from "./assets";
 import { loadingReducer } from "./globalLoading";
 import { opRequestsReducer } from "./requests";
-
-const appReducer = history =>
+import { opMessagesReducer } from "./messages";
+export default history =>
 	combineReducers({
 		router: connectRouter(history),
 		user: userReducer,
@@ -33,14 +33,5 @@ const appReducer = history =>
 		assets: assetsReducer,
 		globalLoading: loadingReducer,
 		opRequests: opRequestsReducer,
+		opMessages: opMessagesReducer,
 	});
-
-export default history => {
-	const reducer = appReducer(history);
-	return (state, action) => {
-		if (action === "LOG_OUT") {
-			state = undefined;
-		}
-		return reducer(state, action);
-	};
-};

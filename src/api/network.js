@@ -1,9 +1,21 @@
 import axios from "axios";
 import { WebsocketClient, RestClient } from "ontology-ts-sdk";
-import { bcEndpoints, backEndRestEndpoint, gasCompensatorEndpoint } from "./constants";
+import {
+	bcEndpoints,
+	backEndRestEndpoint,
+	gasCompensatorEndpoint,
+	gasCompensatorTimeout,
+} from "./constants";
 import { getStore } from "../store";
 import { showSessionExpiredModal } from "../redux/session";
-import { showNotification } from "components/notification";
+import {
+	showNotification,
+	showTimeoutNotification,
+	showGasCompensationError,
+	showBcError,
+} from "components/notification";
+import { GasCompensationError, SendRawTrxError, UnlockWalletError } from "utils/custom-error";
+import { TimeoutError } from "promise-timeout";
 
 const bcWsClient = new WebsocketClient(bcEndpoints.ws, false, false);
 const bcRestClient = new RestClient(bcEndpoints.rest);
@@ -19,7 +31,7 @@ export function getRestClient({ type } = {}) {
 	if (type === "explorer") {
 		return axios;
 	} else if (type === "gas") {
-		return axios.create({ baseURL: gasCompensatorEndpoint });
+		return axios.create({ baseURL: gasCompensatorEndpoint, timeout: gasCompensatorTimeout });
 	}
 	return createCustomRestClient();
 }
@@ -121,13 +133,21 @@ export function handleReqError(error) {
 	}
 }
 
-export function makeFormData(data) {
-	const formData = new FormData();
+export function handleBcError(e) {
+	if (process.env.NODE_ENV === "development") console.dir(e);
 
-	for (const field in data) {
-		if (data.hasOwnProperty(field)) {
-			formData.append(field, data[field]);
-		}
+	if (e instanceof UnlockWalletError) {
+		return null; // just ignore for now
+	} else if (e instanceof GasCompensationError) {
+		showGasCompensationError();
+	} else if (e instanceof SendRawTrxError) {
+		showBcError(e.message);
+	} else if (e instanceof TimeoutError) {
+		showTimeoutNotification();
+	} else {
+		showNotification({
+			type: "error",
+			msg: e.message,
+		});
 	}
-	return formData;
 }

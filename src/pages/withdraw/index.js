@@ -1,25 +1,69 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, notification, Row, Col, message } from "antd";
+import { Card, Button, Input, Form, Select, Row, Col, Alert, Typography, InputNumber } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
-import Actions from "../../redux/actions";
+import Actions from "redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
-import { createRequest } from "../../api/requests";
+import { createRequest, getActiveRequestsCounter } from "api/requests";
 import { TimeoutError } from "promise-timeout";
-import { convertAmountToStr } from "../../utils/number";
-import { isAssetBlocked } from "../../api/assets";
+import { convertAmountToStr } from "utils/number";
+import { isAssetBlocked } from "api/assets";
+import { countDecimals } from "utils/validate";
+import {
+	showNotification,
+	showTimeoutNotification,
+	showGasCompensationError,
+	showBcError,
+} from "components/notification";
+import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+import { Link } from "react-router-dom";
+import { createLoadingSelector } from "selectors/loading";
+import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
+import { getFee } from "../../api/assets";
+import AvailableBalance from "components/balance/AvailableBalance";
+import { debounce } from "lodash";
 
+const { Text } = Typography;
 const { Option } = Select;
 
 class Withdraw extends Component {
-	componentDidMount() {
-		const { getExchangeRates } = this.props;
-		getExchangeRates();
+	constructor(props) {
+		super(props);
+		this.debouncedGetFee = debounce(this.debouncedGetFee.bind(this), 500);
+		this.state = {
+			fee: null,
+			activeRequestsError: false,
+			settlementsError: false,
+		};
 	}
 
-	isEnoughAmount(amount, assetSymbol) {
+	async componentDidMount() {
+		const { getExchangeRates, getSettlementsList } = this.props;
+		getExchangeRates();
+		getSettlementsList();
+		const counter = await getActiveRequestsCounter();
+		if (process.env.NODE_ENV === "development") {
+			console.log("activeRequestsCounter", counter);
+		}
+		if (counter >= 10) {
+			this.setState({ activeRequestsError: true });
+		}
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		const { isSettlementsFetching, settlements } = this.props;
+		const { settlementsError } = this.state;
+
+		if (prevProps.isSettlementsFetching && !isSettlementsFetching && !settlements.length) {
+			this.setState({ settlementsError: true });
+		} else if (prevProps.settlements.length !== settlements.length && settlementsError) {
+			this.setState({ settlementsError: false });
+		}
+	}
+
+	isEnteredEnoughAmount(amount, assetSymbol) {
 		const { exchangeRates } = this.props;
 		const rate = exchangeRates.find(rate => rate.symbol === assetSymbol);
 		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
@@ -27,19 +71,35 @@ class Withdraw extends Component {
 		return isEnough;
 	}
 
-	calcMaxAmount(assetSymbol) {
+	async calcMaxAmount(assetSymbol, updateFee) {
 		const { assets } = this.props;
-		const asset = assets.find(asset => asset.symbol === assetSymbol);
-		return convertAmountToStr(asset.amount, 8);
+		if (assets.length) {
+			try {
+				const asset = assets.find(asset => asset.symbol === assetSymbol);
+				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "withdraw");
+				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
+				let maxAmount = (convertAmountToStr(asset.amount, 8) / (1 + maxAmountFeePercent)).toFixed(
+					8
+				);
+				let updatedFee = (await getFee(assetSymbol, maxAmount.toString(), "withdraw")) / 10 ** 8;
+				const updatedAmountFeePercent = parseFloat((updatedFee / maxAmount).toFixed(8));
+				if (maxAmountFeePercent !== updatedAmountFeePercent) {
+					maxAmount = (maxAmount / (1 + updatedAmountFeePercent)).toFixed(8);
+					updatedFee = (await getFee(assetSymbol, maxAmount.toString(), "withdraw")) / 10 ** 8;
+				}
+				if (updateFee) {
+					this.setState({ fee: updatedFee });
+				}
+				return maxAmount;
+			} catch (e) {
+				showBcError(e.message);
+				return 0;
+			}
+		}
 	}
 
-	isAmountNotOverMax = (amount, assetSymbol) => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
-		return amount <= maxAmount;
-	};
-
-	handleMaxAmount = (assetSymbol, setFieldValue) => e => {
-		const maxAmount = this.calcMaxAmount(assetSymbol);
+	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol, true);
 		setFieldValue("amount", maxAmount);
 	};
 
@@ -47,27 +107,29 @@ class Withdraw extends Component {
 		const { push } = this.props;
 		try {
 			const isBlocked = await isAssetBlocked(values.asset_symbol);
-			const isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
-			const isAmountNotOverMax = this.isAmountNotOverMax(values.amount, values.asset_symbol);
-
 			if (isBlocked) {
-				formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
 			}
-			if (!isEnoughAmount) {
-				formActions.setFieldError("amount", "min amount is 1 oUSD");
+			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
+
+			if (!isEnteredEnoughAmount) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", "min amount is 1 oUSD");
+			}
+			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
+
+			if (Number(maxAmount) < Number(values.amount)) {
+				formActions.setSubmitting(false);
+				return formActions.setFieldError("amount", `max ${maxAmount}`);
 			}
 
-			if (!isAmountNotOverMax) {
-				const maxAmount = this.calcMaxAmount(values.asset_symbol);
-				formActions.setFieldError("amount", `max ${maxAmount}`);
-			}
-
-			if (!isBlocked && isEnoughAmount && isAmountNotOverMax) {
+			if (!isBlocked && isEnteredEnoughAmount) {
 				const res = await createRequest(values, "withdraw");
 				if (!res.error) {
-					notification.success({
-						message: "Done",
-						description: "Deposit request is successfully created",
+					showNotification({
+						type: "success",
+						msg: "Withdraw request is successfully created",
 					});
 					push("/active-requests/withdraw");
 				} else if (res.error.data) {
@@ -75,26 +137,46 @@ class Withdraw extends Component {
 				}
 			}
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				notification.info({
-					message: e.message,
-					description:
-						"Your transaction has not completed in time. This does not mean it necessary failed. Check result later",
-				});
-			} else {
-				message.error(e.message);
+			if (e instanceof GasCompensationError) {
+				showGasCompensationError();
+			} else if (e instanceof SendRawTrxError) {
+				showBcError(e.message);
+			} else if (e instanceof TimeoutError) {
+				showTimeoutNotification();
 			}
+		} finally {
+			formActions.setSubmitting(false);
 		}
-
-		formActions.setSubmitting(false);
 	};
 
 	handleAssetChange = setFieldValue => async (value, option) => {
 		setFieldValue("asset_symbol", value);
 	};
 
+	debouncedGetFee(assetSymbol, amount) {
+		getFee(assetSymbol, amount, "send").then(fee => {
+			this.setState({ fee: fee / 10 ** 8 });
+		});
+	}
+
+	handleAmountChange = (values, formActions) => async value => {
+		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
+
+		if (isEnteredEnoughAmount) {
+			this.debouncedGetFee(values.asset_symbol, value);
+		} else {
+			if (this.state.fee) {
+				this.setState({ fee: null });
+			}
+		}
+		formActions.setFieldValue("amount", value);
+	};
+
 	render() {
 		const { assets } = this.props;
+		const { activeRequestsError, settlementsError, fee } = this.state;
+
+		const isFormDisabled = settlementsError || activeRequestsError;
 
 		return (
 			<>
@@ -111,8 +193,12 @@ class Withdraw extends Component {
 							if (!values.asset_symbol) {
 								errors.asset_symbol = "required";
 							}
-							if (!values.amount) {
+							if (values.amount === null || values.amount === "") {
 								errors.amount = "required";
+							} else if (values.amount <= 0) {
+								errors.amount = "only positive values are allowed";
+							} else if (countDecimals(values.amount) > 8) {
+								errors.amount = "max number of decimal places is 8";
 							}
 							return errors;
 						}}
@@ -129,7 +215,7 @@ class Withdraw extends Component {
 							setFieldError,
 						}) => {
 							return (
-								<form onSubmit={handleSubmit}>
+								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
 										<Col lg={12} md={24}>
 											<Form.Item
@@ -151,7 +237,7 @@ class Withdraw extends Component {
 													filterOption={(input, option) =>
 														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 													}
-													disabled={isSubmitting}
+													disabled={isFormDisabled || isSubmitting}
 												>
 													{assets.map((asset, index) => {
 														return (
@@ -162,6 +248,7 @@ class Withdraw extends Component {
 													})}
 												</Select>
 											</Form.Item>
+											{!isFormDisabled && <AvailableBalance assetSymbol={values.asset_symbol} />}
 										</Col>
 
 										<Col lg={12} md={24}>
@@ -173,35 +260,68 @@ class Withdraw extends Component {
 												help={errors.amount && touched.amount ? errors.amount : ""}
 											>
 												<Input.Group compact style={{ display: "flex" }}>
-													<Input
+													<InputNumber
 														name="amount"
-														type="number"
 														placeholder="Enter an amount"
 														value={values.amount}
-														onChange={handleChange}
+														min={0}
+														step={1}
+														onChange={this.handleAmountChange(values, {
+															setFieldError,
+															setFieldValue,
+														})}
 														onBlur={handleBlur}
-														disabled={isSubmitting}
+														disabled={isFormDisabled || isSubmitting}
+														style={{ width: "100%" }}
 													/>
 													<Button
 														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
-														disabled={isSubmitting}
+														disabled={isFormDisabled || isSubmitting}
 													>
 														max
 													</Button>
 												</Input.Group>
 											</Form.Item>
+											{fee && values.amount && (
+												<Text
+													type="secondary"
+													style={{ display: "block", margin: "-12px 0 12px 0" }}
+												>
+													fee will be {fee}
+												</Text>
+											)}
 										</Col>
 									</Row>
-									<TextAligner align="right" mobile="left">
+									<TextAligner align="right" mobile="left" className="assets__button-wrapper">
 										<Button
 											type="primary"
 											htmlType="submit"
-											disabled={isSubmitting}
+											disabled={isFormDisabled || isSubmitting}
 											loading={isSubmitting}
 										>
 											Create withdraw request
 										</Button>
 									</TextAligner>
+									{settlementsError && (
+										<Alert
+											style={{ marginTop: 16 }}
+											message={
+												<div>
+													To create a withdraw request you should have at least one settlement
+													account. Please,&nbsp;
+													<Link to="/settlement-accounts">create one</Link>.
+												</div>
+											}
+											type="error"
+										/>
+									)}
+									{activeRequestsError && (
+										<Alert
+											style={{ marginTop: 16 }}
+											message="Limit of active requests(10) is exceeded. To create new requests you should resolve some of the old ones"
+											type="error"
+										/>
+									)}
 								</form>
 							);
 						}}
@@ -212,16 +332,21 @@ class Withdraw extends Component {
 	}
 }
 
+const loadingSelector = createLoadingSelector([FETCH_SETTLEMENTS_LIST]);
+
 export default connect(
 	state => {
 		return {
 			user: state.user,
 			assets: state.balance.assets,
 			exchangeRates: state.assets.rates,
+			settlements: state.settlements,
+			isSettlementsFetching: loadingSelector(state),
 		};
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
+		getSettlementsList: Actions.settlements.getSettlementsList,
 		push,
 	}
 )(Withdraw);

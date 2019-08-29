@@ -10,7 +10,7 @@ type:
 */
 
 export function showNotification({ type = "info", msg, desc, duration = 5, key }) {
-	return notification[type]({
+	return notification[type.toLowerCase()]({
 		message: msg,
 		description: desc,
 		duration,

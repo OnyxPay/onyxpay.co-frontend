@@ -1,4 +1,5 @@
 import { h24Mc, h12Mc } from "api/constants";
+import { isBase58Address } from "utils/validate";
 
 export function isCookieAvailable(name) {
 	return document.cookie.split(";").filter(item => {
@@ -34,9 +35,9 @@ export function generateTokenTimeStamp() {
 }
 
 export function getPerformerName(takerAddress, taker = {}) {
-	const { first_name, last_name } = taker;
-	if (first_name || last_name) {
-		return `${first_name} ${last_name}`;
+	const { firstName, lastName } = taker;
+	if (firstName || lastName) {
+		return `${firstName} ${lastName}`;
 	} else {
 		return takerAddress;
 	}
@@ -60,4 +61,36 @@ export function is24hOver(timestamp) {
 export function is12hOver(timestamp) {
 	const diff = calcTimeDiff(timestamp);
 	return diff > h12Mc;
+}
+
+export function sortValues(valA, valB) {
+	if (valA < valB) {
+		return -1;
+	}
+	if (valA > valB) {
+		return 1;
+	}
+	return 0;
+}
+
+export function formatUserRole(role) {
+	if (role === "user") {
+		return "User";
+	} else if (role === "agent") {
+		return "Agent";
+	} else if (role === "superagent") {
+		return "Super agent";
+	} else if (role === "super_admin") {
+		return "Super admin";
+	} else if (role === "support") {
+		return "Support";
+	}
+}
+
+export function trimAddress(addr, validate = true) {
+	const sliceSize = 5;
+	if (validate && !isBase58Address(addr)) {
+		return addr;
+	}
+	return addr.slice(0, sliceSize) + "..." + addr.slice(addr.length - sliceSize, addr.length);
 }
