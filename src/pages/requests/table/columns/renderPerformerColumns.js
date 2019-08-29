@@ -259,9 +259,7 @@ export default function renderPerformerColumns({
 										onClick={e => showUserSettlementsModal(record.sender.id)}
 									/>
 								</Tooltip>
-							) : (
-								"n/a"
-							);
+							) : null;
 						},
 				  }
 				: { className: "hidden-column" },
@@ -275,9 +273,7 @@ export default function renderPerformerColumns({
 							record.request.statusCode !== requestStatus.complained &&
 							record.request.chooseTimestamp ? (
 							<Countdown date={new Date(record.request.chooseTimestamp).getTime() + h24Mc} />
-						) : (
-							"n/a"
-						);
+						) : null;
 					} else {
 						return null;
 					}
