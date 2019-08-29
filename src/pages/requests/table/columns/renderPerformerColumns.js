@@ -35,7 +35,10 @@ function renderCancelBtn(
 
 	if (record.status === "accepted" && !record.request.takerAddr) {
 		// performer are not selected
-		buttonText = "Cancel acceptation";
+		buttonText =
+			record.request.statusCode === requestStatus.rejected
+				? "Return locked assets"
+				: "Cancel acceptation";
 		if (isCancelAcceptedRequestActive) {
 			buttonType = "default";
 		} else {
