@@ -4,6 +4,8 @@ import ShowUserData from "components/modals/ShowUserData";
 import { getRequests, handleComplainedRequest } from "api/admin/complaints";
 import { PageTitle } from "components";
 import { convertAmountToStr } from "utils/number";
+import { showNotification } from "components/notification";
+import { handleReqError } from "api/network";
 
 const styles = {
 	btnLink: {
@@ -53,10 +55,23 @@ class ComplaintsList extends Component {
 				userId: userId,
 				requestId: requestId,
 			});
-			await handleComplainedRequest(requestId, winner);
+			const res = await handleComplainedRequest(requestId, winner);
+			console.log(res);
+			if (res.Error === 0) {
+				let whoWinner;
+				if (winner === "winnerClient") {
+					whoWinner = "initiator";
+				} else {
+					whoWinner = "performer";
+				}
+				showNotification({
+					type: "success",
+					msg: `Complain was successfully resolved in favor of ${whoWinner}`,
+				});
+			}
 			setTimeout(() => this.fetchRequestComplaint({ is_complain: 1, status: "complained" }), 3000);
 		} catch (error) {
-			console.log(error);
+			return handleReqError(error);
 		} finally {
 			this.setState({
 				loadingSolve: false,
