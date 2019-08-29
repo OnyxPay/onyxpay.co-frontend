@@ -18,19 +18,28 @@ class SupportMenu extends Component {
 					</Link>
 				</Menu.Item>
 				<SubMenu
-					key="active-requests"
+					key="requests"
 					title={
 						<span className="ant-menu-item-content">
-							<Icon type="team" />
-							<span>Customer requests</span>
+							<Icon type="pull-request" />
+							<span>Requests</span>
 						</span>
 					}
 				>
-					<Menu.Item key="/active-requests/deposit">
-						<Link to="/active-requests/deposit">Active deposit requests</Link>
+					<Menu.Item key="/admin/requests/user-upgrade">
+						<Link to="/admin/requests/user-upgrade" className="ant-menu-item-content">
+							<span>Account upgrade</span>
+						</Link>
 					</Menu.Item>
-					<Menu.Item key="/active-requests/withdraw">
-						<Link to="/active-requests/withdraw">Active withdraw requests</Link>
+					<Menu.Item key="/admin/requests/complaints">
+						<Link to="/admin/requests/complaints" className="ant-menu-item-content">
+							<span>Complaints</span>
+						</Link>
+					</Menu.Item>
+					<Menu.Item key="/admin/requests/complaints/resolve">
+						<Link to="/admin/requests/complaints/resolve" className="ant-menu-item-content">
+							<span>Resolved Complaints</span>
+						</Link>
 					</Menu.Item>
 				</SubMenu>
 			</Menu>

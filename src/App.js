@@ -156,7 +156,6 @@ Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdminAndSupport(Complaints);
 ResolvedComplaints = AdminAndSuperAdminAndSupport(ResolvedComplaints);
 Assets = AdminAndSuperAdmin(Assets);
-// ActiveOpRequests = AllAndSupport(ActiveOpRequests);
 ActiveCustomerDepositRequests = All(ActiveCustomerDepositRequests);
 ActiveCustomerWithdrawRequests = All(ActiveCustomerWithdrawRequests);
 ActiveOwnDepositRequests = All(ActiveOwnDepositRequests);

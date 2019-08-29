@@ -2,7 +2,7 @@ import { Modal, Table, Button, Descriptions, Divider, Form } from "antd";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { getUserSettlementData } from "../../../redux/admin-panel/users";
-import { roleCodes } from "api/constants";
+import { roleCodes, roles } from "api/constants";
 import { downgradeUser } from "api/admin/user-upgrade";
 import { handleBcError } from "api/network";
 import { showNotification } from "components/notification";
@@ -134,7 +134,7 @@ class UserDetailedData extends Component {
 	};
 
 	render() {
-		const { userRecord, userSettlement } = this.props;
+		const { userRecord, userSettlement, user } = this.props;
 		const { loadingBlockUser, loadingUnblockUser, assetBalances } = this.state;
 		const settlementColumns = [
 			{
@@ -260,6 +260,7 @@ class UserDetailedData extends Component {
 									onClick={() =>
 										this.handleBlockUser(userRecord.walletAddr, 1, 10, userRecord.user_id)
 									}
+									disabled={userRecord.role_code !== roleCodes.user && user.role === roles.support}
 								>
 									Block
 								</Button>
@@ -272,6 +273,7 @@ class UserDetailedData extends Component {
 									icon="user-add"
 									loading={userRecord.user_id === this.state.user_id && loadingUnblockUser}
 									onClick={() => this.handleUnblockUser(userRecord.walletAddr, userRecord.user_id)}
+									disabled={userRecord.role_code !== roleCodes.user && user.role === roles.support}
 								>
 									Unblock
 								</Button>
@@ -289,6 +291,7 @@ class UserDetailedData extends Component {
 											userRecord
 										)
 									}
+									disabled={userRecord.role_code !== roleCodes.user && user.role === roles.support}
 								>
 									Downgrade
 								</Button>
@@ -315,6 +318,7 @@ class UserDetailedData extends Component {
 
 const mapStateToProps = state => ({
 	userSettlement: state.userSettlement,
+	user: state.user,
 });
 
 export default connect(

@@ -43,7 +43,7 @@ const Wrapper = styled.div`
 `;
 
 export default function User({ firstName, lastName, role }) {
-	if (firstName || lastName) {
+	if (firstName || lastName || role) {
 		return (
 			<Wrapper>
 				<Tooltip
