@@ -152,7 +152,6 @@ class AssetsExchange extends Component {
 
 		let assetsForBuyData = this.getAssetsForBuyData();
 		let assetsForSellData = this.getAssetsForSellData();
-		console.log(assetsForBuyData, assetsForSellData);
 
 		let defaultAssetToSellName = "";
 		let defaultAssetToBuyName = "";
