@@ -6,7 +6,6 @@ import { showNotification } from "components/notification";
 import { formatUserRole } from "utils";
 import { roles, userStatus, userStatusNames } from "api/constants";
 import UserDetailedData from "./userDetailedData";
-import ShowUserData from "components/modals/ShowUserData";
 
 class Users extends Component {
 	state = {

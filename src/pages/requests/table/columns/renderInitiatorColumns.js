@@ -21,18 +21,16 @@ function isAgentAccepted(operationMessages) {
 	return operationMessages.some(mg => mg.statusCode === operationMessageStatus.accepted);
 }
 
-function renderComplainButton(record, handleComplain, isComplainActive) {
+function renderComplainButton(record, handleComplain, isComplainActive, requestHolderMode) {
 	let button;
-	if (!is12hOver(record.chooseTimestamp)) {
-		button = (
-			<Button
-				type="danger"
-				onClick={() => handleComplain(record.requestId, false)} // can't complain
-			>
-				Complain
-			</Button>
-		);
-	} else {
+	let allowToComplain = false;
+	if (requestHolderMode && requestHolderMode !== 0) {
+		allowToComplain = true;
+	} else if (is12hOver(record.chooseTimestamp)) {
+		allowToComplain = true;
+	}
+
+	if (allowToComplain) {
 		if (isComplainActive) {
 			button = (
 				<Button type="danger" loading={isComplainActive} disabled={isComplainActive}>
@@ -52,6 +50,15 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 				</Popconfirm>
 			);
 		}
+	} else {
+		button = (
+			<Button
+				type="danger"
+				onClick={() => handleComplain(record.requestId, false)} // can't complain
+			>
+				Complain
+			</Button>
+		);
 	}
 	return button;
 }
@@ -113,6 +120,7 @@ export default function renderInitiatorColumns({
 	performRequest, // for withdraw
 	cancelRequest,
 	showSelectedUserDataModal,
+	requestHolderMode,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -255,7 +263,7 @@ export default function renderInitiatorColumns({
 							{record.takerAddr &&
 								record.chooseTimestamp &&
 								!is24hOver(record.chooseTimestamp) &&
-								renderComplainButton(record, handleComplain, isComplainActive)}
+								renderComplainButton(record, handleComplain, isComplainActive, requestHolderMode)}
 						</>
 					);
 				},
