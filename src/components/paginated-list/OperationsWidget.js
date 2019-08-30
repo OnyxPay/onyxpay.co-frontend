@@ -72,6 +72,7 @@ function OperationsWidget(props) {
 				columns={operationHistoryColumns}
 				rowKey="id"
 				fetchData={getOperationHistory}
+				// TODO: add pending status
 				passedOpts={{ status: "completed" }}
 				emptyTableMessage="You haven't performed any operations yet."
 			/>

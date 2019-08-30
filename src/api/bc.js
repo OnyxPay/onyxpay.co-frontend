@@ -24,9 +24,15 @@ export async function createAndSignTrxViaGasCompensator(contractName, funcName, 
 		);
 		return res.data.data;
 	} catch (e) {
-		console.dir(e);
 		if (e.response) {
-			throw new GasCompensationError(JSON.stringify(e.response.data));
+			console.log(e.response);
+			let err;
+			if (e.response.data && e.response.data.error) {
+				err = e.response.data.error;
+			} else if (e.response.data && e.response.data.data) {
+				err = e.response.data.data;
+			}
+			throw new GasCompensationError(err);
 		} else if (e.request) {
 			throw new GasCompensationError("Something went wrong at the GAS compensation server");
 		} else {

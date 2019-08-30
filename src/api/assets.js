@@ -39,16 +39,17 @@ export async function sendAsset(values, push) {
 
 	const trx = await createAndSignTrxViaGasCompensator("InternalRevenueService", "Send", params);
 	const signedTrx = signTrx(trx, pk, true);
-	const trxHash = utils.reverseHex(signedTrx.getHash());
+	// TODO: test
+	// const trxHash = utils.reverseHex(signedTrx.getHash());
 
-	await registerSend({
-		asset: values.assetSymbol,
-		amount: convertedAmount,
-		receiverAddress: values.receiverAddress,
-		trxHash,
-	});
+	// await registerSend({
+	// 	asset: values.assetSymbol,
+	// 	amount: convertedAmount,
+	// 	receiverAddress: values.receiverAddress,
+	// 	trxHash,
+	// });
 
-	push("/");
+	// push("/");
 	return await timeout(sendTrx(signedTrx, false, true), notifyTimeout);
 }
 
