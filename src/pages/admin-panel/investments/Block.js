@@ -26,10 +26,10 @@ class BlockInvestor extends Component {
 						validate={({ user_name, user_password }) => {
 							let errors = {};
 							if (!user_name) {
-								errors.user_name = "required";
+								errors.user_name = "Required";
 							}
 							if (!user_password) {
-								errors.user_password = "required";
+								errors.user_password = "Required";
 							}
 							return errors;
 						}}

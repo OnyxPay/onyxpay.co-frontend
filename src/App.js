@@ -17,11 +17,6 @@ let Dashboard = Loadable({
 	loading: Loader,
 });
 
-let Investments = Loadable({
-	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/investments"),
-	loading: Loader,
-});
-
 let Complaints = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/requests/ComplaintsList"),
@@ -130,6 +125,11 @@ let ClosedOpRequests = Loadable({
 	loading: Loader,
 });
 
+let DevOptions = Loadable({
+	loader: () => import(/* webpackChunkName: "DevOptions" */ "./pages/admin-panel/devOptions"),
+	loading: Loader,
+});
+
 // permissions
 const User = Authorization([roles.c]);
 // const AgentAndSuperAgent = Authorization([roles.a, roles.sa]);
@@ -150,7 +150,6 @@ Withdraw = User(Withdraw);
 Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
-Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdmin(Complaints);
 ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
 Assets = AdminAndSuperAdmin(Assets);
@@ -161,6 +160,7 @@ ActiveOwnWithdrawRequests = All(ActiveOwnWithdrawRequests);
 ClosedOpRequests = All(ClosedOpRequests);
 Deposit = All(Deposit);
 ReferralProgram = All(ReferralProgram);
+DevOptions = AdminAndSuperAdmin(DevOptions);
 
 class App extends Component {
 	componentDidMount() {
@@ -210,6 +210,9 @@ class App extends Component {
 					<Route path="/active-requests/withdraw" exact component={ActiveOwnWithdrawRequests} />
 					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
 					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
+
+					{/* only for development and testing, should not be rendered in prod */}
+					<Route path="/admin/dev" exact component={DevOptions} />
 				</>
 			);
 		}
@@ -220,7 +223,6 @@ class App extends Component {
 			<Layout simplified={["/login"]}>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
-					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />

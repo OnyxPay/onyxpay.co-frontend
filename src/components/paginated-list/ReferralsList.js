@@ -37,6 +37,7 @@ function ReferralsList(props) {
 				columns={referralsTableColumns}
 				rowKey="addr"
 				fetchData={getReferralsList}
+				passedOpts={{}}
 				emptyTableMessage="You don't have any referrals yet."
 			/>
 		</>

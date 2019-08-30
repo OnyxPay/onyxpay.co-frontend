@@ -41,7 +41,7 @@ class PaginatedTable extends Component {
 	fetchTransactionHistory = async (opts = {}, hideLoading = false) => {
 		try {
 			const { pagination } = this.state;
-			const { fetchData } = this.props;
+			const { fetchData, passedOpts } = this.props;
 
 			if (!hideLoading) {
 				this.setState({ loading: true });
@@ -50,6 +50,7 @@ class PaginatedTable extends Component {
 				pageSize: pagination.pageSize,
 				pageNum: pagination.current,
 				...opts,
+				...passedOpts,
 			};
 			const res = await fetchData(params);
 			if (!res.error) {

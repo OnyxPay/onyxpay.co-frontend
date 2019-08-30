@@ -31,12 +31,12 @@ class ConfirmEmailModal extends Component {
 	checkUserStatus = async () => {
 		const { getUserData, hideModal, startLoading } = this.props;
 		startLoading();
-		const { user, error } = await getUserData();
-		if (!error) {
-			if (user.status === 1) {
+		const res = await getUserData();
+		if (res && !res.error) {
+			if (res.user.status === 1) {
 				hideModal();
 				// enable dashboard
-			} else if (user.email !== null) {
+			} else if (res.user.email !== null) {
 				this.changeView(1)();
 			}
 		}
@@ -80,7 +80,7 @@ class ConfirmEmailModal extends Component {
 							validate={values => {
 								let errors = {};
 								if (!values.email) {
-									errors.email = "required";
+									errors.email = "Required";
 								} else if (!isEmailValid(values.email)) {
 									errors.email = "Enter valid email";
 								}

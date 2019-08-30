@@ -21,6 +21,7 @@ import { handleBcError } from "api/network";
 import { isAssetBlocked as checkIsAssetBlocked } from "api/assets";
 import ShowUserDataModal from "components/modals/ShowUserData";
 import { convertAmountToStr } from "utils/number";
+import { getMode } from "api/dev-options";
 
 const modals = {
 	SEND_REQ_TO_AGENT: "SEND_REQ_TO_AGENT",
@@ -43,6 +44,7 @@ export default class ActiveRequests extends Component {
 			openedRequestData: {}, // set after ChoosePerformerModal is opened
 			selectedUserData: {},
 			selectedUserDataType: "",
+			requestHolderMode: null,
 		};
 		this.setState = this.setState.bind(this);
 		this.searchInput = "";
@@ -50,6 +52,16 @@ export default class ActiveRequests extends Component {
 
 	componentDidMount() {
 		const { location } = this.props;
+		if (process.env.REACT_APP_TAG !== "prod") {
+			getMode()
+				.then(mode => {
+					this.setState({ requestHolderMode: mode });
+				})
+				.catch(er => {
+					handleBcError(er);
+				});
+		}
+
 		const values = queryString.parse(location.search);
 		if (values.id) {
 			this.setState({ idParsedFromURL: values.id });
@@ -285,7 +297,13 @@ export default class ActiveRequests extends Component {
 
 	render() {
 		const { user, walletAddress, location, data, isFetching } = this.props;
-		const { requestId, activeAction, idParsedFromURL, openedRequestData } = this.state;
+		const {
+			requestId,
+			activeAction,
+			idParsedFromURL,
+			openedRequestData,
+			requestHolderMode,
+		} = this.state;
 		let columns = [];
 		let isAgentInitiator = isThisAgentInitiator(user.role, location);
 
@@ -307,6 +325,7 @@ export default class ActiveRequests extends Component {
 				},
 				performRequest: this.performRequest,
 				cancelRequest: this.cancelRequest,
+				requestHolderMode: requestHolderMode,
 			});
 		} else {
 			columns = renderPerformerColumns({
