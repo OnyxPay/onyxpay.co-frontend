@@ -154,16 +154,16 @@ function renderHideBtn(
 		if (isConfirmActive || isCancelAcceptedRequestActive) {
 			return (
 				<Button type="danger" disabled={true}>
-					Hide
+					Cancel
 				</Button>
 			);
 		} else {
 			return (
 				<Popconfirm
-					title="Sure to hide?"
+					title="Sure to cancel?"
 					onConfirm={() => hideRequest(record.id)} // messageId
 				>
-					<Button type="danger">Hide</Button>
+					<Button type="danger">Cancel</Button>
 				</Popconfirm>
 			);
 		}
