@@ -56,8 +56,8 @@ export const roles = {
 	c: "user",
 	a: "agent",
 	sa: "superagent", // at back-end
-	adm: "admin",
 	support: "support",
+	adm: "admin",
 	sadm: "super_admin",
 };
 export const roleCodes = {

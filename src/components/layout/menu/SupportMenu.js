@@ -26,11 +26,6 @@ class SupportMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="/admin/requests/user-upgrade">
-						<Link to="/admin/requests/user-upgrade" className="ant-menu-item-content">
-							<span>Account upgrade</span>
-						</Link>
-					</Menu.Item>
 					<Menu.Item key="/admin/requests/complaints">
 						<Link to="/admin/requests/complaints" className="ant-menu-item-content">
 							<span>Complaints</span>
