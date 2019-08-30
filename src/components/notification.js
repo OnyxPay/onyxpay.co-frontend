@@ -1,5 +1,8 @@
+import React from "react";
 import { notification } from "antd";
 import { parseBcError } from "utils/blockchain";
+import Countdown from "components/Countdown";
+import SupportLink from "components/SupportLink";
 
 /* 
 type:
@@ -45,5 +48,22 @@ export function showGasCompensationError() {
 		type: "error",
 		msg: "Gas compensation error",
 		desc: "Something went wrong at the gas compensation server",
+	});
+}
+
+export function showUserIsBlockedNotification() {
+	showNotification({
+		msg: (
+			<>
+				Your account has been blocked by administrator. Please&nbsp;
+				<SupportLink />
+			</>
+		),
+		desc: (
+			<strong>
+				You will be logged out after&nbsp;
+				<Countdown date={new Date().getTime() + 5000} onlySeconds={true} /> sec
+			</strong>
+		),
 	});
 }
