@@ -14,7 +14,7 @@ export default function ReferralLink() {
 	return (
 		<div>
 			<h3>
-				<b>Referral info</b>
+				<b>Referral information</b>
 			</h3>
 			<div className="referral-info">
 				<Input
