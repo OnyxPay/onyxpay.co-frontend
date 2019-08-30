@@ -269,7 +269,7 @@ export default function renderPerformerColumns({
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 					if (record.request) {
 						return record.request.takerAddr &&
 							record.request.takerAddr === walletAddress &&
@@ -290,7 +290,7 @@ export default function renderPerformerColumns({
 					} else if (record.request.statusCode === requestStatus.complained) {
 						return <SupportLink />;
 					}
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 
 					const isConfirmActive =
 						record.request.requestId === activeRequestId && activeAction === aa.confirm;

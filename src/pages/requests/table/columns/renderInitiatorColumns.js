@@ -186,7 +186,7 @@ export default function renderInitiatorColumns({
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 					return record.takerAddr && record.chooseTimestamp && record.status !== "complained" ? (
 						<Countdown date={new Date(record.chooseTimestamp).getTime() + h24Mc} />
 					) : null;
@@ -199,7 +199,7 @@ export default function renderInitiatorColumns({
 						return <SupportLink />;
 					}
 
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 
 					const isComplainActive =
 						record.requestId === activeRequestId && activeAction === aa.complain;
