@@ -157,25 +157,29 @@ function ProfileEditor(props) {
 				</p>
 			</Modal>
 			<Modal
-				title="Confirmation of the email change"
+				title="Confirm email change"
 				visible={confirmEmailVisible}
 				okText="Confirm"
 				onOk={() => {
-					console.info(emailConfirmationInputRef.state.value);
 					confirmEmail({ token: emailConfirmationInputRef.state.value }).then(
 						() => {
 							showNotification({
 								type: "success",
-								msg: "Email was changed successfully",
+								msg: "Email address has been changed successfully",
 							});
 							props.getUserData();
 						},
 						err => {
 							console.error(err.response.data.errors);
+
+							let desc =
+								err.response.data.errors.token === "Invalid confirmation token"
+									? "Confirmation code is incorrect. Please try again"
+									: `Details: ${err.response.data.errors.token}`;
 							showNotification({
 								type: "error",
-								msg: "Error updating email",
-								desc: `Details: ${err.response.data.errors.token}`,
+								msg: "Update email error:",
+								desc: desc,
 							});
 						}
 					);
@@ -183,7 +187,7 @@ function ProfileEditor(props) {
 				}}
 				onCancel={() => setConfirmEmailVisible(false)}
 			>
-				<p>Please, enter the confirmation code from your email.</p>
+				<p>Please check your email to verify the address and enter a confirmation code below.</p>
 				<Input ref={input => (emailConfirmationInputRef = input)} />
 			</Modal>
 		</div>
