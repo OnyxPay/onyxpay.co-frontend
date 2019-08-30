@@ -34,7 +34,7 @@ export async function changeMode(newMode) {
 	return addSignAndSendTrx(trx.serialize(), pk);
 }
 
-export async function getMode(userId) {
+export async function getMode() {
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {
