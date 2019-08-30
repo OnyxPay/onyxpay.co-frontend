@@ -79,7 +79,13 @@ class AssetsList extends Component {
 	};
 
 	showModalSetExchangeRates = (symbol, buyPrice, sellPrice) => () => {
-		this.setState({ tokenId: symbol, buyPrice, sellPrice, ADD_SET_EXCHANGE_RATES: true });
+		this.setState({
+			tokenId: symbol,
+			buyPrice,
+			sellPrice,
+			ADD_SET_EXCHANGE_RATES: true,
+			disableBtn: false,
+		});
 	};
 
 	hideModalSetExchangeRates = type => () => {
@@ -123,6 +129,9 @@ class AssetsList extends Component {
 
 	refreshTable = async () => {
 		await this.fetchAssets();
+		this.setState({
+			disableBtn: false,
+		});
 	};
 
 	handleTableChange = (pagination, filters) => {
