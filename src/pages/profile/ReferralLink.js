@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Input, Icon, Button } from "antd";
+import { Input, Icon, Button, Typography } from "antd";
 import { BackendUrl } from "api/constants";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ShowQRCode from "components/modals/ShowQRCode";
 import { showNotification } from "components/notification";
+
+const { Text } = Typography;
 
 export default function ReferralLink() {
 	const [isModalVisible, showModal] = useState(false);
@@ -16,6 +18,10 @@ export default function ReferralLink() {
 			<h3>
 				<b>Referral information</b>
 			</h3>
+			<Text>
+				Share and earn: share a referral link to invite new members. You will receive a reward each
+				time your invitees perform a transaction.
+			</Text>
 			<div className="referral-info">
 				<Input
 					addonBefore="Referral link:"
