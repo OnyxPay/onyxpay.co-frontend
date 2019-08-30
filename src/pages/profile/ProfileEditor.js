@@ -152,8 +152,8 @@ function ProfileEditor(props) {
 				onCancel={() => setUpdatePhoneModalVisible(false)}
 			>
 				<p>
-					To change the phone number you should click "Open Telegram" button. And allow to receive
-					your phone number by the Telegram bot. Your phone number will be updated automatically.
+					To change your phone number, please click Open Telegram button below. You need to login to
+					Telegram with a phone number first. Then, please follow Telegram bot instructions.
 				</p>
 			</Modal>
 			<Modal
