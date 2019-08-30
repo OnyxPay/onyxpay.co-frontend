@@ -42,19 +42,18 @@ function renderCancelBtn(
 	isCancelAcceptedRequestActive,
 	requestsType
 ) {
-	if (record.status !== "accepted") {
-		return null;
-	}
 	let buttonText = "Return assets";
 	let confirmText = "Sure to return assets?";
-	if (!record.request.takerAddr) {
+	if (record.status !== "accepted" || requestsType === "withdraw") {
+		return null;
+	} else if (!record.request.takerAddr) {
 		// performer are not selected
 		buttonText =
 			record.request.statusCode === requestStatus.rejected
 				? "Return locked assets"
 				: "Cancel acceptation";
 		confirmText = "Sure to cancel acceptation?";
-	} else if (requestsType !== "withdraw" && !checkDepositRequirements(record, walletAddress)) {
+	} else if (!checkDepositRequirements(record, walletAddress)) {
 		return null;
 	} else {
 		return null;
