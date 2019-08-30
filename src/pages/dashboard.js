@@ -44,11 +44,11 @@ class Home extends Component {
 			<>
 				<PageTitle>Dashboard</PageTitle>
 				<Balance />
-				{this.props.user.status === userStatus.active ? (
-					<Card title="Recent Transactions">
-						<OperationsWidget />
-					</Card>
-				) : null}
+
+				<Card title="Recent Transactions">
+					<OperationsWidget />
+				</Card>
+
 				<ConfirmEmailModal isModalVisible={isConfirmEmailModalVisible} hideModal={this.hideModal} />
 			</>
 		);

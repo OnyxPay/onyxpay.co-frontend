@@ -152,4 +152,4 @@ export const refreshBalanceEveryMsec = 30000;
 
 export const gasCompensatorTimeout = 30000;
 
-export const supportEmail = "support@onyxPay.co";
+export const supportEmail = "support@onyxpay.co";
