@@ -2,12 +2,13 @@ import React from "react";
 import { Button, Popconfirm, Tooltip } from "antd";
 import { convertAmountToStr } from "utils/number";
 import { getLocalTime, getPerformerName, is24hOver, is12hOver } from "utils";
-import { h24Mc, operationMessageStatus } from "api/constants";
+import { h24Mc, operationMessageStatus, requestStatus } from "api/constants";
 import Countdown from "components/Countdown";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
 import { renderPerformBtn, isTimeUp } from "../index";
 import { styles } from "../../styles";
+import SupportLink from "components/SupportLink";
 
 function punishForCancelation(trxCreated, thresholdToPunishInHr) {
 	const timePassedMs = new Date().getTime() - new Date(trxCreated).getTime();
@@ -20,18 +21,16 @@ function isAgentAccepted(operationMessages) {
 	return operationMessages.some(mg => mg.statusCode === operationMessageStatus.accepted);
 }
 
-function renderComplainButton(record, handleComplain, isComplainActive) {
+function renderComplainButton(record, handleComplain, isComplainActive, requestHolderMode) {
 	let button;
-	if (!is12hOver(record.chooseTimestamp)) {
-		button = (
-			<Button
-				type="danger"
-				onClick={() => handleComplain(record.requestId, false)} // can't complain
-			>
-				Complain
-			</Button>
-		);
-	} else {
+	let allowToComplain = false;
+	if (requestHolderMode && requestHolderMode !== 0) {
+		allowToComplain = true;
+	} else if (is12hOver(record.chooseTimestamp)) {
+		allowToComplain = true;
+	}
+
+	if (allowToComplain) {
 		if (isComplainActive) {
 			button = (
 				<Button type="danger" loading={isComplainActive} disabled={isComplainActive}>
@@ -51,6 +50,15 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 				</Popconfirm>
 			);
 		}
+	} else {
+		button = (
+			<Button
+				type="danger"
+				onClick={() => handleComplain(record.requestId, false)} // can't complain
+			>
+				Complain
+			</Button>
+		);
 	}
 	return button;
 }
@@ -112,6 +120,7 @@ export default function renderInitiatorColumns({
 	performRequest, // for withdraw
 	cancelRequest,
 	showSelectedUserDataModal,
+	requestHolderMode,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -134,6 +143,9 @@ export default function renderInitiatorColumns({
 				dataIndex: "status",
 				render: (text, record, index) => {
 					if (record._isDisabled) return "wait...";
+					if (record.takerAddr && record.statusCode === requestStatus.choose) {
+						return "waiting for perform";
+					}
 					return record.status;
 				},
 			},
@@ -154,9 +166,7 @@ export default function renderInitiatorColumns({
 						>
 							{getPerformerName(record.takerAddr, record.taker)}
 						</Button>
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
@@ -170,9 +180,7 @@ export default function renderInitiatorColumns({
 								onClick={e => showUserSettlementsModal(record.taker.id)}
 							/>
 						</Tooltip>
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
@@ -181,15 +189,18 @@ export default function renderInitiatorColumns({
 					if (record._isDisabled) return "n/a";
 					return record.takerAddr && record.chooseTimestamp && record.status !== "complained" ? (
 						<Countdown date={new Date(record.chooseTimestamp).getTime() + h24Mc} />
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
 				title: "Actions",
 				render: (text, record, index) => {
+					if (record.statusCode === requestStatus.complained) {
+						return <SupportLink />;
+					}
+
 					if (record._isDisabled) return "n/a";
+
 					const isComplainActive =
 						record.requestId === activeRequestId && activeAction === aa.complain;
 
@@ -244,16 +255,15 @@ export default function renderInitiatorColumns({
 								isCancelRequestActive
 							)}
 
-							{/* Complain on request */}
-							{record.takerAddr &&
-								record.chooseTimestamp &&
-								record.status !== "complained" &&
-								!is24hOver(record.chooseTimestamp) &&
-								renderComplainButton(record, handleComplain, isComplainActive)}
-
 							{/* Perform withdraw request */}
 							{requestsType === "withdraw" &&
 								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
+
+							{/* Complain on request */}
+							{record.takerAddr &&
+								record.chooseTimestamp &&
+								!is24hOver(record.chooseTimestamp) &&
+								renderComplainButton(record, handleComplain, isComplainActive, requestHolderMode)}
 						</>
 					);
 				},

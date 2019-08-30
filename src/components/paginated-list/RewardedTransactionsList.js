@@ -31,6 +31,7 @@ function RewardedTransactionsList(props) {
 				columns={referralsTableColumns}
 				rowKey="id"
 				fetchData={getRewardsList}
+				passedOpts={{}}
 				emptyTableMessage="You don't have any rewarded transactions yet."
 			/>
 		</>

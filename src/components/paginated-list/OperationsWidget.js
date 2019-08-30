@@ -3,15 +3,22 @@ import { getOperationHistory } from "api/transactions-history";
 import { convertAmountToStr } from "utils/number";
 import PaginatedTable from "./PaginatedTable";
 
+const checkOperationType = operationType => {
+	if (operationType === "buy_onyx_cash") {
+		return "deposit onyxcash";
+	}
+	return operationType;
+};
+
 const operationHistoryColumns = [
 	{
 		title: "Operation type",
 		dataIndex: "operationType",
 		key: "operationType",
-		render: operationType => (operationType ? operationType : "n/a"),
+		render: operationType => (operationType ? checkOperationType(operationType) : "n/a"),
 	},
 	{
-		title: "Requester",
+		title: "Initiator",
 		dataIndex: "sender",
 		key: "from",
 		render: sender => (sender ? sender.firstName + " " + sender.lastName : "n/a"),
@@ -55,6 +62,7 @@ function OperationsWidget(props) {
 				columns={operationHistoryColumns}
 				rowKey="operationId"
 				fetchData={getOperationHistory}
+				passedOpts={{ status: "completed" }}
 				emptyTableMessage="You haven't performed any operations yet."
 			/>
 		</>

@@ -47,7 +47,6 @@ const assetsColumns = [
 		title: "Balance",
 		dataIndex: "balance",
 		key: "balance",
-		width: "9em",
 	},
 ];
 
@@ -84,7 +83,6 @@ class AssetsExchange extends Component {
 
 		for (let i in assetsData) {
 			let item = assetsData[i];
-
 			if (type === "buy" && item.buyPrice) {
 				res.push(item);
 			} else if (type === "sell" && item.sellPrice) {
@@ -100,7 +98,12 @@ class AssetsExchange extends Component {
 	}
 
 	getAssetsForSellData() {
-		return this.getAssetsForTypeData("sell");
+		const { user } = this.props;
+
+		let assetsForSell = this.getAssetsForTypeData("sell");
+		return user.role === roles.sa
+			? assetsForSell.filter(asset => asset.name !== onyxCashSymbol)
+			: assetsForSell;
 	}
 
 	fillAssetsData = async () => {
@@ -163,7 +166,7 @@ class AssetsExchange extends Component {
 			defaultAssetToBuyName = defaultAssetToBuy.name;
 			selectedCorrectDefaultAssets = true;
 		} else if (user.role === roles.sa) {
-			if (assetsForSellData.length >= 2) {
+			if (assetsForSellData.length >= 1) {
 				const defaultAssetToBuy = assetsForBuyData[0];
 				const defaultAssetToSell = assetsForSellData.find(
 					record => record.name !== defaultAssetToBuy.name
@@ -630,7 +633,7 @@ class AssetsExchange extends Component {
 					</Row>
 					<Divider />
 					<Row gutter={48} className="exchange-tables">
-						<Col md={48} lg={24}>
+						<Col lg={24} xl={12}>
 							<Table
 								columns={assetsColumns}
 								dataSource={this.state.assetsData}

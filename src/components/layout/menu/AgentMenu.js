@@ -31,10 +31,10 @@ class AgentMenu extends Component {
 						<Link to="/deposit-onyx-cash">Deposit</Link>
 					</Menu.Item>
 					<Menu.Item key="/active-requests/deposit-onyx-cash">
-						<Link to="/active-requests/deposit-onyx-cash">Active deposit requests</Link>
+						<Link to="/active-requests/deposit-onyx-cash">My active deposit requests</Link>
 					</Menu.Item>
 					<Menu.Item key="/closed-requests/deposit-onyx-cash">
-						<Link to="/closed-requests/deposit-onyx-cash">Closed deposit requests</Link>
+						<Link to="/closed-requests/deposit-onyx-cash">My closed deposit request</Link>
 					</Menu.Item>
 				</SubMenu>
 				{role === roles.a ? (
@@ -47,11 +47,11 @@ class AgentMenu extends Component {
 							</span>
 						}
 					>
-						<Menu.Item key="/active-requests/deposit">
-							<Link to="/active-requests/deposit">Active deposit requests</Link>
+						<Menu.Item key="/active-customer-requests/deposit">
+							<Link to="/active-customer-requests/deposit">Active deposit requests</Link>
 						</Menu.Item>
-						<Menu.Item key="/active-requests/withdraw">
-							<Link to="/active-requests/withdraw">Active withdraw requests</Link>
+						<Menu.Item key="/active-customer-requests/withdraw">
+							<Link to="/active-customer-requests/withdraw">Active withdraw requests</Link>
 						</Menu.Item>
 
 						<Menu.Item key="/closed-requests/deposit">
@@ -67,7 +67,7 @@ class AgentMenu extends Component {
 						title={
 							<span className="ant-menu-item-content">
 								<Icon type="team" />
-								<span>Customer requests</span>
+								<span>Agents requests</span>
 							</span>
 						}
 					>

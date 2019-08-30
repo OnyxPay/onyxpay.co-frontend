@@ -17,11 +17,6 @@ let Dashboard = Loadable({
 	loading: Loader,
 });
 
-let Investments = Loadable({
-	loader: () => import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/investments"),
-	loading: Loader,
-});
-
 let Complaints = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "Admin" */ "./pages/admin-panel/requests/ComplaintsList"),
@@ -100,15 +95,38 @@ let UserUpgradeRequests = Loadable({
 	loading: Loader,
 });
 
-let ActiveOpRequests = Loadable({
+let ActiveCustomerDepositRequests = Loadable({
 	loader: () =>
-		import(/* webpackChunkName: "ActiveOpRequests" */ "./pages/requests/ActiveRequests"),
+		import(/* webpackChunkName: "ActiveCustomerDepositRequests" */ "./pages/requests/ActiveCustomerDepositRequests"),
+	loading: Loader,
+});
+
+let ActiveCustomerWithdrawRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ActiveCustomerWithdrawRequests" */ "./pages/requests/ActiveCustomerWithdrawRequests"),
+	loading: Loader,
+});
+
+let ActiveOwnDepositRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ActiveOwnDepositRequests" */ "./pages/requests/ActiveOwnDepositRequests"),
+	loading: Loader,
+});
+
+let ActiveOwnWithdrawRequests = Loadable({
+	loader: () =>
+		import(/* webpackChunkName: "ActiveCustomerWithdrawRequests" */ "./pages/requests/ActiveOwnWithdrawRequests"),
 	loading: Loader,
 });
 
 let ClosedOpRequests = Loadable({
 	loader: () =>
 		import(/* webpackChunkName: "ClosedOpRequests" */ "./pages/requests/ClosedRequests"),
+	loading: Loader,
+});
+
+let DevOptions = Loadable({
+	loader: () => import(/* webpackChunkName: "DevOptions" */ "./pages/admin-panel/devOptions"),
 	loading: Loader,
 });
 
@@ -132,14 +150,17 @@ Withdraw = User(Withdraw);
 Profile = AllRoles(Profile);
 Users = AdminAndSuperAdmin(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
-Investments = AdminAndSuperAdmin(Investments);
 Complaints = AdminAndSuperAdmin(Complaints);
 ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
 Assets = AdminAndSuperAdmin(Assets);
-ActiveOpRequests = All(ActiveOpRequests);
+ActiveCustomerDepositRequests = All(ActiveCustomerDepositRequests);
+ActiveCustomerWithdrawRequests = All(ActiveCustomerWithdrawRequests);
+ActiveOwnDepositRequests = All(ActiveOwnDepositRequests);
+ActiveOwnWithdrawRequests = All(ActiveOwnWithdrawRequests);
 ClosedOpRequests = All(ClosedOpRequests);
 Deposit = All(Deposit);
 ReferralProgram = All(ReferralProgram);
+DevOptions = AdminAndSuperAdmin(DevOptions);
 
 class App extends Component {
 	componentDidMount() {
@@ -157,13 +178,27 @@ class App extends Component {
 					<Route path="/withdraw" exact component={Withdraw} />
 					<Route path="/deposit-onyx-cash" exact component={Deposit} />
 					{/* Agent initiator || Super agent initiator */}
-					<Route path="/active-requests/deposit-onyx-cash" exact component={ActiveOpRequests} />
+					<Route
+						path="/active-requests/deposit-onyx-cash"
+						exact
+						component={ActiveOwnDepositRequests}
+					/>
 					<Route path="/closed-requests/deposit-onyx-cash" exact component={ClosedOpRequests} />
+					<Route
+						path="/active-customer-requests/deposit"
+						exact
+						component={ActiveCustomerDepositRequests}
+					/>
+					<Route
+						path="/active-customer-requests/withdraw"
+						exact
+						component={ActiveCustomerWithdrawRequests}
+					/>
 					{/* Super agent performer */}
 					<Route
 						path="/active-customer-requests/deposit-onyx-cash"
 						exact
-						component={ActiveOpRequests}
+						component={ActiveCustomerDepositRequests}
 					/>
 					<Route
 						path="/closed-customer-requests/deposit-onyx-cash"
@@ -171,10 +206,13 @@ class App extends Component {
 						component={ClosedOpRequests}
 					/>
 					{/* Agent performer || client initiator */}
-					<Route path="/active-requests/deposit" exact component={ActiveOpRequests} />
-					<Route path="/active-requests/withdraw" exact component={ActiveOpRequests} />
+					<Route path="/active-requests/deposit" exact component={ActiveOwnDepositRequests} />
+					<Route path="/active-requests/withdraw" exact component={ActiveOwnWithdrawRequests} />
 					<Route path="/closed-requests/deposit" exact component={ClosedOpRequests} />
 					<Route path="/closed-requests/withdraw" exact component={ClosedOpRequests} />
+
+					{/* only for development and testing, should not be rendered in prod */}
+					<Route path="/admin/dev" exact component={DevOptions} />
 				</>
 			);
 		}
@@ -185,7 +223,6 @@ class App extends Component {
 			<Layout simplified={["/login"]}>
 				<Switch>
 					<Route path="/" exact component={Dashboard} />
-					<Route path="/admin/investments" exact component={Investments} />
 					<Route path="/admin/users" exact component={Users} />
 					<Route path="/admin/assets" exact component={Assets} />
 					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />

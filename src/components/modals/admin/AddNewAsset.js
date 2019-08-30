@@ -45,10 +45,10 @@ class AddNewAsset extends Component {
 						validate={({ assets_symbol, asset_name }) => {
 							let errors = {};
 							if (!assets_symbol) {
-								errors.assets_symbol = "required";
+								errors.assets_symbol = "Required";
 							}
 							if (!asset_name) {
-								errors.asset_name = "required";
+								errors.asset_name = "Required";
 							}
 							return errors;
 						}}
