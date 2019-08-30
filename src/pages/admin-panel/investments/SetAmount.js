@@ -33,10 +33,10 @@ class SetAmount extends Component {
 						validate={({ user_name, user_password, user_confirm_password, amount }) => {
 							let errors = {};
 							if (!user_name) {
-								errors.user_name = "required";
+								errors.user_name = "Required";
 							}
 							if (!amount) {
-								errors.amount = "required";
+								errors.amount = "Required";
 							}
 							if (amount && amount < 0) {
 								errors.amount = "Amount must be more than 0";
@@ -45,10 +45,10 @@ class SetAmount extends Component {
 								errors.amount = "Amount must be more than 0";
 							}
 							if (!user_password) {
-								errors.user_password = "required";
+								errors.user_password = "Required";
 							}
 							if (!user_confirm_password) {
-								errors.user_confirm_password = "required";
+								errors.user_confirm_password = "Required";
 							}
 							if (
 								user_password &&

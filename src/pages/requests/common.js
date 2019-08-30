@@ -30,6 +30,12 @@ export function renderPageTitle({ requestType, isRequestClosed, isUserInitiator 
 		requestStatus = "Active";
 	}
 
+	if (isRequestClosed && requestType === "buy_onyx_cash" && isUserInitiator) {
+		requestStatus = "My closed";
+	} else if (!isRequestClosed && requestType === "buy_onyx_cash" && isUserInitiator) {
+		requestStatus = "My active";
+	}
+
 	if (requestType === "buy_onyx_cash") {
 		requestType = "deposit OnyxCash";
 	}

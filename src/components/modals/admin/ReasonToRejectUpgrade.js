@@ -28,7 +28,7 @@ class ReasonToRejectUpgradeModal extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.reason) {
-								errors.reason = "required";
+								errors.reason = "Required";
 							}
 							return errors;
 						}}

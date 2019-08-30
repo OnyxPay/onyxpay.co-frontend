@@ -38,11 +38,11 @@ function renderCancelBtn(
 		buttonText =
 			record.request.statusCode === requestStatus.rejected
 				? "Return locked assets"
-				: "Cancel acceptation";
+				: "Cancel confirmation";
 		if (isCancelAcceptedRequestActive) {
 			buttonType = "default";
 		} else {
-			confirmText = "Sure to cancel acceptation?";
+			confirmText = "Sure to cancel confirmation?";
 			buttonType = "confirm";
 		}
 	} else if (record.status === "accepted" && isAnotherSelected && requestsType !== "withdraw") {
@@ -116,7 +116,7 @@ function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
 		} else {
 			return (
 				<Popconfirm
-					title="Sure to accept?"
+					title="Sure?"
 					onConfirm={() =>
 						confirmRequest(
 							record.request.requestId,
@@ -262,9 +262,7 @@ export default function renderPerformerColumns({
 										onClick={e => showUserSettlementsModal(record.sender.id)}
 									/>
 								</Tooltip>
-							) : (
-								"n/a"
-							);
+							) : null;
 						},
 				  }
 				: { className: "hidden-column" },
@@ -278,9 +276,7 @@ export default function renderPerformerColumns({
 							record.request.statusCode !== requestStatus.complained &&
 							record.request.chooseTimestamp ? (
 							<Countdown date={new Date(record.request.chooseTimestamp).getTime() + h24Mc} />
-						) : (
-							"n/a"
-						);
+						) : null;
 					} else {
 						return null;
 					}

@@ -78,6 +78,8 @@ const DropdownMenu = ({ logOut, user }) => {
 				</Menu.Item>
 			</Menu>
 		);
+	} else {
+		return null;
 	}
 
 	return (

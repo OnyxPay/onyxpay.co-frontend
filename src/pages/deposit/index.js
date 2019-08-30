@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Input, Form, Select, Typography, Row, Col, Alert } from "antd";
+import { Card, Button, Input, Form, Select, Row, Col, Alert } from "antd";
 import { Formik } from "formik";
 import { PageTitle } from "../../components";
 import Actions from "../../redux/actions";
@@ -20,7 +20,6 @@ import {
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 
 const { Option } = Select;
-const { Text } = Typography;
 
 class Deposit extends Component {
 	state = {
@@ -66,13 +65,13 @@ class Deposit extends Component {
 				isBlocked = await isAssetBlocked(values.asset_symbol);
 				if (isBlocked) {
 					formActions.setSubmitting(false);
-					return formActions.setFieldError("asset_symbol", "asset is blocked at the moment");
+					return formActions.setFieldError("asset_symbol", "Asset is blocked at the moment");
 				}
 
 				isEnoughAmount = this.isEnoughAmount(values.amount, values.asset_symbol);
 				if (!isEnoughAmount) {
 					formActions.setSubmitting(false);
-					return formActions.setFieldError("amount", "min amount is 1 USD");
+					return formActions.setFieldError("amount", "Min amount is 1 USD");
 				}
 			}
 
@@ -126,16 +125,16 @@ class Deposit extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.asset_symbol) {
-								errors.asset_symbol = "required";
+								errors.asset_symbol = "Required";
 							}
 							if (!values.amount) {
-								errors.amount = "required";
+								errors.amount = "Required";
 							} else if (values.amount <= 0) {
-								errors.amount = "only positive values are allowed";
+								errors.amount = "Only positive values are allowed";
 							} else if ((user.role === roles.a || user.role === roles.sa) && values.amount < 1) {
-								errors.amount = `min amount is 1 ${onyxCashSymbol}`;
+								errors.amount = `Min amount is 1 ${onyxCashSymbol}`;
 							} else if (countDecimals(values.amount) > 8) {
-								errors.amount = "max number of decimal places is 8";
+								errors.amount = "Max number of decimal places is 8";
 							}
 
 							return errors;
@@ -189,15 +188,6 @@ class Deposit extends Component {
 													<Input name="asset_symbol" disabled={true} value={values.asset_symbol} />
 												)}
 											</Form.Item>
-											{user.role === roles.c ? (
-												<Text
-													type="secondary"
-													style={{ display: "block", margin: "-12px 0 12px 0" }}
-												>
-													{!activeRequestsError &&
-														"Only selected fiat currency can be sent to the agent"}
-												</Text>
-											) : null}
 										</Col>
 
 										<Col lg={12} md={24}>
@@ -233,10 +223,18 @@ class Deposit extends Component {
 									{activeRequestsError && (
 										<Alert
 											style={{ marginTop: 16 }}
-											message="Limit of active requests(10) is exceeded. To create new requests you should resolve some of the old ones"
+											message="Limit of active deposit and withdraw requests (10) is exceeded. To create new requests you should resolve some of the old ones."
 											type="error"
 										/>
 									)}
+
+									{user.role === roles.c && !activeRequestsError ? (
+										<Alert
+											style={{ marginTop: 16 }}
+											message="Only selected fiat currency can be sent to the agent"
+											type="info"
+										/>
+									) : null}
 								</form>
 							);
 						}}

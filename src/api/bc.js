@@ -72,7 +72,6 @@ export async function sendTrx(trx, preExec = false, waitNotify = false) {
 }
 
 export async function addSignAndSendTrx(serializedTrx, pk) {
-	console.log("!!");
 	const signedTrx = signTrx(serializedTrx, pk, true);
 	return await timeout(sendTrx(signedTrx, false, true), notifyTimeout);
 }
