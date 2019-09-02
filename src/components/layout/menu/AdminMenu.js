@@ -11,12 +11,6 @@ class AdminMenu extends Component {
 		const { location } = this.props;
 		return (
 			<Menu theme="dark" selectedKeys={[location.pathname]} mode="inline">
-				<Menu.Item key="/admin/investments">
-					<Link to="/admin/investments" className="ant-menu-item-content">
-						<Icon type="pay-circle" />
-						<span>Investments</span>
-					</Link>
-				</Menu.Item>
 				<Menu.Item key="/admin/users">
 					<Link to="/admin/users" className="ant-menu-item-content">
 						<Icon type="user" />
@@ -54,6 +48,15 @@ class AdminMenu extends Component {
 						</Link>
 					</Menu.Item>
 				</SubMenu>
+
+				{process.env.REACT_APP_TAG !== "prod" && (
+					<Menu.Item key="/admin/dev">
+						<Link to="/admin/dev" className="ant-menu-item-content">
+							<Icon type="tool" />
+							<span>Dev options</span>
+						</Link>
+					</Menu.Item>
+				)}
 			</Menu>
 		);
 	}

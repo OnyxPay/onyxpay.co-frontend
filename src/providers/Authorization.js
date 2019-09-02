@@ -44,7 +44,7 @@ function Authorization(allowedRoles) {
 					// user is unconfirmed show Confirmation modal
 					return <WrappedComponent {...this.props} />;
 				} else if (user.role === roles.adm || user.role === roles.sadm) {
-					return <Redirect to="/admin/investments" />;
+					return <Redirect to="/admin/users" />;
 				} else if (!allowedRoles.includes(user.role)) {
 					return <Redirect to="/login" />;
 				} else {

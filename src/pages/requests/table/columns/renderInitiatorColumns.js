@@ -21,18 +21,16 @@ function isAgentAccepted(operationMessages) {
 	return operationMessages.some(mg => mg.statusCode === operationMessageStatus.accepted);
 }
 
-function renderComplainButton(record, handleComplain, isComplainActive) {
+function renderComplainButton(record, handleComplain, isComplainActive, requestHolderMode) {
 	let button;
-	if (!is12hOver(record.chooseTimestamp)) {
-		button = (
-			<Button
-				type="danger"
-				onClick={() => handleComplain(record.requestId, false)} // can't complain
-			>
-				Complain
-			</Button>
-		);
-	} else {
+	let allowToComplain = false;
+	if (requestHolderMode && requestHolderMode !== 0) {
+		allowToComplain = true;
+	} else if (is12hOver(record.chooseTimestamp)) {
+		allowToComplain = true;
+	}
+
+	if (allowToComplain) {
 		if (isComplainActive) {
 			button = (
 				<Button type="danger" loading={isComplainActive} disabled={isComplainActive}>
@@ -52,6 +50,15 @@ function renderComplainButton(record, handleComplain, isComplainActive) {
 				</Popconfirm>
 			);
 		}
+	} else {
+		button = (
+			<Button
+				type="danger"
+				onClick={() => handleComplain(record.requestId, false)} // can't complain
+			>
+				Complain
+			</Button>
+		);
 	}
 	return button;
 }
@@ -113,6 +120,7 @@ export default function renderInitiatorColumns({
 	performRequest, // for withdraw
 	cancelRequest,
 	showSelectedUserDataModal,
+	requestHolderMode,
 }) {
 	if (requestsStatus === "active") {
 		return [
@@ -158,9 +166,7 @@ export default function renderInitiatorColumns({
 						>
 							{getPerformerName(record.takerAddr, record.taker)}
 						</Button>
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
@@ -174,20 +180,16 @@ export default function renderInitiatorColumns({
 								onClick={e => showUserSettlementsModal(record.taker.id)}
 							/>
 						</Tooltip>
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 					return record.takerAddr && record.chooseTimestamp && record.status !== "complained" ? (
 						<Countdown date={new Date(record.chooseTimestamp).getTime() + h24Mc} />
-					) : (
-						"n/a"
-					);
+					) : null;
 				},
 			},
 			{
@@ -197,7 +199,7 @@ export default function renderInitiatorColumns({
 						return <SupportLink />;
 					}
 
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 
 					const isComplainActive =
 						record.requestId === activeRequestId && activeAction === aa.complain;
@@ -253,15 +255,15 @@ export default function renderInitiatorColumns({
 								isCancelRequestActive
 							)}
 
+							{/* Perform withdraw request */}
+							{requestsType === "withdraw" &&
+								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
+
 							{/* Complain on request */}
 							{record.takerAddr &&
 								record.chooseTimestamp &&
 								!is24hOver(record.chooseTimestamp) &&
-								renderComplainButton(record, handleComplain, isComplainActive)}
-
-							{/* Perform withdraw request */}
-							{requestsType === "withdraw" &&
-								renderPerformBtn(record, performRequest, null, requestsType, isPerformActive)}
+								renderComplainButton(record, handleComplain, isComplainActive, requestHolderMode)}
 						</>
 					);
 				},

@@ -82,6 +82,11 @@ class ChoosePerformer extends Component {
 					if (splittedAssetSymbol[0] === "o") {
 						assetSymbol = splittedAssetSymbol.slice(1).join("");
 					}
+
+					if (assetSymbol === "OnyxCash") {
+						assetSymbol = "USD";
+					}
+
 					const performerRole =
 						openedRequestData.type === "deposit"
 							? formatUserRole("agent")

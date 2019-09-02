@@ -10,7 +10,7 @@ class ReferralProgram extends Component {
 		return (
 			<>
 				<div className="referral-page">
-					<PageTitle>Referral Program Info</PageTitle>
+					<PageTitle>Referral Program Information</PageTitle>
 					<ReferralReward />
 
 					<Card title={"Referrals list"} className="card-table-container">

@@ -87,7 +87,7 @@ function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
 		} else {
 			return (
 				<Popconfirm
-					title="Sure to accept?"
+					title="Sure?"
 					onConfirm={() =>
 						confirmRequest(
 							record.request.requestId,
@@ -125,16 +125,16 @@ function renderHideBtn(
 		if (isConfirmActive || isCancelAcceptedRequestActive) {
 			return (
 				<Button type="danger" disabled={true}>
-					Hide
+					Cancel
 				</Button>
 			);
 		} else {
 			return (
 				<Popconfirm
-					title="Sure to hide?"
+					title="Sure to cancel?"
 					onConfirm={() => hideRequest(record.id)} // messageId
 				>
-					<Button type="danger">Hide</Button>
+					<Button type="danger">Cancel</Button>
 				</Popconfirm>
 			);
 		}
@@ -233,25 +233,21 @@ export default function renderPerformerColumns({
 										onClick={e => showUserSettlementsModal(record.sender.id)}
 									/>
 								</Tooltip>
-							) : (
-								"n/a"
-							);
+							) : null;
 						},
 				  }
 				: { className: "hidden-column" },
 			{
 				title: "Countdown",
 				render: (text, record, index) => {
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 					if (record.request) {
 						return record.request.takerAddr &&
 							record.request.takerAddr === walletAddress &&
 							record.request.statusCode !== requestStatus.complained &&
 							record.request.chooseTimestamp ? (
 							<Countdown date={new Date(record.request.chooseTimestamp).getTime() + h24Mc} />
-						) : (
-							"n/a"
-						);
+						) : null;
 					} else {
 						return null;
 					}
@@ -265,7 +261,7 @@ export default function renderPerformerColumns({
 					} else if (record.request.statusCode === requestStatus.complained) {
 						return <SupportLink />;
 					}
-					if (record._isDisabled) return "n/a";
+					if (record._isDisabled) return null;
 
 					const isConfirmActive =
 						record.request.requestId === activeRequestId && activeAction === aa.confirm;
