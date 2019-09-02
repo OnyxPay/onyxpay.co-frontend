@@ -49,7 +49,15 @@ const operationHistoryColumns = [
 		title: "Fee",
 		dataIndex: "fee",
 		key: "fee",
-		render: fee => (fee ? convertAmountToStr(fee, 8) : "n/a"),
+		render: fee => {
+			if (fee === 0) {
+				return 0;
+			} else if (fee) {
+				return convertAmountToStr(fee, 8);
+			} else {
+				return "n/a";
+			}
+		},
 	},
 	{
 		title: "Asset",
