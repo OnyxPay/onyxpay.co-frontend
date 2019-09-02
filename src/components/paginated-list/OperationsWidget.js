@@ -63,6 +63,12 @@ const operationHistoryColumns = [
 		key: "amount",
 		render: amount => (amount ? convertAmountToStr(amount, 8) : "n/a"),
 	},
+	{
+		title: "Status",
+		dataIndex: "status",
+		key: "status",
+		render: status => (status ? status : "n/a"),
+	},
 ];
 
 function OperationsWidget(props) {
@@ -72,8 +78,7 @@ function OperationsWidget(props) {
 				columns={operationHistoryColumns}
 				rowKey="id"
 				fetchData={getOperationHistory}
-				// TODO: add pending status
-				passedOpts={{ status: "completed" }}
+				passedOpts={{ status: "completed,wait" }}
 				emptyTableMessage="You haven't performed any operations yet."
 			/>
 		</>
