@@ -20,6 +20,20 @@ function isAnotherPerformerSelected(record, walletAddress) {
 	}
 	return false;
 }
+function checkDepositRequirements(record, walletAddress) {
+	if (isAnotherPerformerSelected(record, walletAddress)) {
+		// another is selected as performer of deposit (for withdraw this doesn't make sense)
+		return true;
+	} else if (
+		record.request.takerAddr === walletAddress &&
+		(record.request.statusCode === requestStatus.rejected || // initiator canceled deposit request after performer was selected
+			isTimeUp(record.request.chooseTimestamp, h24Mc))
+	) {
+		return true;
+	}
+
+	return false;
+}
 
 function renderCancelBtn(
 	record,
@@ -28,65 +42,22 @@ function renderCancelBtn(
 	isCancelAcceptedRequestActive,
 	requestsType
 ) {
-	const isAnotherSelected = isAnotherPerformerSelected(record, walletAddress);
-	let buttonText;
-	let confirmText;
-	let buttonType;
-
-	if (record.status === "accepted" && !record.request.takerAddr) {
+	let buttonText = "Return assets";
+	let confirmText = "Sure to return assets?";
+	if (record.status !== "accepted" || requestsType === "withdraw") {
+		return null;
+	} else if (!record.request.takerAddr) {
 		// performer are not selected
 		buttonText =
 			record.request.statusCode === requestStatus.rejected
 				? "Return locked assets"
-				: "Cancel confirmation";
-		if (isCancelAcceptedRequestActive) {
-			buttonType = "default";
-		} else {
-			confirmText = "Sure to cancel confirmation?";
-			buttonType = "confirm";
-		}
-	} else if (record.status === "accepted" && isAnotherSelected && requestsType !== "withdraw") {
-		// another is selected as performer of deposit (for withdraw this doesn't make sense)
-		buttonText = "Return assets";
-		if (isCancelAcceptedRequestActive) {
-			buttonType = "default";
-		} else {
-			confirmText = "Sure to return assets?";
-			buttonType = "confirm";
-		}
-	} else if (
-		record.status === "accepted" &&
-		record.request.takerAddr === walletAddress &&
-		isTimeUp(record.request.chooseTimestamp, h24Mc) &&
-		requestsType !== "withdraw"
-	) {
-		// deposit request is timed out ?
-		buttonText = "Return assets";
-		if (isCancelAcceptedRequestActive) {
-			buttonType = "default";
-		} else {
-			confirmText = "Sure to return assets?";
-			buttonType = "confirm";
-		}
-	} else if (
-		record.status === "accepted" &&
-		record.request.takerAddr === walletAddress &&
-		record.request.statusCode === requestStatus.rejected &&
-		requestsType !== "withdraw"
-	) {
-		// initiator canceled deposit request after performer was selected
-		buttonText = "Return assets";
-		if (isCancelAcceptedRequestActive) {
-			buttonType = "default";
-		} else {
-			confirmText = "Sure to return assets?";
-			buttonType = "confirm";
-		}
-	} else {
+				: "Cancel confirmatin";
+		confirmText = "Sure to cancel confirmation?";
+	} else if (!checkDepositRequirements(record, walletAddress)) {
 		return null;
 	}
 
-	if (buttonType === "confirm") {
+	if (!isCancelAcceptedRequestActive) {
 		return (
 			<Popconfirm
 				title={confirmText}
