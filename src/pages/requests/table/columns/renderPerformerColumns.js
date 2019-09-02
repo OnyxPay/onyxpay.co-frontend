@@ -274,6 +274,7 @@ export default function renderPerformerColumns({
 						return record.request.takerAddr &&
 							record.request.takerAddr === walletAddress &&
 							record.request.statusCode !== requestStatus.complained &&
+							record.request.statusCode !== requestStatus.rejected &&
 							record.request.chooseTimestamp ? (
 							<Countdown date={new Date(record.request.chooseTimestamp).getTime() + h24Mc} />
 						) : null;
