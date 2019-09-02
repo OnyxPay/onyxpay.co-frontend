@@ -51,11 +51,9 @@ function renderCancelBtn(
 		buttonText =
 			record.request.statusCode === requestStatus.rejected
 				? "Return locked assets"
-				: "Cancel acceptation";
-		confirmText = "Sure to cancel acceptation?";
+				: "Cancel confirmatin";
+		confirmText = "Sure to cancel confirmation?";
 	} else if (!checkDepositRequirements(record, walletAddress)) {
-		return null;
-	} else {
 		return null;
 	}
 
