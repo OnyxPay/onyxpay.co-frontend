@@ -43,11 +43,18 @@ export function showBcError(er) {
 	});
 }
 
-export function showGasCompensationError() {
+export function showGasCompensationError(errorMsg) {
 	return showNotification({
 		type: "error",
 		msg: "Gas compensation error",
-		desc: "Something went wrong at the gas compensation server",
+		desc: (
+			<>
+				{errorMsg}
+				<div>
+					Please <SupportLink />
+				</div>
+			</>
+		),
 	});
 }
 

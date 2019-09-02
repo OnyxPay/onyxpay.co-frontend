@@ -93,7 +93,7 @@ class Deposit extends Component {
 			}
 		} catch (e) {
 			if (e instanceof GasCompensationError) {
-				showGasCompensationError();
+				showGasCompensationError(e.message);
 			} else if (e instanceof SendRawTrxError) {
 				showBcError(e.message);
 			} else if (e instanceof TimeoutError) {
