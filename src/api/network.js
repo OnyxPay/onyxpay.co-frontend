@@ -57,7 +57,8 @@ function createCustomRestClient() {
 					user &&
 					data &&
 					data.errors &&
-					data.errors.hasOwnProperty("user_status")
+					data.errors.hasOwnProperty("user_status") &&
+					data.errors.user_status === "User was blocked." // TODO: change response status at back-end
 				) {
 					showUserIsBlockedNotification();
 					setTimeout(() => {
