@@ -38,6 +38,9 @@ class AddSettlementModal extends Component {
 				destroyOnClose
 				className="add-settlement-modal"
 			>
+				<span>
+					Please specify a settlement account to be used during Withdraw or Deposit transaction
+				</span>
 				<Formik
 					onSubmit={this.handleFormSubmit}
 					initialValues={{
@@ -75,6 +78,7 @@ class AddSettlementModal extends Component {
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}
+										placeholder="Enter your card number or another account information"
 									/>
 								</Form.Item>
 
@@ -91,6 +95,7 @@ class AddSettlementModal extends Component {
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}
+										placeholder="Enter meaningful name of the payment method"
 									/>
 								</Form.Item>
 
@@ -100,6 +105,7 @@ class AddSettlementModal extends Component {
 									help={errors.description && touched.description ? errors.description : ""}
 									className="ant-form-item"
 								>
+									<span>Please note that this information will be viewed by other members</span>
 									<TextArea
 										rows={4}
 										style={{ resize: "none" }}
@@ -107,6 +113,7 @@ class AddSettlementModal extends Component {
 										value={values.description}
 										onChange={handleChange}
 										disabled={isSubmitting}
+										placeholder="Please specify any comments you would like to be viewed by other members, including what currencies you are able to accept by this payment method"
 									/>
 								</Form.Item>
 
@@ -116,12 +123,14 @@ class AddSettlementModal extends Component {
 									help={errors.brief_notes && touched.brief_notes ? errors.brief_notes : ""}
 									className="ant-form-item"
 								>
+									<span>Please note that this information will be viewed by other members</span>
 									<Input
 										name="brief_notes"
 										value={values.brief_notes}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										disabled={isSubmitting}
+										placeholder="You can add any notes into this section"
 									/>
 								</Form.Item>
 								<div className="ant-modal-custom-footer">

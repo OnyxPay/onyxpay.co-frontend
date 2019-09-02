@@ -1,0 +1,9 @@
+.add-settlement-modal {
+	.ant-form-item-label {
+		label {
+			&:after {
+				content: "";
+			}
+		}
+	}
+}
