@@ -21,13 +21,23 @@ const operationHistoryColumns = [
 		title: "Initiator",
 		dataIndex: "sender",
 		key: "from",
-		render: sender => (sender ? sender.firstName + " " + sender.lastName : "n/a"),
+		render: sender =>
+			sender && (sender.firstName || sender.lastName)
+				? sender.firstName + " " + sender.lastName
+				: sender && sender.addr
+				? sender.addr
+				: "n/a",
 	},
 	{
 		title: "Performer",
 		dataIndex: "receiver",
 		key: "to",
-		render: receiver => (receiver ? receiver.firstName + " " + receiver.lastName : "n/a"),
+		render: receiver =>
+			receiver && (receiver.firstName || receiver.firstName)
+				? receiver.firstName + " " + receiver.lastName
+				: receiver && receiver.addr
+				? receiver.addr
+				: "n/a",
 	},
 	{
 		title: "Date",
@@ -60,8 +70,9 @@ function OperationsWidget(props) {
 		<>
 			<PaginatedTable
 				columns={operationHistoryColumns}
-				rowKey="operationId"
+				rowKey="id"
 				fetchData={getOperationHistory}
+				// TODO: add pending status
 				passedOpts={{ status: "completed" }}
 				emptyTableMessage="You haven't performed any operations yet."
 			/>

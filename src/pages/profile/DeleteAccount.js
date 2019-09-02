@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { Button, Modal } from "antd";
+import { Button, Modal, Tooltip } from "antd";
 import styled from "styled-components";
 import { deleteUserAccount } from "api/profile";
 import Actions from "redux/actions";
@@ -43,14 +43,17 @@ function DeleteAccount(props) {
 	};
 	return (
 		<DeleteAccountContainer>
-			<Button
-				type="danger"
-				loading={isLoadingDeleteAccount}
-				className="btn-delete-account"
-				onClick={() => showMessage()}
-			>
-				Delete my user account
-			</Button>
+			<Tooltip title="This functionality is currently unavailable; will be released soon. Please contact Administrator.">
+				<Button
+					type="danger"
+					loading={isLoadingDeleteAccount}
+					className="btn-delete-account"
+					onClick={() => showMessage()}
+					disabled={true}
+				>
+					Delete my account
+				</Button>
+			</Tooltip>
 		</DeleteAccountContainer>
 	);
 }
