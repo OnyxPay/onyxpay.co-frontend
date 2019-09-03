@@ -20,7 +20,7 @@ export default function ReferralLink() {
 			</h3>
 			<Text>
 				Share and earn: share a referral link to invite new members. You will receive a reward each
-				time your invitees perform a transaction.
+				time OnyxPay Agent from your invitees handles Withdraw or Deposit transaction.
 			</Text>
 			<div className="referral-info">
 				<Input

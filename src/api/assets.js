@@ -14,7 +14,7 @@ import {
 import { timeout /* TimeoutError */ } from "promise-timeout";
 import { notifyTimeout } from "./constants";
 import { get } from "lodash";
-import { getRestClient, getAuthHeaders } from "./network";
+import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 
 export async function sendAsset(values, push) {
 	const { pk, accountAddress } = await unlockWalletAccount();
@@ -39,17 +39,16 @@ export async function sendAsset(values, push) {
 
 	const trx = await createAndSignTrxViaGasCompensator("InternalRevenueService", "Send", params);
 	const signedTrx = signTrx(trx, pk, true);
-	// TODO: test
-	// const trxHash = utils.reverseHex(signedTrx.getHash());
+	const trxHash = utils.reverseHex(signedTrx.getHash());
 
-	// await registerSend({
-	// 	asset: values.assetSymbol,
-	// 	amount: convertedAmount,
-	// 	receiverAddress: values.receiverAddress,
-	// 	trxHash,
-	// });
+	await registerSend({
+		asset: values.assetSymbol,
+		amount: convertedAmount,
+		receiverAddress: values.receiverAddress,
+		trxHash,
+	});
 
-	// push("/");
+	push("/");
 	return await timeout(sendTrx(signedTrx, false, true), notifyTimeout);
 }
 
@@ -140,6 +139,53 @@ export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
 	);
 
 	return addSignAndSendTrx(serializedTrx, pk);
+}
+
+export async function setFiatAmount(tokenId, amount) {
+	const { pk, accountAddress } = await unlockWalletAccount();
+
+	const params = [
+		{
+			label: "agent",
+			type: ParameterType.ByteArray,
+			value: utils.reverseHex(accountAddress.toHexString()),
+		},
+		{
+			label: "tokenId",
+			type: ParameterType.String,
+			value: tokenId,
+		},
+		{ label: "buyRate", type: ParameterType.Integer, value: convertAmountFromStr(amount) },
+	];
+
+	console.log(params);
+
+	const serializedTrx = await createAndSignTrxViaGasCompensator(
+		"Exchange",
+		"SetFiatAmount",
+		params
+	);
+
+	return addSignAndSendTrx(serializedTrx, pk);
+}
+
+export async function getAssetsData(params) {
+	const client = getRestClient();
+
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("assets", {
+			headers: {
+				...authHeaders,
+			},
+			params: {
+				...params,
+			},
+		});
+		return data;
+	} catch (error) {
+		return handleReqError(error);
+	}
 }
 
 export async function registerSend(values) {

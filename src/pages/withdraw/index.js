@@ -154,7 +154,7 @@ class Withdraw extends Component {
 	};
 
 	debouncedGetFee(assetSymbol, amount) {
-		getFee(assetSymbol, amount, "send").then(fee => {
+		getFee(assetSymbol, amount, "withdraw").then(fee => {
 			this.setState({ fee: fee / 10 ** 8 });
 		});
 	}

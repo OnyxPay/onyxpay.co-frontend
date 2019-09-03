@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "antd";
+import { connect } from "react-redux";
+import { userStatus } from "api/constants";
 
 class PaginatedTable extends Component {
 	state = {
@@ -41,7 +43,11 @@ class PaginatedTable extends Component {
 	fetchTransactionHistory = async (opts = {}, hideLoading = false) => {
 		try {
 			const { pagination } = this.state;
-			const { fetchData, passedOpts } = this.props;
+			const { fetchData, passedOpts, user } = this.props;
+
+			if (user && user.status !== userStatus.active) {
+				return false;
+			}
 
 			if (!hideLoading) {
 				this.setState({ loading: true });
@@ -88,4 +94,8 @@ class PaginatedTable extends Component {
 	}
 }
 
-export default PaginatedTable;
+export default connect(state => {
+	return {
+		user: state.user,
+	};
+})(PaginatedTable);

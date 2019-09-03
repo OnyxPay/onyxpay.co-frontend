@@ -1,26 +1,33 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Card, Button, Table, Icon, Input } from "antd";
+import { Card, Button, Table, Icon } from "antd";
 import Actions from "redux/actions";
 import { blockAsset } from "api/admin/assets";
-import { isAssetBlocked } from "api/assets";
 import AddNewAsset from "components/modals/admin/AddNewAsset";
 import SetExchangeRates from "components/modals/admin/SetExchangeRates";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
+import { getAssetsData } from "api/assets";
+import { getColumnSearchProps, getOnColumnFilterProp } from "components/table/common";
+import { handleBcError } from "api/network";
+import styled from "styled-components";
 
 const modals = {
 	ADD_ASSETS_MODAL: "ADD_ASSETS_MODAL",
 	ADD_SET_EXCHANGE_RATES: "ADD_SET_EXCHANGE_RATES",
 };
 
-const style = {
-	button: {
-		marginRight: 8,
-		marginBottom: 5,
-	},
-};
+const ButtonContainer = styled.div`
+	margin-bottom: 30px;
+	button:first-child {
+		margin-right: 10px;
+	}
+	@media (max-width: 620px) {
+		button:first-child {
+			margin-bottom: 10px;
+		}
+	}
+`;
 
 function sortValues(valA, valB) {
 	if (valA < valB) {
@@ -32,80 +39,22 @@ function sortValues(valA, valB) {
 	return 0;
 }
 
-function renderExchangeRate(record, exchangeRates, name) {
-	let res;
-	for (let i = 0; i < exchangeRates.length; i++) {
-		if (exchangeRates[i].symbol === record.symbol) {
-			if (name === "buy") {
-				res = convertAmountToStr(exchangeRates[i].buy, 8);
-			} else if (name === "sell") {
-				res = convertAmountToStr(exchangeRates[i].sell, 8);
-			}
-			break;
-		}
-	}
-	if (!res) {
-		return "n/a";
-	}
-	return res;
-}
-
 class AssetsList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			searchText: "",
 			loadingBlockedAsset: false,
-			loadingIsBlockedAsset: false,
 			ADD_ASSETS_MODAL: false,
 			ADD_SET_EXCHANGE_RATES: false,
-			data: null,
-			pagination: { pageSize: 20 },
 			symbolKey: null,
 			tokenId: null,
+			assetsData: null,
+			disableBtn: false,
+			loadingTableData: false,
+			pagination: { current: 1, pageSize: 20 },
 		};
 	}
-
-	getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-			<div style={{ padding: 8 }}>
-				<Input
-					ref={node => {
-						this.searchInput = node;
-					}}
-					placeholder={`Search ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-					onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
-					style={{ width: 188, marginBottom: 8, display: "block" }}
-				/>
-				<Button
-					type="primary"
-					onClick={() => this.handleSearch(selectedKeys, confirm)}
-					icon="search"
-					size="small"
-					style={{ width: 90, marginRight: 8 }}
-				>
-					Search
-				</Button>
-				<Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-					Reset
-				</Button>
-			</div>
-		),
-		filterIcon: filtered => (
-			<Icon type="search" style={{ color: filtered ? "#1890ff" : undefined }} />
-		),
-		onFilter: (value, record) =>
-			record[dataIndex]
-				.toString()
-				.toLowerCase()
-				.includes(value.toLowerCase()),
-		onFilterDropdownVisibleChange: visible => {
-			if (visible) {
-				setTimeout(() => this.searchInput.select());
-			}
-		},
-	});
 
 	handleSearch = (selectedKeys, confirm) => {
 		confirm();
@@ -117,10 +66,8 @@ class AssetsList extends Component {
 		this.setState({ searchText: "" });
 	};
 
-	componentDidMount() {
-		const { getAssetsList, getExchangeRates } = this.props;
-		getExchangeRates();
-		getAssetsList();
+	async componentDidMount() {
+		await this.fetchAssets();
 	}
 
 	showModalAddAsset = type => () => {
@@ -131,19 +78,14 @@ class AssetsList extends Component {
 		this.setState({ ADD_ASSETS_MODAL: false });
 	};
 
-	showModalSetExchangeRates = (type, symbol) => () => {
-		let buyPrice, sellPrice;
-		let { exchangeRates } = this.props;
-
-		for (let item of exchangeRates) {
-			if (item.symbol === symbol) {
-				buyPrice = item.buy;
-				sellPrice = item.sell;
-				break;
-			}
-		}
-
-		this.setState({ tokenId: symbol, buyPrice, sellPrice, ADD_SET_EXCHANGE_RATES: true });
+	showModalSetExchangeRates = (symbol, buyPrice, sellPrice) => () => {
+		this.setState({
+			tokenId: symbol,
+			buyPrice,
+			sellPrice,
+			ADD_SET_EXCHANGE_RATES: true,
+			disableBtn: false,
+		});
 	};
 
 	hideModalSetExchangeRates = type => () => {
@@ -162,16 +104,12 @@ class AssetsList extends Component {
 					type: "success",
 					msg: "Asset was successfully blocked",
 				});
-			}
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
+				this.setState({
+					disableBtn: true,
 				});
 			}
+		} catch (e) {
+			handleBcError(e);
 		} finally {
 			this.setState({
 				loadingBlockedAsset: false,
@@ -179,31 +117,62 @@ class AssetsList extends Component {
 		}
 	};
 
-	handleCheckAssetBlocked = async (asset_symbol, key) => {
-		this.setState({
-			symbolKey: key,
-			loadingIsBlockedAsset: true,
-		});
-		const res = await isAssetBlocked(asset_symbol);
-		this.setState({
-			loadingIsBlockedAsset: false,
-		});
-		if (res) {
-			showNotification({
-				type: "success",
-				msg: "Asset is blocked",
-			});
+	checkAssetStatus = status => {
+		if (status === 1) {
+			return "active";
+		} else if (status === 2) {
+			return "blocked";
 		} else {
-			showNotification({
-				type: "success",
-				msg: "Asset isn't blocked",
-			});
+			return "n/a";
 		}
 	};
 
+	refreshTable = async () => {
+		await this.fetchAssets();
+		this.setState({
+			disableBtn: false,
+		});
+	};
+
+	handleTableChange = (pagination, filters) => {
+		this.setState(
+			{
+				pagination: {
+					...this.state.pagination,
+					current: pagination.current,
+					pageSize: pagination.pageSize,
+				},
+			},
+			() => {
+				const filtersCopy = { ...filters };
+				for (const filter in filtersCopy) {
+					if (filtersCopy[filter]) {
+						filtersCopy[filter] = filtersCopy[filter][0];
+					}
+				}
+				this.fetchAssets(filters);
+			}
+		);
+	};
+
+	async fetchAssets(opts = {}) {
+		try {
+			this.setState({ loadingTableData: true });
+			const { pagination } = this.state;
+			const params = {
+				pageSize: pagination.pageSize,
+				pageNum: pagination.current,
+				...opts,
+			};
+			const assetsData = await getAssetsData(params);
+			pagination.total = assetsData.total;
+			this.setState({ assetsData: assetsData.items, pagination, loadingTableData: false });
+		} catch (e) {}
+	}
+
 	render() {
 		const {
-			loadingIsBlockedAsset,
+			disableBtn,
 			pagination,
 			loadingBlockedAsset,
 			symbolKey,
@@ -212,74 +181,75 @@ class AssetsList extends Component {
 			tokenId,
 			buyPrice,
 			sellPrice,
+			assetsData,
+			loadingTableData,
 		} = this.state;
-		const {
-			data,
-			exchangeRates,
-			loadingAssetsList,
-			loadingExchangeRates,
-			getExchangeRates,
-			getAssetsList,
-		} = this.props;
-		if (!data.length && !exchangeRates.length) {
+		const { getAssetsList } = this.props;
+		if (assetsData === null) {
 			return null;
 		}
 		const columns = [
 			{
 				title: "Assets name",
-				key: "symbol",
+				key: "name",
 				width: "15%",
-				dataIndex: "symbol",
+				dataIndex: "name",
 				sorter: (a, b) => {
-					const nameA = a.symbol.toLowerCase();
-					const nameB = b.symbol.toLowerCase();
+					const nameA = a.name.toLowerCase();
+					const nameB = b.name.toLowerCase();
 					return sortValues(nameA, nameB);
 				},
 				sortDirections: ["ascend", "descend"],
-				...this.getColumnSearchProps("symbol"),
+				...getColumnSearchProps()("name"),
+				...getOnColumnFilterProp("name"),
 			},
 			{
 				title: "Buy price",
-				dataIndex: "",
 				key: "buyPrice",
 				width: "20%",
-				render: record => renderExchangeRate(record, exchangeRates, "buy"),
+				render: record => (!record.buyPrice ? "n/a" : convertAmountToStr(record.buyPrice, 8)),
 			},
 			{
 				title: "Sell price",
-				dataIndex: "",
-				key: "sell",
+				key: "sellPrice",
 				width: "20%",
-				render: record => renderExchangeRate(record, exchangeRates, "sell"),
+				render: record => (!record.sellPrice ? "n/a" : convertAmountToStr(record.sellPrice, 8)),
+			},
+			{
+				title: "Status",
+				dataIndex: "status",
+				key: "status",
+				width: "20%",
+				render: (text, record, index) => this.checkAssetStatus(record.status),
 			},
 			{
 				title: "Action",
 				key: "action",
 				width: "45%",
 				dataIndex: "",
-				render: res => (
+				render: (text, record, index) => (
 					<>
-						<Button
-							type="danger"
-							loading={res.key === symbolKey && loadingBlockedAsset}
-							onClick={() => this.handleBlockAsset(res.symbol, res.key)}
-							style={style.button}
-						>
-							Block asset
-						</Button>
+						{record.status === 1 && (
+							<Button
+								type="danger"
+								loading={record.id === symbolKey && loadingBlockedAsset}
+								onClick={() => this.handleBlockAsset(record.name, record.id)}
+								disabled={disableBtn && record.id === symbolKey}
+							>
+								Block asset
+							</Button>
+						)}
+
 						<Button
 							type="primary"
-							onClick={this.showModalSetExchangeRates(modals.ADD_SET_EXCHANGE_RATES, res.symbol)}
-							style={style.button}
+							onClick={this.showModalSetExchangeRates(
+								record.name,
+								record.buyPrice,
+								record.sellPrice,
+								modals.ADD_SET_EXCHANGE_RATES
+							)}
 						>
 							Set exchange rates
-						</Button>
-						<Button
-							loading={res.key === symbolKey && loadingIsBlockedAsset}
-							onClick={() => this.handleCheckAssetBlocked(res.symbol, res.key)}
-							style={style.button}
-						>
-							Is blocked asset
 						</Button>
 					</>
 				),
@@ -289,19 +259,23 @@ class AssetsList extends Component {
 		return (
 			<>
 				<Card>
-					<div style={{ marginBottom: 30 }}>
+					<ButtonContainer>
 						<Button type="primary" onClick={this.showModalAddAsset(modals.ADD_ASSETS_MODAL)}>
 							<Icon type="plus" /> Add new asset
 						</Button>
-					</div>
+						<Button type="primary" onClick={this.refreshTable}>
+							<Icon type="reload" /> Refresh
+						</Button>
+					</ButtonContainer>
 
 					<Table
-						rowKey={data => data.key}
+						rowKey={assetsData => assetsData.id}
 						columns={columns}
-						dataSource={data}
-						style={{ overflowX: "auto" }}
-						pagination={pagination}
-						loading={loadingAssetsList || loadingExchangeRates}
+						dataSource={assetsData}
+						className="ovf-auto"
+						onChange={this.handleTableChange}
+						pagination={{ ...pagination }}
+						loading={loadingTableData}
 					/>
 				</Card>
 
@@ -317,7 +291,6 @@ class AssetsList extends Component {
 					tokenId={tokenId}
 					buyPrice={buyPrice}
 					sellPrice={sellPrice}
-					getExchangeRates={getExchangeRates}
 				/>
 			</>
 		);
