@@ -90,9 +90,10 @@ class UserUpgradeRequests extends Component {
 		});
 	};
 
-	handleRejectRequest = async reason => {
+	handleRejectRequest = async (reason, { setFieldError, setSubmitting }) => {
 		const { requestId } = this.state;
 		const res = await rejectRequest(requestId, reason);
+
 		if (!res.error) {
 			showNotification({
 				type: "success",
@@ -100,6 +101,9 @@ class UserUpgradeRequests extends Component {
 			});
 			this.hideModal();
 			this.fetchRequests();
+		} else if (res.error.data && res.error.data.reason) {
+			setSubmitting(false);
+			setFieldError("reason", res.error.data.reason);
 		}
 	};
 
