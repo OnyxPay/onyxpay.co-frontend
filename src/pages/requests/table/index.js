@@ -121,7 +121,7 @@ function getButton(isPerformActive, requestId, performRequest, btnText, confirmT
 }
 function getDepositButton(requestId, record, performRequest, isPerformActive, requestsType) {
 	let btnText = "Perform Deposit";
-	let accountType = requestsType === "deposit" ? "customer" : "Agent/Super";
+	let accountType = requestsType === "deposit" ? "Customer" : "Agent/Super agent";
 	let confirmText = `Are you sure you want to deposit ${convertAmountToStr(
 		record.request.amount,
 		8
