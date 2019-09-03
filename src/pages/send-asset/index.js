@@ -129,7 +129,7 @@ class SendAsset extends Component {
 			}
 			if (isEnteredEnoughAmount && !isEnteredAmountOverBalance) {
 				await sendAsset(values, push);
-				formActions.resetForm();
+
 				showNotification({
 					type: "success",
 					msg: "Success",
