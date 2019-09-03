@@ -5,9 +5,9 @@ import PaginatedTable from "./PaginatedTable";
 
 const checkOperationType = operationType => {
 	if (operationType === "buy_onyx_cash") {
-		return "deposit onyxcash";
+		return "Deposit OnyxCash";
 	}
-	return operationType;
+	return operationType.charAt(0).toUpperCase() + operationType.slice(1);
 };
 
 const operationHistoryColumns = [
@@ -75,7 +75,7 @@ const operationHistoryColumns = [
 		title: "Status",
 		dataIndex: "status",
 		key: "status",
-		render: status => (status ? status : "n/a"),
+		render: status => (status ? status.charAt(0).toUpperCase() + status.slice(1) : "n/a"),
 	},
 ];
 
