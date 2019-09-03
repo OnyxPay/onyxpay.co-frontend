@@ -12,7 +12,7 @@ const checkOperationType = operationType => {
 
 const operationHistoryColumns = [
 	{
-		title: "Operation type",
+		title: "Operation",
 		dataIndex: "operationType",
 		key: "operationType",
 		render: operationType => (operationType ? checkOperationType(operationType) : "n/a"),
