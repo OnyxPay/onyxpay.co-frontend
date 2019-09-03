@@ -2,12 +2,13 @@ import React from "react";
 import { getOperationHistory } from "api/transactions-history";
 import { convertAmountToStr } from "utils/number";
 import PaginatedTable from "./PaginatedTable";
+import { stringToUpperCase } from "utils";
 
 const checkOperationType = operationType => {
 	if (operationType === "buy_onyx_cash") {
 		return "Deposit OnyxCash";
 	}
-	return operationType.charAt(0).toUpperCase() + operationType.slice(1);
+	return stringToUpperCase(operationType);
 };
 
 const operationHistoryColumns = [
@@ -75,7 +76,7 @@ const operationHistoryColumns = [
 		title: "Status",
 		dataIndex: "status",
 		key: "status",
-		render: status => (status ? status.charAt(0).toUpperCase() + status.slice(1) : "n/a"),
+		render: status => (status ? stringToUpperCase(status) : "n/a"),
 	},
 ];
 

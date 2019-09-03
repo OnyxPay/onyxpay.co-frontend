@@ -94,3 +94,7 @@ export function trimAddress(addr, validate = true) {
 	}
 	return addr.slice(0, sliceSize) + "..." + addr.slice(addr.length - sliceSize, addr.length);
 }
+
+export function stringToUpperCase(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
