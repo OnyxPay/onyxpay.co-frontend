@@ -16,10 +16,11 @@ import { notifyTimeout } from "./constants";
 import { get } from "lodash";
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 
-export async function sendAsset(values) {
+export async function sendAsset(values, push) {
 	const { pk, accountAddress } = await unlockWalletAccount();
 
-	const receiverAddress = new Crypto.Address(values.receiver_address);
+	const receiverAddress = new Crypto.Address(values.receiverAddress);
+	const convertedAmount = convertAmountFromStr(values.amount);
 
 	const params = [
 		{
@@ -32,14 +33,23 @@ export async function sendAsset(values) {
 			type: ParameterType.ByteArray,
 			value: utils.reverseHex(receiverAddress.toHexString()),
 		},
-		{ label: "tokenId", type: ParameterType.String, value: values.asset_symbol },
-		{ label: "amount", type: ParameterType.Integer, value: convertAmountFromStr(values.amount) },
+		{ label: "tokenId", type: ParameterType.String, value: values.assetSymbol },
+		{ label: "amount", type: ParameterType.Integer, value: convertedAmount },
 	];
 
 	const trx = await createAndSignTrxViaGasCompensator("InternalRevenueService", "Send", params);
-	const signed_trx = signTrx(trx, pk, true);
+	const signedTrx = signTrx(trx, pk, true);
+	const trxHash = utils.reverseHex(signedTrx.getHash());
 
-	return await timeout(sendTrx(signed_trx, false, true), notifyTimeout);
+	await registerSend({
+		asset: values.assetSymbol,
+		amount: convertedAmount,
+		receiverAddress: values.receiverAddress,
+		trxHash,
+	});
+
+	push("/");
+	return await timeout(sendTrx(signedTrx, false, true), notifyTimeout);
 }
 
 export async function isAssetBlocked(tokenId) {
@@ -178,3 +188,13 @@ export async function getAssetsData(params) {
 	}
 }
 
+export async function registerSend(values) {
+	const client = getRestClient();
+	const authHeaders = getAuthHeaders();
+	const res = await client.post("send-operation", values, {
+		headers: {
+			...authHeaders,
+		},
+	});
+	return res.data;
+}

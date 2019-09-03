@@ -17,6 +17,8 @@ import { handleBcError } from "api/network";
 import { checkUserRole, isBlockedUser } from "api/admin/users";
 import { roles } from "api/constants";
 import { trimAddress } from "utils";
+import { push } from "connected-react-router";
+import { handleReqError } from "api/network";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -83,11 +85,11 @@ class SendAsset extends Component {
 
 	handleFormSubmit = async (values, formActions) => {
 		try {
-			const { user } = this.props;
+			const { user, push } = this.props;
 			if (user && user.role === roles.c) {
 				// user can't send to agents or super-agents
-				const isReceiverAgentPromise = checkUserRole(values.receiver_address, "IsAgent");
-				const isReceiverSuperAgentPromise = checkUserRole(values.receiver_address, "IsSuperAgent");
+				const isReceiverAgentPromise = checkUserRole(values.receiverAddress, "IsAgent");
+				const isReceiverSuperAgentPromise = checkUserRole(values.receiverAddress, "IsSuperAgent");
 				const [isReceiverAgent, isReceiverSuperAgent] = await Promise.all([
 					isReceiverAgentPromise,
 					isReceiverSuperAgentPromise,
@@ -96,44 +98,44 @@ class SendAsset extends Component {
 				if (isReceiverAgent || isReceiverSuperAgent) {
 					formActions.setSubmitting(false);
 					return formActions.setFieldError(
-						"receiver_address",
+						"receiverAddress",
 						"Assets cannot be sent to Agents or Super agents"
 					);
 				}
 			}
 
-			const isReceiverBlocked = await isBlockedUser(values.receiver_address);
+			const isReceiverBlocked = await isBlockedUser(values.receiverAddress);
 			if (isReceiverBlocked) {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError(
-					"receiver_address",
+					"receiverAddress",
 					"Assets cannot be sent to a blocked account"
 				);
 			}
 
-			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.asset_symbol);
+			const isEnteredEnoughAmount = this.isEnteredEnoughAmount(values.amount, values.assetSymbol);
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", "Min amount is 1 oUSD");
 			}
 			const isEnteredAmountOverBalance = await this.isEnteredAmountOverBalance(
 				values.amount,
-				values.asset_symbol
+				values.assetSymbol
 			);
 			if (isEnteredAmountOverBalance) {
-				const maxAmount = await this.calcMaxAmount(values.asset_symbol);
+				const maxAmount = await this.calcMaxAmount(values.assetSymbol);
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", `Max amount is ${maxAmount}`);
 			}
 			if (isEnteredEnoughAmount && !isEnteredAmountOverBalance) {
-				await sendAsset(values);
-				formActions.resetForm();
+				await sendAsset(values, push);
+
 				showNotification({
 					type: "success",
 					msg: "Success",
-					desc: `You have successfully sent ${values.amount} ${
-						values.asset_symbol
-					} to ${trimAddress(values.receiver_address)} address`,
+					desc: `You have successfully sent ${values.amount} ${values.assetSymbol} to ${trimAddress(
+						values.receiverAddress
+					)} address`,
 				});
 				refreshBalance();
 			}
@@ -142,12 +144,14 @@ class SendAsset extends Component {
 				formActions.resetForm();
 				showTimeoutNotification();
 				refreshBalance();
+			} else if (e.isAxiosError) {
+				handleReqError(e);
 			} else {
 				handleBcError(e);
 			}
+		} finally {
+			formActions.setSubmitting(false);
 		}
-
-		formActions.setSubmitting(false);
 	};
 
 	debouncedGetFee(assetSymbol, amount) {
@@ -157,13 +161,13 @@ class SendAsset extends Component {
 	}
 
 	handleAssetChange = setFieldValue => async (value, option) => {
-		setFieldValue("asset_symbol", value);
+		setFieldValue("assetSymbol", value);
 	};
 
 	handleAmountChange = (values, formActions) => async value => {
-		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.asset_symbol);
+		const isEnteredEnoughAmount = this.isEnteredEnoughAmount(value, values.assetSymbol);
 		if (isEnteredEnoughAmount) {
-			this.debouncedGetFee(values.asset_symbol, value);
+			this.debouncedGetFee(values.assetSymbol, value);
 		} else {
 			if (this.state.fee) {
 				this.setState({ fee: null });
@@ -198,19 +202,19 @@ class SendAsset extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							receiver_address: "",
-							asset_symbol: "",
+							receiverAddress: "",
+							assetSymbol: "",
 							amount: "",
 						}}
 						validate={values => {
 							let errors = {};
-							if (!values.receiver_address) {
-								errors.receiver_address = "Required";
-							} else if (!isBase58Address(values.receiver_address)) {
-								errors.receiver_address = "Recipient's address should be in base58 format";
+							if (!values.receiverAddress) {
+								errors.receiverAddress = "Required";
+							} else if (!isBase58Address(values.receiverAddress)) {
+								errors.receiverAddress = "Recipient's address should be in base58 format";
 							}
-							if (!values.asset_symbol) {
-								errors.asset_symbol = "Required";
+							if (!values.assetSymbol) {
+								errors.assetSymbol = "Required";
 							}
 							if (values.amount === null || values.amount === "") {
 								errors.amount = "Required";
@@ -236,7 +240,7 @@ class SendAsset extends Component {
 							validateField,
 						}) => {
 							const allowToSubmitForm =
-								values.receiver_address && values.asset_symbol && values.amount ? true : false;
+								values.receiverAddress && values.assetSymbol && values.amount ? true : false;
 							return (
 								<form onSubmit={handleSubmit} className="assets__form">
 									<Row gutter={16}>
@@ -246,18 +250,18 @@ class SendAsset extends Component {
 												label="Receiver address"
 												required
 												validateStatus={
-													errors.receiver_address && touched.receiver_address ? "error" : ""
+													errors.receiverAddress && touched.receiverAddress ? "error" : ""
 												}
 												help={
-													errors.receiver_address && touched.receiver_address
-														? errors.receiver_address
+													errors.receiverAddress && touched.receiverAddress
+														? errors.receiverAddress
 														: ""
 												}
 											>
 												<Input
-													name="receiver_address"
+													name="receiverAddress"
 													placeholder="Enter address"
-													value={values.receiver_address}
+													value={values.receiverAddress}
 													onChange={handleChange}
 													onBlur={handleBlur}
 													disabled={!availableAssetsToSend.length || isSubmitting}
@@ -271,17 +275,15 @@ class SendAsset extends Component {
 												className="ant-form-item--lh32"
 												label="Asset"
 												required
-												validateStatus={errors.asset_symbol && touched.asset_symbol ? "error" : ""}
-												help={
-													errors.asset_symbol && touched.asset_symbol ? errors.asset_symbol : ""
-												}
+												validateStatus={errors.assetSymbol && touched.assetSymbol ? "error" : ""}
+												help={errors.assetSymbol && touched.assetSymbol ? errors.assetSymbol : ""}
 											>
 												<Select
 													showSearch
-													name="asset_symbol"
+													name="assetSymbol"
 													placeholder="Select asset"
 													optionFilterProp="children"
-													value={values.asset_symbol ? values.asset_symbol : undefined}
+													value={values.assetSymbol ? values.assetSymbol : undefined}
 													onChange={this.handleAssetChange(setFieldValue)}
 													filterOption={(input, option) =>
 														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -299,9 +301,7 @@ class SendAsset extends Component {
 														: null}
 												</Select>
 											</Form.Item>
-											{values.asset_symbol && (
-												<AvailableBalance assetSymbol={values.asset_symbol} />
-											)}
+											{values.assetSymbol && <AvailableBalance assetSymbol={values.assetSymbol} />}
 										</Col>
 
 										<Col lg={8} md={24}>
@@ -325,14 +325,14 @@ class SendAsset extends Component {
 														})}
 														onBlur={handleBlur}
 														disabled={
-															!availableAssetsToSend.length || !values.asset_symbol || isSubmitting
+															!availableAssetsToSend.length || !values.assetSymbol || isSubmitting
 														}
 														style={{ width: "100%" }}
 													/>
 													<Button
-														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+														onClick={this.handleMaxAmount(values.assetSymbol, setFieldValue)}
 														disabled={
-															!availableAssetsToSend.length || !values.asset_symbol || isSubmitting
+															!availableAssetsToSend.length || !values.assetSymbol || isSubmitting
 														}
 													>
 														max
@@ -388,5 +388,6 @@ export default connect(
 	},
 	{
 		getExchangeRates: Actions.assets.getExchangeRates,
+		push,
 	}
 )(SendAsset);

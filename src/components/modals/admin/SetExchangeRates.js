@@ -42,10 +42,10 @@ class SetExchangeRates extends Component {
 					<Descriptions>
 						<Descriptions.Item label="Asset">{tokenId}</Descriptions.Item>
 						<Descriptions.Item label="Buy price">
-							{convertAmountToStr(buyPrice, 8)}
+							{buyPrice === null ? "n/a" : convertAmountToStr(buyPrice, 8)}
 						</Descriptions.Item>
 						<Descriptions.Item label="Sell price">
-							{convertAmountToStr(sellPrice, 8)}
+							{sellPrice === null ? "n/a" : convertAmountToStr(sellPrice, 8)}
 						</Descriptions.Item>
 					</Descriptions>
 					<Formik

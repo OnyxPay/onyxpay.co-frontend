@@ -16,6 +16,8 @@ import {
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError, UnlockWalletError } from "utils/custom-error";
 import { TimeoutError } from "promise-timeout";
+import { logOut } from "redux/auth";
+import { showUserIsBlockedNotification } from "components/notification";
 
 const bcWsClient = new WebsocketClient(bcEndpoints.ws, false, false);
 const bcRestClient = new RestClient(bcEndpoints.rest);
@@ -45,10 +47,23 @@ function createCustomRestClient() {
 		res => res,
 		error => {
 			if (error.response) {
-				const { status } = error.response;
+				const { status, data } = error.response;
+				const store = getStore();
+				const { user } = store.getState();
 				if (status === 401) {
-					const store = getStore();
 					store.dispatch(showSessionExpiredModal());
+				} else if (
+					status === 403 &&
+					user &&
+					data &&
+					data.errors &&
+					data.errors.hasOwnProperty("user_status") &&
+					data.errors.user_status === "User was blocked." // TODO: change response status at back-end
+				) {
+					showUserIsBlockedNotification();
+					setTimeout(() => {
+						store.dispatch(logOut(true));
+					}, 5000);
 				}
 			}
 			return Promise.reject(error);

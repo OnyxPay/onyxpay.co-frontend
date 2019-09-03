@@ -21,13 +21,23 @@ const operationHistoryColumns = [
 		title: "Initiator",
 		dataIndex: "sender",
 		key: "from",
-		render: sender => (sender ? sender.firstName + " " + sender.lastName : "n/a"),
+		render: sender =>
+			sender && (sender.firstName || sender.lastName)
+				? sender.firstName + " " + sender.lastName
+				: sender && sender.addr
+				? sender.addr
+				: "n/a",
 	},
 	{
 		title: "Performer",
 		dataIndex: "receiver",
 		key: "to",
-		render: receiver => (receiver ? receiver.firstName + " " + receiver.lastName : "n/a"),
+		render: receiver =>
+			receiver && (receiver.firstName || receiver.firstName)
+				? receiver.firstName + " " + receiver.lastName
+				: receiver && receiver.addr
+				? receiver.addr
+				: "n/a",
 	},
 	{
 		title: "Date",
@@ -39,7 +49,15 @@ const operationHistoryColumns = [
 		title: "Fee",
 		dataIndex: "fee",
 		key: "fee",
-		render: fee => (fee ? convertAmountToStr(fee, 8) : "n/a"),
+		render: fee => {
+			if (fee === 0) {
+				return 0;
+			} else if (fee) {
+				return convertAmountToStr(fee, 8);
+			} else {
+				return "n/a";
+			}
+		},
 	},
 	{
 		title: "Asset",
@@ -53,6 +71,12 @@ const operationHistoryColumns = [
 		key: "amount",
 		render: amount => (amount ? convertAmountToStr(amount, 8) : "n/a"),
 	},
+	{
+		title: "Status",
+		dataIndex: "status",
+		key: "status",
+		render: status => (status ? status : "n/a"),
+	},
 ];
 
 function OperationsWidget(props) {
@@ -60,9 +84,9 @@ function OperationsWidget(props) {
 		<>
 			<PaginatedTable
 				columns={operationHistoryColumns}
-				rowKey="operationId"
+				rowKey="id"
 				fetchData={getOperationHistory}
-				passedOpts={{ status: "completed" }}
+				passedOpts={{ status: "completed,wait" }}
 				emptyTableMessage="You haven't performed any operations yet."
 			/>
 		</>
