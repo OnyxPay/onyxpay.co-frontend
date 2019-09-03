@@ -43,6 +43,11 @@ class Layout extends Component {
 		) {
 			this.toggleSidebar(); // hide menu on route change
 		}
+		if (!this.state.isSideBarCollapsed && this.state.activeBreakPoint === "xs") {
+			document.body.style.overflow = "hidden";
+		} else if (this.state.isSideBarCollapsed && this.state.activeBreakPoint === "xs") {
+			document.body.style.overflow = "unset";
+		}
 	}
 
 	componentWillUnmount() {
