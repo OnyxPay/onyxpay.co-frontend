@@ -138,7 +138,7 @@ export default class ActiveRequests extends Component {
 
 			this.setState({ requestId, activeAction: aa.confirm });
 
-			if (!requestTypeCode === operationType.withdraw) {
+			if (!(requestTypeCode === operationType.withdraw)) {
 				const allow = balanceAssets.some(balance => {
 					return (
 						(balance.symbol === requestAsset && requestAmount <= balance.amount) ||

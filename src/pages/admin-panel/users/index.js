@@ -198,7 +198,7 @@ class Users extends Component {
 				dataIndex: "role",
 				key: "role",
 				filters: roleColumnFilters,
-				filterMultiple: false,
+				filterMultiple: true,
 				render: res => (res ? formatUserRole(res) : "n/a"),
 			},
 			{
@@ -227,7 +227,7 @@ class Users extends Component {
 				dataIndex: "status",
 				key: "status",
 				filters: statusColumnFilters,
-				filterMultiple: false,
+				filterMultiple: true,
 				render: res => (res ? res : "n/a"),
 			},
 		];
