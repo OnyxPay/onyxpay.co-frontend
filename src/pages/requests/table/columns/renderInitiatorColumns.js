@@ -6,7 +6,7 @@ import { h24Mc, operationMessageStatus, requestStatus } from "api/constants";
 import Countdown from "components/Countdown";
 import CancelRequest from "../../CancelRequest";
 import { aa } from "../../common";
-import { renderPerformBtn, isTimeUp } from "../index";
+import { renderPerformBtn } from "../index";
 import { styles } from "../../styles";
 import SupportLink from "components/SupportLink";
 
