@@ -144,8 +144,11 @@ class AssetsList extends Component {
 				},
 			},
 			() => {
-				for (const filter in filters) {
-					filters[filter] = filters[filter][0];
+				const filtersCopy = { ...filters };
+				for (const filter in filtersCopy) {
+					if (filtersCopy[filter]) {
+						filtersCopy[filter] = filtersCopy[filter][0];
+					}
 				}
 				this.fetchAssets(filters);
 			}
