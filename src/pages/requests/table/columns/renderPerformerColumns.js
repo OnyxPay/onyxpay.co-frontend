@@ -77,7 +77,7 @@ function renderCancelBtn(
 }
 
 function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
-	if (record.status !== "accepted" && record.request.statusCode !== requestStatus.choose) {
+	if (record.status !== "accepted" && record.request.statusCode === requestStatus.opened) {
 		if (isConfirmActive) {
 			return (
 				<Button type="primary" loading={true} disabled={true}>
