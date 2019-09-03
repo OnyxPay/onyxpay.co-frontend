@@ -74,35 +74,21 @@ function renderCancelBtn(
 
 	const punish = punishForCancelation(record.trx_timestamp, 72);
 
-	if (requestsType === "withdraw") {
-		if (record.status === "opened") {
-			btn = (
-				<CancelRequest
-					disabled={isComplainActive}
-					isActionActive={isCancelRequestActive}
-					handleCancel={e => {
-						return cancelRequest(record.requestId);
-					}}
-					punish={punish}
-				/>
-			);
-		}
-	} else {
-		if (
-			record.status === "opened" ||
-			(record.status === "choose" && !isTimeUp(record.chooseTimestamp, h24Mc))
-		) {
-			btn = (
-				<CancelRequest
-					disabled={isComplainActive}
-					isActionActive={isCancelRequestActive}
-					handleCancel={e => {
-						return cancelRequest(record.requestId);
-					}}
-					punish={punish}
-				/>
-			);
-		}
+	if (
+		requestsType === "deposit" ||
+		requestsType === "buy_onyx_cash" ||
+		(requestsType === "withdraw" && record.statusCode === requestStatus.opened)
+	) {
+		btn = (
+			<CancelRequest
+				disabled={isComplainActive}
+				isActionActive={isCancelRequestActive}
+				handleCancel={e => {
+					return cancelRequest(record.requestId);
+				}}
+				punish={punish}
+			/>
+		);
 	}
 	return btn;
 }
@@ -195,11 +181,11 @@ export default function renderInitiatorColumns({
 			{
 				title: "Actions",
 				render: (text, record, index) => {
-					if (record.statusCode === requestStatus.complained) {
+					if (record.statusCode === requestStatus.pending || record._isDisabled) {
+						return null;
+					} else if (record.statusCode === requestStatus.complained) {
 						return <SupportLink />;
 					}
-
-					if (record._isDisabled) return null;
 
 					const isComplainActive =
 						record.requestId === activeRequestId && activeAction === aa.complain;
