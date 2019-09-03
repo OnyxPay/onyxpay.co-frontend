@@ -204,15 +204,13 @@ class AssetsList extends Component {
 				title: "Buy price",
 				key: "buyPrice",
 				width: "20%",
-				render: record =>
-					record.buyPrice === null ? "n/a" : convertAmountToStr(record.buyPrice, 8),
+				render: record => (!record.buyPrice ? "n/a" : convertAmountToStr(record.buyPrice, 8)),
 			},
 			{
 				title: "Sell price",
 				key: "sellPrice",
 				width: "20%",
-				render: record =>
-					record.sellPrice === null ? "n/a" : convertAmountToStr(record.sellPrice, 8),
+				render: record => (!record.sellPrice ? "n/a" : convertAmountToStr(record.sellPrice, 8)),
 			},
 			{
 				title: "Status",
