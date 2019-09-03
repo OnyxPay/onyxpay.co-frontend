@@ -3,8 +3,8 @@ import { Formik } from "formik";
 import { Modal, Button, Input, Form } from "antd";
 import { TextAligner } from "./../../styled";
 import { addNewAsset } from "api/admin/assets";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { handleBcError } from "api/network";
+import { showNotification } from "components/notification";
 
 class AddNewAsset extends Component {
 	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -21,15 +21,8 @@ class AddNewAsset extends Component {
 			getAssetsList();
 			resetForm();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-				setSubmitting(false);
-			}
+			handleBcError(e);
+			setSubmitting(false);
 		} finally {
 			hideModal();
 		}
