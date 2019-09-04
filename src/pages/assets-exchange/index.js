@@ -32,13 +32,13 @@ const assetsColumns = [
 		width: "9em",
 	},
 	{
-		title: "Sell price",
+		title: "Sell rate",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
 		width: "9em",
 	},
 	{
-		title: "Buy price",
+		title: "Buy rate",
 		dataIndex: "buyPrice",
 		key: "buyPrice",
 		width: "9em",
