@@ -2,13 +2,14 @@ import { Icon, Menu } from "antd";
 import { Link, withRouter } from "react-router-dom";
 import React, { Component } from "react";
 import { compose } from "redux";
+import { roles } from "api/constants";
 import connect from "react-redux/es/connect/connect";
 
 const SubMenu = Menu.SubMenu;
 
 class AdminMenu extends Component {
 	render() {
-		const { location } = this.props;
+		const { location, user } = this.props;
 		return (
 			<Menu theme="dark" selectedKeys={[location.pathname]} mode="inline">
 				<Menu.Item key="/admin/users">
@@ -17,12 +18,15 @@ class AdminMenu extends Component {
 						<span>Users</span>
 					</Link>
 				</Menu.Item>
-				<Menu.Item key="/admin/assets">
-					<Link to="/admin/assets" className="ant-menu-item-content">
-						<Icon type="dollar" />
-						<span>Assets</span>
-					</Link>
-				</Menu.Item>
+				{// assets management is available for super admin only
+				user.role === roles.sadm ? (
+					<Menu.Item key="/admin/assets">
+						<Link to="/admin/assets" className="ant-menu-item-content">
+							<Icon type="dollar" />
+							<span>Assets</span>
+						</Link>
+					</Menu.Item>
+				) : null}
 				<SubMenu
 					key="requests"
 					title={
@@ -32,11 +36,14 @@ class AdminMenu extends Component {
 						</span>
 					}
 				>
-					<Menu.Item key="/admin/requests/user-upgrade">
-						<Link to="/admin/requests/user-upgrade" className="ant-menu-item-content">
-							<span>Account upgrade</span>
-						</Link>
-					</Menu.Item>
+					{// account upgrade is available for super admin or admin
+					user.role === roles.sadm || user.role === roles.adm ? (
+						<Menu.Item key="/admin/requests/user-upgrade">
+							<Link to="/admin/requests/user-upgrade" className="ant-menu-item-content">
+								<span>Account upgrade</span>
+							</Link>
+						</Menu.Item>
+					) : null}
 					<Menu.Item key="/admin/requests/complaints">
 						<Link to="/admin/requests/complaints" className="ant-menu-item-content">
 							<span>Complaints</span>
@@ -49,14 +56,17 @@ class AdminMenu extends Component {
 					</Menu.Item>
 				</SubMenu>
 
-				{process.env.REACT_APP_TAG !== "prod" && (
-					<Menu.Item key="/admin/dev">
-						<Link to="/admin/dev" className="ant-menu-item-content">
-							<Icon type="tool" />
-							<span>Dev options</span>
-						</Link>
-					</Menu.Item>
-				)}
+				{// dev options are available for super admin or admin
+				user.role === roles.sadm || user.role === roles.adm
+					? process.env.REACT_APP_TAG !== "prod" && (
+							<Menu.Item key="/admin/dev">
+								<Link to="/admin/dev" className="ant-menu-item-content">
+									<Icon type="tool" />
+									<span>Dev options</span>
+								</Link>
+							</Menu.Item>
+					  )
+					: null}
 			</Menu>
 		);
 	}

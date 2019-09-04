@@ -27,10 +27,15 @@ const AvatarContainer = styled.div`
 `;
 
 function getUpgradeMenuItem(linkRole, title, userRole) {
-	if (userRole === roles.sa || userRole === roles.adm || userRole === roles.sadm) {
-		return;
+	if (
+		userRole === roles.sa ||
+		userRole === roles.adm ||
+		userRole === roles.sadm ||
+		userRole === roles.support
+	) {
+		return null;
 	} else if (userRole === roles.a && linkRole === roles.a) {
-		return;
+		return null;
 	} else {
 		return (
 			<Menu.Item>
@@ -51,6 +56,22 @@ function getReferralLinkMenuItem(userRole) {
 				</Link>
 			</Menu.Item>
 		);
+	} else {
+		return null;
+	}
+}
+
+function getProfileLinkMenuItem(userRole) {
+	if (userRole === roles.c || userRole === roles.a || userRole === roles.sa) {
+		return (
+			<Menu.Item>
+				<Link to={"/profile"}>
+					<UpgradeLink>Profile</UpgradeLink>
+				</Link>
+			</Menu.Item>
+		);
+	} else {
+		return null;
 	}
 }
 
@@ -62,11 +83,7 @@ const DropdownMenu = ({ logOut, user }) => {
 				{getUpgradeMenuItem("agent", "Upgrade to Agent", user.role)}
 				{getUpgradeMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
 				{getReferralLinkMenuItem(user.role)}
-				<Menu.Item>
-					<Link to={"/profile"}>
-						<UpgradeLink>Profile</UpgradeLink>
-					</Link>
-				</Menu.Item>
+				{getProfileLinkMenuItem(user.role)}
 				<Menu.Divider />
 				<Menu.Item onClick={() => logOut()}>
 					<span>Logout</span>
