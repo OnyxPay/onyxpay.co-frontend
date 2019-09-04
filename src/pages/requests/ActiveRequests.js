@@ -138,20 +138,22 @@ export default class ActiveRequests extends Component {
 
 			this.setState({ requestId, activeAction: aa.confirm });
 
-			if (!(requestTypeCode === operationType.withdraw)) {
-				const allow = balanceAssets.some(balance => {
-					return (
-						(balance.symbol === requestAsset && requestAmount <= balance.amount) ||
-						(requestAsset === "OnyxCash" && requestAmount <= balanceOnyxCash)
-					);
+			let allow = true;
+
+			if (requestTypeCode === operationType.deposit) {
+				allow = balanceAssets.some(balance => {
+					return balance.symbol === requestAsset && requestAmount <= balance.amount;
 				});
-				if (!allow) {
-					showNotification({
-						type: "error",
-						msg: "Request cannot be confirmed. Insufficient amount of asset.",
-					});
-					return;
-				}
+			} else if (requestTypeCode === operationType.buyOnyxCache) {
+				allow = requestAsset === "OnyxCash" && requestAmount <= Number(balanceOnyxCash);
+			}
+
+			if (!allow) {
+				showNotification({
+					type: "error",
+					msg: "Request cannot be confirmed. Insufficient amount of asset.",
+				});
+				return;
 			}
 
 			await acceptRequest(requestId);
