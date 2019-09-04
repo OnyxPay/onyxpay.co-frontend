@@ -60,7 +60,7 @@ function getReferralLinkMenuItem(userRole) {
 }
 
 function getProfileLinkMenuItem(userRole) {
-	if (userRole !== roles.c && userRole !== roles.a && userRole !== roles.sa) {
+	if (userRole !== roles.support && userRole !== roles.adm && userRole !== roles.sadm) {
 		return (
 			<Menu.Item>
 				<Link to={"/profile"}>
