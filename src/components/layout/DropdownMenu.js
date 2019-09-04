@@ -33,9 +33,9 @@ function getUpgradeMenuItem(linkRole, title, userRole) {
 		userRole === roles.sadm ||
 		userRole === roles.support
 	) {
-		return;
+		return null;
 	} else if (userRole === roles.a && linkRole === roles.a) {
-		return;
+		return null;
 	} else {
 		return (
 			<Menu.Item>
