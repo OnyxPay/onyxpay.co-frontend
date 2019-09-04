@@ -56,11 +56,13 @@ function getReferralLinkMenuItem(userRole) {
 				</Link>
 			</Menu.Item>
 		);
+	} else {
+		return null;
 	}
 }
 
 function getProfileLinkMenuItem(userRole) {
-	if (userRole !== roles.support && userRole !== roles.adm && userRole !== roles.sadm) {
+	if (userRole === roles.c || userRole === roles.a || userRole === roles.sa) {
 		return (
 			<Menu.Item>
 				<Link to={"/profile"}>
@@ -68,6 +70,8 @@ function getProfileLinkMenuItem(userRole) {
 				</Link>
 			</Menu.Item>
 		);
+	} else {
+		return null;
 	}
 }
 
