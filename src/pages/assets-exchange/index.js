@@ -211,14 +211,12 @@ class AssetsExchange extends Component {
 	}
 
 	setAssetToBuyValues = async (assetName, amount) => {
-		if (isNaN(amount)) amount = 0;
-		if (amount === 0) amount = "";
+		if (isNaN(amount) || amount === 0) amount = "";
 		await this.setStateAsync({ assetToBuy: { name: assetName, amount: amount } });
 	};
 
 	setAssetToSellValues = async (assetName, amount) => {
-		if (isNaN(amount)) amount = 0;
-		if (amount === 0) amount = "";
+		if (isNaN(amount) || amount === 0) amount = "";
 		await this.setStateAsync({ assetToSell: { name: assetName, amount: amount } });
 	};
 
