@@ -7,17 +7,17 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 	let columns = [];
 	if (role === roles.c) {
 		columns = [
-			{ title: "Name", dataIndex: "symbol" },
+			{ title: "Asset", dataIndex: "symbol" },
 			{ title: "Amount", dataIndex: "amount" },
-			{ title: "USD", dataIndex: "asset_converted" },
+			{ title: "USD equivalent", dataIndex: "asset_converted" },
 		];
 	} else {
 		columns = [
-			{ title: "Name", dataIndex: "symbol" },
+			{ title: "Asset", dataIndex: "symbol" },
 			{ title: "Amount", dataIndex: "amount" },
 			{ title: "Buy", dataIndex: "buy" },
 			{ title: "Sell", dataIndex: "sell" },
-			{ title: "ONYXCASH", dataIndex: "asset_converted" },
+			{ title: "OnyxCash equivalent", dataIndex: "asset_converted" },
 		];
 	}
 
@@ -35,7 +35,6 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 				</Title>
 			)}
 
-			<Title level={4}>Assets:</Title>
 			<Table
 				columns={columns}
 				dataSource={balance.assets}

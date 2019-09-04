@@ -134,7 +134,7 @@ class Users extends Component {
 		if (!adminUsers) return null;
 		const roleColumnFilters = [
 			{
-				text: "User",
+				text: "Client",
 				value: roles.c,
 			},
 			{

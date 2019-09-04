@@ -75,7 +75,7 @@ export function sortValues(valA, valB) {
 
 export function formatUserRole(role) {
 	if (role === "user") {
-		return "User";
+		return "Client";
 	} else if (role === "agent") {
 		return "Agent";
 	} else if (role === "superagent") {

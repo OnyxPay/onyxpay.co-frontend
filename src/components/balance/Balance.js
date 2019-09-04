@@ -108,7 +108,7 @@ class Balance extends Component {
 							amount={user.role === roles.c ? assetsTotal : onyxCashTotal}
 							extra={
 								oneOfValidUserRoles ? (
-									<Button onClick={this.showModal("main")}>see detailed balance</Button>
+									<Button onClick={this.showModal("main")}>See detailed balance</Button>
 								) : null
 							}
 						/>
