@@ -85,6 +85,10 @@ function disableOperationReq(state, action) {
 
 	return { ...state, items: modifiedItems };
 }
+function removeRequestFromTheList(state, action) {
+	let takerItems = state.items.filter(item => item.request.requestId !== action.payload.requestId);
+	return { items: takerItems, total: state.total - 1 };
+}
 
 export const opMessagesReducer = (state = initState, action) => {
 	let pred;
@@ -108,26 +112,20 @@ export const opMessagesReducer = (state = initState, action) => {
 			break;
 
 		case wsEvents.cancelAcceptationTaker:
-			pred = takerAcceptationPredicate(
-				action.payload,
-				action.type,
-				"request was canceled successfully"
-			);
-			break;
+			return removeRequestFromTheList(state, action);
 
 		case wsEvents.chooseAgentTaker:
 			pred = chooseRequestTakerPredicate(action.payload);
 			break;
 
 		case wsEvents.changeRequestStatusTaker:
-			if (action.payload.status === requestStatus.complained) {
+			if (
+				action.payload.status === requestStatus.complained ||
+				action.payload.status === requestStatus.rejected
+			) {
 				pred = handleComplainStatusPredicate(action.payload);
 			} else {
-				// remove request from the list
-				let takerItems = state.items.filter(
-					item => item.request.requestId !== action.payload.requestId
-				);
-				return { items: takerItems, total: state.total - 1 };
+				return removeRequestFromTheList(state, action);
 			}
 			break;
 		default:
