@@ -3,13 +3,13 @@ import { Formik } from "formik";
 import { Modal, Button, Input, Form, Descriptions } from "antd";
 import { TextAligner } from "./../../styled";
 import { setAssetExchangeRates } from "api/assets";
-import { TimeoutError } from "promise-timeout";
-import { showNotification, showTimeoutNotification } from "components/notification";
+import { handleBcError } from "api/network";
+import { showNotification } from "components/notification";
 import { convertAmountToStr } from "utils/number";
 
 class SetExchangeRates extends Component {
 	handleFormSubmit = async (values, { setSubmitting, resetForm }) => {
-		const { hideModal, getExchangeRates, tokenId } = this.props;
+		const { hideModal, tokenId } = this.props;
 		const { assets_buy, asset_sell } = values;
 		try {
 			const res = await setAssetExchangeRates(tokenId, asset_sell, assets_buy);
@@ -19,18 +19,10 @@ class SetExchangeRates extends Component {
 					msg: "Successfully set exchange rate",
 				});
 			}
-			getExchangeRates();
 			resetForm();
 		} catch (e) {
-			if (e instanceof TimeoutError) {
-				showTimeoutNotification();
-			} else {
-				showNotification({
-					type: "error",
-					msg: e.message,
-				});
-				setSubmitting(false);
-			}
+			handleBcError(e);
+			setSubmitting(false);
 		} finally {
 			hideModal();
 		}
@@ -50,10 +42,10 @@ class SetExchangeRates extends Component {
 					<Descriptions>
 						<Descriptions.Item label="Asset">{tokenId}</Descriptions.Item>
 						<Descriptions.Item label="Buy price">
-							{convertAmountToStr(buyPrice, 8)}
+							{buyPrice === null ? "n/a" : convertAmountToStr(buyPrice, 8)}
 						</Descriptions.Item>
 						<Descriptions.Item label="Sell price">
-							{convertAmountToStr(sellPrice, 8)}
+							{sellPrice === null ? "n/a" : convertAmountToStr(sellPrice, 8)}
 						</Descriptions.Item>
 					</Descriptions>
 					<Formik

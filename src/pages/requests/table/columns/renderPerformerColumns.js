@@ -77,7 +77,7 @@ function renderCancelBtn(
 }
 
 function renderConfirmBtn(record, isConfirmActive, confirmRequest) {
-	if (record.status !== "accepted" && record.request.statusCode !== requestStatus.choose) {
+	if (record.status !== "accepted" && record.request.statusCode === requestStatus.opened) {
 		if (isConfirmActive) {
 			return (
 				<Button type="primary" loading={true} disabled={true}>
@@ -116,11 +116,8 @@ function renderHideBtn(
 	if (
 		(record.status !== "accepted" &&
 			record.request &&
-			record.request.statusCode !== requestStatus.choose) ||
-		(record.request &&
-			record.request.statusCode === requestStatus.choose &&
-			record.request.takerAddr !== walletAddress &&
-			requestsType === "withdraw")
+			record.request.takerAddr !== walletAddress) ||
+		(record.request && record.request.takerAddr !== walletAddress && requestsType === "withdraw")
 	) {
 		if (isConfirmActive || isCancelAcceptedRequestActive) {
 			return (

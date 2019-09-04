@@ -6,7 +6,7 @@ const { TextArea } = Input;
 
 class ReasonToRejectUpgradeModal extends Component {
 	handleFormSubmit = async (values, formActions) => {
-		this.props.handleRejectRequest(values.reason);
+		this.props.handleRejectRequest(values.reason, formActions);
 	};
 
 	render() {
@@ -29,6 +29,8 @@ class ReasonToRejectUpgradeModal extends Component {
 							let errors = {};
 							if (!values.reason) {
 								errors.reason = "Required";
+							} else if (values.reason.length < 2) {
+								errors.reason = "Min length is 2 characters";
 							}
 							return errors;
 						}}
