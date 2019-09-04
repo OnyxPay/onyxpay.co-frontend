@@ -71,11 +71,19 @@ class Withdraw extends Component {
 		return isEnough;
 	}
 
-	async calcMaxAmount(assetSymbol, updateFee) {
+	async calcMaxAmount(assetSymbol, updateFee, formActions) {
 		const { assets } = this.props;
 		if (assets.length) {
 			try {
 				const asset = assets.find(asset => asset.symbol === assetSymbol);
+				const isEnteredEnoughAmount = this.isEnteredEnoughAmount(
+					convertAmountToStr(asset.amount, 8),
+					asset.symbol
+				);
+				if (!isEnteredEnoughAmount) {
+					this.setState({ fee: 0, errorAmount: true });
+					return formActions.setFieldError("amount", "Min amount is equivalent 1 oUSD");
+				}
 				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "withdraw");
 				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
 				let maxAmount = (convertAmountToStr(asset.amount, 8) / (1 + maxAmountFeePercent)).toFixed(
@@ -98,9 +106,9 @@ class Withdraw extends Component {
 		}
 	}
 
-	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
-		const maxAmount = await this.calcMaxAmount(assetSymbol, true);
-		setFieldValue("amount", maxAmount);
+	handleMaxAmount = (assetSymbol, formActions) => async e => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol, true, formActions);
+		formActions.setFieldValue("amount", maxAmount);
 	};
 
 	handleFormSubmit = async (values, formActions) => {
@@ -115,7 +123,7 @@ class Withdraw extends Component {
 
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("amount", "Min amount is 1 oUSD");
+				return formActions.setFieldError("amount", "Min amount is equivalent 1 oUSD");
 			}
 			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
 
@@ -256,8 +264,14 @@ class Withdraw extends Component {
 												className="ant-form-item--lh32"
 												label="Amount"
 												required
-												validateStatus={errors.amount && touched.amount ? "error" : ""}
-												help={errors.amount && touched.amount ? errors.amount : ""}
+												validateStatus={
+													errors.amount && (touched.amount || this.state.errorAmount) ? "error" : ""
+												}
+												help={
+													errors.amount && (touched.amount || this.state.errorAmount)
+														? errors.amount
+														: ""
+												}
 											>
 												<Input.Group compact style={{ display: "flex" }}>
 													<InputNumber
@@ -275,14 +289,17 @@ class Withdraw extends Component {
 														style={{ width: "100%" }}
 													/>
 													<Button
-														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+														onClick={this.handleMaxAmount(values.asset_symbol, {
+															setFieldError,
+															setFieldValue,
+														})}
 														disabled={isFormDisabled || isSubmitting}
 													>
 														max
 													</Button>
 												</Input.Group>
 											</Form.Item>
-											{fee && values.amount && (
+											{fee !== 0 && values.amount && (
 												<Text
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
