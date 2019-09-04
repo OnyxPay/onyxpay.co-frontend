@@ -100,8 +100,19 @@ export const opMessagesReducer = (state = initState, action) => {
 			return disableOperationReq(state, action);
 
 		case wsEvents.newMessage:
-			showNotification({ type: "success", msg: "You received new request" });
-			return { ...state, total: state.total + 1, items: [action.payload, ...state.items] };
+			try {
+				showNotification({ type: "success", msg: "You received new request" }); // TODO: add details about request, link to page?
+				const isStaleMsg = state.items.some(
+					msg => msg.request.requestId === action.payload.request.requestId
+				);
+				if (state.requestType === action.payload.request.type && !isStaleMsg) {
+					return { ...state, total: state.total + 1, items: [action.payload, ...state.items] };
+				} else {
+					return state;
+				}
+			} catch (e) {
+				return state;
+			}
 
 		case wsEvents.acceptRequestTaker:
 			pred = takerAcceptationPredicate(
@@ -145,7 +156,7 @@ export const getOpMessages = ({
 
 		dispatch({
 			type: GET_OPERATION_MESSAGES_SUCCESS,
-			payload: data,
+			payload: { ...data, requestType },
 			fetchActive: fetchActive,
 		});
 	} catch (e) {

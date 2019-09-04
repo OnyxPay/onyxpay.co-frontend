@@ -6,7 +6,7 @@ export const initState = {
 };
 
 export function enumerateItems(state, pred) {
-	if (state.items) {
+	if (state.items && pred) {
 		let items = state.items.map(el => {
 			return pred(el, state);
 		});
