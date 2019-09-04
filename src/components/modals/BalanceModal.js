@@ -15,8 +15,6 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 		columns = [
 			{ title: "Asset", dataIndex: "symbol" },
 			{ title: "Amount", dataIndex: "amount" },
-			{ title: "Buy", dataIndex: "buy" },
-			{ title: "Sell", dataIndex: "sell" },
 			{ title: "OnyxCash equivalent", dataIndex: "asset_converted" },
 		];
 	}
