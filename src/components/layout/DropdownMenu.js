@@ -59,6 +59,18 @@ function getReferralLinkMenuItem(userRole) {
 	}
 }
 
+function getProfileLinkMenuItem(userRole) {
+	if (userRole !== roles.c && userRole !== roles.a && userRole !== roles.sa) {
+		return (
+			<Menu.Item>
+				<Link to={"/profile"}>
+					<UpgradeLink>Profile</UpgradeLink>
+				</Link>
+			</Menu.Item>
+		);
+	}
+}
+
 const DropdownMenu = ({ logOut, user }) => {
 	let menu;
 	if (user) {
@@ -67,11 +79,7 @@ const DropdownMenu = ({ logOut, user }) => {
 				{getUpgradeMenuItem("agent", "Upgrade to Agent", user.role)}
 				{getUpgradeMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
 				{getReferralLinkMenuItem(user.role)}
-				<Menu.Item>
-					<Link to={"/profile"}>
-						<UpgradeLink>Profile</UpgradeLink>
-					</Link>
-				</Menu.Item>
+				{getProfileLinkMenuItem(user.role)}
 				<Menu.Divider />
 				<Menu.Item onClick={() => logOut()}>
 					<span>Logout</span>
