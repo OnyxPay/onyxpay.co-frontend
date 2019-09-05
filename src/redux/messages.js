@@ -54,7 +54,9 @@ const chooseRequestTakerPredicate = payload => {
 const handleComplainStatusPredicate = payload => {
 	return item => {
 		if (item.request.requestId === payload.requestId) {
-			let message = item.type + " request with id (" + item.id + ") is complained";
+			let message = `${item.type || ""} request with id (${item.id}) is ${
+				item.request.status === requestStatus.complained ? "complained" : "canceled"
+			}`;
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
@@ -85,6 +87,7 @@ function disableOperationReq(state, action) {
 
 	return { ...state, items: modifiedItems };
 }
+
 function removeRequestFromTheList(state, action) {
 	let takerItems = state.items.filter(item => item.request.requestId !== action.payload.requestId);
 	return { items: takerItems, total: state.total - 1 };
