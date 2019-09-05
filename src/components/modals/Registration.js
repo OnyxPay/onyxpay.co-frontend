@@ -108,21 +108,21 @@ class RegistrationModal extends Component {
 					validate={values => {
 						let errors = {};
 						if (!values.firstName) {
-							errors.firstName = "Required";
+							errors.firstName = "Required field";
 						} else if (values.firstName.length < 2) {
 							errors.firstName = "Min length 2";
 						} else if (!isLatinChars(values.firstName)) {
 							errors.firstName = "First name must contain only Latin letters";
 						}
 						if (!values.lastName) {
-							errors.lastName = "Required";
+							errors.lastName = "Required field";
 						} else if (values.lastName.length < 2) {
 							errors.lastName = "Min length 2";
 						} else if (!isLatinChars(values.lastName)) {
 							errors.lastName = "Last name must contain only Latin letters";
 						}
 						if (!values.country_id) {
-							errors.country_id = "Required";
+							errors.country_id = "Required field";
 						}
 						if (values.referral_wallet.length !== 0 && !isBase58Address(values.referral_wallet)) {
 							errors.referral_wallet = "Referral wallet address should be in base58 format";

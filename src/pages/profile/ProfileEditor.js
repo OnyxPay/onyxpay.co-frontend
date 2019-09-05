@@ -27,7 +27,7 @@ function updateProfile(data, getUserData) {
 
 function validateNameField(value) {
 	if (!value) {
-		return "required";
+		return "Required field";
 	} else if (value.length < 2) {
 		return "min length 2";
 	} else if (!isLatinChars(value)) {
@@ -38,7 +38,7 @@ function validateNameField(value) {
 function validateEmail(inputRef, prevEmail) {
 	const newEmail = inputRef.state.value;
 	if (!inputRef.state.value) {
-		return "required";
+		return "Required field";
 	} else if (!isEmailValid(inputRef.state.value)) {
 		return "Email is not valid";
 	} else if (newEmail === prevEmail) {

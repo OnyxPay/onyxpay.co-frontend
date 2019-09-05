@@ -134,9 +134,9 @@ class CreateWalletModal extends Component {
 								validate={({ password, password_confirm, terms_confirm }) => {
 									let errors = {};
 									if (!password) {
-										errors.password = "Required";
+										errors.password = "Required field";
 									} else if (!password_confirm) {
-										errors.password_confirm = "Required";
+										errors.password_confirm = "Required field";
 									} else {
 										errors = samePassword({ password, password_confirm });
 									}
@@ -264,7 +264,7 @@ class CreateWalletModal extends Component {
 								validate={({ mnemonics }) => {
 									let errors = {};
 									if (!mnemonics) {
-										errors.mnemonics = "Required";
+										errors.mnemonics = "Required field";
 									} else if (!isMnemonicsValid(mnemonics)) {
 										errors.mnemonics = "Mnemonic phrase is not valid";
 									}

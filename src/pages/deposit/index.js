@@ -125,10 +125,10 @@ class Deposit extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.asset_symbol) {
-								errors.asset_symbol = "Required";
+								errors.asset_symbol = "Required field";
 							}
 							if (!values.amount) {
-								errors.amount = "Required";
+								errors.amount = "Required field";
 							} else if (values.amount <= 0) {
 								errors.amount = "Only positive values are allowed";
 							} else if ((user.role === roles.a || user.role === roles.sa) && values.amount < 1) {

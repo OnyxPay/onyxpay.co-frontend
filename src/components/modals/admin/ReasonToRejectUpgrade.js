@@ -28,7 +28,7 @@ class ReasonToRejectUpgradeModal extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.reason) {
-								errors.reason = "Required";
+								errors.reason = "Required field";
 							} else if (values.reason.length < 2) {
 								errors.reason = "Min length is 2 characters";
 							}
