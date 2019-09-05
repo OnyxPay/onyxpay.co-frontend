@@ -48,7 +48,7 @@ export const addressOfHead = headAddress;
 export const BackendUrl = reactAppBackendUrl;
 
 export const OnyxCashDecimals = 8;
-export const onyxCashSymbol = "oCASH";
+export const onyxCashSymbol = "OnyxCash";
 
 export const tempWalletPassword = {};
 
