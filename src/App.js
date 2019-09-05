@@ -170,7 +170,9 @@ class App extends Component {
 		wsClientRun();
 	}
 	getAdditionalRoutes() {
-		if (process.env.REACT_APP_TAG !== "prod") {
+		if (process.env.REACT_APP_TAG === "prod" && !localStorage.getItem("_isDevModeActive")) {
+			return null;
+		} else {
 			return (
 				<>
 					<Route path="/deposit" component={Deposit} />
