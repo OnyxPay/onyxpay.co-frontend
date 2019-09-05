@@ -198,3 +198,15 @@ export async function registerSend(values) {
 	});
 	return res.data;
 }
+
+export function filterAssets(assets, exchangeRates) {
+	const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
+	return assets.filter(asset => {
+		const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
+		if (rate) {
+			return rateUSD.sell <= rate.sell * (asset.amount / 10 ** 8);
+		} else {
+			return false;
+		}
+	});
+}

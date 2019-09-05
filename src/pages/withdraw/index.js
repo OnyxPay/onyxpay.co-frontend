@@ -24,6 +24,7 @@ import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
 import { getFee } from "../../api/assets";
 import AvailableBalance from "components/balance/AvailableBalance";
 import { debounce } from "lodash";
+import { filterAssets } from "api/assets";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -76,14 +77,6 @@ class Withdraw extends Component {
 		if (assets.length) {
 			try {
 				const asset = assets.find(asset => asset.symbol === assetSymbol);
-				const isEnteredEnoughAmount = this.isEnteredEnoughAmount(
-					convertAmountToStr(asset.amount, 8),
-					asset.symbol
-				);
-				if (!isEnteredEnoughAmount) {
-					this.setState({ fee: 0, errorAmount: true });
-					return formActions.setFieldError("amount", "Min amount is equivalent 1 oUSD");
-				}
 				const fee = await getFee(assetSymbol, convertAmountToStr(asset.amount, 8), "withdraw");
 				const maxAmountFeePercent = parseFloat((fee / asset.amount).toFixed(8));
 				let maxAmount = (convertAmountToStr(asset.amount, 8) / (1 + maxAmountFeePercent)).toFixed(
@@ -126,7 +119,7 @@ class Withdraw extends Component {
 				return formActions.setFieldError("amount", "Min amount is equivalent 1 oUSD");
 			}
 			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
-
+			debugger;
 			if (Number(maxAmount) < Number(values.amount)) {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", `Max amount is ${maxAmount}`);
@@ -181,7 +174,7 @@ class Withdraw extends Component {
 	};
 
 	render() {
-		const { assets } = this.props;
+		const { assets, exchangeRates } = this.props;
 		const { activeRequestsError, settlementsError, fee } = this.state;
 
 		const isFormDisabled = settlementsError || activeRequestsError;
@@ -247,13 +240,15 @@ class Withdraw extends Component {
 													}
 													disabled={isFormDisabled || isSubmitting}
 												>
-													{assets.map((asset, index) => {
-														return (
-															<Option key={index} value={asset.symbol}>
-																{asset.symbol}
-															</Option>
-														);
-													})}
+													{exchangeRates.length && assets.length
+														? filterAssets(assets, exchangeRates).map((asset, index) => {
+																return (
+																	<Option key={index} value={asset.symbol}>
+																		{asset.symbol}
+																	</Option>
+																);
+														  })
+														: null}
 												</Select>
 											</Form.Item>
 											{!isFormDisabled && <AvailableBalance assetSymbol={values.asset_symbol} />}
@@ -342,7 +337,13 @@ class Withdraw extends Component {
 									{assets.length && !activeRequestsError && (
 										<Alert
 											style={{ marginTop: 16 }}
-											message="The fiat payment from the agent can be sent only in the selected currency."
+											message={
+												<>
+													The fiat payment from the agent can be sent only in the selected currency.
+													<br />
+													Min available amount to withdraw is equivalent of 1 USD.
+												</>
+											}
 											type="info"
 										/>
 									)}
