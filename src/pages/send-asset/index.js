@@ -200,7 +200,7 @@ class SendAsset extends Component {
 				<PageTitle>Send assets</PageTitle>
 				<Card>
 					<Alert
-						style={{ marginTop: 16 }}
+						style={{ marginBottom: 10 }}
 						message={
 							"You are allowed to send assets only to users. In order to send assets, you need to know the address of the recipient’s wallet."
 						}
@@ -254,7 +254,7 @@ class SendAsset extends Component {
 										<Col lg={8} md={24}>
 											<Form.Item
 												className="ant-form-item--lh32"
-												label="Receiver wallet address"
+												label="Enter the recipient’s wallet address"
 												required
 												validateStatus={
 													errors.receiverAddress && touched.receiverAddress ? "error" : ""
@@ -267,7 +267,7 @@ class SendAsset extends Component {
 											>
 												<Input
 													name="receiverAddress"
-													placeholder="Enter the recipient’s wallet address. EXAMPLE: [pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ]"
+													placeholder="EXAMPLE: [pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ]"
 													value={values.receiverAddress}
 													onChange={handleChange}
 													onBlur={handleBlur}
@@ -370,7 +370,7 @@ class SendAsset extends Component {
 										style={{ marginTop: 16 }}
 										message={
 											availableAssetsToSend.length !== 0
-												? "The minimum available amount to send is 1USD or its equivalent in other currencies."
+												? "The minimum available amount to send is 1 USD or its equivalent in other currencies."
 												: "You have no assets to send at the moment. Please, make a deposit."
 										}
 										type={availableAssetsToSend.length !== 0 ? "info" : "error"}
