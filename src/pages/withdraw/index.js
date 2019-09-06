@@ -180,7 +180,7 @@ class Withdraw extends Component {
 
 		return (
 			<>
-				<PageTitle>Withdraw</PageTitle>
+				<PageTitle>Withdraw assets</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -287,7 +287,7 @@ class Withdraw extends Component {
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
-													fee will be {fee}
+													Transaction fee: [{fee}]
 												</Text>
 											)}
 										</Col>
@@ -325,7 +325,7 @@ class Withdraw extends Component {
 									{assets.length && !activeRequestsError && (
 										<Alert
 											style={{ marginTop: 16 }}
-											message="The fiat payment from the agent can be sent only in the selected currency."
+											message="You may withdraw assets by sending a fiat payment to the agent's account"
 											type="info"
 										/>
 									)}
