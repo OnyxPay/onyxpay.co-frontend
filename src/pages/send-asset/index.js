@@ -199,6 +199,13 @@ class SendAsset extends Component {
 			<>
 				<PageTitle>Send assets</PageTitle>
 				<Card>
+					<Alert
+						style={{ marginBottom: 10 }}
+						message={
+							"You are allowed to send assets only to users. In order to send assets, you need to know the address of the recipient’s wallet."
+						}
+						type="info"
+					/>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
@@ -247,7 +254,7 @@ class SendAsset extends Component {
 										<Col lg={8} md={24}>
 											<Form.Item
 												className="ant-form-item--lh32"
-												label="Receiver address"
+												label="Enter the recipient’s wallet address"
 												required
 												validateStatus={
 													errors.receiverAddress && touched.receiverAddress ? "error" : ""
@@ -260,7 +267,7 @@ class SendAsset extends Component {
 											>
 												<Input
 													name="receiverAddress"
-													placeholder="Enter address"
+													placeholder="EXAMPLE: [pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ]"
 													value={values.receiverAddress}
 													onChange={handleChange}
 													onBlur={handleBlur}
@@ -344,7 +351,7 @@ class SendAsset extends Component {
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
-													fee will be {fee}
+													Transaction fee: [{fee}]
 												</Text>
 											)}
 										</Col>
@@ -363,7 +370,7 @@ class SendAsset extends Component {
 										style={{ marginTop: 16 }}
 										message={
 											availableAssetsToSend.length !== 0
-												? "Min available amount to send is equivalent of 1 USD"
+												? "The minimum available amount to send is 1 USD or its equivalent in other currencies."
 												: "You have no assets to send at the moment. Please, make a deposit."
 										}
 										type={availableAssetsToSend.length !== 0 ? "info" : "error"}
