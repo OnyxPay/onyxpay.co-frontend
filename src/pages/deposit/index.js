@@ -80,7 +80,7 @@ class Deposit extends Component {
 				if (!res.error) {
 					showNotification({
 						type: "success",
-						msg: "Deposit request is successfully created",
+						msg: "Deposit request has been successfully created",
 					});
 					if (isOnyxCash) {
 						push("/active-requests/deposit-onyx-cash");
@@ -114,7 +114,7 @@ class Deposit extends Component {
 
 		return (
 			<>
-				<PageTitle>Deposit</PageTitle>
+				<PageTitle>Deposit {user.role === roles.c ? "assets" : "OnyxCash"}</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -185,7 +185,7 @@ class Deposit extends Component {
 														})}
 													</Select>
 												) : (
-													<Input name="asset_symbol" disabled={true} value={values.asset_symbol} />
+													<Input name="asset_symbol" value={values.asset_symbol} />
 												)}
 											</Form.Item>
 										</Col>
@@ -231,7 +231,7 @@ class Deposit extends Component {
 									{user.role === roles.c && !activeRequestsError ? (
 										<Alert
 											style={{ marginTop: 16 }}
-											message="Only selected fiat currency can be sent to the agent"
+											message="You may deposit assets by sending a fiat payment to the agent's account in the selected currency"
 											type="info"
 										/>
 									) : null}
