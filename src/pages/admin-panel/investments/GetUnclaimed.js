@@ -28,10 +28,10 @@ class GetUnclaimed extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.user_name) {
-								errors.user_name = "Required";
+								errors.user_name = "Required field";
 							}
 							if (!values.user_password) {
-								errors.user_password = "Required";
+								errors.user_password = "Required field";
 							}
 							return errors;
 						}}

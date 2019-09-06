@@ -54,14 +54,14 @@ class SetExchangeRates extends Component {
 						validate={({ assets_buy, asset_sell }) => {
 							let errors = {};
 							if (!assets_buy) {
-								errors.assets_buy = "Required";
+								errors.assets_buy = "Required field";
 							} else if (!+assets_buy) {
 								errors.assets_buy = "Only positive numbers allowed";
 							} else if (assets_buy <= 0) {
 								errors.assets_buy = "Only positive numbers allowed";
 							}
 							if (!asset_sell) {
-								errors.asset_sell = "Required";
+								errors.asset_sell = "Required field";
 							} else if (!+asset_sell) {
 								errors.asset_sell = "Only positive numbers allowed";
 							} else if (asset_sell >= assets_buy) {

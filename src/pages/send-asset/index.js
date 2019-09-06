@@ -209,15 +209,15 @@ class SendAsset extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.receiverAddress) {
-								errors.receiverAddress = "Required";
+								errors.receiverAddress = "Required field";
 							} else if (!isBase58Address(values.receiverAddress)) {
 								errors.receiverAddress = "Recipient's address should be in base58 format";
 							}
 							if (!values.assetSymbol) {
-								errors.assetSymbol = "Required";
+								errors.assetSymbol = "Required field";
 							}
 							if (values.amount === null || values.amount === "") {
-								errors.amount = "Required";
+								errors.amount = "Required field";
 							} else if (values.amount <= 0) {
 								errors.amount = "Only positive values are allowed";
 							} else if (countDecimals(values.amount) > 8) {

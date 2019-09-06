@@ -59,7 +59,7 @@ class UnlockWalletModal extends Component {
 						validate={({ password }) => {
 							let errors = {};
 							if (!password) {
-								errors.password = "Required";
+								errors.password = "Required field";
 							}
 
 							return errors;
