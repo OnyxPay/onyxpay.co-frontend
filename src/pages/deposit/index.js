@@ -231,10 +231,16 @@ class Deposit extends Component {
 									{user.role === roles.c && !activeRequestsError ? (
 										<Alert
 											style={{ marginTop: 16 }}
-											message="You may deposit assets by sending a fiat payment to the agent's account in the selected currency"
+											message="To deposit assets from agent you will have to send corresponding fiat currency to the agent's account."
 											type="info"
 										/>
-									) : null}
+									) : (
+										<Alert
+											style={{ marginTop: 16 }}
+											message="To deposit OnyxCash from super agent you will have to send corresponding fiat currency to the super agent's account."
+											type="info"
+										/>
+									)}
 								</form>
 							);
 						}}
