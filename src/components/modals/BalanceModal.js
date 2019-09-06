@@ -29,7 +29,7 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 		>
 			{(role === roles.a || role === roles.sa) && (
 				<Title level={4}>
-					ONYXCASH: <Text>{balance.onyxCash}</Text>
+					OnyxCash: <Text>{balance.onyxCash}</Text>
 				</Title>
 			)}
 
