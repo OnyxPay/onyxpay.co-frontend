@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Card, Button, Input, Form, Select, Row, Col, Alert } from "antd";
 import { Formik } from "formik";
-import { PageTitle } from "../../components";
+import { PageTitle } from "components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
@@ -122,7 +122,16 @@ class Deposit extends Component {
 
 		return (
 			<>
-				<PageTitle>Deposit {user.role === roles.c ? "assets" : "OnyxCash"}</PageTitle>
+				<PageTitle
+					tooltip={{
+						title:
+							user.role === roles.c && !activeRequestsError
+								? "To deposit assets from agent you will have to send corresponding fiat currency to the agent's account."
+								: "To deposit OnyxCash from super agent you will have to send corresponding fiat currency to the super agent's account.",
+					}}
+				>
+					Deposit {user.role === roles.c ? "assets" : "OnyxCash"}
+				</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -233,20 +242,6 @@ class Deposit extends Component {
 											style={{ marginTop: 16 }}
 											message="Limit of active deposit and withdraw requests (10) is exceeded. To create new requests you should resolve some of the old ones."
 											type="error"
-										/>
-									)}
-
-									{user.role === roles.c && !activeRequestsError ? (
-										<Alert
-											style={{ marginTop: 16 }}
-											message="To deposit assets from agent you will have to send corresponding fiat currency to the agent's account."
-											type="info"
-										/>
-									) : (
-										<Alert
-											style={{ marginTop: 16 }}
-											message="To deposit OnyxCash from super agent you will have to send corresponding fiat currency to the super agent's account."
-											type="info"
 										/>
 									)}
 								</form>
