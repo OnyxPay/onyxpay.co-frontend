@@ -182,7 +182,7 @@ class UserDetailedData extends Component {
 				key: "amount",
 			},
 		];
-
+		console.log(this.props.user.roleCode, userRecord.role_code, userRecord);
 		return (
 			<>
 				<Modal
@@ -249,9 +249,9 @@ class UserDetailedData extends Component {
 					/>
 
 					<Divider>Actions</Divider>
-
 					<Form layout="inline">
-						{userRecord.statusCode === 1 ? (
+						{userRecord.statusCode === 1 &&
+						parseInt(this.props.user.roleCode) > parseInt(userRecord.role_code) ? (
 							<Form.Item>
 								<Button
 									type="danger"
