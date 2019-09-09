@@ -180,7 +180,14 @@ class Withdraw extends Component {
 
 		return (
 			<>
-				<PageTitle>Withdraw assets</PageTitle>
+				<PageTitle
+					tooltip={{
+						title: "You may withdraw assets by sending a fiat payment to the agent's account",
+					}}
+				>
+					Withdraw assets
+				</PageTitle>
+
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -320,13 +327,6 @@ class Withdraw extends Component {
 											style={{ marginTop: 16 }}
 											message="Limit of active deposit and withdraw requests (10) is exceeded. To create new requests you should resolve some of the old ones."
 											type="error"
-										/>
-									)}
-									{assets.length && !activeRequestsError && (
-										<Alert
-											style={{ marginTop: 16 }}
-											message="You may withdraw assets by sending a fiat payment to the agent's account"
-											type="info"
 										/>
 									)}
 								</form>

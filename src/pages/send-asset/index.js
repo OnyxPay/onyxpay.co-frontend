@@ -197,15 +197,27 @@ class SendAsset extends Component {
 		}
 		return (
 			<>
-				<PageTitle>Send assets</PageTitle>
+				<PageTitle
+					tooltip={{
+						title: (
+							<>
+								<ul style={{ marginBottom: 0 }}>
+									<li>
+										The minimum available amount to send is 1 USD or its equivalent in other
+										currencies.
+									</li>
+									<li>
+										You are allowed to send assets only to users. In order to send assets, you need
+										to know the address of the recipient’s wallet.
+									</li>
+								</ul>
+							</>
+						),
+					}}
+				>
+					Send assets
+				</PageTitle>
 				<Card>
-					<Alert
-						style={{ marginBottom: 10 }}
-						message={
-							"You are allowed to send assets only to users. In order to send assets, you need to know the address of the recipient’s wallet."
-						}
-						type="info"
-					/>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
@@ -366,15 +378,13 @@ class SendAsset extends Component {
 											Send
 										</Button>
 									</TextAligner>
-									<Alert
-										style={{ marginTop: 16 }}
-										message={
-											availableAssetsToSend.length !== 0
-												? "The minimum available amount to send is 1 USD or its equivalent in other currencies."
-												: "You have no assets to send at the moment. Please, make a deposit."
-										}
-										type={availableAssetsToSend.length !== 0 ? "info" : "error"}
-									/>
+									{availableAssetsToSend.length === 0 && (
+										<Alert
+											style={{ marginTop: 16 }}
+											message="You have no assets to send at the moment. Please, make a deposit."
+											type="error"
+										/>
+									)}
 								</form>
 							);
 						}}

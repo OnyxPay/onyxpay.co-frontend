@@ -18,10 +18,12 @@ export const PageTitle = ({ children, style, className, tooltip }) => {
 	let content;
 	if (tooltip) {
 		content = (
-			<Tooltip title={tooltip.title} placement="bottom">
+			<>
 				{children}
-				<Icon type="info-circle" style={{ marginLeft: 5, fontSize: 22 }} />
-			</Tooltip>
+				<Tooltip title={tooltip.title} placement="bottom" overlayStyle={{ maxWidth: 400 }}>
+					<Icon type="info-circle" style={{ marginLeft: 5, fontSize: 22 }} />
+				</Tooltip>
+			</>
 		);
 	} else {
 		content = children;
