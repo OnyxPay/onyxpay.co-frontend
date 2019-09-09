@@ -279,7 +279,7 @@ class SendAsset extends Component {
 											>
 												<Input
 													name="receiverAddress"
-													placeholder="EXAMPLE: [pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ]"
+													placeholder="Example: [pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ]"
 													value={values.receiverAddress}
 													onChange={handleChange}
 													onBlur={handleBlur}
