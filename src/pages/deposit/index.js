@@ -31,7 +31,7 @@ class Deposit extends Component {
 
 	async componentDidMount() {
 		const { getExchangeRates } = this.props;
-		const params = { pageSize: 200 };
+		const params = { pageSize: 200, status: "active" };
 		getAssetsData(params).then(res => {
 			if (res && !res.error) {
 				this.setState({ assets: res.items });
