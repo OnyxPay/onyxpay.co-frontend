@@ -15,8 +15,6 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 		columns = [
 			{ title: "Asset", dataIndex: "symbol" },
 			{ title: "Amount", dataIndex: "amount" },
-			{ title: "Buy", dataIndex: "buy" },
-			{ title: "Sell", dataIndex: "sell" },
 			{ title: "OnyxCash equivalent", dataIndex: "asset_converted" },
 		];
 	}
@@ -31,7 +29,7 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 		>
 			{(role === roles.a || role === roles.sa) && (
 				<Title level={4}>
-					ONYXCASH: <Text>{balance.onyxCash}</Text>
+					OnyxCash: <Text>{balance.onyxCash}</Text>
 				</Title>
 			)}
 

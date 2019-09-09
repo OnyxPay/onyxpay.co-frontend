@@ -80,7 +80,7 @@ class Deposit extends Component {
 				if (!res.error) {
 					showNotification({
 						type: "success",
-						msg: "Deposit request is successfully created",
+						msg: "Deposit request has been successfully created",
 					});
 					if (isOnyxCash) {
 						push("/active-requests/deposit-onyx-cash");
@@ -114,7 +114,7 @@ class Deposit extends Component {
 
 		return (
 			<>
-				<PageTitle>Deposit</PageTitle>
+				<PageTitle>Deposit {user.role === roles.c ? "assets" : "OnyxCash"}</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -125,10 +125,10 @@ class Deposit extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.asset_symbol) {
-								errors.asset_symbol = "Required";
+								errors.asset_symbol = "Required field";
 							}
 							if (!values.amount) {
-								errors.amount = "Required";
+								errors.amount = "Required field";
 							} else if (values.amount <= 0) {
 								errors.amount = "Only positive values are allowed";
 							} else if ((user.role === roles.a || user.role === roles.sa) && values.amount < 1) {
@@ -185,7 +185,7 @@ class Deposit extends Component {
 														})}
 													</Select>
 												) : (
-													<Input name="asset_symbol" disabled={true} value={values.asset_symbol} />
+													<Input name="asset_symbol" value={values.asset_symbol} />
 												)}
 											</Form.Item>
 										</Col>
@@ -231,10 +231,16 @@ class Deposit extends Component {
 									{user.role === roles.c && !activeRequestsError ? (
 										<Alert
 											style={{ marginTop: 16 }}
-											message="Only selected fiat currency can be sent to the agent"
+											message="To deposit assets from agent you will have to send corresponding fiat currency to the agent's account."
 											type="info"
 										/>
-									) : null}
+									) : (
+										<Alert
+											style={{ marginTop: 16 }}
+											message="To deposit OnyxCash from super agent you will have to send corresponding fiat currency to the super agent's account."
+											type="info"
+										/>
+									)}
 								</form>
 							);
 						}}

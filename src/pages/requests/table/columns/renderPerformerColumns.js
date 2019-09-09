@@ -325,6 +325,8 @@ export default function renderPerformerColumns({
 					if (record.request) {
 						if (record.statusCode === operationMessageStatus.canceled) {
 							return "assets returned";
+						} else if (record.statusCode === operationMessageStatus.hided) {
+							return "canceled"; // TODO: maybe hidden?
 						}
 						return record.request.status;
 					} else {

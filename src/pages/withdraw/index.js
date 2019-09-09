@@ -72,7 +72,7 @@ class Withdraw extends Component {
 		return isEnough;
 	}
 
-	async calcMaxAmount(assetSymbol, updateFee, formActions) {
+	async calcMaxAmount(assetSymbol, updateFee) {
 		const { assets } = this.props;
 		if (assets.length) {
 			try {
@@ -119,7 +119,6 @@ class Withdraw extends Component {
 				return formActions.setFieldError("amount", "Min amount is equivalent 1 oUSD");
 			}
 			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
-			debugger;
 			if (Number(maxAmount) < Number(values.amount)) {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", `Max amount is ${maxAmount}`);
@@ -179,23 +178,28 @@ class Withdraw extends Component {
 
 		const isFormDisabled = settlementsError || activeRequestsError;
 
+		let availableAssetsToWithdraw = [];
+		if (exchangeRates.length && assets.length) {
+			availableAssetsToWithdraw = filterAssets(assets, exchangeRates, "withdraw");
+		}
+
 		return (
 			<>
-				<PageTitle>Withdraw</PageTitle>
+				<PageTitle>Withdraw assets</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							asset_symbol: "oUSD",
+							asset_symbol: "",
 							amount: "",
 						}}
 						validate={values => {
 							let errors = {};
 							if (!values.asset_symbol) {
-								errors.asset_symbol = "Required";
+								errors.asset_symbol = "Required field";
 							}
 							if (values.amount === null || values.amount === "") {
-								errors.amount = "Required";
+								errors.amount = "Required field";
 							} else if (values.amount <= 0) {
 								errors.amount = "Only positive values are allowed";
 							} else if (countDecimals(values.amount) > 8) {
@@ -233,25 +237,29 @@ class Withdraw extends Component {
 													name="asset_symbol"
 													placeholder="Select an asset"
 													optionFilterProp="children"
-													value={values.asset_symbol}
+													value={values.asset_symbol ? values.asset_symbol : undefined}
 													onChange={this.handleAssetChange(setFieldValue)}
 													filterOption={(input, option) =>
 														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 													}
 													disabled={isFormDisabled || isSubmitting}
 												>
-													{exchangeRates.length && assets.length
-														? filterAssets(assets, exchangeRates).map((asset, index) => {
-																return (
-																	<Option key={index} value={asset.symbol}>
-																		{asset.symbol}
-																	</Option>
-																);
-														  })
+													{availableAssetsToWithdraw.length
+														? filterAssets(assets, exchangeRates, "withdraw").map(
+																(asset, index) => {
+																	return (
+																		<Option key={index} value={asset.symbol}>
+																			{asset.symbol}
+																		</Option>
+																	);
+																}
+														  )
 														: null}
 												</Select>
 											</Form.Item>
-											{!isFormDisabled && <AvailableBalance assetSymbol={values.asset_symbol} />}
+											{values.asset_symbol && (
+												<AvailableBalance assetSymbol={values.asset_symbol} />
+											)}
 										</Col>
 
 										<Col lg={12} md={24}>
@@ -259,14 +267,8 @@ class Withdraw extends Component {
 												className="ant-form-item--lh32"
 												label="Amount"
 												required
-												validateStatus={
-													errors.amount && (touched.amount || this.state.errorAmount) ? "error" : ""
-												}
-												help={
-													errors.amount && (touched.amount || this.state.errorAmount)
-														? errors.amount
-														: ""
-												}
+												validateStatus={errors.amount && touched.amount ? "error" : ""}
+												help={errors.amount && touched.amount ? errors.amount : ""}
 											>
 												<Input.Group compact style={{ display: "flex" }}>
 													<InputNumber
@@ -299,7 +301,7 @@ class Withdraw extends Component {
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
-													fee will be {fee}
+													Transaction fee: [{fee}]
 												</Text>
 											)}
 										</Col>
@@ -338,11 +340,14 @@ class Withdraw extends Component {
 										<Alert
 											style={{ marginTop: 16 }}
 											message={
-												<>
-													The fiat payment from the agent can be sent only in the selected currency.
-													<br />
-													Min available amount to withdraw is equivalent of 1 USD.
-												</>
+												<ul>
+													<li>
+														{
+															"You may withdraw assets by sending a fiat payment to the agent's account."
+														}
+													</li>
+													<li>{"Min available amount to withdraw is equivalent of 1 USD."}</li>
+												</ul>
 											}
 											type="info"
 										/>

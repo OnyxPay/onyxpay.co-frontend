@@ -19,6 +19,7 @@ import { roles } from "api/constants";
 import { trimAddress } from "utils";
 import { push } from "connected-react-router";
 import { handleReqError } from "api/network";
+import { filterAssets } from "api/assets";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -176,24 +177,12 @@ class SendAsset extends Component {
 		formActions.setFieldValue("amount", value);
 	};
 
-	filterAssets(assets, exchangeRates) {
-		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
-		return assets.filter(asset => {
-			const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
-			if (rate) {
-				return rateUSD.sell <= rate.sell * (asset.amount / 10 ** 8);
-			} else {
-				return false;
-			}
-		});
-	}
-
 	render() {
 		const { assets, exchangeRates } = this.props;
 		const { fee } = this.state;
 		let availableAssetsToSend = [];
 		if (exchangeRates.length && assets.length) {
-			availableAssetsToSend = this.filterAssets(assets, exchangeRates);
+			availableAssetsToSend = filterAssets(assets, exchangeRates, "send");
 		}
 		return (
 			<>
@@ -209,15 +198,15 @@ class SendAsset extends Component {
 						validate={values => {
 							let errors = {};
 							if (!values.receiverAddress) {
-								errors.receiverAddress = "Required";
+								errors.receiverAddress = "Required field";
 							} else if (!isBase58Address(values.receiverAddress)) {
 								errors.receiverAddress = "Recipient's address should be in base58 format";
 							}
 							if (!values.assetSymbol) {
-								errors.assetSymbol = "Required";
+								errors.assetSymbol = "Required field";
 							}
 							if (values.amount === null || values.amount === "") {
-								errors.amount = "Required";
+								errors.amount = "Required field";
 							} else if (values.amount <= 0) {
 								errors.amount = "Only positive values are allowed";
 							} else if (countDecimals(values.amount) > 8) {
@@ -247,7 +236,7 @@ class SendAsset extends Component {
 										<Col lg={8} md={24}>
 											<Form.Item
 												className="ant-form-item--lh32"
-												label="Receiver address"
+												label="Enter the recipient’s wallet address"
 												required
 												validateStatus={
 													errors.receiverAddress && touched.receiverAddress ? "error" : ""
@@ -260,7 +249,7 @@ class SendAsset extends Component {
 											>
 												<Input
 													name="receiverAddress"
-													placeholder="Enter address"
+													placeholder="EXAMPLE: [pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ]"
 													value={values.receiverAddress}
 													onChange={handleChange}
 													onBlur={handleBlur}
@@ -291,7 +280,7 @@ class SendAsset extends Component {
 													disabled={!availableAssetsToSend.length || isSubmitting}
 												>
 													{availableAssetsToSend.length
-														? this.filterAssets(assets, exchangeRates).map((asset, index) => {
+														? filterAssets(assets, exchangeRates, "send").map((asset, index) => {
 																return (
 																	<Option key={index} value={asset.symbol}>
 																		{asset.symbol}
@@ -344,7 +333,7 @@ class SendAsset extends Component {
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
-													fee will be {fee}
+													Transaction fee: [{fee}]
 												</Text>
 											)}
 										</Col>
@@ -360,11 +349,20 @@ class SendAsset extends Component {
 										</Button>
 									</TextAligner>
 									<Alert
-										style={{ marginTop: 16 }}
+										style={{ marginTop: 10 }}
 										message={
-											availableAssetsToSend.length !== 0
-												? "Min available amount to send is equivalent of 1 USD"
-												: "You have no assets to send at the moment. Please, make a deposit."
+											<ul>
+												<li>
+													{
+														"You are allowed to send assets only to users. In order to send assets, you need to know the address of the recipient’s wallet."
+													}
+												</li>
+												<li>
+													{availableAssetsToSend.length !== 0
+														? "The minimum available amount to send is 1 USD or its equivalent in other currencies."
+														: "You have no assets to send at the moment. Please, make a deposit."}
+												</li>
+											</ul>
 										}
 										type={availableAssetsToSend.length !== 0 ? "info" : "error"}
 									/>

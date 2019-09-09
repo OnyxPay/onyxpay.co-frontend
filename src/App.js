@@ -134,9 +134,10 @@ let DevOptions = Loadable({
 const User = Authorization([roles.c]);
 // const AgentAndSuperAgent = Authorization([roles.a, roles.sa]);
 const All = Authorization([roles.c, roles.a, roles.sa]);
+const SuperAdmin = Authorization([roles.sadm]);
 const AdminAndSuperAdmin = Authorization([roles.adm, roles.sadm]);
-// const UserAndAgent = Authorization([roles.c, roles.a]);
-const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.sadm]);
+const AdminAndSuperAdminAndSupport = Authorization([roles.adm, roles.sadm, roles.support]);
+const AllRoles = Authorization([roles.c, roles.a, roles.sa, roles.adm, roles.support, roles.sadm]);
 
 // routes with permissions
 Dashboard = All(Dashboard);
@@ -148,11 +149,11 @@ Profile = All(Profile);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
 Profile = AllRoles(Profile);
-Users = AdminAndSuperAdmin(Users);
+Users = AdminAndSuperAdminAndSupport(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
-Complaints = AdminAndSuperAdmin(Complaints);
-ResolvedComplaints = AdminAndSuperAdmin(ResolvedComplaints);
-Assets = AdminAndSuperAdmin(Assets);
+Complaints = AdminAndSuperAdminAndSupport(Complaints);
+ResolvedComplaints = AdminAndSuperAdminAndSupport(ResolvedComplaints);
+Assets = SuperAdmin(Assets);
 ActiveCustomerDepositRequests = All(ActiveCustomerDepositRequests);
 ActiveCustomerWithdrawRequests = All(ActiveCustomerWithdrawRequests);
 ActiveOwnDepositRequests = All(ActiveOwnDepositRequests);
@@ -169,7 +170,9 @@ class App extends Component {
 		wsClientRun();
 	}
 	getAdditionalRoutes() {
-		if (process.env.REACT_APP_TAG !== "prod") {
+		if (process.env.REACT_APP_TAG === "prod" && !localStorage.getItem("_isDevModeActive")) {
+			return null;
+		} else {
 			return (
 				<>
 					<Route path="/deposit" component={Deposit} />

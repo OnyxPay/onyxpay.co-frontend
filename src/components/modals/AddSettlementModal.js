@@ -49,10 +49,10 @@ class AddSettlementModal extends Component {
 					validate={values => {
 						let errors = {};
 						if (!values.account_number) {
-							errors.account_number = "Required";
+							errors.account_number = "Required field";
 						}
 						if (!values.account_name) {
-							errors.account_name = "Required";
+							errors.account_name = "Required field";
 						}
 						return errors;
 					}}

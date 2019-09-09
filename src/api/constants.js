@@ -48,7 +48,7 @@ export const addressOfHead = headAddress;
 export const BackendUrl = reactAppBackendUrl;
 
 export const OnyxCashDecimals = 8;
-export const onyxCashSymbol = "oCASH";
+export const onyxCashSymbol = "OnyxCash";
 
 export const tempWalletPassword = {};
 
@@ -56,6 +56,7 @@ export const roles = {
 	c: "user",
 	a: "agent",
 	sa: "superagent", // at back-end
+	support: "support",
 	adm: "admin",
 	sadm: "super_admin",
 };
@@ -63,14 +64,16 @@ export const roleCodes = {
 	user: 1,
 	agent: 2,
 	superagent: 3,
-	adm: 4,
+	support: 10,
+	adm: 50,
 	super_admin: 100,
 };
 export const roleByCode = {
 	1: roles.c,
 	2: roles.a,
 	3: roles.sa,
-	4: roles.adm,
+	10: roles.support,
+	50: roles.adm,
 	100: roles.sadm,
 };
 export const notifyTimeout = 30000;

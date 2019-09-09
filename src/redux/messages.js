@@ -54,7 +54,9 @@ const chooseRequestTakerPredicate = payload => {
 const handleComplainStatusPredicate = payload => {
 	return item => {
 		if (item.request.requestId === payload.requestId) {
-			let message = item.type + " request with id (" + item.id + ") is complained";
+			let message = `${item.type || ""} request with id (${item.id}) is ${
+				item.request.status === requestStatus.complained ? "complained" : "canceled"
+			}`;
 			showNotification({ type: "success", msg: message });
 			return {
 				...item,
@@ -86,6 +88,11 @@ function disableOperationReq(state, action) {
 	return { ...state, items: modifiedItems };
 }
 
+function removeRequestFromTheList(state, action) {
+	let takerItems = state.items.filter(item => item.request.requestId !== action.payload.requestId);
+	return { items: takerItems, total: state.total - 1 };
+}
+
 export const opMessagesReducer = (state = initState, action) => {
 	let pred;
 	switch (action.type) {
@@ -96,8 +103,19 @@ export const opMessagesReducer = (state = initState, action) => {
 			return disableOperationReq(state, action);
 
 		case wsEvents.newMessage:
-			showNotification({ type: "success", msg: "You received new request" });
-			return { ...state, total: state.total + 1, items: [action.payload, ...state.items] };
+			try {
+				showNotification({ type: "success", msg: "You received new request" }); // TODO: add details about request, link to page?
+				const isStaleMsg = state.items.some(
+					msg => msg.request.requestId === action.payload.request.requestId
+				);
+				if (state.requestType === action.payload.request.type && !isStaleMsg) {
+					return { ...state, total: state.total + 1, items: [action.payload, ...state.items] };
+				} else {
+					return state;
+				}
+			} catch (e) {
+				return state;
+			}
 
 		case wsEvents.acceptRequestTaker:
 			pred = takerAcceptationPredicate(
@@ -108,26 +126,20 @@ export const opMessagesReducer = (state = initState, action) => {
 			break;
 
 		case wsEvents.cancelAcceptationTaker:
-			pred = takerAcceptationPredicate(
-				action.payload,
-				action.type,
-				"request was canceled successfully"
-			);
-			break;
+			return removeRequestFromTheList(state, action);
 
 		case wsEvents.chooseAgentTaker:
 			pred = chooseRequestTakerPredicate(action.payload);
 			break;
 
 		case wsEvents.changeRequestStatusTaker:
-			if (action.payload.status === requestStatus.complained) {
+			if (
+				action.payload.status === requestStatus.complained ||
+				action.payload.status === requestStatus.rejected
+			) {
 				pred = handleComplainStatusPredicate(action.payload);
 			} else {
-				// remove request from the list
-				let takerItems = state.items.filter(
-					item => item.request.requestId !== action.payload.requestId
-				);
-				return { items: takerItems, total: state.total - 1 };
+				return removeRequestFromTheList(state, action);
 			}
 			break;
 		default:
@@ -147,7 +159,7 @@ export const getOpMessages = ({
 
 		dispatch({
 			type: GET_OPERATION_MESSAGES_SUCCESS,
-			payload: data,
+			payload: { ...data, requestType },
 			fetchActive: fetchActive,
 		});
 	} catch (e) {

@@ -88,12 +88,6 @@ export class ResolvedComplaint extends Component {
 						"n/a"
 					),
 			},
-			{
-				title: "Made a decision",
-				dataIndex: "made",
-				render: (text, record, index) =>
-					record.made_decision ? record.made_decision : "super admin",
-			},
 		];
 		return (
 			<>

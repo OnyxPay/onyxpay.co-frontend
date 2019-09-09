@@ -2,7 +2,7 @@ import { Modal, Table, Button, Descriptions, Divider, Form } from "antd";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { getUserSettlementData } from "../../../redux/admin-panel/users";
-import { roleCodes } from "api/constants";
+import { roleCodes, roles } from "api/constants";
 import { downgradeUser } from "api/admin/user-upgrade";
 import { handleBcError } from "api/network";
 import { showNotification } from "components/notification";
@@ -277,7 +277,7 @@ class UserDetailedData extends Component {
 								</Button>
 							</Form.Item>
 						) : null}
-						{userRecord.role_code !== roleCodes.user ? (
+						{userRecord.role_code !== roleCodes.user && this.props.user.role !== roles.support ? (
 							<Form.Item>
 								<Button
 									type="danger"
@@ -315,6 +315,7 @@ class UserDetailedData extends Component {
 
 const mapStateToProps = state => ({
 	userSettlement: state.userSettlement,
+	user: state.user,
 });
 
 export default connect(
