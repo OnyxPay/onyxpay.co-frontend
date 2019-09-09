@@ -1,8 +1,10 @@
 // eslint-disable-next-line no-unused-vars
 import React from "react";
 import styled, { css } from "styled-components";
+import { Tooltip, Icon } from "antd";
+import pt from "prop-types";
 
-export const PageTitle = styled.h1`
+export const StyledTitle = styled.h1`
 	margin-bottom: 30px;
 	padding-bottom: 13px;
 	border-bottom: 1px solid rgba(167, 180, 201, 0.3);
@@ -11,6 +13,30 @@ export const PageTitle = styled.h1`
 		padding-bottom: 5px;
 	}
 `;
+
+export const PageTitle = ({ children, style, className, tooltip }) => {
+	let content;
+	if (tooltip) {
+		content = (
+			<Tooltip title={tooltip.title} placement="bottom">
+				{children}
+				<Icon type="info-circle" style={{ marginLeft: 5, fontSize: 22 }} />
+			</Tooltip>
+		);
+	} else {
+		content = children;
+	}
+
+	return (
+		<StyledTitle style={style} className={className}>
+			{content}
+		</StyledTitle>
+	);
+};
+
+PageTitle.propTypes = {
+	tooltip: pt.shape({ title: pt.oneOfType([pt.string, pt.element]) }),
+};
 
 export const Container = styled.div`
 	padding: 0 24px;

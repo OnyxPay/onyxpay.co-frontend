@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Card, Button, Input, Form, Select, Row, Col, Alert } from "antd";
 import { Formik } from "formik";
-import { PageTitle } from "../../components";
+import { PageTitle } from "components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
@@ -114,7 +114,14 @@ class Deposit extends Component {
 
 		return (
 			<>
-				<PageTitle>Deposit {user.role === roles.c ? "assets" : "OnyxCash"}</PageTitle>
+				<PageTitle
+					tooltip={{
+						title:
+							"To deposit assets from agent you will have to send corresponding fiat currency to the agent's account.",
+					}}
+				>
+					Deposit {user.role === roles.c ? "assets" : "OnyxCash"}
+				</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
