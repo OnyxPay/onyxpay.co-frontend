@@ -18,17 +18,25 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+import { getAssetsData } from "api/assets";
 
 const { Option } = Select;
 
+// TODO: refactor api calls and class component to func component
 class Deposit extends Component {
 	state = {
 		activeRequestsError: false,
+		assets: [],
 	};
 
 	async componentDidMount() {
-		const { getAssetsList, getExchangeRates } = this.props;
-		getAssetsList();
+		const { getExchangeRates } = this.props;
+		const params = { pageSize: 200 };
+		getAssetsData(params).then(res => {
+			if (res && !res.error) {
+				this.setState({ assets: res.items });
+			}
+		});
 		getExchangeRates();
 		const counter = await getActiveRequestsCounter();
 		if (process.env.NODE_ENV === "development") {
@@ -109,8 +117,8 @@ class Deposit extends Component {
 	};
 
 	render() {
-		const { assets, user } = this.props;
-		const { activeRequestsError } = this.state;
+		const { user } = this.props;
+		const { activeRequestsError, assets } = this.state;
 
 		return (
 			<>
@@ -178,8 +186,8 @@ class Deposit extends Component {
 													>
 														{assets.map((asset, index) => {
 															return (
-																<Option key={index} value={asset}>
-																	{asset}
+																<Option key={index} value={asset.name}>
+																	{asset.name}
 																</Option>
 															);
 														})}
@@ -255,12 +263,10 @@ export default connect(
 	state => {
 		return {
 			user: state.user,
-			assets: state.assets.list,
 			exchangeRates: state.assets.rates,
 		};
 	},
 	{
-		getAssetsList: Actions.assets.getAssetsList,
 		getExchangeRates: Actions.assets.getExchangeRates,
 		push,
 	}
