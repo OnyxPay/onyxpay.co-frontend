@@ -267,7 +267,7 @@ class SendAsset extends Component {
 											>
 												<Input
 													name="receiverAddress"
-													placeholder="EXAMPLE: [pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ]"
+													placeholder="EXAMPLE: pNe6RAWK6EzTwcKA8uu3r2bARgUc5RC7yZ"
 													value={values.receiverAddress}
 													onChange={handleChange}
 													onBlur={handleBlur}
@@ -351,7 +351,7 @@ class SendAsset extends Component {
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
-													Transaction fee: [{fee}]
+													Transaction fee: {fee}
 												</Text>
 											)}
 										</Col>

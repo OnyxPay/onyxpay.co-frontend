@@ -450,7 +450,7 @@ class AssetsExchange extends Component {
 												<InputNumber
 													min={0}
 													precision={8}
-													placeholder="You send"
+													placeholder="You sell"
 													value={this.state.assetToSell.amount}
 													onChange={this.handleAssetToSellAmountChange}
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
