@@ -366,24 +366,6 @@ class SendAsset extends Component {
 											Send
 										</Button>
 									</TextAligner>
-									<Alert
-										style={{ marginTop: 10 }}
-										message={
-											<ul>
-												<li>
-													{
-														"You are allowed to send assets only to users. In order to send assets, you need to know the address of the recipient’s wallet."
-													}
-												</li>
-												<li>
-													{availableAssetsToSend.length !== 0
-														? "The minimum available amount to send is 1 USD or its equivalent in other currencies."
-														: "You have no assets to send at the moment. Please, make a deposit."}
-												</li>
-											</ul>
-										}
-										type={availableAssetsToSend.length !== 0 ? "info" : "error"}
-									/>
 									{availableAssetsToSend.length === 0 && (
 										<Alert
 											style={{ marginTop: 16 }}

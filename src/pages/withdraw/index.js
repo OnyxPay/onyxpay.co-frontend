@@ -344,22 +344,6 @@ class Withdraw extends Component {
 											type="error"
 										/>
 									)}
-									{assets.length && !activeRequestsError && (
-										<Alert
-											style={{ marginTop: 16 }}
-											message={
-												<ul>
-													<li>
-														{
-															"You may withdraw assets by sending a fiat payment to the agent's account."
-														}
-													</li>
-													<li>{"Min available amount to withdraw is equivalent of 1 USD."}</li>
-												</ul>
-											}
-											type="info"
-										/>
-									)}
 								</form>
 							);
 						}}
