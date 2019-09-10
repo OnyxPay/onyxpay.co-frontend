@@ -185,7 +185,14 @@ class Withdraw extends Component {
 
 		return (
 			<>
-				<PageTitle>Withdraw assets</PageTitle>
+				<PageTitle
+					tooltip={{
+						title: "You may withdraw assets by sending a fiat payment to the agent's account",
+					}}
+				>
+					Withdraw assets
+				</PageTitle>
+
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}

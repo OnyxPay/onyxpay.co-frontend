@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Card, Button, Input, Form, Select, Row, Col, Alert } from "antd";
 import { Formik } from "formik";
-import { PageTitle } from "../../components";
+import { PageTitle } from "components";
 import Actions from "../../redux/actions";
 import { TextAligner } from "../../components/styled";
 import { push } from "connected-react-router";
@@ -18,17 +18,25 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
+import { getAssetsData } from "api/assets";
 
 const { Option } = Select;
 
+// TODO: refactor api calls and class component to func component
 class Deposit extends Component {
 	state = {
 		activeRequestsError: false,
+		assets: [],
 	};
 
 	async componentDidMount() {
-		const { getAssetsList, getExchangeRates } = this.props;
-		getAssetsList();
+		const { getExchangeRates } = this.props;
+		const params = { pageSize: 200, status: "active" };
+		getAssetsData(params).then(res => {
+			if (res && !res.error) {
+				this.setState({ assets: res.items });
+			}
+		});
 		getExchangeRates();
 		const counter = await getActiveRequestsCounter();
 		if (process.env.NODE_ENV === "development") {
@@ -109,12 +117,21 @@ class Deposit extends Component {
 	};
 
 	render() {
-		const { assets, user } = this.props;
-		const { activeRequestsError } = this.state;
+		const { user } = this.props;
+		const { activeRequestsError, assets } = this.state;
 
 		return (
 			<>
-				<PageTitle>Deposit {user.role === roles.c ? "assets" : "OnyxCash"}</PageTitle>
+				<PageTitle
+					tooltip={{
+						title:
+							user.role === roles.c && !activeRequestsError
+								? "To deposit assets from agent you will have to send corresponding fiat currency to the agent's account."
+								: "To deposit OnyxCash from super agent you will have to send corresponding fiat currency to the super agent's account.",
+					}}
+				>
+					Deposit {user.role === roles.c ? "assets" : "OnyxCash"}
+				</PageTitle>
 				<Card>
 					<Formik
 						onSubmit={this.handleFormSubmit}
@@ -178,8 +195,8 @@ class Deposit extends Component {
 													>
 														{assets.map((asset, index) => {
 															return (
-																<Option key={index} value={asset}>
-																	{asset}
+																<Option key={index} value={asset.name}>
+																	{asset.name}
 																</Option>
 															);
 														})}
@@ -227,20 +244,6 @@ class Deposit extends Component {
 											type="error"
 										/>
 									)}
-
-									{user.role === roles.c && !activeRequestsError ? (
-										<Alert
-											style={{ marginTop: 16 }}
-											message="To deposit assets from agent you will have to send corresponding fiat currency to the agent's account."
-											type="info"
-										/>
-									) : (
-										<Alert
-											style={{ marginTop: 16 }}
-											message="To deposit OnyxCash from super agent you will have to send corresponding fiat currency to the super agent's account."
-											type="info"
-										/>
-									)}
 								</form>
 							);
 						}}
@@ -255,12 +258,10 @@ export default connect(
 	state => {
 		return {
 			user: state.user,
-			assets: state.assets.list,
 			exchangeRates: state.assets.rates,
 		};
 	},
 	{
-		getAssetsList: Actions.assets.getAssetsList,
 		getExchangeRates: Actions.assets.getExchangeRates,
 		push,
 	}
