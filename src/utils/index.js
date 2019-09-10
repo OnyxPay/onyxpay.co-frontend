@@ -82,6 +82,8 @@ export function formatUserRole(role) {
 		return "Super agent";
 	} else if (role === "super_admin") {
 		return "Super admin";
+	} else if (role === "admin") {
+		return "Admin";
 	} else if (role === "support") {
 		return "Support";
 	}
