@@ -182,7 +182,8 @@ class Withdraw extends Component {
 			<>
 				<PageTitle
 					tooltip={{
-						title: "You may withdraw assets by sending a fiat payment to the agent's account",
+						title:
+							"The Withdraw operation is available for the Client role. Clients can receive the fiat currency amount in return for assets.",
 					}}
 				>
 					Withdraw assets
