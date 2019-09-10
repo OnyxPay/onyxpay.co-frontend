@@ -5,7 +5,7 @@ import Authorization from "./providers/Authorization";
 import Loadable from "react-loadable";
 import { Loader } from "./components";
 
-import { initBalanceProvider } from "./providers/balanceProvider";
+import { initBalanceProvider, refreshBalance } from "./providers/balanceProvider";
 import { syncLoginState } from "./providers/syncLoginState";
 import UnlockWalletModal from "./components/modals/wallet/UnlockWalletModal";
 import SessionExpiredModal from "./components/modals/SessionExpired";
@@ -165,6 +165,7 @@ DevOptions = AdminAndSuperAdmin(DevOptions);
 
 class App extends Component {
 	componentDidMount() {
+		refreshBalance();
 		initBalanceProvider();
 		syncLoginState();
 		wsClientRun();
