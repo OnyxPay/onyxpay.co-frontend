@@ -203,7 +203,7 @@ class SendAsset extends Component {
 							<>
 								<div>
 									The Send operation is available for the Client role. Clients can send any assets
-									to other users with a fee. In order to send assets, the Client must know the
+									to other Clients at a fee. In order to send assets, the Client must know the
 									address of the recipient’s wallet.
 								</div>
 								<div>
