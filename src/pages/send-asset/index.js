@@ -190,16 +190,15 @@ class SendAsset extends Component {
 					tooltip={{
 						title: (
 							<>
-								<ul style={{ marginBottom: 0 }}>
-									<li>
-										The minimum available amount to send is 1 USD or its equivalent in other
-										currencies.
-									</li>
-									<li>
-										You are allowed to send assets only to users. In order to send assets, you need
-										to know the address of the recipient’s wallet.
-									</li>
-								</ul>
+								<div>
+									The Send operation is available for the Client role. Clients can send any assets
+									to other Clients at a fee. In order to send assets, the Client must know the
+									address of the recipient’s wallet.
+								</div>
+								<div>
+									The minimal amount available for sending is 1 USD or its equivalent in other
+									currencies.
+								</div>
 							</>
 						),
 					}}
