@@ -170,12 +170,23 @@ class App extends Component {
 		syncLoginState();
 		wsClientRun();
 	}
-	getAdditionalRoutes() {
-		if (process.env.REACT_APP_TAG === "prod" && !localStorage.getItem("_isDevModeActive")) {
-			return null;
-		} else {
-			return (
-				<>
+
+	render() {
+		return (
+			<Layout simplified={["/login"]}>
+				<Switch>
+					<Route path="/" exact component={Dashboard} />
+					<Route path="/admin/users" exact component={Users} />
+					<Route path="/admin/assets" exact component={Assets} />
+					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
+					<Route path="/admin/requests/complaints" exact component={Complaints} />
+					<Route path="/admin/requests/complaints/resolve" exact component={ResolvedComplaints} />
+					<Route path="/login" exact component={Login} />
+					<Route path="/profile" exact component={Profile} />
+					<Route path="/referral-program" exact component={ReferralProgram} />
+					<Route path="/settlement-accounts" exact component={Settlement} />
+					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
+
 					<Route path="/deposit" component={Deposit} />
 					<Route path="/exchange" exact component={AssetsExchange} />
 					<Route path="/send-asset" exact component={SendAsset} />
@@ -217,27 +228,6 @@ class App extends Component {
 
 					{/* only for development and testing, should not be rendered in prod */}
 					<Route path="/admin/dev" exact component={DevOptions} />
-				</>
-			);
-		}
-	}
-
-	render() {
-		return (
-			<Layout simplified={["/login"]}>
-				<Switch>
-					<Route path="/" exact component={Dashboard} />
-					<Route path="/admin/users" exact component={Users} />
-					<Route path="/admin/assets" exact component={Assets} />
-					<Route path="/admin/requests/user-upgrade" exact component={UserUpgradeRequests} />
-					<Route path="/admin/requests/complaints" exact component={Complaints} />
-					<Route path="/admin/requests/complaints/resolve" exact component={ResolvedComplaints} />
-					<Route path="/login" exact component={Login} />
-					<Route path="/profile" exact component={Profile} />
-					<Route path="/referral-program" exact component={ReferralProgram} />
-					<Route path="/settlement-accounts" exact component={Settlement} />
-					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
-					{this.getAdditionalRoutes()}
 					<Route component={Page404} />
 				</Switch>
 				<UnlockWalletModal />

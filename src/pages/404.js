@@ -11,13 +11,13 @@ const Wrapper = styled.div`
 	height: 100%;
 `;
 
-// const Title = styled.h1`
-// 	color: #1890ff;
-// 	font-weight: 500;
-// 	font-size: 120px;
-// 	line-height: 120px;
-// 	margin-bottom: 0;
-// `;
+const Title = styled.h1`
+	color: #1890ff;
+	font-weight: 500;
+	font-size: 120px;
+	line-height: 120px;
+	margin-bottom: 0;
+`;
 
 const Text = styled.div`
 	font-size: 30px;
@@ -27,12 +27,8 @@ const Text = styled.div`
 const Page404 = () => {
 	return (
 		<Wrapper>
-			<Text>
-				<center style={{ maxWidth: 900 }}>
-					Other features will be enabled once we are satisfied that the community knows how to
-					create customer, agent and super-agent accounts and secure them well. Thanks.
-				</center>
-			</Text>
+			<Title>404</Title>
+			<Text>Page not found</Text>
 			<Button type="primary" size="large">
 				<Link to="/">Home</Link>
 			</Button>
