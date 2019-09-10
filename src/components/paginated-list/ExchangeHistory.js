@@ -5,12 +5,6 @@ import PaginatedTable from "components/paginated-list/PaginatedTable";
 
 const exchangeHistoryColumns = [
 	{
-		title: "Transaction Hash",
-		dataIndex: "trxHast",
-		key: "transactionHash",
-		render: trxHast => (trxHast ? trxHast : "n/a"),
-	},
-	{
 		title: "Date",
 		dataIndex: "timestamp",
 		key: "date",
@@ -39,6 +33,12 @@ const exchangeHistoryColumns = [
 		dataIndex: "status",
 		key: "status",
 		render: status => (status ? status : "Completed"),
+	},
+	{
+		title: "Transaction Hash",
+		dataIndex: "trxHast",
+		key: "transactionHash",
+		render: trxHast => (trxHast ? trxHast : "n/a"),
 	},
 ];
 
