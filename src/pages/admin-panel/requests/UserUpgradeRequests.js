@@ -12,6 +12,7 @@ import {
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 import { formatUserRole } from "utils";
+import { getColumnSearchProps } from "components/table/common";
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -131,9 +132,13 @@ class UserUpgradeRequests extends Component {
 				},
 			},
 			() => {
-				this.fetchRequests({
-					...filters,
-				});
+				const filtersCopy = { ...filters };
+				for (const filter in filtersCopy) {
+					if (filtersCopy[filter]) {
+						filtersCopy[filter] = filtersCopy[filter][0];
+					}
+				}
+				this.fetchRequests(filters);
 			}
 		);
 	};
@@ -210,6 +215,8 @@ class UserUpgradeRequests extends Component {
 				title: "User name",
 				dataIndex: "user",
 				render: res => <span>{res.firstName + " " + res.lastName}</span>,
+				sortDirections: ["ascend", "descend"],
+				...getColumnSearchProps()("user.firstName" && "user.lastName"),
 			},
 			{
 				title: "Registration date",
@@ -230,16 +237,22 @@ class UserUpgradeRequests extends Component {
 				title: "Email",
 				dataIndex: "user.email",
 				render: res => (res ? res : "n/a"),
+				sortDirections: ["ascend", "descend"],
+				...getColumnSearchProps()("user.email"),
 			},
 			{
 				title: "Phone",
 				dataIndex: "user.phoneNumber",
 				render: res => (res ? res : "n/a"),
+				sortDirections: ["ascend", "descend"],
+				...getColumnSearchProps()("user.phoneNumber"),
 			},
 			{
 				title: "Wallet address",
 				dataIndex: "user.walletAddr",
 				render: res => (res ? res : "n/a"),
+				sortDirections: ["ascend", "descend"],
+				...getColumnSearchProps()("user.walletAddr"),
 			},
 			{
 				title: "Created at",
