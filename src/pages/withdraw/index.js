@@ -116,7 +116,7 @@ class Withdraw extends Component {
 
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("amount", "Min amount is equivalent 1 oUSD");
+				return formActions.setFieldError("amount", "Minimum amount is equivalent of 1 oUSD");
 			}
 			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
 			if (Number(maxAmount) < Number(values.amount)) {
@@ -252,17 +252,13 @@ class Withdraw extends Component {
 													}
 													disabled={isFormDisabled || isSubmitting}
 												>
-													{availableAssetsToWithdraw.length
-														? filterAssets(assets, exchangeRates, "withdraw").map(
-																(asset, index) => {
-																	return (
-																		<Option key={index} value={asset.symbol}>
-																			{asset.symbol}
-																		</Option>
-																	);
-																}
-														  )
-														: null}
+													{availableAssetsToWithdraw.map((asset, index) => {
+														return (
+															<Option key={index} value={asset.symbol}>
+																{asset.symbol}
+															</Option>
+														);
+													})}
 												</Select>
 											</Form.Item>
 											{values.asset_symbol && (
@@ -304,7 +300,7 @@ class Withdraw extends Component {
 													</Button>
 												</Input.Group>
 											</Form.Item>
-											{fee !== 0 && values.amount && (
+											{fee && values.amount && (
 												<Text
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}

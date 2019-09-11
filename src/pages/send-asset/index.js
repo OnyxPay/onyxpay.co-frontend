@@ -297,15 +297,13 @@ class SendAsset extends Component {
 													}
 													disabled={!availableAssetsToSend.length || isSubmitting}
 												>
-													{availableAssetsToSend.length
-														? filterAssets(assets, exchangeRates, "send").map((asset, index) => {
-																return (
-																	<Option key={index} value={asset.symbol}>
-																		{asset.symbol}
-																	</Option>
-																);
-														  })
-														: null}
+													{availableAssetsToSend.map((asset, index) => {
+														return (
+															<Option key={index} value={asset.symbol}>
+																{asset.symbol}
+															</Option>
+														);
+													})}
 												</Select>
 											</Form.Item>
 											{values.assetSymbol && <AvailableBalance assetSymbol={values.assetSymbol} />}

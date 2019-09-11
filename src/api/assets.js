@@ -205,9 +205,9 @@ export function filterAssets(assets, exchangeRates, requestType) {
 		const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
 		let fee;
 		if (requestType === "withdraw") {
-			fee = 3 / 10 ** 8;
+			fee = 3 / 100;
 		} else if (requestType === "send") {
-			fee = 1 / 10 ** 8;
+			fee = 1 / 100;
 		}
 		if (rate) {
 			let sum = rate.sell * (asset.amount / 10 ** 8);
