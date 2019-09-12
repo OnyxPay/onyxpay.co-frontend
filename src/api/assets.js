@@ -199,28 +199,21 @@ export async function registerSend(values) {
 	return res.data;
 }
 
-export function sortAsset(assets) {
-	let assetSort = [];
-	assetSort = assets.map(asset => {
-		if (asset.symbol) {
-			assets.sort(function(a, b) {
-				let nameA = a.symbol.toLowerCase(),
-					nameB = b.symbol.toLowerCase();
-				if (nameA === "ousd" || nameB === "ousd") return -1;
-				if (nameA < nameB) return -1;
-				if (nameA > nameB) return 1;
-				return 0;
-			});
+export function sortAssets(assets) {
+	let sortAssets = [];
+	sortAssets = assets.sort(function(a, b) {
+		let nameA;
+		let nameB;
+		console.log("sort");
+		if (a.hasOwnProperty("symbol") || b.hasOwnProperty("symbol")) {
+			nameA = a.symbol.toLowerCase();
+			nameB = b.symbol.toLowerCase();
 		} else {
-			assets.sort(function(a, b) {
-				let nameA = a.name.toLowerCase(),
-					nameB = b.name.toLowerCase();
-				if (nameA === "ousd" || nameB === "ousd") return -1;
-				if (nameA < nameB) return -1;
-				if (nameA > nameB) return 1;
-				return 0;
-			});
+			nameA = a.name.toLowerCase();
+			nameB = b.name.toLowerCase();
 		}
-		return assetSort;
+		if (nameA === "ousd" || nameB === "ousd") return 1;
+		return nameA > nameB ? 1 : -1;
 	});
+	return sortAssets;
 }

@@ -19,7 +19,7 @@ import {
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 import { getAssetsData } from "api/assets";
-import { sortAsset } from "api/assets";
+import { sortAssets } from "api/assets";
 
 const { Option } = Select;
 
@@ -35,7 +35,7 @@ class Deposit extends Component {
 		const params = { pageSize: 200, status: "active" };
 		getAssetsData(params).then(res => {
 			if (res && !res.error) {
-				sortAsset(res.items);
+				sortAssets(res.items);
 				this.setState({ assets: res.items });
 			}
 		});
