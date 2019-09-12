@@ -84,13 +84,31 @@ const statusColumn = {
 	render: status => (status ? stringToUpperCase(status) : "n/a"),
 };
 
+const rewardColumn = {
+	title: "Reward",
+	dataIndex: "rewards",
+	key: "rewards",
+	render: (text, record) => {
+		if (record.rewards && record.rewards.length && record.rewards.length === 1) {
+			return convertAmountToStr(record.rewards[0].amount, 8);
+		} else if (record.rewards && record.rewards.length && record.rewards.length > 1) {
+			let rewardAmount = 0;
+			record.rewards.forEach(rew => {
+				rewardAmount += rew.amount;
+			});
+			return convertAmountToStr(rewardAmount, 8);
+		}
+		return null;
+	},
+};
+
 function OperationsWidget({ user }) {
 	let operationHistoryColumns = [...commonColumns];
 
 	if (user && user.role === roles.c) {
 		operationHistoryColumns.push(feeColumn, statusColumn);
 	} else if (user && (user.role === roles.a || user.role === roles.sa)) {
-		operationHistoryColumns.push(statusColumn);
+		operationHistoryColumns.push(rewardColumn, statusColumn);
 	}
 
 	return (
