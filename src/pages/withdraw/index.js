@@ -24,6 +24,7 @@ import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
 import { getFee } from "../../api/assets";
 import AvailableBalance from "components/balance/AvailableBalance";
 import { debounce } from "lodash";
+import { filterAssets } from "api/assets";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -98,9 +99,9 @@ class Withdraw extends Component {
 		}
 	}
 
-	handleMaxAmount = (assetSymbol, setFieldValue) => async e => {
-		const maxAmount = await this.calcMaxAmount(assetSymbol, true);
-		setFieldValue("amount", maxAmount);
+	handleMaxAmount = (assetSymbol, formActions) => async e => {
+		const maxAmount = await this.calcMaxAmount(assetSymbol, true, formActions);
+		formActions.setFieldValue("amount", maxAmount);
 	};
 
 	handleFormSubmit = async (values, formActions) => {
@@ -115,10 +116,9 @@ class Withdraw extends Component {
 
 			if (!isEnteredEnoughAmount) {
 				formActions.setSubmitting(false);
-				return formActions.setFieldError("amount", "Min amount is 1 oUSD");
+				return formActions.setFieldError("amount", "Minimum amount is equivalent of 1 oUSD");
 			}
 			const maxAmount = await this.calcMaxAmount(values.asset_symbol);
-
 			if (Number(maxAmount) < Number(values.amount)) {
 				formActions.setSubmitting(false);
 				return formActions.setFieldError("amount", `Max amount is ${maxAmount}`);
@@ -173,10 +173,15 @@ class Withdraw extends Component {
 	};
 
 	render() {
-		const { assets } = this.props;
+		const { assets, exchangeRates } = this.props;
 		const { activeRequestsError, settlementsError, fee } = this.state;
 
 		const isFormDisabled = settlementsError || activeRequestsError;
+
+		let availableAssetsToWithdraw = [];
+		if (exchangeRates.length && assets.length) {
+			availableAssetsToWithdraw = filterAssets(assets, exchangeRates, "withdraw");
+		}
 
 		return (
 			<>
@@ -193,7 +198,7 @@ class Withdraw extends Component {
 					<Formik
 						onSubmit={this.handleFormSubmit}
 						initialValues={{
-							asset_symbol: "oUSD",
+							asset_symbol: "",
 							amount: "",
 						}}
 						validate={values => {
@@ -240,14 +245,14 @@ class Withdraw extends Component {
 													name="asset_symbol"
 													placeholder="Select an asset"
 													optionFilterProp="children"
-													value={values.asset_symbol}
+													value={values.asset_symbol ? values.asset_symbol : undefined}
 													onChange={this.handleAssetChange(setFieldValue)}
 													filterOption={(input, option) =>
 														option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 													}
 													disabled={isFormDisabled || isSubmitting}
 												>
-													{assets.map((asset, index) => {
+													{availableAssetsToWithdraw.map((asset, index) => {
 														return (
 															<Option key={index} value={asset.symbol}>
 																{asset.symbol}
@@ -256,7 +261,9 @@ class Withdraw extends Component {
 													})}
 												</Select>
 											</Form.Item>
-											{!isFormDisabled && <AvailableBalance assetSymbol={values.asset_symbol} />}
+											{values.asset_symbol && (
+												<AvailableBalance assetSymbol={values.asset_symbol} />
+											)}
 										</Col>
 
 										<Col lg={12} md={24}>
@@ -283,7 +290,10 @@ class Withdraw extends Component {
 														style={{ width: "100%" }}
 													/>
 													<Button
-														onClick={this.handleMaxAmount(values.asset_symbol, setFieldValue)}
+														onClick={this.handleMaxAmount(values.asset_symbol, {
+															setFieldError,
+															setFieldValue,
+														})}
 														disabled={isFormDisabled || isSubmitting}
 													>
 														max
@@ -295,7 +305,7 @@ class Withdraw extends Component {
 													type="secondary"
 													style={{ display: "block", margin: "-12px 0 12px 0" }}
 												>
-													Transaction fee: [{fee}]
+													Transaction fee: {fee}
 												</Text>
 											)}
 										</Col>
