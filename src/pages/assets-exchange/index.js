@@ -177,10 +177,10 @@ class AssetsExchange extends Component {
 			assetsData.push(item);
 		});
 
-		const filterAssetData = sortAssetExchange(assetsData);
+		const sortAssetsData = sortAssetExchange(assetsData);
 
 		await this.setStateAsync({
-			assetsData: filterAssetData,
+			assetsData: sortAssetsData,
 		});
 	};
 
