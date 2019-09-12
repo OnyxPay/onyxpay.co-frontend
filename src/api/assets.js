@@ -198,3 +198,22 @@ export async function registerSend(values) {
 	});
 	return res.data;
 }
+
+export function filterAssets(assets, exchangeRates, requestType) {
+	const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
+	return assets.filter(asset => {
+		const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
+		let fee;
+		if (requestType === "withdraw") {
+			fee = 3 / 100;
+		} else if (requestType === "send") {
+			fee = 1 / 100;
+		}
+		if (rate) {
+			let sum = rate.sell * (asset.amount / 10 ** 8);
+			return rateUSD.sell <= sum - sum * fee;
+		} else {
+			return false;
+		}
+	});
+}
