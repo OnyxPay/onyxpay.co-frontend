@@ -3,6 +3,7 @@ import { getOperationHistory } from "api/transactions-history";
 import { convertAmountToStr } from "utils/number";
 import PaginatedTable from "./PaginatedTable";
 import { stringToUpperCase } from "utils";
+import { roles } from "api/constants";
 
 const checkOperationType = operationType => {
 	if (operationType === "buy_onyx_cash") {
@@ -11,7 +12,7 @@ const checkOperationType = operationType => {
 	return stringToUpperCase(operationType);
 };
 
-const operationHistoryColumns = [
+let commonColumns = [
 	{
 		title: "Operation",
 		dataIndex: "operationType",
@@ -46,20 +47,7 @@ const operationHistoryColumns = [
 		key: "date",
 		render: timestamp => (timestamp ? new Date(timestamp).toLocaleString() : "n/a"),
 	},
-	{
-		title: "Fee",
-		dataIndex: "fee",
-		key: "fee",
-		render: fee => {
-			if (fee === 0) {
-				return 0;
-			} else if (fee) {
-				return convertAmountToStr(fee, 8);
-			} else {
-				return "n/a";
-			}
-		},
-	},
+
 	{
 		title: "Asset",
 		dataIndex: "asset",
@@ -72,15 +60,57 @@ const operationHistoryColumns = [
 		key: "amount",
 		render: amount => (amount ? convertAmountToStr(amount, 8) : "n/a"),
 	},
-	{
-		title: "Status",
-		dataIndex: "status",
-		key: "status",
-		render: status => (status ? stringToUpperCase(status) : "n/a"),
-	},
 ];
 
-function OperationsWidget(props) {
+const feeColumn = {
+	title: "Fee",
+	dataIndex: "fee",
+	key: "fee",
+	render: fee => {
+		if (fee === 0) {
+			return 0;
+		} else if (fee) {
+			return convertAmountToStr(fee, 8);
+		} else {
+			return "n/a";
+		}
+	},
+};
+
+const statusColumn = {
+	title: "Status",
+	dataIndex: "status",
+	key: "status",
+	render: status => (status ? stringToUpperCase(status) : "n/a"),
+};
+
+const rewardColumn = {
+	title: "Reward",
+	dataIndex: "rewards",
+	key: "rewards",
+	render: (text, record) => {
+		if (record.rewards && record.rewards.length && record.rewards.length === 1) {
+			return convertAmountToStr(record.rewards[0].amount, 8);
+		} else if (record.rewards && record.rewards.length && record.rewards.length > 1) {
+			let rewardAmount = 0;
+			record.rewards.forEach(rew => {
+				rewardAmount += rew.amount;
+			});
+			return convertAmountToStr(rewardAmount, 8);
+		}
+		return null;
+	},
+};
+
+function OperationsWidget({ user }) {
+	let operationHistoryColumns = [...commonColumns];
+
+	if (user && user.role === roles.c) {
+		operationHistoryColumns.push(feeColumn, statusColumn);
+	} else if (user && (user.role === roles.a || user.role === roles.sa)) {
+		operationHistoryColumns.push(rewardColumn, statusColumn);
+	}
+
 	return (
 		<>
 			<PaginatedTable
