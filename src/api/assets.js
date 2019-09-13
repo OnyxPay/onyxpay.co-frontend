@@ -199,6 +199,24 @@ export async function registerSend(values) {
 	return res.data;
 }
 
+export function sortAssets(assets) {
+	let sortAssets = [];
+	sortAssets = assets.sort(function(a, b) {
+		let nameA;
+		let nameB;
+		if (a.hasOwnProperty("symbol") || b.hasOwnProperty("symbol")) {
+			nameA = a.symbol.toLowerCase();
+			nameB = b.symbol.toLowerCase();
+		} else {
+			nameA = a.name.toLowerCase();
+			nameB = b.name.toLowerCase();
+		}
+		if (nameA === "ousd" || nameB === "ousd") return 1;
+		return nameA > nameB ? 1 : -1;
+	});
+	return sortAssets;
+}
+
 export function sortAssetExchange(assets) {
 	const arr1 = assets.filter(asset => asset.balance);
 	const arr2 = assets

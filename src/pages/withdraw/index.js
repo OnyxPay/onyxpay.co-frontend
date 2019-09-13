@@ -24,6 +24,7 @@ import { FETCH_SETTLEMENTS_LIST } from "redux/settlements";
 import { getFee } from "../../api/assets";
 import AvailableBalance from "components/balance/AvailableBalance";
 import { debounce } from "lodash";
+import { sortAssets } from "api/assets";
 import { filterAssets } from "api/assets";
 
 const { Text } = Typography;
@@ -178,10 +179,13 @@ class Withdraw extends Component {
 
 		const isFormDisabled = settlementsError || activeRequestsError;
 
+		sortAssets(assets);
+
 		let availableAssetsToWithdraw = [];
 		if (exchangeRates.length && assets.length) {
 			availableAssetsToWithdraw = filterAssets(assets, exchangeRates, "withdraw");
 		}
+
 
 		return (
 			<>

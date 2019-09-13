@@ -19,6 +19,7 @@ import { roles } from "api/constants";
 import { trimAddress } from "utils";
 import { push } from "connected-react-router";
 import { handleReqError } from "api/network";
+import { sortAssets } from "api/assets";
 import { filterAssets } from "api/assets";
 
 const { Option } = Select;
@@ -181,6 +182,9 @@ class SendAsset extends Component {
 		const { assets, exchangeRates } = this.props;
 		const { fee } = this.state;
 		let availableAssetsToSend = [];
+
+		sortAssets(assets);
+
 		if (exchangeRates.length && assets.length) {
 			availableAssetsToSend = filterAssets(assets, exchangeRates, "send");
 		}
