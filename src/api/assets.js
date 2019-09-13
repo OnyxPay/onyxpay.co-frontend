@@ -199,6 +199,18 @@ export async function registerSend(values) {
 	return res.data;
 }
 
+export function sortAssetExchange(assets) {
+	const arr1 = assets.filter(asset => asset.balance);
+	const arr2 = assets
+		.filter(asset => !asset.balance)
+		.sort((a, b) => {
+			const nameA = a.name.toLowerCase();
+			const nameB = b.name.toLowerCase();
+			return nameA > nameB ? 1 : -1;
+		});
+	return [...arr1, ...arr2];
+}
+
 export function filterAssets(assets, exchangeRates, requestType) {
 	const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
 	return assets.filter(asset => {
