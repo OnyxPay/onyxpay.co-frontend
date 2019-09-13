@@ -204,7 +204,6 @@ export function sortAssets(assets) {
 	sortAssets = assets.sort(function(a, b) {
 		let nameA;
 		let nameB;
-		console.log("sort");
 		if (a.hasOwnProperty("symbol") || b.hasOwnProperty("symbol")) {
 			nameA = a.symbol.toLowerCase();
 			nameB = b.symbol.toLowerCase();
