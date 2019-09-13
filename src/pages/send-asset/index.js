@@ -20,6 +20,7 @@ import { trimAddress } from "utils";
 import { push } from "connected-react-router";
 import { handleReqError } from "api/network";
 import { sortAssets } from "api/assets";
+import { filterAssets } from "api/assets";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -177,18 +178,6 @@ class SendAsset extends Component {
 		formActions.setFieldValue("amount", value);
 	};
 
-	filterAssets(assets, exchangeRates) {
-		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
-		return assets.filter(asset => {
-			const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
-			if (rate) {
-				return rateUSD.sell <= rate.sell * (asset.amount / 10 ** 8);
-			} else {
-				return false;
-			}
-		});
-	}
-
 	render() {
 		const { assets, exchangeRates } = this.props;
 		const { fee } = this.state;
@@ -197,7 +186,7 @@ class SendAsset extends Component {
 		sortAssets(assets);
 
 		if (exchangeRates.length && assets.length) {
-			availableAssetsToSend = this.filterAssets(assets, exchangeRates);
+			availableAssetsToSend = filterAssets(assets, exchangeRates, "send");
 		}
 		return (
 			<>
@@ -205,16 +194,15 @@ class SendAsset extends Component {
 					tooltip={{
 						title: (
 							<>
-								<ul style={{ marginBottom: 0 }}>
-									<li>
-										The minimum available amount to send is 1 USD or its equivalent in other
-										currencies.
-									</li>
-									<li>
-										You are allowed to send assets only to users. In order to send assets, you need
-										to know the address of the recipient’s wallet.
-									</li>
-								</ul>
+								<div>
+									The Send operation is available for the Client role. Clients can send any assets
+									to other Clients at a fee. In order to send assets, the Client must know the
+									address of the recipient’s wallet.
+								</div>
+								<div>
+									The minimal amount available for sending is 1 USD or its equivalent in other
+									currencies.
+								</div>
 							</>
 						),
 					}}
@@ -313,15 +301,13 @@ class SendAsset extends Component {
 													}
 													disabled={!availableAssetsToSend.length || isSubmitting}
 												>
-													{availableAssetsToSend.length
-														? this.filterAssets(assets, exchangeRates).map((asset, index) => {
-																return (
-																	<Option key={index} value={asset.symbol}>
-																		{asset.symbol}
-																	</Option>
-																);
-														  })
-														: null}
+													{availableAssetsToSend.map((asset, index) => {
+														return (
+															<Option key={index} value={asset.symbol}>
+																{asset.symbol}
+															</Option>
+														);
+													})}
 												</Select>
 											</Form.Item>
 											{values.assetSymbol && <AvailableBalance assetSymbol={values.assetSymbol} />}

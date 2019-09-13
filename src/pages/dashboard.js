@@ -39,6 +39,7 @@ class Home extends Component {
 
 	render() {
 		const { isConfirmEmailModalVisible } = this.state;
+		const { user } = this.props;
 
 		return (
 			<>
@@ -46,7 +47,7 @@ class Home extends Component {
 				<Balance />
 
 				<Card title="Recent Transactions">
-					<OperationsWidget />
+					<OperationsWidget user={user} />
 				</Card>
 
 				<ConfirmEmailModal isModalVisible={isConfirmEmailModalVisible} hideModal={this.hideModal} />

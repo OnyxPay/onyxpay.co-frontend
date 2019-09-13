@@ -22,6 +22,8 @@ import { isAssetBlocked } from "../../api/assets";
 import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 import { showNotification } from "components/notification";
 import { handleBcError } from "api/network";
+import { getAssetsData, sortAssetExchange } from "api/assets";
+
 const { Option } = Select;
 
 const assetsColumns = [
@@ -50,6 +52,7 @@ const assetsColumns = [
 	},
 ];
 
+// TODO: refactor
 class AssetsExchange extends Component {
 	state = {
 		assetsData: [],
@@ -75,6 +78,33 @@ class AssetsExchange extends Component {
 		return new Promise(resolve => {
 			this.setState(state, resolve);
 		});
+	}
+
+	async componentDidMount() {
+		const { getExchangeRates } = this.props;
+		await getExchangeRates();
+		await this.fillAssetsData();
+
+		let assetsForSellData = this.getAssetsForSellData();
+		if (assetsForSellData.length !== 0) {
+			if (this.setDefaultAssets()) {
+				this.setState({ dataLoaded: true });
+			}
+		}
+	}
+
+	async componentDidUpdate(prevProps, prevState) {
+		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
+			const { dataLoaded } = this.state;
+
+			await this.fillAssetsData();
+			let assetsForSellData = this.getAssetsForSellData();
+			if (!dataLoaded && assetsForSellData.length !== 0) {
+				if (this.setDefaultAssets()) {
+					this.setState({ dataLoaded: true });
+				}
+			}
+		}
 	}
 
 	getAssetsForTypeData(type) {
@@ -107,8 +137,15 @@ class AssetsExchange extends Component {
 	}
 
 	fillAssetsData = async () => {
-		const { exchangeRates, user } = this.props;
+		const { user } = this.props;
 		const { assets, onyxCash } = this.props.balance;
+		const params = { pageSize: 200, status: "active" };
+
+		const res = await getAssetsData(params);
+		let fetchedAssets = [];
+		if (res && !res.error) {
+			fetchedAssets = res.items;
+		}
 
 		let assetsData = [];
 		if (user.role === roles.a || user.role === roles.sa) {
@@ -120,30 +157,30 @@ class AssetsExchange extends Component {
 				sellPrice: 1,
 			});
 		}
-
-		for (let record of exchangeRates) {
+		fetchedAssets.forEach(record => {
 			let item = {
-				key: record.symbol,
-				name: record.symbol,
+				key: record.name,
+				name: record.name,
 			};
 
 			if (user.role !== roles.sa) {
-				item.buyPrice = convertAmountToStr(record.buy, 8);
+				item.buyPrice = convertAmountToStr(record.buyPrice, 8);
 			}
 
-			for (let sellRecord of assets) {
-				if (sellRecord.symbol === record.symbol) {
+			assets.forEach(sellRecord => {
+				if (sellRecord.symbol === record.name) {
 					item.balance = convertAmountToStr(sellRecord.amount, 8);
-					item.sellPrice = convertAmountToStr(record.sell, 8);
-					break;
+					item.sellPrice = convertAmountToStr(record.sellPrice, 8);
 				}
-			}
+			});
 
 			assetsData.push(item);
-		}
+		});
+
+		const sortAssetsData = sortAssetExchange(assetsData);
 
 		await this.setStateAsync({
-			assetsData,
+			assetsData: sortAssetsData,
 		});
 	};
 
@@ -181,34 +218,6 @@ class AssetsExchange extends Component {
 		this.setAssetToBuyValues(defaultAssetToBuyName, 0);
 		return selectedCorrectDefaultAssets;
 	};
-
-	async componentDidMount() {
-		const { getExchangeRates } = this.props;
-		await getExchangeRates();
-
-		await this.fillAssetsData();
-
-		let assetsForSellData = this.getAssetsForSellData();
-		if (assetsForSellData.length !== 0) {
-			if (this.setDefaultAssets()) {
-				this.setState({ dataLoaded: true });
-			}
-		}
-	}
-
-	async componentDidUpdate(prevProps, prevState) {
-		if (JSON.stringify(prevProps.balance) !== JSON.stringify(this.props.balance)) {
-			const { dataLoaded } = this.state;
-
-			await this.fillAssetsData();
-			let assetsForSellData = this.getAssetsForSellData();
-			if (!dataLoaded && assetsForSellData.length !== 0) {
-				if (this.setDefaultAssets()) {
-					this.setState({ dataLoaded: true });
-				}
-			}
-		}
-	}
 
 	setAssetToBuyValues = async (assetName, amount) => {
 		if (isNaN(amount) || amount === 0) amount = "";
@@ -638,7 +647,7 @@ class AssetsExchange extends Component {
 								columns={assetsColumns}
 								dataSource={this.state.assetsData}
 								pagination={false}
-								scroll={{ y: "16em" }}
+								className="ovf-y-auto--18rem"
 								locale={{ emptyText: "No assets available in the system at the moment." }}
 							/>
 						</Col>

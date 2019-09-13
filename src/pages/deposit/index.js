@@ -128,8 +128,8 @@ class Deposit extends Component {
 					tooltip={{
 						title:
 							user.role === roles.c && !activeRequestsError
-								? "To deposit assets from agent you will have to send corresponding fiat currency to the agent's account."
-								: "To deposit OnyxCash from super agent you will have to send corresponding fiat currency to the super agent's account.",
+								? "The Deposit assets operation is available for the Client role. Clients can receive the necessary assets from Agents in exchange for the fiat currency amount corresponding to the assets amount (a deposit performer can request any type of payment for the asset by agreement)."
+								: "The deposit OnyxCash operation is available for the Agent and Super Agent roles. Agent and Super Agent can receive OnyxCash from Super Agents in exchange for the fiat currency amount corresponding to the OnyxCash amount according to the current USD rate (a deposit performer can request any type of payment for the asset by agreement).",
 					}}
 				>
 					Deposit {user.role === roles.c ? "assets" : "OnyxCash"}
