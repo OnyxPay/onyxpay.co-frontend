@@ -40,17 +40,14 @@ export async function getAssetsBalance(contract, address) {
 	return balance;
 }
 
-export async function getRewardsBalance(params) {
+export async function getRewardsBalance() {
 	const client = getRestClient();
 
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.get("total-rewards", {
+		const { data } = await client.get("info", {
 			headers: {
 				...authHeaders,
-			},
-			params: {
-				...params,
 			},
 		});
 		return data;

@@ -18,7 +18,20 @@ class RewardsBalance extends Component {
 	async componentDidMount() {
 		this.props.getExchangeRates();
 		const res = await getRewardsBalance();
-		this.setState({ totalRewardsBalance: res.totalRewards, assetsRewards: res.rewards });
+		const RewardsAssetsBalance = res.operationRewards.perAsset;
+		let RewardsAssets = [];
+
+		for (var key in RewardsAssetsBalance) {
+			RewardsAssets.push({
+				symbol: key,
+				amount: RewardsAssetsBalance[key],
+			});
+		}
+
+		this.setState({
+			totalRewardsBalance: res.operationRewards.consolidated,
+			assetsRewards: RewardsAssets,
+		});
 	}
 
 	showModal = balanceType => () => {
@@ -37,10 +50,7 @@ class RewardsBalance extends Component {
 		try {
 			const { exchangeRates } = this.props;
 			return assets.map((asset, i) => {
-				let symbol, amount;
-				symbol = Object.keys(asset)[i];
-				amount = Object.values(asset)[i];
-
+				const { amount, symbol } = asset;
 				const rates = exchangeRates.find(rate => rate.symbol === symbol);
 
 				if (rates === undefined) {
