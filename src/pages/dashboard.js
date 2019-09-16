@@ -5,7 +5,30 @@ import OperationsWidget from "components/paginated-list/OperationsWidget";
 import { userStatus } from "api/constants";
 import { Card } from "antd";
 import Balance from "../components/balance/Balance";
+import RewardsBalance from "../components/balance/RewardsBalance";
 import ConfirmEmailModal from "../components/modals/ConfirmEmail";
+import styled from "styled-components";
+import { roles } from "api/constants";
+
+const BalanceContainer = styled.div`
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	> div {
+		width: 48%;
+		.ant-row,
+		.ant-col {
+			width: 100%;
+			padding: 0 !important;
+			margin: 0 !important;
+		}
+	}
+	@media (max-width: 1024px) {
+		> div {
+			width: 100%;
+		}
+	}
+`;
 
 class Home extends Component {
 	state = {
@@ -39,12 +62,19 @@ class Home extends Component {
 
 	render() {
 		const { isConfirmEmailModalVisible } = this.state;
+		const { user } = this.props;
 
 		return (
 			<>
 				<PageTitle>Dashboard</PageTitle>
-				<Balance />
-
+				{user.role === roles.a ? (
+					<BalanceContainer>
+						<Balance />
+						<RewardsBalance />
+					</BalanceContainer>
+				) : (
+					<Balance />
+				)}
 				<Card title="Recent Transactions">
 					<OperationsWidget />
 				</Card>

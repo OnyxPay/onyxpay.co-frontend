@@ -9,13 +9,13 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 		columns = [
 			{ title: "Asset", dataIndex: "symbol" },
 			{ title: "Amount", dataIndex: "amount" },
-			{ title: "USD equivalent", dataIndex: "asset_converted" },
+			{ title: "USD equivalent", dataIndex: "assetConverted" },
 		];
 	} else {
 		columns = [
 			{ title: "Asset", dataIndex: "symbol" },
 			{ title: "Amount", dataIndex: "amount" },
-			{ title: "OnyxCash equivalent", dataIndex: "asset_converted" },
+			{ title: "OnyxCash equivalent", dataIndex: "assetConverted" },
 		];
 	}
 
@@ -27,7 +27,7 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 			footer={null}
 			className="detailed-balance-modal"
 		>
-			{(role === roles.a || role === roles.sa) && (
+			{(role === roles.a || role === roles.sa) && balance.onyxCash && (
 				<Title level={4}>
 					OnyxCash: <Text>{balance.onyxCash}</Text>
 				</Title>

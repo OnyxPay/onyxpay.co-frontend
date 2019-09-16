@@ -3,6 +3,7 @@ import { get } from "lodash";
 import * as Long from "long";
 import { getBcClient } from "./network";
 import { gasPrice, parseAmounts } from "../utils/blockchain";
+import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 
 export async function getTokenBalance(contract, address) {
 	const builder = new Oep4.Oep4TxBuilder(contract);
@@ -37,4 +38,20 @@ export async function getAssetsBalance(contract, address) {
 		balance = parseAmounts(result);
 	}
 	return balance;
+}
+
+export async function getRewardsBalance() {
+	const client = getRestClient();
+
+	try {
+		const authHeaders = getAuthHeaders();
+		const { data } = await client.get("info", {
+			headers: {
+				...authHeaders,
+			},
+		});
+		return data;
+	} catch (error) {
+		return handleReqError(error);
+	}
 }
