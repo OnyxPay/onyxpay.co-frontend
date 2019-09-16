@@ -229,7 +229,7 @@ export default function renderInitiatorColumns({
 											),
 										})}
 									>
-										{requestsType === "buy_onyx_cash" ? "Choose super-agent" : "Choose agent"}
+										{requestsType === "buy_onyx_cash" ? "Confirm super-agent" : "Confirm agent"}
 									</Button>
 								)}
 							{/* Cancel request */}
