@@ -38,15 +38,14 @@ class RewardsBalance extends Component {
 			const { exchangeRates } = this.props;
 			return assets.map((asset, i) => {
 				let symbol, amount;
-				for (var key in asset) {
-					amount = asset[key];
-					symbol = key;
-				}
+				symbol = Object.keys(asset)[i];
+				amount = Object.values(asset)[i];
+
 				const rates = exchangeRates.find(rate => rate.symbol === symbol);
 
 				if (rates === undefined) {
 					return {
-						amount: convertAmountToStr(amount, 8),
+						amount: convertAmountToStr(amount, OnyxCashDecimals),
 						symbol,
 						key: i,
 						buy: "n/a",
@@ -55,13 +54,16 @@ class RewardsBalance extends Component {
 					};
 				}
 				const { sell, buy } = rates;
-				const asset_converted = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
+				const asset_converted = convertAsset(
+					{ amount, decimals: OnyxCashDecimals },
+					{ rate: sell, decimals: OnyxCashDecimals }
+				);
 				return {
-					amount: convertAmountToStr(amount, 8),
+					amount: convertAmountToStr(amount, OnyxCashDecimals),
 					symbol,
 					key: i,
-					buy: convertAmountToStr(buy, 8),
-					sell: convertAmountToStr(sell, 8),
+					buy: convertAmountToStr(buy, OnyxCashDecimals),
+					sell: convertAmountToStr(sell, OnyxCashDecimals),
 					asset_converted,
 				};
 			});
