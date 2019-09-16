@@ -7,6 +7,39 @@ import { OnyxCashDecimals, roles } from "../../api/constants";
 import BalanceModal from "../modals/BalanceModal";
 import Actions from "../../redux/actions";
 
+export function convertAssets(assets, exchangeRates) {
+	try {
+		return assets.map((asset, i) => {
+			const rates = exchangeRates.find(rate => rate.symbol === asset.symbol);
+			const { amount, symbol } = asset;
+			if (rates === undefined) {
+				return {
+					amount: convertAmountToStr(amount, 8),
+					symbol,
+					key: i,
+					buy: "n/a",
+					sell: "n/a",
+					asset_converted: 0,
+				};
+			}
+
+			const { sell, buy } = rates;
+
+			const assetConverted = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
+			return {
+				amount: convertAmountToStr(amount, 8),
+				symbol,
+				key: i,
+				buy: convertAmountToStr(buy, 8),
+				sell: convertAmountToStr(sell, 8),
+				assetConverted,
+			};
+		});
+	} catch (e) {
+		console.log(e.message);
+	}
+}
+
 class Balance extends Component {
 	state = {
 		isModalVisible: false,
@@ -28,43 +61,10 @@ class Balance extends Component {
 		});
 	};
 
-	convertAssets(assets) {
-		try {
-			const { exchangeRates } = this.props;
-
-			return assets.map(asset => {
-				const rates = exchangeRates.find(rate => rate.symbol === asset.symbol);
-				const { amount, symbol, key } = asset;
-				if (rates === undefined) {
-					return {
-						amount: convertAmountToStr(amount, 8),
-						symbol,
-						key,
-						buy: "n/a",
-						sell: "n/a",
-						asset_converted: 0,
-					};
-				}
-				const { sell, buy } = rates;
-				const asset_converted = convertAsset({ amount, decimals: 8 }, { rate: sell, decimals: 8 });
-				return {
-					amount: convertAmountToStr(amount, 8),
-					symbol,
-					key,
-					buy: convertAmountToStr(buy, 8),
-					sell: convertAmountToStr(sell, 8),
-					asset_converted,
-				};
-			});
-		} catch (e) {
-			console.log(e.message);
-		}
-	}
-
 	calcTotalAmount(arr, amount = 0) {
 		if (arr.length) {
 			const result = arr.reduce((total, asset) => {
-				return addAmounts(total, asset.asset_converted);
+				return addAmounts(total, asset.assetConverted);
 			}, 0);
 			return addAmounts(result, amount);
 		} else {
@@ -73,13 +73,13 @@ class Balance extends Component {
 	}
 
 	render() {
-		const { user } = this.props;
+		const { user, exchangeRates } = this.props;
 		const { assets, onyxCash } = this.props.balance;
 		const { isModalVisible } = this.state;
 		const oneOfValidUserRoles =
 			user.role === roles.c || user.role === roles.a || user.role === roles.sa;
 
-		const assetsConverted = this.convertAssets(assets);
+		const assetsConverted = convertAssets(assets, exchangeRates);
 		let assetsTotal = 0;
 		let onyxCashTotal = 0;
 		let onyxCashStr = 0;

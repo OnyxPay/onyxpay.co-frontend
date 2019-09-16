@@ -2,11 +2,12 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button, Tooltip, Icon } from "antd";
 import { BalanceCard } from "./Card";
-import { convertAmountToStr, convertAsset } from "../../utils/number";
-import { OnyxCashDecimals } from "../../api/constants";
+import { convertAmountToStr } from "utils/number";
+import { OnyxCashDecimals } from "api/constants";
 import BalanceModal from "../modals/BalanceModal";
-import Actions from "../../redux/actions";
+import Actions from "redux/actions";
 import { getRewardsBalance } from "api/balance";
+import { convertAssets } from "./Balance";
 
 class RewardsBalance extends Component {
 	state = {
@@ -16,22 +17,24 @@ class RewardsBalance extends Component {
 	};
 
 	async componentDidMount() {
-		this.props.getExchangeRates();
-		const res = await getRewardsBalance();
-		const RewardsAssetsBalance = res.operationRewards.perAsset;
-		let RewardsAssets = [];
+		try {
+			this.props.getExchangeRates();
+			const res = await getRewardsBalance();
+			const rewardsAssetsBalance = res.operationRewards.perAsset;
+			let rewardsAssets = [];
 
-		for (var key in RewardsAssetsBalance) {
-			RewardsAssets.push({
-				symbol: key,
-				amount: RewardsAssetsBalance[key],
+			for (var key in rewardsAssetsBalance) {
+				rewardsAssets.push({
+					symbol: key,
+					amount: rewardsAssetsBalance[key],
+				});
+			}
+
+			this.setState({
+				totalRewardsBalance: res.operationRewards.consolidated,
+				assetsRewards: rewardsAssets,
 			});
-		}
-
-		this.setState({
-			totalRewardsBalance: res.operationRewards.consolidated,
-			assetsRewards: RewardsAssets,
-		});
+		} catch (e) {}
 	}
 
 	showModal = balanceType => () => {
@@ -46,46 +49,10 @@ class RewardsBalance extends Component {
 		});
 	};
 
-	convertAssets(assets) {
-		try {
-			const { exchangeRates } = this.props;
-			return assets.map((asset, i) => {
-				const { amount, symbol } = asset;
-				const rates = exchangeRates.find(rate => rate.symbol === symbol);
-
-				if (rates === undefined) {
-					return {
-						amount: convertAmountToStr(amount, OnyxCashDecimals),
-						symbol,
-						key: i,
-						buy: "n/a",
-						sell: "n/a",
-						asset_converted: 0,
-					};
-				}
-				const { sell, buy } = rates;
-				const asset_converted = convertAsset(
-					{ amount, decimals: OnyxCashDecimals },
-					{ rate: sell, decimals: OnyxCashDecimals }
-				);
-				return {
-					amount: convertAmountToStr(amount, OnyxCashDecimals),
-					symbol,
-					key: i,
-					buy: convertAmountToStr(buy, OnyxCashDecimals),
-					sell: convertAmountToStr(sell, OnyxCashDecimals),
-					asset_converted,
-				};
-			});
-		} catch (e) {
-			console.log(e.message);
-		}
-	}
-
 	render() {
-		const { user } = this.props;
+		const { user, exchangeRates } = this.props;
 		const { isModalVisible, totalRewardsBalance, assetsRewards } = this.state;
-		const assetsConverted = this.convertAssets(assetsRewards);
+		const assetsConverted = convertAssets(assetsRewards, exchangeRates);
 
 		return (
 			<div>
