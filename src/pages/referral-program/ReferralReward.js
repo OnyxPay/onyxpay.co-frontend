@@ -73,6 +73,7 @@ class ReferralReward extends Component {
 					<Row gutter={16}>
 						<Col lg={24} xl={10}>
 							<Card
+								className="balance-card"
 								title={
 									<>
 										Referral reward
