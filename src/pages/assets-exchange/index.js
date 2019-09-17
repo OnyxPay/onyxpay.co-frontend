@@ -645,7 +645,6 @@ class AssetsExchange extends Component {
 								columns={assetsColumns}
 								dataSource={this.state.assetsData}
 								pagination={false}
-								className="ovf-y-auto--18rem"
 								locale={{ emptyText: "No assets available in the system at the moment." }}
 							/>
 						</Col>
