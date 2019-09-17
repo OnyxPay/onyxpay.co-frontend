@@ -4,7 +4,7 @@ import { getRewardsAmount } from "api/referral";
 import styled from "styled-components";
 import { convertAmountToStr } from "utils/number";
 import { roles } from "api/constants";
-import { Row, Col, Card, Button, Modal, Typography, Table } from "antd";
+import { Row, Col, Card, Button, Modal, Typography, Table, Tooltip, Icon } from "antd";
 
 const { Title } = Typography;
 
@@ -73,8 +73,22 @@ class ReferralReward extends Component {
 					<Row gutter={16}>
 						<Col lg={24} xl={10}>
 							<Card
-								title={"Referral reward"}
-								extra={<Button onClick={this.showModal}>see detailed balance</Button>}
+								title={
+									<>
+										Referral reward
+										<Tooltip
+											title="All received rewards has been already added to total balance and can be already used."
+											placement="bottom"
+											overlayStyle={{ maxWidth: 400 }}
+										>
+											<Icon
+												type="info-circle"
+												style={{ marginLeft: 5, marginTop: 10, fontSize: 18 }}
+											/>
+										</Tooltip>
+									</>
+								}
+								extra={<Button onClick={this.showModal}>See details</Button>}
 							>
 								<Amount>{this.state.totalReward}</Amount>
 								<AssetLabel>
