@@ -14,7 +14,7 @@ const AssetLabel = styled.span`
 
 export const BalanceCard = ({ title, amount = 0, extra, assetLabel }) => {
 	return (
-		<Card title={title} extra={extra} style={{ marginBottom: "24px" }}>
+		<Card className="balance-card" title={title} extra={extra} style={{ marginBottom: "24px" }}>
 			<Amount>{amount}</Amount>
 			<AssetLabel>(in {assetLabel} equivalent)</AssetLabel>
 		</Card>
