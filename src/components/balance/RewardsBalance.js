@@ -63,7 +63,13 @@ class RewardsBalance extends Component {
 								<>
 									Total rewards
 									<Tooltip
-										title="The balance of rewards is included in the total balance."
+										title={
+											<>
+												The balance of rewards is included in the total balance.
+												<br />
+												Total rewards isn't has referal balance.
+											</>
+										}
 										placement="bottom"
 										overlayStyle={{ maxWidth: 400 }}
 									>
