@@ -23,6 +23,8 @@ class ComplaintsList extends Component {
 		loadingSolve: false,
 		userId: null,
 		requestId: null,
+		startProgress: false,
+		status: "opened",
 	};
 
 	componentDidMount = async () => {
@@ -79,6 +81,15 @@ class ComplaintsList extends Component {
 		}
 	};
 
+	handleComplainStartProgress = requestId => {
+		this.state.data.map(item => {
+			if (item.id === requestId) {
+				return (item.status = "In progress");
+			}
+		});
+		this.setState({ startProgress: true, requestId: requestId });
+	};
+
 	handleTableChange = (pagination, filters) => {
 		this.setState(
 			{
@@ -108,6 +119,9 @@ class ComplaintsList extends Component {
 			};
 			const res = await getRequests(params);
 			pagination.total = res.total;
+			res.items.map(item => {
+				return (item.status = "opened");
+			});
 			this.setState({
 				data: res.items,
 				pagination,
@@ -179,31 +193,48 @@ class ComplaintsList extends Component {
 					record.createdAt ? new Date(record.createdAt).toLocaleString() : "n/a",
 			},
 			{
+				title: "Status",
+				dataIndex: "status",
+				render: (text, record, index) => text,
+			},
+			{
 				title: "Action",
 				key: "action",
 				width: "30%",
 				render: (text, record, index) => (
 					<>
-						<Button
-							type="primary"
-							onClick={() =>
-								this.handleComplainedRequests(record.requestId, "winnerClient", record.maker.id)
-							}
-							loading={record.maker.id === userId && record.requestId === requestId && loadingSolve}
-							disabled={record.requestId === requestId && loadingSolve}
-						>
-							Winner initiator
-						</Button>
-						<Button
-							type="primary"
-							onClick={() =>
-								this.handleComplainedRequests(record.requestId, "winnerAgent", record.taker.id)
-							}
-							loading={record.taker.id === userId && record.requestId === requestId && loadingSolve}
-							disabled={record.requestId === requestId && loadingSolve}
-						>
-							Winner performer
-						</Button>
+						{record.status !== "opened" ? (
+							<>
+								<Button
+									type="primary"
+									onClick={() =>
+										this.handleComplainedRequests(record.requestId, "winnerClient", record.maker.id)
+									}
+									loading={
+										record.maker.id === userId && record.requestId === requestId && loadingSolve
+									}
+									disabled={record.requestId === requestId && loadingSolve}
+								>
+									Winner initiator
+								</Button>
+								<Button
+									type="primary"
+									onClick={() =>
+										this.handleComplainedRequests(record.requestId, "winnerAgent", record.taker.id)
+									}
+									loading={
+										record.taker.id === userId && record.requestId === requestId && loadingSolve
+									}
+									disabled={record.requestId === requestId && loadingSolve}
+								>
+									Winner performer
+								</Button>
+							</>
+						) : (
+							<Button type="primary" onClick={() => this.handleComplainStartProgress(record.id)}>
+								Start progress
+							</Button>
+						)}
 					</>
 				),
 			},
