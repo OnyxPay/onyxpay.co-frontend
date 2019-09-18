@@ -325,17 +325,17 @@ class ImportWalletModal extends Component {
 										initialValues={{ mnemonics: "", password: "", password_confirm: "" }}
 										validate={({ mnemonics, password, password_confirm }) => {
 											let errors = {};
-											if (!mnemonics) {
-												errors.mnemonics = "Required field";
-											} else if (!isMnemonicsValid(mnemonics)) {
-												errors.mnemonics = "Mnemonic phrase is not valid";
-											}
 											if (!password) {
 												errors.password = "Required field";
 											} else if (!password_confirm) {
 												errors.password_confirm = "Required field";
 											} else {
 												errors = samePassword({ password, password_confirm });
+											}
+											if (!mnemonics) {
+												errors.mnemonics = "Required field";
+											} else if (!isMnemonicsValid(mnemonics)) {
+												errors.mnemonics = "Mnemonic phrase is not valid";
 											}
 											return errors;
 										}}
@@ -423,17 +423,17 @@ class ImportWalletModal extends Component {
 										initialValues={{ pk: "", password: "", password_confirm: "" }}
 										validate={({ pk, password, password_confirm }) => {
 											let errors = {};
-											if (!pk) {
-												errors.pk = "Required field";
-											} else if (!isPkValid(pk)) {
-												errors.pk = "Private key is not valid";
-											}
 											if (!password) {
 												errors.password = "Required field";
 											} else if (!password_confirm) {
 												errors.password_confirm = "Required field";
 											} else {
 												errors = samePassword({ password, password_confirm });
+											}
+											if (!pk) {
+												errors.pk = "Required field";
+											} else if (!isPkValid(pk)) {
+												errors.pk = "Private key is not valid";
 											}
 											return errors;
 										}}
