@@ -11,6 +11,9 @@ const dispatch = store.dispatch;
 
 export async function refreshBalance() {
 	const { wallet, user } = store.getState();
+	if (!wallet) {
+		return;
+	}
 	const walletDecoded = getWallet(wallet);
 	const account = getAccount(walletDecoded);
 
