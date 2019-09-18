@@ -61,13 +61,14 @@ class RewardsBalance extends Component {
 						<BalanceCard
 							title={
 								<>
-									Total rewards
+									Total received rewards
 									<Tooltip
 										title={
 											<>
-												The balance of rewards is included in the total balance.
+												All received rewards have already been added to the total balance and can be
+												used.
 												<br />
-												Total rewards isn't has referal balance.
+												The total rewards don’t have a referral balance.
 											</>
 										}
 										placement="bottom"
@@ -82,12 +83,13 @@ class RewardsBalance extends Component {
 							}
 							assetLabel={"OnyxCash"}
 							amount={convertAmountToStr(totalRewardsBalance, OnyxCashDecimals)}
-							extra={<Button onClick={this.showModal("main")}>See detailed balance</Button>}
+							extra={<Button onClick={this.showModal("main")}>See details</Button>}
 						/>
 					</Col>
 				</Row>
 				<BalanceModal
 					isModalVisible={isModalVisible}
+					RewardsBalance={true}
 					hideModal={this.hideModal}
 					balance={{
 						assets: assetsConverted,

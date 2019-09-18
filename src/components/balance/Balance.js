@@ -118,6 +118,7 @@ class Balance extends Component {
 					<BalanceModal
 						isModalVisible={isModalVisible}
 						hideModal={this.hideModal}
+						rewardBalance={false}
 						balance={{
 							onyxCash: onyxCashStr,
 							assets: assetsConverted,

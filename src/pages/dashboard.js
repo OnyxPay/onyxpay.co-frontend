@@ -15,7 +15,7 @@ const BalanceContainer = styled.div`
 	justify-content: space-between;
 	flex-wrap: wrap;
 	> div {
-		width: 48%;
+		width: 49%;
 		.ant-row,
 		.ant-col {
 			width: 100%;
