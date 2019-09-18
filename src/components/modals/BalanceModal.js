@@ -3,7 +3,7 @@ import { Modal, Table, Typography } from "antd";
 import { roles } from "../../api/constants";
 const { Title, Text } = Typography;
 
-function BalanceModal({ isModalVisible, hideModal, balance, role }) {
+function BalanceModal({ isModalVisible, hideModal, balance, role, RewardsBalance }) {
 	let columns = [];
 	if (role === roles.c) {
 		columns = [
@@ -21,7 +21,7 @@ function BalanceModal({ isModalVisible, hideModal, balance, role }) {
 
 	return (
 		<Modal
-			title="Detailed balance"
+			title={RewardsBalance ? "Total rewards by asset:" : "Detailed balance"}
 			visible={isModalVisible}
 			onCancel={hideModal}
 			footer={null}

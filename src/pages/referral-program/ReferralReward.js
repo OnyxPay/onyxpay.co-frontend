@@ -76,7 +76,7 @@ class ReferralReward extends Component {
 								className="balance-card"
 								title={
 									<>
-										Referral reward
+										Total received rewards
 										<Tooltip
 											title="All received rewards has been already added to total balance and can be already used."
 											placement="bottom"
