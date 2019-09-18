@@ -12,29 +12,11 @@ import { convertAssets } from "./Balance";
 class RewardsBalance extends Component {
 	state = {
 		isModalVisible: false,
-		totalRewardsBalance: 0,
 		assetsRewards: [],
 	};
 
 	async componentDidMount() {
-		try {
-			this.props.getExchangeRates();
-			const res = await getRewardsBalance();
-			const rewardsAssetsBalance = res.operationRewards.perAsset;
-			let rewardsAssets = [];
-
-			for (var key in rewardsAssetsBalance) {
-				rewardsAssets.push({
-					symbol: key,
-					amount: rewardsAssetsBalance[key],
-				});
-			}
-
-			this.setState({
-				totalRewardsBalance: res.operationRewards.consolidated,
-				assetsRewards: rewardsAssets,
-			});
-		} catch (e) {}
+		this.props.getExchangeRates();
 	}
 
 	showModal = balanceType => () => {
@@ -50,10 +32,9 @@ class RewardsBalance extends Component {
 	};
 
 	render() {
-		const { user, exchangeRates } = this.props;
-		const { isModalVisible, totalRewardsBalance, assetsRewards } = this.state;
+		const { user, exchangeRates, totalRewardsBalance, assetsRewards } = this.props;
+		const { isModalVisible } = this.state;
 		const assetsConverted = convertAssets(assetsRewards, exchangeRates);
-
 		return (
 			<div>
 				<Row gutter={16}>
@@ -95,7 +76,8 @@ class RewardsBalance extends Component {
 
 function mapStateToProps(state) {
 	return {
-		balance: state.balance,
+		totalRewardsBalance: state.rewards.amount ? state.rewards.amount : 0,
+		assetsRewards: state.rewards.assetsRewards,
 		exchangeRates: state.assets.rates,
 		user: state.user,
 	};

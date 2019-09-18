@@ -1,6 +1,7 @@
 import { setWallet, clearWallet } from "./wallet";
 import { resolveContractAddress } from "./contracts";
 import { setAssetsBalance, setOnyxCashBalance } from "./balance";
+import { setConsolidatedRewardsBalance } from "./rewards";
 import { saveUser, getUserData } from "./user";
 import { getUserUpgradeRequest } from "./upgradeRequest";
 import { getUsersData, getUserSettlementData, updateUserStatus } from "./admin-panel/users";
@@ -20,6 +21,7 @@ export default {
 	wallet: { clearWallet, setWallet },
 	contracts: { resolveContractAddress },
 	balance: { setAssetsBalance, setOnyxCashBalance },
+	rewards: { setConsolidatedRewardsBalance },
 	user: { saveUser, getUserData, updateUserStatus },
 	upgradeRequest: { getUserUpgradeRequest },
 	adminUsers: { getUsersData },
