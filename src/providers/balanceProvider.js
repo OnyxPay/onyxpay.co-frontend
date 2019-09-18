@@ -53,10 +53,7 @@ export async function refreshBalance() {
 
 			dispatch(Actions.balance.setAssetsBalance(assetsBalance));
 			dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalance));
-			console.info(" rewardsBalance = ", rewardsBalance);
-			dispatch(
-				Actions.rewards.setConsolidatedRewardsBalance(rewardsBalance.operationRewards.consolidated)
-			);
+			dispatch(Actions.rewards.setConsolidatedRewardsBalance(rewardsBalance));
 		}
 	} catch (e) {
 		console.error(e);
