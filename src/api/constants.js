@@ -41,6 +41,7 @@ export const wsEvents = {
 	changeRequestStatusTaker: "CHANGE_REQUEST_STATUS_TAKER",
 	cancelAcceptationMaker: "CANCEL_ACCEPTATION_MAKER",
 	cancelAcceptationTaker: "CANCEL_ACCEPTATION_TAKER",
+	updateReward: "UPDATE_REWARD",
 };
 
 export const gasCompensatorEndpoint = compensatorUrl;

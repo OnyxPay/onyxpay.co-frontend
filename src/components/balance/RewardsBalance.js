@@ -12,7 +12,6 @@ import { convertAssets } from "./Balance";
 class RewardsBalance extends Component {
 	state = {
 		isModalVisible: false,
-		totalRewardsBalance: 0,
 		assetsRewards: [],
 	};
 
@@ -31,7 +30,6 @@ class RewardsBalance extends Component {
 			}
 
 			this.setState({
-				totalRewardsBalance: res.operationRewards.consolidated,
 				assetsRewards: rewardsAssets,
 			});
 		} catch (e) {}
@@ -50,10 +48,9 @@ class RewardsBalance extends Component {
 	};
 
 	render() {
-		const { user, exchangeRates } = this.props;
-		const { isModalVisible, totalRewardsBalance, assetsRewards } = this.state;
+		const { user, exchangeRates, totalRewardsBalance } = this.props;
+		const { isModalVisible, assetsRewards } = this.state;
 		const assetsConverted = convertAssets(assetsRewards, exchangeRates);
-
 		return (
 			<div>
 				<Row gutter={16}>
@@ -95,7 +92,7 @@ class RewardsBalance extends Component {
 
 function mapStateToProps(state) {
 	return {
-		balance: state.balance,
+		totalRewardsBalance: state.rewards.amount ? state.rewards.amount : 0,
 		exchangeRates: state.assets.rates,
 		user: state.user,
 	};

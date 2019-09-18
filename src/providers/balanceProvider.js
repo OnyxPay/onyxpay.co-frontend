@@ -1,4 +1,4 @@
-import { getTokenBalance, getAssetsBalance } from "../api/balance";
+import { getTokenBalance, getAssetsBalance, getRewardsBalance } from "../api/balance";
 import { getWallet, getAccount } from "../api/wallet";
 import { cryptoAddress } from "../utils/blockchain";
 import { utils } from "ontology-ts-sdk";
@@ -49,11 +49,18 @@ export async function refreshBalance() {
 				cryptoAddress(onyxCashContractAddress),
 				account.address
 			);
+			const rewardsBalance = await getRewardsBalance();
 
 			dispatch(Actions.balance.setAssetsBalance(assetsBalance));
 			dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalance));
+			console.info(" rewardsBalance = ", rewardsBalance);
+			dispatch(
+				Actions.rewards.setConsolidatedRewardsBalance(rewardsBalance.operationRewards.consolidated)
+			);
 		}
-	} catch (e) {}
+	} catch (e) {
+		console.error(e);
+	}
 }
 
 let currentUserState = null;
