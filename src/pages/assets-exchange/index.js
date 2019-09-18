@@ -418,6 +418,7 @@ class AssetsExchange extends Component {
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
+			this.setDefaultAssets();
 		} catch (e) {
 			handleBcError(e);
 		} finally {
