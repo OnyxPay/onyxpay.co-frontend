@@ -78,7 +78,7 @@ class ReferralReward extends Component {
 									<>
 										Total received rewards
 										<Tooltip
-											title="All received rewards has been already added to total balance and can be already used."
+											title="All received rewards have already been added to the total balance and can be used."
 											placement="bottom"
 											overlayStyle={{ maxWidth: 400 }}
 										>
