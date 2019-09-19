@@ -121,8 +121,7 @@ class Login extends Component {
 				if (res.error.data) {
 					showNotification({
 						type: "error",
-						msg:
-							"Invalid password was entered. Or maybe your wallet is not associated with any account. Create account first.",
+						msg: "Maybe your wallet is not associated with any account. Create account first.",
 					});
 				}
 			} else {
