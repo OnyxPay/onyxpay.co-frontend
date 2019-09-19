@@ -63,7 +63,7 @@ class ImportWalletModal extends Component {
 	handleUnlockWithPk = async ({ pk, password }, formActions) => {
 		const { hideModal } = this.props;
 		try {
-			const { wallet } = await importPrivateKey(pk, password);
+			const { wallet } = await importPrivateKey(pk.trim(), password);
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
@@ -432,7 +432,7 @@ class ImportWalletModal extends Component {
 											}
 											if (!pk) {
 												errors.pk = "Required field";
-											} else if (!isPkValid(pk)) {
+											} else if (!isPkValid(pk.trim())) {
 												errors.pk = "Private key is not valid";
 											}
 											return errors;
