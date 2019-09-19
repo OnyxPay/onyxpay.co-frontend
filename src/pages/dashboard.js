@@ -76,7 +76,7 @@ class Home extends Component {
 					<Balance />
 				)}
 				<Card title="Recent Transactions">
-					<OperationsWidget />
+					<OperationsWidget user={user} />
 				</Card>
 
 				<ConfirmEmailModal isModalVisible={isConfirmEmailModalVisible} hideModal={this.hideModal} />

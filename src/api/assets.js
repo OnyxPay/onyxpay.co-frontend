@@ -198,3 +198,52 @@ export async function registerSend(values) {
 	});
 	return res.data;
 }
+
+export function sortAssets(assets) {
+	let sortAssets = [];
+	sortAssets = assets.sort(function(a, b) {
+		let nameA;
+		let nameB;
+		if (a.hasOwnProperty("symbol") || b.hasOwnProperty("symbol")) {
+			nameA = a.symbol.toLowerCase();
+			nameB = b.symbol.toLowerCase();
+		} else {
+			nameA = a.name.toLowerCase();
+			nameB = b.name.toLowerCase();
+		}
+		if (nameA === "ousd" || nameB === "ousd") return 1;
+		return nameA > nameB ? 1 : -1;
+	});
+	return sortAssets;
+}
+
+export function sortAssetExchange(assets) {
+	const arr1 = assets.filter(asset => asset.balance);
+	const arr2 = assets
+		.filter(asset => !asset.balance)
+		.sort((a, b) => {
+			const nameA = a.name.toLowerCase();
+			const nameB = b.name.toLowerCase();
+			return nameA > nameB ? 1 : -1;
+		});
+	return [...arr1, ...arr2];
+}
+
+export function filterAssets(assets, exchangeRates, requestType) {
+	const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
+	return assets.filter(asset => {
+		const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
+		let fee;
+		if (requestType === "withdraw") {
+			fee = 3 / 100;
+		} else if (requestType === "send") {
+			fee = 1 / 100;
+		}
+		if (rate) {
+			let sum = rate.sell * (asset.amount / 10 ** 8);
+			return rateUSD.sell <= sum - sum * fee;
+		} else {
+			return false;
+		}
+	});
+}

@@ -112,14 +112,15 @@ class RegistrationModal extends Component {
 						} else if (values.firstName.length < 2) {
 							errors.firstName = "Min length 2";
 						} else if (!isLatinChars(values.firstName)) {
-							errors.firstName = "First name must contain only Latin letters";
+							errors.firstName =
+								"First name must contain only Latin letters, -.— symbols and spaces";
 						}
 						if (!values.lastName) {
 							errors.lastName = "Required field";
 						} else if (values.lastName.length < 2) {
 							errors.lastName = "Min length 2";
 						} else if (!isLatinChars(values.lastName)) {
-							errors.lastName = "Last name must contain only Latin letters";
+							errors.lastName = "Last name must contain only Latin letters, -.— symbols and spaces";
 						}
 						if (!values.country_id) {
 							errors.country_id = "Required field";

@@ -19,6 +19,8 @@ import { roles } from "api/constants";
 import { trimAddress } from "utils";
 import { push } from "connected-react-router";
 import { handleReqError } from "api/network";
+import { sortAssets } from "api/assets";
+import { filterAssets } from "api/assets";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -176,24 +178,15 @@ class SendAsset extends Component {
 		formActions.setFieldValue("amount", value);
 	};
 
-	filterAssets(assets, exchangeRates) {
-		const rateUSD = exchangeRates.find(rate => rate.symbol === "oUSD");
-		return assets.filter(asset => {
-			const rate = exchangeRates.find(rate => rate.symbol === asset.symbol);
-			if (rate) {
-				return rateUSD.sell <= rate.sell * (asset.amount / 10 ** 8);
-			} else {
-				return false;
-			}
-		});
-	}
-
 	render() {
 		const { assets, exchangeRates } = this.props;
 		const { fee } = this.state;
 		let availableAssetsToSend = [];
+
+		sortAssets(assets);
+
 		if (exchangeRates.length && assets.length) {
-			availableAssetsToSend = this.filterAssets(assets, exchangeRates);
+			availableAssetsToSend = filterAssets(assets, exchangeRates, "send");
 		}
 		return (
 			<>
@@ -308,15 +301,13 @@ class SendAsset extends Component {
 													}
 													disabled={!availableAssetsToSend.length || isSubmitting}
 												>
-													{availableAssetsToSend.length
-														? this.filterAssets(assets, exchangeRates).map((asset, index) => {
-																return (
-																	<Option key={index} value={asset.symbol}>
-																		{asset.symbol}
-																	</Option>
-																);
-														  })
-														: null}
+													{availableAssetsToSend.map((asset, index) => {
+														return (
+															<Option key={index} value={asset.symbol}>
+																{asset.symbol}
+															</Option>
+														);
+													})}
 												</Select>
 											</Form.Item>
 											{values.assetSymbol && <AvailableBalance assetSymbol={values.assetSymbol} />}
