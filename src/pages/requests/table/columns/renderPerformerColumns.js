@@ -51,7 +51,7 @@ function renderCancelBtn(
 		buttonText =
 			record.request.statusCode === requestStatus.rejected
 				? "Return locked assets"
-				: "Cancel confirmatin";
+				: "Cancel confirmation";
 		confirmText = "Sure to cancel confirmation?";
 	} else if (!checkDepositRequirements(record, walletAddress)) {
 		return null;
@@ -113,6 +113,12 @@ function renderHideBtn(
 	isConfirmActive,
 	isCancelAcceptedRequestActive
 ) {
+	let buttonText = "Cancel";
+	let confirmText = "Sure to cancel?";
+	if (requestsType === "withdraw" && record.statusCode === operationMessageStatus.accepted) {
+		buttonText = "Cancel confirmation";
+		confirmText = "Sure to cancel confirmation?";
+	}
 	if (
 		(record.status !== "accepted" &&
 			record.request &&
@@ -122,16 +128,16 @@ function renderHideBtn(
 		if (isConfirmActive || isCancelAcceptedRequestActive) {
 			return (
 				<Button type="danger" disabled={true}>
-					Cancel
+					{buttonText}
 				</Button>
 			);
 		} else {
 			return (
 				<Popconfirm
-					title="Sure to cancel?"
+					title={confirmText}
 					onConfirm={() => hideRequest(record.id)} // messageId
 				>
-					<Button type="danger">Cancel</Button>
+					<Button type="danger">{buttonText}</Button>
 				</Popconfirm>
 			);
 		}
