@@ -58,7 +58,8 @@ class ChoosePerformer extends Component {
 				formActions.resetForm();
 				showNotification({
 					type: "success",
-					msg: "Request is successfully sent to agent/agents",
+					msg:
+						"Request is successfully sent to agent/agents. Wait for the agent to confirm the request.",
 				});
 				fetchRequests();
 				this.handleClose();
@@ -164,7 +165,8 @@ class ChoosePerformer extends Component {
 		if (!res.error) {
 			showNotification({
 				type: "success",
-				msg: "Request is successfully sent to agent/agents",
+				msg:
+					"Request is successfully sent to agent/agents. Wait for the agent to confirm the request.",
 			});
 			fetchRequests();
 			this.handleClose();
