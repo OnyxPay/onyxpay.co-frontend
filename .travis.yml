@@ -28,3 +28,6 @@ deploy:
 
 notifications:
   slack: 'blockchainproject-hq:U86OB28sSoMc2FiWWCAc5Tpi'
+  on:
+     tags: true
+     condition: $TRAVIS_TAG =~ ^prod|preprod$
