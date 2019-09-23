@@ -22,7 +22,7 @@ import { isAssetBlocked } from "../../api/assets";
 import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 import { showNotification } from "components/notification";
 import { handleBcError } from "api/network";
-import { getAssetsData } from "api/assets";
+import { getAssetsData, sortAssetExchange } from "api/assets";
 
 const { Option } = Select;
 
@@ -31,19 +31,16 @@ const assetsColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: "9em",
 	},
 	{
 		title: "Sell rate",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
-		width: "9em",
 	},
 	{
 		title: "Buy rate",
 		dataIndex: "buyPrice",
 		key: "buyPrice",
-		width: "9em",
 	},
 	{
 		title: "Balance",
@@ -177,8 +174,10 @@ class AssetsExchange extends Component {
 			assetsData.push(item);
 		});
 
+		const sortAssetsData = sortAssetExchange(assetsData);
+
 		await this.setStateAsync({
-			assetsData,
+			assetsData: sortAssetsData,
 		});
 	};
 
@@ -418,6 +417,7 @@ class AssetsExchange extends Component {
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
+			this.setDefaultAssets();
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -457,7 +457,7 @@ class AssetsExchange extends Component {
 												<InputNumber
 													min={0}
 													precision={8}
-													placeholder="You sell"
+													placeholder="You send"
 													value={this.state.assetToSell.amount}
 													onChange={this.handleAssetToSellAmountChange}
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
@@ -645,6 +645,7 @@ class AssetsExchange extends Component {
 								columns={assetsColumns}
 								dataSource={this.state.assetsData}
 								pagination={false}
+								className="ovf-y-auto--18rem"
 								locale={{ emptyText: "No assets available in the system at the moment." }}
 							/>
 						</Col>
