@@ -42,7 +42,7 @@ class RewardsBalance extends Component {
 						<BalanceCard
 							title={
 								<>
-									Total received rewards
+									Total commission earned
 									<Tooltip
 										title={
 											<>
