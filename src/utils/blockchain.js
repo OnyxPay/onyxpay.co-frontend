@@ -81,6 +81,6 @@ export function parseBcError(er) {
 		const errorObj = JSON.parse(er);
 		return errorObj.Result;
 	} catch (e) {
-		return "Something went wrong at the block-chain network";
+		return "Something went wrong at the blockchain network";
 	}
 }
