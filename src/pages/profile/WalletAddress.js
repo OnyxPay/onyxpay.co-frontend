@@ -1,36 +1,40 @@
 import React from "react";
-import { Input, Icon } from "antd";
+import { Input, Icon, List, Button } from "antd";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { showNotification } from "components/notification";
+import { connect } from "react-redux";
 
-export default function WalletAddress() {
+const WalletAddress = props => {
 	let walletAddress = localStorage.getItem("OnyxAddr");
+	const { wallet } = props;
 	return (
 		<>
 			<h3>
-				<b>Your wallet address</b>
+				<b>Your wallet addresses</b>
 			</h3>
 			<div>
-				<Input
-					addonBefore="Address:"
-					value={walletAddress}
-					style={{ border: "none" }}
-					className="referral-link-input"
-					suffix={
-						<CopyToClipboard
-							text={walletAddress}
-							onCopy={() =>
-								showNotification({
-									type: "info",
-									msg: "Wallet address has been copied to the clipboard",
-								})
-							}
-						>
-							<Icon type="copy" style={{ marginLeft: 5, width: 16, height: 16 }} />
-						</CopyToClipboard>
-					}
+				<List
+					dataSource={wallet.accounts}
+					split={false}
+					renderItem={account => (
+						<>
+							<List.Item>
+								<span>{account.address}</span>
+								<Button type="primary">
+									<Icon type="edit" />
+								</Button>
+								<Button type="danger">
+									<Icon type="delete" />
+								</Button>
+							</List.Item>
+						</>
+					)}
 				/>
 			</div>
 		</>
 	);
-}
+};
+
+export default connect(state => {
+	return { wallet: state.wallet };
+})(WalletAddress);

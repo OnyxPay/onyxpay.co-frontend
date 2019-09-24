@@ -44,7 +44,10 @@ class ImportWalletModal extends Component {
 	handleUnlockWithMnemonics = async ({ mnemonics, password }, formActions) => {
 		const { hideModal } = this.props;
 		try {
-			const { wallet } = await importMnemonics(mnemonics, password);
+			let wallet;
+			this.props.wallet
+				? ({ wallet } = await importMnemonics(mnemonics, password, this.props.wallet))
+				: ({ wallet } = await importMnemonics(mnemonics, password));
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
@@ -63,7 +66,10 @@ class ImportWalletModal extends Component {
 	handleUnlockWithPk = async ({ pk, password }, formActions) => {
 		const { hideModal } = this.props;
 		try {
-			const { wallet } = await importPrivateKey(pk.trim(), password);
+			let wallet;
+			this.props.wallet
+				? ({ wallet } = await importPrivateKey(pk.trim(), password, this.props.wallet))
+				: ({ wallet } = await importPrivateKey(pk.trim(), password));
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
@@ -88,6 +94,7 @@ class ImportWalletModal extends Component {
 
 		try {
 			const { wallet } = await decryptWallet(uploadedWallet, password);
+			console.log(wallet);
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
@@ -520,6 +527,11 @@ class ImportWalletModal extends Component {
 }
 
 export default connect(
-	null,
-	{ setWallet: Actions.wallet.setWallet }
+	state => {
+		return { wallet: state.wallet };
+	},
+	{
+		setWallet: Actions.setWallet,
+		showWalletUnlockModal: Actions.walletUnlock.showWalletUnlockModal,
+	}
 )(ImportWalletModal);

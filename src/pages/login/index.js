@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { Typography, Button } from "antd";
+import { Typography, Button, List } from "antd";
 import { push } from "connected-react-router";
 import styled from "styled-components";
 import Actions from "../../redux/actions";
-import { UnderlayBg, Divider } from "../../components/styled";
+import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
 import AddWallet from "./AddWallet";
 import { unlockWalletAccount } from "../../api/wallet";
@@ -36,11 +36,38 @@ const LoginCard = styled.div`
 	width: 380px;
 	position: absolute;
 	right: 10%;
-	top: 50%;
+	top: 40%;
 	transform: translateY(-50%);
 	@media (max-width: 992px) {
 		right: 50%;
 		transform: translate(50%, -50%);
+	}
+	@media (max-width: 575px) {
+		width: auto;
+		min-width: 300px;
+	}
+`;
+
+const AccountListCard = styled.div`
+	border: 1px solid #e8e8e8;
+	padding: 24px 0;
+	background: #fff;
+	border-radius: 2px;
+	transition: all 0.3s;
+	width: 380px;
+	position: absolute;
+	right: -1px;
+	top: 140px;
+	.ant-list-item {
+		justify-content: space-between;
+	}
+	.ant-list-items {
+		height: 170px;
+		overflow: auto;
+		padding: 0 24px;
+	}
+	@media (max-width: 992px) {
+		left: 0;
 	}
 	@media (max-width: 575px) {
 		width: auto;
@@ -101,11 +128,11 @@ class Login extends Component {
 		});
 	};
 
-	handleLogin = async () => {
+	handleLogin = async currentAccountAddress => {
 		const { push, login, getUserData, location } = this.props;
-		this.setState({ loading: true });
+		this.setState({ loading: true, accountAddress: currentAccountAddress });
 		try {
-			const { pk, accountAddress, publicKey } = await unlockWalletAccount();
+			const { pk, accountAddress, publicKey } = await unlockWalletAccount(currentAccountAddress);
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
 
@@ -148,62 +175,78 @@ class Login extends Component {
 
 	render() {
 		const { wallet, logOut } = this.props;
-		const { loading } = this.state;
+		const { loading, accountAddress } = this.state;
 		return (
 			<UnderlayBg img={bgImg} bgPosition={"20% 20%"}>
 				<LoginCard>
-					<Title
-						level={2}
-						style={{ textAlign: "center", margin: "0 0 5px 0", fontWeight: 400 }}
-						type="secondary"
-					>
-						Welcome to OnyxPay
-					</Title>
-					<Title
-						level={3}
-						style={{ textAlign: "center", margin: 0, fontWeight: 400 }}
-						type="secondary"
-					>
-						{wallet ? "Close your wallet" : "Import or create wallet"}
-						<AddWallet
-							showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
-							wallet={wallet}
-							clearWallet={this.handleClearWallet}
-						/>
-					</Title>
-					<Divider />
 					{this.isAuthenticated() ? (
-						<div>
-							<Button onClick={logOut} block style={{ marginBottom: 5 }}>
-								Logout
-							</Button>
-							<Button block>
-								<Link to="/">Open Dashboard</Link>
-							</Button>
-						</div>
+						<>
+							<div>
+								<Button onClick={logOut} block style={{ marginBottom: 5 }}>
+									Logout
+								</Button>
+								<Button block>
+									<Link to="/">Open Dashboard</Link>
+								</Button>
+							</div>
+						</>
 					) : (
-						<div>
-							<Button
-								block
-								type="primary"
-								style={{ marginBottom: 5 }}
-								disabled={!wallet || loading}
-								loading={loading}
-								onClick={this.handleLogin}
+						<>
+							<Title
+								level={2}
+								style={{ textAlign: "center", margin: "0 0 5px 0", fontWeight: 400 }}
+								type="secondary"
 							>
-								Login
-							</Button>
+								Welcome to OnyxPay
+							</Title>
+							<Title
+								level={3}
+								style={{ textAlign: "center", margin: 0, fontWeight: 400 }}
+								type="secondary"
+							>
+								{wallet ? "Close your wallet" : "Import or create wallet"}
+								<AddWallet
+									showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
+									wallet={wallet}
+									clearWallet={this.handleClearWallet}
+								/>
+							</Title>
+							{wallet && (
+								<AccountListCard>
+									<List
+										dataSource={wallet.accounts}
+										split={false}
+										renderItem={account => (
+											<>
+												<List.Item>
+													<span>...{account.address.slice(-6)}</span>
+													<Button
+														block
+														type="primary"
+														style={{ width: 80 }}
+														disabled={!wallet || (loading && accountAddress === account.address)}
+														loading={loading && accountAddress === account.address}
+														onClick={() => this.handleLogin(account.address)}
+													>
+														Login
+													</Button>
+												</List.Item>
+											</>
+										)}
+									/>
 
-							<Button
-								block
-								type="primary"
-								style={{ marginBottom: 5 }}
-								disabled={!wallet}
-								onClick={this.showModal(modals.REGISTRATION_MODAL)}
-							>
-								Create account
-							</Button>
-						</div>
+									<div style={{ marginTop: 5, paddingLeft: 24, paddingRight: 24 }}>
+										<Button
+											block
+											type="primary"
+											onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}
+										>
+											Add address
+										</Button>
+									</div>
+								</AccountListCard>
+							)}
+						</>
 					)}
 
 					<ImportWalletModal
