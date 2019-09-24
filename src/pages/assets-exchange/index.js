@@ -22,7 +22,7 @@ import { isAssetBlocked } from "../../api/assets";
 import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 import { showNotification } from "components/notification";
 import { handleBcError } from "api/network";
-import { getAssetsData, sortAssetExchange } from "api/assets";
+import { getAssetsData } from "api/assets";
 
 const { Option } = Select;
 
@@ -174,10 +174,8 @@ class AssetsExchange extends Component {
 			assetsData.push(item);
 		});
 
-		const sortAssetsData = sortAssetExchange(assetsData);
-
 		await this.setStateAsync({
-			assetsData: sortAssetsData,
+			assetsData,
 		});
 	};
 
@@ -417,7 +415,6 @@ class AssetsExchange extends Component {
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
-			this.setDefaultAssets();
 		} catch (e) {
 			handleBcError(e);
 		} finally {
@@ -457,7 +454,7 @@ class AssetsExchange extends Component {
 												<InputNumber
 													min={0}
 													precision={8}
-													placeholder="You send"
+													placeholder="You sell"
 													value={this.state.assetToSell.amount}
 													onChange={this.handleAssetToSellAmountChange}
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
