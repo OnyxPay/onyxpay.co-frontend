@@ -88,13 +88,12 @@ class ImportWalletModal extends Component {
 	handleUnlockWithFile = async ({ wallet_account_address, password }, formActions) => {
 		const { uploadedWallet } = this.state;
 		const { hideModal } = this.props;
-		const accounts = uploadedWallet.accounts.filter(acc => acc.address === wallet_account_address);
-		uploadedWallet.accounts = accounts;
-		uploadedWallet.defaultAccountAddress = wallet_account_address;
+		//const accounts = uploadedWallet.accounts.filter(acc => acc.address === wallet_account_address);
+		//uploadedWallet.accounts = accounts;
+		//uploadedWallet.defaultAccountAddress = wallet_account_address;
 
 		try {
 			const { wallet } = await decryptWallet(uploadedWallet, password);
-			console.log(wallet);
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
@@ -131,13 +130,30 @@ class ImportWalletModal extends Component {
 			reader.onloadend = async e => {
 				let data = get(e.target, "result");
 				try {
-					const wallet = getWallet(JSON.parse(data)).toJsonObj();
-					this.setState({ uploadedWallet: wallet }, () => {
+					let wallet = getWallet(JSON.parse(data)).toJsonObj();
+
+					if (this.props.wallet) {
+						wallet.accounts.map(account => this.props.wallet.accounts.push(account));
+					}
+
+					this.setState({ uploadedWallet: this.props.wallet ? this.props.wallet : wallet }, () => {
 						if (this.state.uploadedWallet.accounts.length) {
-							setFieldValue(
-								"wallet_account_address",
-								this.state.uploadedWallet.accounts[0].address
-							);
+							let currentAddress;
+							if (this.props.wallet === null) {
+								currentAddress = this.state.uploadedWallet.accounts[0].address;
+							} else {
+								let address;
+								wallet.accounts.forEach(walletAccount => {
+									return (address = walletAccount.address);
+								});
+								this.state.uploadedWallet.accounts.map(account => {
+									if (account.address === address) {
+										currentAddress = account.address;
+									}
+									return currentAddress;
+								});
+							}
+							setFieldValue("wallet_account_address", currentAddress);
 						} else {
 							setFieldValue("wallet_account_address", "");
 						}
@@ -531,7 +547,7 @@ export default connect(
 		return { wallet: state.wallet };
 	},
 	{
-		setWallet: Actions.setWallet,
+		setWallet: Actions.wallet.setWallet,
 		showWalletUnlockModal: Actions.walletUnlock.showWalletUnlockModal,
 	}
 )(ImportWalletModal);

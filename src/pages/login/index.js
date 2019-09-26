@@ -60,9 +60,13 @@ const AccountListCard = styled.div`
 	top: 140px;
 	.ant-list-item {
 		justify-content: space-between;
+		h4 {
+			margin-bottom: 0;
+			font-size: 18px;
+		}
 	}
 	.ant-list-items {
-		height: 170px;
+		max-height: 170px;
 		overflow: auto;
 		padding: 0 24px;
 	}
@@ -219,7 +223,9 @@ class Login extends Component {
 										renderItem={account => (
 											<>
 												<List.Item>
-													<span>...{account.address.slice(-6)}</span>
+													<Title level={4} type="secondary">
+														...{account.address.slice(-6)}
+													</Title>
 													<Button
 														block
 														type="primary"

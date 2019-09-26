@@ -102,13 +102,11 @@ export function decryptWallet(wallet, password) {
 	const store = getStore();
 	let currentWallet = getWallet(wallet);
 	let account;
-	console.log(currentWallet);
 	store.getState().walletUnlock.currentAccountAddress
 		? (account = currentWallet.accounts.filter(
 				account => account.address.value === store.getState().walletUnlock.currentAccountAddress
 		  )[0])
 		: (account = currentWallet.accounts[0]);
-	console.log(account);
 	const saltHex = Buffer.from(account.salt, "base64").toString("hex");
 	const encryptedKey = account.encryptedKey;
 	const scrypt = currentWallet.scrypt;
@@ -119,7 +117,7 @@ export function decryptWallet(wallet, password) {
 		parallel: scrypt.p,
 		size: scrypt.dkLen,
 	});
-	console.log(pk);
+
 	return {
 		wallet: currentWallet.toJson(),
 		pk,
@@ -132,7 +130,7 @@ export async function unlockWalletAccount(account) {
 	const store = getStore();
 	const wallet = store.getState().wallet;
 	const { password } = await store.dispatch(Actions.walletUnlock.getWalletPassword(account));
-	return decryptWallet(wallet, password);
+	return await decryptWallet(wallet, password);
 }
 
 export function getAccount(wallet) {
