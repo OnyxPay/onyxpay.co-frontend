@@ -175,7 +175,7 @@ class UpgradeUser extends Component {
 	};
 
 	getStepComponent(role) {
-		const paymentAmount = role === "agent" ? 500 : 100000;
+		const paymentAmount = role === "agent" ? 800 : 100000;
 		if (this.props.upgradeRequest && this.state.currentStep === steps.waitForApprovement) {
 			if (this.props.upgradeRequest.status === UpgradeRequestStatus.Completed) {
 				this.setState({ currentStep: steps.success });
@@ -206,8 +206,8 @@ class UpgradeUser extends Component {
 						Purchase OnyxCash
 					</Title>
 					<p>
-						Please purchase an amount of OnyxCash equal to{" "}
-						<b>{role === "agent" ? "500" : "100 000"}</b> U.S. dollar in order to be upgraded to the{" "}
+						Please purchase {role === "agent" ? "500 OnyxCash for" : "an amount of OnyxCash equal to"}{" "}
+						<b>{role === "agent" ? "800" : "100 000"}</b> U.S. dollar in order to be upgraded to the{" "}
 						{getTitleRoleByRole(role)} role.
 					</p>
 					<CoinPaymentsForm
