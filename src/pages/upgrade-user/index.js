@@ -39,16 +39,18 @@ function getTitleRoleByRole(role) {
 	return "Super agent";
 }
 
-function getUpgradeTextByRole(role) {
-	let first, second;
-	if (role === roles.sa) {
-		first = `Please purchase an amount of OnyxCash equal to `;
-		second = ` U.S. dollars in order to be upgraded to the ${getTitleRoleByRole(role)}.`;
+function UpgradeTextByRole(props) {
+	if (props.role === roles.sa) {
+		return <p>
+			Please purchase an amount of OnyxCash equal to <b>{paymentAmountByRole[props.role]}</b>{" "}
+			U.S. dollars in order to be upgraded to the {getTitleRoleByRole(props.role)}.
+		</p>;
 	} else {
-		first = `To upgrade your role to ${getTitleRoleByRole(role)}, you have to purchase 500 OnyxCash for `;
-		second = ` U.S. dollars.`;
+		return <p>
+			To upgrade your role to {getTitleRoleByRole(props.role)}, you have to purchase{" "}
+			<b>500</b> OnyxCash for <b>{paymentAmountByRole[props.role]}</b> U.S. dollars.
+		</p>;
 	}
-	return { first, second };
 }
 
 class UpgradeUser extends Component {
@@ -217,11 +219,7 @@ class UpgradeUser extends Component {
 					<Title level={4} style={StepTitleCss}>
 						Purchase OnyxCash
 					</Title>
-					<p>
-						{getUpgradeTextByRole(role).first}
-						<b>{paymentAmountByRole[role]}</b>
-						{getUpgradeTextByRole(role).second}
-					</p>
+					<UpgradeTextByRole role={role} />
 					<CoinPaymentsForm
 						user={this.props.user}
 						amount={paymentAmount}
