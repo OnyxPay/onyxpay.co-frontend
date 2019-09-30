@@ -8,6 +8,7 @@ import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { sendUpgradeRequest } from "api/upgrade";
 import { UpgradeRequestStatus, roleByCode, roles, paymentAmountByRole } from "api/constants";
 import { showNotification } from "components/notification";
+import { formatUserRole } from "utils";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -32,22 +33,15 @@ function getStepTitle(item, step) {
 	}
 }
 
-function getTitleRoleByRole(role) {
-	if (role === roles.a) {
-		return "Agent";
-	}
-	return "Super agent";
-}
-
 function UpgradeTextByRole(props) {
 	if (props.role === roles.sa) {
 		return <p>
 			Please purchase an amount of OnyxCash equal to <b>{paymentAmountByRole[props.role]}</b>{" "}
-			U.S. dollars in order to be upgraded to the {getTitleRoleByRole(props.role)}.
+			U.S. dollars in order to be upgraded to the {formatUserRole(props.role)}.
 		</p>;
 	} else {
 		return <p>
-			To upgrade your role to {getTitleRoleByRole(props.role)}, you have to purchase{" "}
+			To upgrade your role to {formatUserRole(props.role)}, you have to purchase{" "}
 			<b>500</b> OnyxCash for <b>{paymentAmountByRole[props.role]}</b> U.S. dollars.
 		</p>;
 	}
@@ -332,7 +326,7 @@ class UpgradeUser extends Component {
 	render() {
 		return (
 			<>
-				<PageTitle>Upgrade to the {getTitleRoleByRole(this.state.role)}</PageTitle>
+				<PageTitle>Upgrade to the {formatUserRole(this.state.role)}</PageTitle>
 				<Card> {this.getCardContent()} </Card>
 				<AddSettlementModal
 					isModalVisible={this.state.showSettlements}
