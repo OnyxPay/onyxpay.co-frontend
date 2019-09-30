@@ -157,3 +157,8 @@ export const refreshBalanceEveryMsec = 30000;
 export const gasCompensatorTimeout = 30000;
 
 export const supportEmail = "support@onyxpay.co";
+
+export const paymentAmountByRole = {
+	[roles.a]: 800,
+	[roles.sa]: 100000
+}

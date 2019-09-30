@@ -6,8 +6,9 @@ import Actions from "redux/actions";
 import AddSettlementModal from "components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { sendUpgradeRequest } from "api/upgrade";
-import { UpgradeRequestStatus, roleByCode } from "api/constants";
+import { UpgradeRequestStatus, roleByCode, roles, paymentAmountByRole } from "api/constants";
 import { showNotification } from "components/notification";
+import { formatUserRole } from "utils";
 
 const { Step } = Steps;
 const { Title } = Typography;
@@ -32,11 +33,18 @@ function getStepTitle(item, step) {
 	}
 }
 
-function getTitleRoleByRole(role) {
-	if (role === "agent") {
-		return "Agent";
+function UpgradeTextByRole(props) {
+	if (props.role === roles.sa) {
+		return <p>
+			Please purchase an amount of OnyxCash equal to <b>{paymentAmountByRole[props.role]}</b>{" "}
+			U.S. dollars in order to be upgraded to the {formatUserRole(props.role)}.
+		</p>;
+	} else {
+		return <p>
+			To upgrade your role to {formatUserRole(props.role)}, you have to purchase{" "}
+			<b>500</b> OnyxCash for <b>{paymentAmountByRole[props.role]}</b> U.S. dollars.
+		</p>;
 	}
-	return "Super agent";
 }
 
 class UpgradeUser extends Component {
@@ -175,7 +183,7 @@ class UpgradeUser extends Component {
 	};
 
 	getStepComponent(role) {
-		const paymentAmount = role === "agent" ? 500 : 100000;
+		const paymentAmount = paymentAmountByRole[role];
 		if (this.props.upgradeRequest && this.state.currentStep === steps.waitForApprovement) {
 			if (this.props.upgradeRequest.status === UpgradeRequestStatus.Completed) {
 				this.setState({ currentStep: steps.success });
@@ -205,11 +213,7 @@ class UpgradeUser extends Component {
 					<Title level={4} style={StepTitleCss}>
 						Purchase OnyxCash
 					</Title>
-					<p>
-						Please purchase an amount of OnyxCash equal to{" "}
-						<b>{role === "agent" ? "500" : "100 000"}</b> U.S. dollar in order to be upgraded to the{" "}
-						{getTitleRoleByRole(role)} role.
-					</p>
+					<UpgradeTextByRole role={role} />
 					<CoinPaymentsForm
 						user={this.props.user}
 						amount={paymentAmount}
@@ -322,7 +326,7 @@ class UpgradeUser extends Component {
 	render() {
 		return (
 			<>
-				<PageTitle>Upgrade to the {getTitleRoleByRole(this.state.role)}</PageTitle>
+				<PageTitle>Upgrade to the {formatUserRole(this.state.role)}</PageTitle>
 				<Card> {this.getCardContent()} </Card>
 				<AddSettlementModal
 					isModalVisible={this.state.showSettlements}
