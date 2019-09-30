@@ -13,10 +13,10 @@ if (process.env.REACT_APP_TAG === "prod") {
 	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
 	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
 } else {
-	reactAppBackendUrl = "10.100.3.189";
-	syncNodeUrl = "cepheus5.onyxpay.co";
-	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
-	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
+	reactAppBackendUrl = "10.0.75.2";
+	syncNodeUrl = "10.0.75.2";
+	headAddress = "1177a03284dad7cef227a19ec9756993566fd38e";
+	compensatorUrl = "localhost:4444/api";
 }
 
 export const bcEndpoints = {
@@ -157,3 +157,8 @@ export const refreshBalanceEveryMsec = 30000;
 export const gasCompensatorTimeout = 30000;
 
 export const supportEmail = "support@onyxpay.co";
+
+export const paymentAmountByRole = {
+	[roles.a]: 800,
+	[roles.sa]: 100000
+}
