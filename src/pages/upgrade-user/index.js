@@ -6,7 +6,7 @@ import Actions from "redux/actions";
 import AddSettlementModal from "components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { sendUpgradeRequest } from "api/upgrade";
-import { UpgradeRequestStatus, roleByCode } from "api/constants";
+import { UpgradeRequestStatus, roleByCode, roles } from "api/constants";
 import { showNotification } from "components/notification";
 
 const { Step } = Steps;
@@ -33,7 +33,7 @@ function getStepTitle(item, step) {
 }
 
 function getTitleRoleByRole(role) {
-	if (role === "agent") {
+	if (role === roles.a) {
 		return "Agent";
 	}
 	return "Super agent";
@@ -175,7 +175,7 @@ class UpgradeUser extends Component {
 	};
 
 	getStepComponent(role) {
-		const paymentAmount = role === "agent" ? 800 : 100000;
+		const paymentAmount = role === roles.a ? 800 : 100000;
 		if (this.props.upgradeRequest && this.state.currentStep === steps.waitForApprovement) {
 			if (this.props.upgradeRequest.status === UpgradeRequestStatus.Completed) {
 				this.setState({ currentStep: steps.success });
@@ -206,8 +206,8 @@ class UpgradeUser extends Component {
 						Purchase OnyxCash
 					</Title>
 					<p>
-						Please purchase {role === "agent" ? "500 OnyxCash for" : "an amount of OnyxCash equal to"}{" "}
-						<b>{role === "agent" ? "800" : "100 000"}</b> U.S. dollar in order to be upgraded to the{" "}
+						Please purchase {role === roles.a ? "500 OnyxCash for" : "an amount of OnyxCash equal to"}{" "}
+						<b>{role === roles.a ? "800" : "100 000"}</b> U.S. dollar in order to be upgraded to the{" "}
 						{getTitleRoleByRole(role)} role.
 					</p>
 					<CoinPaymentsForm
