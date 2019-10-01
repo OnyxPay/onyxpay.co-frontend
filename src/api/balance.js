@@ -17,6 +17,24 @@ export async function getTokenBalance(contract, address) {
 	}
 }
 
+export async function getTokenDepositBalance(contract, address) {
+	const client = getBcClient();
+	const funcName = "balanceDepositOf";
+	const tx = TransactionBuilder.makeInvokeTransaction(
+		funcName,
+		[new Parameter("account", ParameterType.ByteArray, address)],
+		contract,
+		gasPrice,
+		CONST.DEFAULT_GAS_LIMIT
+	);
+	const response = await client.sendRawTransaction(tx.serialize(), true);
+	if (response.Result.Result) {
+		return Long.fromString(utils.reverseHex(response.Result.Result), true, 16).toString();
+	} else {
+		return 0;
+	}
+}
+
 export async function getAssetsBalance(contract, address) {
 	//make transaction
 	const client = getBcClient();

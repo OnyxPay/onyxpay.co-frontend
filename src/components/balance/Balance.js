@@ -74,7 +74,7 @@ class Balance extends Component {
 
 	render() {
 		const { user, exchangeRates } = this.props;
-		const { assets, onyxCash } = this.props.balance;
+		const { assets, onyxCash, depositOnyxCash } = this.props.balance;
 		const { isModalVisible } = this.state;
 		const oneOfValidUserRoles =
 			user.role === roles.c || user.role === roles.a || user.role === roles.sa;
@@ -98,6 +98,15 @@ class Balance extends Component {
 			}
 		}
 
+		depositBalanceFragment = <></>
+		if (user.role == roles.sa) {
+			depositBalanceFragment = <BalanceCard
+				title="Security Deposit Balance"
+				assetLabel="OnyxCash"
+				amount={depositOnyxCash}
+			/>
+		}
+
 		return (
 			<div>
 				<Row gutter={16}>
@@ -112,6 +121,7 @@ class Balance extends Component {
 								) : null
 							}
 						/>
+						{depositBalanceFragment}
 					</Col>
 				</Row>
 				{oneOfValidUserRoles ? (

@@ -1,6 +1,6 @@
 import { setWallet, clearWallet } from "./wallet";
 import { resolveContractAddress } from "./contracts";
-import { setAssetsBalance, setOnyxCashBalance } from "./balance";
+import { setAssetsBalance, setOnyxCashDepositBalance, setOnyxCashBalance } from "./balance";
 import { setConsolidatedRewardsBalance } from "./rewards";
 import { saveUser, getUserData } from "./user";
 import { getUserUpgradeRequest } from "./upgradeRequest";
@@ -20,7 +20,7 @@ import { getAssetsList, getExchangeRates } from "./assets";
 export default {
 	wallet: { clearWallet, setWallet },
 	contracts: { resolveContractAddress },
-	balance: { setAssetsBalance, setOnyxCashBalance },
+	balance: { setAssetsBalance, setOnyxCashDepositBalance, setOnyxCashBalance },
 	rewards: { setConsolidatedRewardsBalance },
 	user: { saveUser, getUserData, updateUserStatus },
 	upgradeRequest: { getUserUpgradeRequest },
