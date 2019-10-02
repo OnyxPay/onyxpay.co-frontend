@@ -38,7 +38,7 @@ class ChoosePerformer extends Component {
 		}
 	}
 
-	getMessage(user) {
+	requestIsSentMessage(user) {
 		return user && user.role === roles.a
 			? "Request is successfully sent to super-agent/super-agents. Wait for the super-agent to confirm the request."
 			: "Request is successfully sent to agent/agents. Wait for the agent to confirm the request.";
