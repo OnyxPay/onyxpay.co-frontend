@@ -38,6 +38,12 @@ class ChoosePerformer extends Component {
 		}
 	}
 
+	getMessage(user) {
+		return user && user.role === roles.a
+			? "Request is successfully sent to super-agent/super-agents. Wait for the super-agent to confirm the request."
+			: "Request is successfully sent to agent/agents. Wait for the agent to confirm the request.";
+	}
+
 	handleFormSubmit = async (values, formActions) => {
 		const {
 			requestId,
@@ -57,15 +63,9 @@ class ChoosePerformer extends Component {
 			const res = await sendMessage(requestId, ids);
 			if (!res.error) {
 				formActions.resetForm();
-				let msg =
-					"Request is successfully sent to agent/agents. Wait for the agent to confirm the request.";
-				if (user && user.role === roles.a) {
-					msg =
-						"Request is successfully sent to super-agent/super-agents. Wait for the super-agent to confirm the request.";
-				}
 				showNotification({
 					type: "success",
-					msg,
+					msg: this.getMessage(user),
 				});
 				fetchRequests();
 				this.handleClose();
@@ -169,15 +169,9 @@ class ChoosePerformer extends Component {
 		});
 		const res = await sendMessage(requestId, ids);
 		if (!res.error) {
-			let msg =
-				"Request is successfully sent to agent/agents. Wait for the agent to confirm the request.";
-			if (user && user.role === roles.a) {
-				msg =
-					"Request is successfully sent to super-agent/super-agents. Wait for the super-agent to confirm the request.";
-			}
 			showNotification({
 				type: "success",
-				msg,
+				msg: this.getMessage(user),
 			});
 			fetchRequests();
 			this.handleClose();
