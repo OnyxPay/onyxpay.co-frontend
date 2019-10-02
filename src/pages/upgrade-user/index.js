@@ -36,7 +36,7 @@ function getStepTitle(item, step) {
 function UpgradeTextByRole(props) {
 	return <p>
 		To upgrade your role to {formatUserRole(props.role)}, you have to purchase{" "}
-		<b>{props.role == roles.a ? 500 : paymentAmountByRole[props.role]}</b> OnyxCash for{" "}
+		<b>{props.role === roles.a ? 500 : paymentAmountByRole[props.role]}</b> OnyxCash for{" "}
 		<b>{paymentAmountByRole[props.role]}</b> U.S. dollars.
 	</p>;
 }

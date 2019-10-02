@@ -98,8 +98,8 @@ class Balance extends Component {
 			}
 		}
 
-		depositBalanceFragment = <></>
-		if (user.role == roles.sa) {
+		let depositBalanceFragment = <></>
+		if (user.role === roles.sa) {
 			depositBalanceFragment = <BalanceCard
 				title="Security Deposit Balance"
 				assetLabel="OnyxCash"
@@ -121,6 +121,8 @@ class Balance extends Component {
 								) : null
 							}
 						/>
+					</Col>
+					<Col md={24} lg={10}>
 						{depositBalanceFragment}
 					</Col>
 				</Row>
