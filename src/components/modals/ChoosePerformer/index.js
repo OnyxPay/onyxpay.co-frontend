@@ -65,7 +65,7 @@ class ChoosePerformer extends Component {
 				formActions.resetForm();
 				showNotification({
 					type: "success",
-					msg: this.getMessage(user),
+					msg: this.requestIsSentMessage(user),
 				});
 				fetchRequests();
 				this.handleClose();
@@ -171,7 +171,7 @@ class ChoosePerformer extends Component {
 		if (!res.error) {
 			showNotification({
 				type: "success",
-				msg: this.getMessage(user),
+				msg: this.requestIsSentMessage(user),
 			});
 			fetchRequests();
 			this.handleClose();
