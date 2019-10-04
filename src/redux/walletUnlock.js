@@ -1,7 +1,7 @@
 import { tempWalletPassword } from "../api/constants";
 import { UnlockWalletError } from "utils/custom-error";
 
-const initialState = { isModalVisible: false, locked: true, checkAccount: null };
+const initialState = { isModalVisible: false, locked: true, currentAccountAddress: null };
 const SHOW_WALLET_UNLOCK_MODAL = "SHOW_WALLET_UNLOCK_MODAL";
 const HIDE_WALLET_UNLOCK_MODAL = "HIDE_WALLET_UNLOCK_MODAL";
 const LOCK_WALLET = "LOCK_WALLET";

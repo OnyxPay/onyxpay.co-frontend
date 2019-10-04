@@ -195,7 +195,7 @@ class ImportWalletModal extends Component {
 			>
 				<div>
 					<Title level={3} style={{ textAlign: "center" }}>
-						Import Your Wallet
+						Import Address
 					</Title>
 
 					<ImportTitle>Select how you would like to import</ImportTitle>
@@ -313,22 +313,6 @@ class ImportWalletModal extends Component {
 																<Option key="fdf">none</Option>
 															)}
 														</Select>
-													</Form.Item>
-
-													<Form.Item
-														label="Account's password"
-														className="ant-form-item--lh32"
-														validateStatus={errors.password && touched.password ? "error" : ""}
-														help={errors.password && touched.password ? errors.password : ""}
-													>
-														<Input.Password
-															name="password"
-															type="password"
-															value={values.password}
-															onChange={handleChange}
-															onBlur={handleBlur}
-															disabled={isSubmitting}
-														/>
 													</Form.Item>
 
 													<FormButtons isSubmitting={isSubmitting} switchModal={switchModal} />

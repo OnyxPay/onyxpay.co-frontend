@@ -51,7 +51,7 @@ class UnlockWalletModal extends Component {
 			>
 				<div>
 					<Title level={3} style={{ textAlign: "center" }}>
-						Unlock Your Wallet
+						Unlock Account
 					</Title>
 					<Formik
 						onSubmit={this.handleUnlockWallet}

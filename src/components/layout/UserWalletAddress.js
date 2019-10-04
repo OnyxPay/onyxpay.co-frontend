@@ -1,15 +1,110 @@
-import React from "react";
+import React, { Component } from "react";
+import Actions from "../../redux/actions";
+import { connect } from "react-redux";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { Icon, Tooltip, Avatar } from "antd";
+import { push } from "connected-react-router";
+import { Icon, Tooltip, Avatar, Dropdown, Menu, Button } from "antd";
 import { MyContext } from "./index";
 import { showNotification } from "components/notification";
+import { unlockWalletAccount } from "api/wallet";
+import { generateTokenTimeStamp } from "utils";
+import { signWithPk } from "utils/blockchain";
+import RegistrationModal from "../../components/modals/Registration";
 
-export default function UserWalletAddress() {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const showWalletAddress = () => {
+const modals = {
+	REGISTRATION_MODAL: "REGISTRATION_MODAL",
+};
+
+class UserWalletAddress extends Component {
+	state = {
+		REGISTRATION_MODAL: false,
+		accountList: null,
+	};
+
+	showModal = type => () => {
+		this.setState({ [type]: true });
+	};
+
+	hideModal = type => () => {
+		this.setState({ [type]: false });
+	};
+
+	handleLogin = async currentAccountAddress => {
+		const { push, login, getUserData, location } = this.props;
+		this.setState({ accountAddress: currentAccountAddress });
+		try {
+			const { pk, accountAddress, publicKey } = await unlockWalletAccount(currentAccountAddress);
+			const tokenTimestamp = generateTokenTimeStamp();
+			const signature = signWithPk(tokenTimestamp, pk);
+
+			console.log({ publicKey, accountAddress, signed_msg: signature.serializeHex() });
+
+			const res = await login({
+				public_key: publicKey.key,
+				signed_msg: signature.serializeHex(),
+				walletAddr: accountAddress.value,
+			});
+
+			if (res && res.error) {
+				if (res.error.data) {
+					this.showModal(modals.REGISTRATION_MODAL)();
+				}
+			} else {
+				await getUserData();
+
+				if (location.state && location.state.redirectFrom) {
+					push(location.state.redirectFrom);
+				} else {
+					push("/");
+				}
+			}
+		} catch (er) {}
+	};
+
+	showAccountList = () => {
+		const walletAddress = localStorage.getItem("OnyxAddr");
+		const wallet = JSON.parse(localStorage.getItem("wallet"));
+		const accountList = (
+			<Menu className="account-list">
+				{wallet.accounts.map(
+					(account, index) =>
+						account.address !== walletAddress && (
+							<Menu.Item key={index}>
+								<Button block type="primary" onClick={() => this.handleLogin(account.address)}>
+									<MyContext.Consumer>
+										{activeBreakPoint =>
+											activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
+												? account.address
+												: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`
+										}
+									</MyContext.Consumer>
+								</Button>
+							</Menu.Item>
+						)
+				)}
+			</Menu>
+		);
+		this.setState({ accountList: accountList });
+	};
+
+	showWalletAddress = () => {
+		const walletAddress = localStorage.getItem("OnyxAddr");
+		const { accountList } = this.state;
+
 		return (
 			<>
-				<span>{walletAddress}</span>
+				<Dropdown overlay={accountList} trigger={["click"]} onClick={() => this.showAccountList()}>
+					<div>
+						<Icon type="caret-down" />
+						<MyContext.Consumer>
+							{activeBreakPoint =>
+								activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
+									? walletAddress
+									: `${walletAddress.slice(0, 5)}...${walletAddress.slice(-5)}`
+							}
+						</MyContext.Consumer>
+					</div>
+				</Dropdown>
 				<CopyToClipboard
 					text={walletAddress}
 					onCopy={() =>
@@ -25,34 +120,51 @@ export default function UserWalletAddress() {
 		);
 	};
 
-	return (
-		<>
-			<MyContext.Consumer>
-				{activeBreakPoint => {
-					return (
-						<div className="user-wallet-address-container">
-							<>
-								{activeBreakPoint !== "sm" && activeBreakPoint !== "xs" ? (
-									<div className="wallet-address">{showWalletAddress()}</div>
-								) : (
-									<Tooltip
-										title={<div className="wallet-address">{showWalletAddress()}</div>}
-										placement="bottomRight"
-										overlayClassName="wallet-address-tooltip"
-										trigger="click"
-									>
-										<Avatar
-											icon="wallet"
-											size="large"
-											style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
-										/>
-									</Tooltip>
-								)}
-							</>
-						</div>
-					);
-				}}
-			</MyContext.Consumer>
-		</>
-	);
+	render() {
+		return (
+			<>
+				<MyContext.Consumer>
+					{activeBreakPoint => {
+						return (
+							<div className="user-wallet-address-container">
+								<>
+									{activeBreakPoint !== "sm" && activeBreakPoint !== "xs" ? (
+										<div className="wallet-address">{this.showWalletAddress()}</div>
+									) : (
+										<Tooltip
+											title={<div className="wallet-address">{this.showWalletAddress()}</div>}
+											placement="bottomRight"
+											overlayClassName="wallet-address-tooltip"
+											trigger="click"
+										>
+											<Avatar
+												icon="wallet"
+												size="large"
+												style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
+											/>
+										</Tooltip>
+									)}
+								</>
+							</div>
+						);
+					}}
+				</MyContext.Consumer>
+				<RegistrationModal
+					isModalVisible={this.state.REGISTRATION_MODAL}
+					hideModal={this.hideModal(modals.REGISTRATION_MODAL)}
+				/>
+			</>
+		);
+	}
 }
+
+export default connect(
+	state => {
+		return { location: state.router.location };
+	},
+	{
+		login: Actions.auth.login,
+		push,
+		getUserData: Actions.user.getUserData,
+	}
+)(UserWalletAddress);

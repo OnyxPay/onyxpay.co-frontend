@@ -60,7 +60,13 @@ class CreateWalletModal extends Component {
 
 	handleCreateWallet = async ({ password }, formActions) => {
 		try {
-			const { mnemonics, wif, wallet } = await createWalletAccount(password);
+			let { mnemonics, wif, wallet } = "";
+
+			if (this.props.wallet !== null) {
+				({ mnemonics, wif, wallet } = await createWalletAccount(password, this.props.wallet));
+			} else {
+				({ mnemonics, wif, wallet } = await createWalletAccount(password));
+			}
 			this.handleExport(wallet);
 			this.setState({ pk: wif, mnemonics, wallet });
 			await wait(500);
@@ -126,7 +132,7 @@ class CreateWalletModal extends Component {
 					{viewIndex === 0 && (
 						<div>
 							<Title level={3} style={{ textAlign: "center" }}>
-								Create New Wallet
+								Create New Address
 							</Title>
 							<Formik
 								onSubmit={this.handleCreateWallet}
@@ -256,7 +262,7 @@ class CreateWalletModal extends Component {
 					{viewIndex === 2 && (
 						<div>
 							<Title level={3} style={{ textAlign: "center" }}>
-								Create New Wallet
+								Create New Address
 							</Title>
 							<Formik
 								onSubmit={this.finishWalletCreation}
@@ -334,6 +340,8 @@ class CreateWalletModal extends Component {
 }
 
 export default connect(
-	null,
+	state => {
+		return { wallet: state.wallet };
+	},
 	{ setWallet: Actions.wallet.setWallet }
 )(CreateWalletModal);

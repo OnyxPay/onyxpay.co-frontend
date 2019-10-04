@@ -6,7 +6,6 @@ import { convertAmountToStr } from "utils/number";
 import { OnyxCashDecimals } from "api/constants";
 import BalanceModal from "../modals/BalanceModal";
 import Actions from "redux/actions";
-import { getRewardsBalance } from "api/balance";
 import { convertAssets } from "./Balance";
 
 class RewardsBalance extends Component {

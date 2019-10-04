@@ -22,9 +22,9 @@ export function createMnemonicsAndPk() {
 	return { mnemonics, wif };
 }
 
-export async function createWalletAccount(password) {
+export async function createWalletAccount(password, wallet) {
 	const { mnemonics } = createMnemonicsAndPk();
-	return await importMnemonics(mnemonics, password);
+	return await importMnemonics(mnemonics, password, wallet);
 }
 
 export async function importPrivateKey(privateKeyStr, password, wallet) {

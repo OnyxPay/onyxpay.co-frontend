@@ -66,7 +66,21 @@ function getProfileLinkMenuItem(userRole) {
 		return (
 			<Menu.Item>
 				<Link to={"/profile"}>
-					<UpgradeLink>Profile</UpgradeLink>
+					<UpgradeLink>Profile setting</UpgradeLink>
+				</Link>
+			</Menu.Item>
+		);
+	} else {
+		return null;
+	}
+}
+
+function getWalletSettingMenuItem(userRole) {
+	if (userRole === roles.c || userRole === roles.a || userRole === roles.sa) {
+		return (
+			<Menu.Item>
+				<Link to={"/wallet-setting"}>
+					<UpgradeLink>Wallet setting</UpgradeLink>
 				</Link>
 			</Menu.Item>
 		);
@@ -84,6 +98,7 @@ const DropdownMenu = ({ logOut, user }) => {
 				{getUpgradeMenuItem("super_agent", "Upgrade to Super Agent", user.role)}
 				{getReferralLinkMenuItem(user.role)}
 				{getProfileLinkMenuItem(user.role)}
+				{getWalletSettingMenuItem(user.role)}
 				<Menu.Divider />
 				<Menu.Item onClick={() => logOut()}>
 					<span>Logout</span>

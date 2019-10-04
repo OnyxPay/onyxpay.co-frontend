@@ -84,6 +84,11 @@ let Profile = Loadable({
 	loading: Loader,
 });
 
+let WalletSetting = Loadable({
+	loader: () => import(/* webpackChunkName: "WalletSetting" */ "./pages/wallet-setting"),
+	loading: Loader,
+});
+
 let ReferralProgram = Loadable({
 	loader: () => import(/* webpackChunkName: "ReferralProgram" */ "./pages/referral-program"),
 	loading: Loader,
@@ -146,9 +151,11 @@ Page404 = All(Page404);
 Settlement = All(Settlement);
 UpgradeUser = All(UpgradeUser);
 Profile = All(Profile);
+WalletSetting = All(WalletSetting);
 SendAsset = User(SendAsset);
 Withdraw = User(Withdraw);
 Profile = AllRoles(Profile);
+WalletSetting = AllRoles(WalletSetting);
 Users = AdminAndSuperAdminAndSupport(Users);
 UserUpgradeRequests = AdminAndSuperAdmin(UserUpgradeRequests);
 Complaints = AdminAndSuperAdminAndSupport(Complaints);
@@ -184,6 +191,7 @@ class App extends Component {
 					<Route path="/login" exact component={Login} />
 					<Route path="/profile" exact component={Profile} />
 					<Route path="/referral-program" exact component={ReferralProgram} />
+					<Route path="/wallet-setting" exact component={WalletSetting} />
 					<Route path="/settlement-accounts" exact component={Settlement} />
 					<Route path="/upgrade-user:role" exact component={UpgradeUser} />
 

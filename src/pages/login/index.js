@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { Typography, Button, List } from "antd";
+import { Typography, Button, List, Popconfirm } from "antd";
 import { push } from "connected-react-router";
 import styled from "styled-components";
 import Actions from "../../redux/actions";
@@ -17,6 +16,7 @@ import { signWithPk } from "../../utils/blockchain";
 import { showNotification } from "components/notification";
 import { isBase58Address } from "../../utils/validate";
 import queryString from "query-string";
+import { Redirect } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -45,6 +45,9 @@ const LoginCard = styled.div`
 	@media (max-width: 575px) {
 		width: auto;
 		min-width: 300px;
+		h2 {
+			font-size: 24px !important;
+		}
 	}
 `;
 
@@ -57,24 +60,40 @@ const AccountListCard = styled.div`
 	width: 380px;
 	position: absolute;
 	right: -1px;
-	top: 140px;
+	top: 105px;
+	text-align: center;
+	h4 {
+		margin: 0 !important;
+		font-size: 18px !important;
+	}
 	.ant-list-item {
 		justify-content: space-between;
-		h4 {
-			margin-bottom: 0;
-			font-size: 18px;
-		}
 	}
 	.ant-list-items {
 		max-height: 170px;
 		overflow: auto;
 		padding: 0 24px;
 	}
+	.close-wallet {
+		font-size: 20px;
+		background: none;
+		color: grey;
+		border: none;
+		outline: none;
+		box-shadow: none;
+		position: absolute;
+		right: 0px;
+		top: 0px;
+	}
 	@media (max-width: 992px) {
 		left: 0;
 	}
 	@media (max-width: 575px) {
+		h4 {
+			font-size: 14px !important;
+		}
 		width: auto;
+		top: 95px;
 		min-width: 300px;
 	}
 `;
@@ -150,10 +169,7 @@ class Login extends Component {
 
 			if (res && res.error) {
 				if (res.error.data) {
-					showNotification({
-						type: "error",
-						msg: "Maybe your wallet is not associated with any account. Create account first.",
-					});
+					this.showModal(modals.REGISTRATION_MODAL)();
 				}
 			} else {
 				await getUserData();
@@ -178,22 +194,13 @@ class Login extends Component {
 	}
 
 	render() {
-		const { wallet, logOut } = this.props;
+		const { wallet } = this.props;
 		const { loading, accountAddress } = this.state;
 		return (
 			<UnderlayBg img={bgImg} bgPosition={"20% 20%"}>
 				<LoginCard>
 					{this.isAuthenticated() ? (
-						<>
-							<div>
-								<Button onClick={logOut} block style={{ marginBottom: 5 }}>
-									Logout
-								</Button>
-								<Button block>
-									<Link to="/">Open Dashboard</Link>
-								</Button>
-							</div>
-						</>
+						<Redirect to={{ pathname: "/" }} />
 					) : (
 						<>
 							<Title
@@ -203,55 +210,70 @@ class Login extends Component {
 							>
 								Welcome to OnyxPay
 							</Title>
-							<Title
-								level={3}
-								style={{ textAlign: "center", margin: 0, fontWeight: 400 }}
-								type="secondary"
-							>
-								{wallet ? "Close your wallet" : "Import or create wallet"}
-								<AddWallet
-									showImportWalletModal={this.showModal(modals.IMPORT_WALLET_MODAL)}
-									wallet={wallet}
-									clearWallet={this.handleClearWallet}
-								/>
-							</Title>
-							{wallet && (
-								<AccountListCard>
+							<AccountListCard>
+								{wallet && (
+									<Popconfirm
+										title={`Are you sure to close the wallet?`}
+										okText="Yes"
+										cancelText="No"
+										onConfirm={() => this.handleClearWallet()}
+									>
+										<Button type="primary" className="close-wallet">
+											x
+										</Button>
+									</Popconfirm>
+								)}
+								<Title level={4} type="secondary">
+									Wallet
+								</Title>
+								{wallet ? (
 									<List
 										dataSource={wallet.accounts}
 										split={false}
 										renderItem={account => (
 											<>
 												<List.Item>
-													<Title level={4} type="secondary">
-														...{account.address.slice(-6)}
+													<Title
+														ellipsis={true}
+														style={{ width: "55%", textAlign: "left" }}
+														level={4}
+														type="secondary"
+													>
+														{account.name ||
+															`${account.address.slice(0, 5)}...${account.address.slice(-5)}`}
 													</Title>
 													<Button
-														block
 														type="primary"
-														style={{ width: 80 }}
+														style={{ width: "40%" }}
 														disabled={!wallet || (loading && accountAddress === account.address)}
 														loading={loading && accountAddress === account.address}
 														onClick={() => this.handleLogin(account.address)}
 													>
-														Login
+														Log in/Sign up
 													</Button>
 												</List.Item>
 											</>
 										)}
 									/>
-
-									<div style={{ marginTop: 5, paddingLeft: 24, paddingRight: 24 }}>
-										<Button
-											block
-											type="primary"
-											onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}
-										>
-											Add address
-										</Button>
-									</div>
-								</AccountListCard>
-							)}
+								) : (
+									<Title level={4} type="secondary">
+										Empty wallet
+									</Title>
+								)}
+								<div style={{ marginTop: 10, paddingLeft: 24, paddingRight: 24 }}>
+									<Button block type="primary" onClick={this.showModal(modals.CREATE_WALLET_MODAL)}>
+										Add address
+									</Button>
+									<Button
+										style={{ marginTop: 5 }}
+										block
+										type="primary"
+										onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}
+									>
+										Import address
+									</Button>
+								</div>
+							</AccountListCard>
 						</>
 					)}
 
