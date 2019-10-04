@@ -31,19 +31,16 @@ const assetsColumns = [
 		title: "Asset name",
 		dataIndex: "name",
 		key: "name",
-		width: "9em",
 	},
 	{
 		title: "Sell rate",
 		dataIndex: "sellPrice",
 		key: "sellPrice",
-		width: "9em",
 	},
 	{
 		title: "Buy rate",
 		dataIndex: "buyPrice",
 		key: "buyPrice",
-		width: "9em",
 	},
 	{
 		title: "Balance",
@@ -648,6 +645,7 @@ class AssetsExchange extends Component {
 								columns={assetsColumns}
 								dataSource={this.state.assetsData}
 								pagination={false}
+								className="ovf-y-auto--18rem"
 								locale={{ emptyText: "No assets available in the system at the moment." }}
 							/>
 						</Col>
