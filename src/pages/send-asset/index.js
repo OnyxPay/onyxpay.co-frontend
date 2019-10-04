@@ -9,15 +9,11 @@ import { sendAsset, getFee } from "../../api/assets";
 import { TimeoutError } from "promise-timeout";
 import { isBase58Address, countDecimals } from "../../utils/validate";
 import { convertAmountToStr } from "../../utils/number";
-import {
-	showNotification,
-	showBcError,
-	showTimeoutNotification,
-	showInvalidAddressError,
-} from "components/notification";
+import { showNotification, showBcError, showTimeoutNotification } from "components/notification";
 import { debounce } from "lodash";
 import { refreshBalance } from "providers/balanceProvider";
 import AvailableBalance from "components/balance/AvailableBalance";
+import { handleBcError } from "api/network";
 import { checkUserRole, isBlockedUser } from "api/admin/users";
 import { roles } from "api/constants";
 import { trimAddress } from "utils";
@@ -153,7 +149,7 @@ class SendAsset extends Component {
 			} else if (e.isAxiosError) {
 				handleReqError(e);
 			} else {
-				showInvalidAddressError();
+				handleBcError(e);
 			}
 		} finally {
 			formActions.setSubmitting(false);

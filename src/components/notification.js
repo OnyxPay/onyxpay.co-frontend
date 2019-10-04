@@ -43,13 +43,6 @@ export function showBcError(er) {
 	});
 }
 
-export function showInvalidAddressError() {
-	return showNotification({
-		type: "error",
-		msg: "Invalid address",
-	});
-}
-
 export function showGasCompensationError(errorMsg) {
 	return showNotification({
 		type: "error",
