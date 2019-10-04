@@ -79,8 +79,8 @@ export function signWithPk(msg, pk, schema) {
 export function parseBcError(er) {
 	try {
 		const errorObj = JSON.parse(er);
-		return errorObj.Result;
+		return errorObj.Error === 42002 ? errorObj.Desc : errorObj.Result;
 	} catch (e) {
-		return "Something went wrong at the block-chain network";
+		return "Something went wrong at the blockchain network";
 	}
 }

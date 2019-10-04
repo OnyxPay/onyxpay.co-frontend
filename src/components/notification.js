@@ -38,7 +38,7 @@ export function showBcError(er) {
 	// er should be er.message property of Error
 	return showNotification({
 		type: "error",
-		msg: "Block-chain error",
+		msg: "Blockchain error",
 		desc: parseBcError(er),
 	});
 }
