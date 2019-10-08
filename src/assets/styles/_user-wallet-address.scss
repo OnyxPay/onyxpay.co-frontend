@@ -32,6 +32,8 @@
 }
 
 .account-list {
+	max-height: 140px;
+	overflow: auto;
 	li {
 		transition: all 0.3s;
 		&:hover {

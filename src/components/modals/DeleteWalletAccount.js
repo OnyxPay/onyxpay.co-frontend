@@ -57,7 +57,6 @@ function DeleteWalletAccount({ isModalVisible, hideModal, address, handleDeleteA
 							<form onSubmit={handleSubmit}>
 								<Form.Item
 									label='Enter "delete" to confirm operation'
-									required
 									validateStatus={errors.phrase && touched.phrase ? "error" : ""}
 									help={errors.phrase && touched.phrase ? errors.phrase : ""}
 								>
@@ -74,12 +73,12 @@ function DeleteWalletAccount({ isModalVisible, hideModal, address, handleDeleteA
 										Cancel
 									</Button>
 									<Button
-										type="primary"
+										type="danger"
 										htmlType="submit"
 										disabled={isSubmitting}
 										loading={isSubmitting}
 									>
-										Add asset
+										Delete
 									</Button>
 								</TextAligner>
 							</form>

@@ -5,9 +5,9 @@ import { Modal, Typography, Select, Form, Input, Upload, Button, Icon } from "an
 import { get } from "lodash";
 import Tabs, { Tab, TabContent, TabsContainer, TabLabel, TabsNav } from "./tabs";
 import { SelectContainer, ImportTitle, FormButtons } from "./styled";
-import { importMnemonics, importPrivateKey, getWallet, decryptWallet } from "../../../api/wallet";
-import { isMnemonicsValid, isPkValid, samePassword } from "../../../utils/validate";
-import Actions from "../../../redux/actions";
+import { importMnemonics, importPrivateKey, getWallet } from "api/wallet";
+import { isMnemonicsValid, isPkValid, samePassword } from "utils/validate";
+import Actions from "redux/actions";
 import { showNotification } from "components/notification";
 
 /* 
@@ -33,6 +33,8 @@ class ImportWalletModal extends Component {
 			fileList: [],
 			fileReadError: "",
 			uploadedWallet: null,
+			importWalletAccounts: [],
+			currentWallet: [],
 		};
 	}
 
@@ -45,8 +47,9 @@ class ImportWalletModal extends Component {
 		const { hideModal } = this.props;
 		try {
 			let wallet;
-			this.props.wallet
-				? ({ wallet } = await importMnemonics(mnemonics, password, this.props.wallet))
+			let currentWallet = JSON.parse(localStorage.getItem("wallet"));
+			currentWallet
+				? ({ wallet } = await importMnemonics(mnemonics, password, currentWallet))
 				: ({ wallet } = await importMnemonics(mnemonics, password));
 			this.props.setWallet(wallet);
 			formActions.resetForm();
@@ -67,8 +70,9 @@ class ImportWalletModal extends Component {
 		const { hideModal } = this.props;
 		try {
 			let wallet;
-			this.props.wallet
-				? ({ wallet } = await importPrivateKey(pk.trim(), password, this.props.wallet))
+			let currentWallet = JSON.parse(localStorage.getItem("wallet"));
+			currentWallet
+				? ({ wallet } = await importPrivateKey(pk.trim(), password, currentWallet))
 				: ({ wallet } = await importPrivateKey(pk.trim(), password));
 			this.props.setWallet(wallet);
 			formActions.resetForm();
@@ -85,16 +89,22 @@ class ImportWalletModal extends Component {
 		}
 	};
 
-	handleUnlockWithFile = async ({ wallet_account_address, password }, formActions) => {
-		const { uploadedWallet } = this.state;
+	handleUnlockWithFile = async ({ wallet_account_address }, formActions) => {
+		const { uploadedWallet, currentWallet } = this.state;
 		const { hideModal } = this.props;
-		//const accounts = uploadedWallet.accounts.filter(acc => acc.address === wallet_account_address);
-		//uploadedWallet.accounts = accounts;
-		//uploadedWallet.defaultAccountAddress = wallet_account_address;
 
 		try {
-			const { wallet } = await decryptWallet(uploadedWallet, password);
-			this.props.setWallet(wallet);
+			if (currentWallet) {
+				if (wallet_account_address === "Import all addresses") {
+					uploadedWallet.accounts.map(account => currentWallet.accounts.push(account));
+				} else {
+					uploadedWallet.accounts.map(
+						account =>
+							account.address === wallet_account_address && currentWallet.accounts.push(account)
+					);
+				}
+			}
+			this.props.setWallet(currentWallet ? currentWallet : uploadedWallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
 			hideModal();
@@ -122,7 +132,7 @@ class ImportWalletModal extends Component {
 		}
 	};
 
-	handleFileUpload = setFieldValue => (file, fileList) => {
+	handleFileUpload = setFieldValue => (file, formActions) => {
 		const isLt1M = isLtSize(file, 1);
 
 		if (isLt1M) {
@@ -131,33 +141,36 @@ class ImportWalletModal extends Component {
 				let data = get(e.target, "result");
 				try {
 					let wallet = getWallet(JSON.parse(data)).toJsonObj();
+					const importWalletAccounts = wallet.accounts.map((account, index) => ({
+						address: account.address,
+						key: index,
+					}));
+					this.setState({ importWalletAccounts });
 
-					if (this.props.wallet) {
-						wallet.accounts.map(account => this.props.wallet.accounts.push(account));
-					}
+					let currentWallet = JSON.parse(localStorage.getItem("wallet"));
 
-					this.setState({ uploadedWallet: this.props.wallet ? this.props.wallet : wallet }, () => {
-						if (this.state.uploadedWallet.accounts.length) {
-							let currentAddress;
-							if (this.props.wallet === null) {
-								currentAddress = this.state.uploadedWallet.accounts[0].address;
-							} else {
-								let address;
-								wallet.accounts.forEach(walletAccount => {
-									return (address = walletAccount.address);
-								});
-								this.state.uploadedWallet.accounts.map(account => {
-									if (account.address === address) {
-										currentAddress = account.address;
-									}
-									return currentAddress;
-								});
-							}
-							setFieldValue("wallet_account_address", currentAddress);
-						} else {
-							setFieldValue("wallet_account_address", "");
+					if (currentWallet) {
+						const currentAddresses = this.props.wallet.accounts.map(account => account.address);
+						const importAddresses = wallet.accounts.filter(
+							account => !currentAddresses.includes(account.address)
+						);
+
+						if (importAddresses.length === 0) {
+							this.setState({
+								fileReadError: `Import wallet contains the address/addresses already added`,
+							});
+						} else if (importAddresses.length === 1) {
+							setFieldValue("wallet_account_address", importAddresses[0].address);
+						} else if (importAddresses.length > 2) {
+							setFieldValue("wallet_account_address", "Import all addresses");
 						}
-					});
+
+						this.setState({ importWalletAccounts: importAddresses });
+						wallet.accounts = importAddresses;
+					} else {
+						setFieldValue("wallet_account_address", importWalletAccounts[0].address);
+					}
+					this.setState({ uploadedWallet: wallet, currentWallet: currentWallet });
 				} catch (e) {
 					this.setState({ fileReadError: "Wallet file is not valid" });
 				}
@@ -179,12 +192,19 @@ class ImportWalletModal extends Component {
 	};
 
 	handleAccountChange = setFieldValue => (value, option) => {
+		this.setState({ choseAddress: value });
 		setFieldValue("wallet_account_address", value);
 	};
 
 	render() {
 		const { isModalVisible, hideModal, switchModal } = this.props;
-		const { activeTabIndex, fileList, fileReadError, uploadedWallet } = this.state;
+		const {
+			activeTabIndex,
+			fileList,
+			fileReadError,
+			uploadedWallet,
+			importWalletAccounts,
+		} = this.state;
 		return (
 			<Modal
 				title=""
@@ -229,13 +249,10 @@ class ImportWalletModal extends Component {
 								<div>
 									<Formik
 										onSubmit={this.handleUnlockWithFile}
-										initialValues={{ wallet_account_address: "", password: "" }}
-										validate={({ password, wallet_account_address }) => {
+										initialValues={{ wallet_account_address: "" }}
+										validate={({ wallet_account_address }) => {
 											let errors = {};
 
-											if (!password) {
-												errors.password = "Required field";
-											}
 											if (!wallet_account_address) {
 												errors.wallet_account_address = "Required field";
 											}
@@ -276,7 +293,7 @@ class ImportWalletModal extends Component {
 													</Form.Item>
 
 													<Form.Item
-														label="Choose account"
+														label="Choose address"
 														className="ant-form-item--lh32"
 														validateStatus={
 															errors.wallet_account_address && touched.wallet_account_address
@@ -299,12 +316,17 @@ class ImportWalletModal extends Component {
 																option.props.children.toLowerCase().indexOf(input.toLowerCase()) >=
 																0
 															}
-															disabled={!uploadedWallet || isSubmitting}
+															disabled={
+																!uploadedWallet || isSubmitting || importWalletAccounts.length === 0
+															}
 														>
-															{uploadedWallet ? (
-																uploadedWallet.accounts.map(acc => {
+															{importWalletAccounts.length > 2 && (
+																<Option value="Import all addresses">Import all addresses</Option>
+															)}
+															{importWalletAccounts ? (
+																importWalletAccounts.map(acc => {
 																	return (
-																		<Option key={acc.address} value={acc.address}>
+																		<Option key={acc.key} value={acc.address}>
 																			{acc.address}
 																		</Option>
 																	);

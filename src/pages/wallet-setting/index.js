@@ -28,6 +28,7 @@ const ButtonContainer = styled.div`
 	margin-bottom: 10px;
 	button {
 		margin-right: 10px;
+		margin-bottom: 5px;
 	}
 `;
 
@@ -49,7 +50,7 @@ class WalletSetting extends Component {
 			editAccountAddress: null,
 			showBtn: false,
 			currentLabel: null,
-			walletAccounts: this.props.wallet.accounts,
+			walletAccounts: null,
 			pagination: { current: 1, pageSize: 20 },
 			deleteAddress: null,
 		};
@@ -57,12 +58,11 @@ class WalletSetting extends Component {
 
 	componentDidMount = () => {
 		const wal = JSON.parse(localStorage.getItem("wallet"));
-		this.setState({ wallet: wal });
+		this.setState({ wallet: wal, walletAccounts: wal.accounts });
 	};
 
 	componentDidUpdate = (prevProps, prevState) => {
 		const { CREATE_WALLET_MODAL, IMPORT_WALLET_MODAL } = this.state;
-		console.log(prevProps, prevState);
 
 		if (
 			IMPORT_WALLET_MODAL !== prevState.IMPORT_WALLET_MODAL ||
@@ -107,7 +107,6 @@ class WalletSetting extends Component {
 	};
 
 	handleDeleteAddressChange = e => {
-		console.log(e.target.value);
 		this.setState({ deleteAddress: e.target.value });
 	};
 
@@ -145,13 +144,23 @@ class WalletSetting extends Component {
 			dataIndex: "address",
 			key: "address",
 			width: "40%",
+			render: (text, record, index) => {
+				if (text === this.props.defaultAddress) {
+					return (
+						<>
+							{text} <span style={{ color: "#1890ff" }}>(current)</span>
+						</>
+					);
+				} else {
+					return text;
+				}
+			},
 		},
 		{
 			title: "label",
 			key: "label",
 			width: "40%",
 			render: (text, record, index) => {
-				console.log(record.name);
 				return (
 					<InputContainer>
 						<Input
@@ -164,6 +173,7 @@ class WalletSetting extends Component {
 							onChange={e => this.handleChange(e, record.address, index)}
 							ref={this.textInput}
 							onFocus={() => this.handleFocus(record.label)}
+							style={{ minWidth: 200 }}
 						/>
 						{this.state.showBtn && record.address === this.state.editAccountAddress ? (
 							<div className="save-btn">
@@ -208,6 +218,16 @@ class WalletSetting extends Component {
 		},
 	];
 
+	handleTableChange = (pagination, filters, sorter) => {
+		this.setState({
+			pagination: {
+				...this.state.pagination,
+				current: pagination.current,
+				pageSize: pagination.pageSize,
+			},
+		});
+	};
+
 	render() {
 		const { walletAccounts, pagination } = this.state;
 		if (walletAccounts === null) {
@@ -239,7 +259,8 @@ class WalletSetting extends Component {
 					columns={this.columns}
 					dataSource={walletAccounts}
 					pagination={{ ...pagination }}
-					className="usersTable ovf-auto"
+					className="ovf-auto"
+					onChange={this.handleTableChange}
 				/>
 
 				<ImportWalletModal

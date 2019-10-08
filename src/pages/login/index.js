@@ -6,7 +6,6 @@ import styled from "styled-components";
 import Actions from "../../redux/actions";
 import { UnderlayBg } from "../../components/styled";
 import bgImg from "../../assets/img/bg/login.jpg";
-import AddWallet from "./AddWallet";
 import { unlockWalletAccount } from "../../api/wallet";
 import ImportWalletModal from "../../components/modals/wallet/ImportWalletModal";
 import CreateWalletModal from "../../components/modals/wallet/CreateWalletModal";
@@ -235,7 +234,7 @@ class Login extends Component {
 												<List.Item>
 													<Title
 														ellipsis={true}
-														style={{ width: "55%", textAlign: "left" }}
+														style={{ width: "53%", textAlign: "left" }}
 														level={4}
 														type="secondary"
 													>
@@ -244,7 +243,7 @@ class Login extends Component {
 													</Title>
 													<Button
 														type="primary"
-														style={{ width: "40%" }}
+														style={{ width: "42%" }}
 														disabled={!wallet || (loading && accountAddress === account.address)}
 														loading={loading && accountAddress === account.address}
 														onClick={() => this.handleLogin(account.address)}

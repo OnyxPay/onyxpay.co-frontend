@@ -98,7 +98,7 @@ export function deserializePrivateKey(str) {
 	}
 }
 
-export function decryptWallet(wallet, password) {
+export async function decryptWallet(wallet, password) {
 	const store = getStore();
 	let currentWallet = getWallet(wallet);
 	let account;

@@ -16,5 +16,13 @@ export const walletReducer = (state = defaultState, action) => {
 	}
 };
 
-export const setWallet = walletEncoded => ({ type: SET_WALLET, wallet: JSON.parse(walletEncoded) });
+const isJSON = walletEncoded => {
+	try {
+		return JSON.parse(walletEncoded);
+	} catch (e) {
+		return walletEncoded;
+	}
+};
+
+export const setWallet = walletEncoded => ({ type: SET_WALLET, wallet: isJSON(walletEncoded) });
 export const clearWallet = () => ({ type: CLEAR_WALLET });

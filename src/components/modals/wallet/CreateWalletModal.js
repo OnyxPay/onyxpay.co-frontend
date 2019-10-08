@@ -61,9 +61,10 @@ class CreateWalletModal extends Component {
 	handleCreateWallet = async ({ password }, formActions) => {
 		try {
 			let { mnemonics, wif, wallet } = "";
+			let currentWallet = JSON.parse(localStorage.getItem("wallet"));
 
-			if (this.props.wallet !== null) {
-				({ mnemonics, wif, wallet } = await createWalletAccount(password, this.props.wallet));
+			if (currentWallet !== null) {
+				({ mnemonics, wif, wallet } = await createWalletAccount(password, currentWallet));
 			} else {
 				({ mnemonics, wif, wallet } = await createWalletAccount(password));
 			}

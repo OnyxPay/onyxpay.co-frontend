@@ -95,7 +95,7 @@ export const FormButtons = ({ isSubmitting, type, switchModal }) => {
 		return (
 			<FormButtonsGroup>
 				<Button type="primary" htmlType="submit" disabled={isSubmitting} loading={isSubmitting}>
-					Import wallet
+					Import address
 					<Icon type="arrow-right" />
 				</Button>
 			</FormButtonsGroup>
