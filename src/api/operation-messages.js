@@ -6,7 +6,10 @@ export async function sendMessage(requestId, receivers = []) {
 		const authHeaders = getAuthHeaders();
 		const { data } = await client.post(
 			`operation-request/${requestId}/messages`,
-			{ receivers },
+			{
+				receivers,
+				_notify: true,
+			},
 			{
 				headers: {
 					...authHeaders,
@@ -22,11 +25,17 @@ export async function sendMessage(requestId, receivers = []) {
 export async function hideMessage(requestId) {
 	try {
 		const authHeaders = getAuthHeaders();
-		const { data } = await client.put(`operation-message/${requestId}/hide`, null, {
-			headers: {
-				...authHeaders,
+		const { data } = await client.put(
+			`operation-message/${requestId}/hide`,
+			{
+				_notify: true,
 			},
-		});
+			{
+				headers: {
+					...authHeaders,
+				},
+			}
+		);
 		return data;
 	} catch (error) {
 		return handleReqError(error);
