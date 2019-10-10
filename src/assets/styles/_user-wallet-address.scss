@@ -1,22 +1,61 @@
 .wallet-address-tooltip {
 	max-width: 100% !important;
 	z-index: 1000 !important;
+	.wallet-address {
+		display: flex;
+		align-items: center;
+	}
 	span {
 		margin-right: 10px;
 	}
 }
+
 .user-wallet-address-container {
 	margin-right: 20px;
-	span {
+	.ant-dropdown-trigger {
 		color: white;
 		margin: 0;
 	}
 	.wallet-address {
+		display: flex;
+		align-items: center;
+		.ant-dropdown-trigger {
+			cursor: pointer;
+		}
 		i {
 			margin-left: 5px;
 			width: 16px;
 			height: 16px;
 			color: white;
+		}
+	}
+}
+
+.account-list {
+	max-height: 140px;
+	overflow: auto;
+	li {
+		transition: all 0.3s;
+		&:hover {
+			background-color: #1890ff;
+		}
+	}
+	button {
+		background: none;
+		outline: none;
+		border: none;
+		box-shadow: none;
+		color: black;
+		&:hover {
+			background: none;
+		}
+	}
+}
+
+@media (max-width: 767px) {
+	.wallet-address-tooltip {
+		i {
+			margin-left: 10px;
 		}
 	}
 }

@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 
 export const MainContent = styled.main`
 	flex: auto;
-	min-height: 360px;
+	min-height: 480px;
 	position: relative;
 
 	${p =>

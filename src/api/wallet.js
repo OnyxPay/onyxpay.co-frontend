@@ -22,9 +22,9 @@ export function createMnemonicsAndPk() {
 	return { mnemonics, wif };
 }
 
-export async function createWalletAccount(password) {
+export async function createWalletAccount(password, wallet) {
 	const { mnemonics } = createMnemonicsAndPk();
-	return await importMnemonics(mnemonics, password);
+	return await importMnemonics(mnemonics, password, wallet);
 }
 
 export async function importPrivateKey(privateKeyStr, password, wallet) {
@@ -53,7 +53,7 @@ export async function importPrivateKey(privateKeyStr, password, wallet) {
 	const account = Account.create(privateKey, password, uuid(), scryptParams);
 
 	currentWallet.addAccount(account);
-	currentWallet.setDefaultAccount(account.address.toBase58());
+
 	const res = {
 		encryptedWif: account.encryptedKey.serializeWIF(),
 		wallet: currentWallet.toJson(),
@@ -64,10 +64,24 @@ export async function importPrivateKey(privateKeyStr, password, wallet) {
 	return res;
 }
 
-export async function importMnemonics(mnemonics, password) {
+export async function setDefaultAccountAddress(wallet, privateKey, password) {
+	const currentWallet = Wallet.parseJsonObj(wallet);
+	const scrypt = currentWallet.scrypt;
+	const scryptParams = {
+		blockSize: scrypt.r,
+		cost: scrypt.n,
+		parallel: scrypt.p,
+		size: scrypt.dkLen,
+	};
+	const account = Account.create(privateKey, password, uuid(), scryptParams);
+	currentWallet.setDefaultAccount(account.address.toBase58());
+	return currentWallet.toJson();
+}
+
+export async function importMnemonics(mnemonics, password, wallet) {
 	const privateKey = PrivateKey.generateFromMnemonic(mnemonics, "m/44'/888'/0'/0/0");
 	const wif = privateKey.serializeWIF();
-	const result = await importPrivateKey(wif, password);
+	const result = await importPrivateKey(wif, password, wallet);
 
 	return {
 		mnemonics,
@@ -98,9 +112,15 @@ export function deserializePrivateKey(str) {
 	}
 }
 
-export function decryptWallet(wallet, password) {
+export async function decryptWallet(wallet, password) {
+	const store = getStore();
 	let currentWallet = getWallet(wallet);
-	const account = currentWallet.accounts[0];
+	let account;
+	store.getState().walletUnlock.currentAccountAddress
+		? (account = currentWallet.accounts.filter(
+				account => account.address.value === store.getState().walletUnlock.currentAccountAddress
+		  )[0])
+		: (account = currentWallet.accounts[0]);
 	const saltHex = Buffer.from(account.salt, "base64").toString("hex");
 	const encryptedKey = account.encryptedKey;
 	const scrypt = currentWallet.scrypt;
@@ -111,18 +131,20 @@ export function decryptWallet(wallet, password) {
 		parallel: scrypt.p,
 		size: scrypt.dkLen,
 	});
+
 	return {
 		wallet: currentWallet.toJson(),
 		pk,
 		publicKey: pk.getPublicKey(),
+		password,
 		accountAddress: account.address,
 	};
 }
 
-export async function unlockWalletAccount() {
+export async function unlockWalletAccount(account) {
 	const store = getStore();
 	const wallet = store.getState().wallet;
-	const { password } = await store.dispatch(Actions.walletUnlock.getWalletPassword());
+	const { password } = await store.dispatch(Actions.walletUnlock.getWalletPassword(account));
 	return await decryptWallet(wallet, password);
 }
 

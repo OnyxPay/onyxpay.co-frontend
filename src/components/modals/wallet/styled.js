@@ -26,7 +26,7 @@ export const ImportTitle = styled.div`
 
 export const FormButtonsGroup = styled.div`
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-end;
 	align-items: center;
 `;
 
@@ -94,16 +94,8 @@ export const FormButtons = ({ isSubmitting, type, switchModal }) => {
 	} else {
 		return (
 			<FormButtonsGroup>
-				<Button
-					type="link"
-					disabled={isSubmitting}
-					onClick={switchModal}
-					style={{ paddingLeft: 0 }}
-				>
-					Create a new wallet
-				</Button>
 				<Button type="primary" htmlType="submit" disabled={isSubmitting} loading={isSubmitting}>
-					Import wallet
+					Import address
 					<Icon type="arrow-right" />
 				</Button>
 			</FormButtonsGroup>

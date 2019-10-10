@@ -1,7 +1,7 @@
 import { tempWalletPassword } from "../api/constants";
 import { UnlockWalletError } from "utils/custom-error";
 
-const initialState = { isModalVisible: false, locked: true };
+const initialState = { isModalVisible: false, locked: true, currentAccountAddress: null };
 const SHOW_WALLET_UNLOCK_MODAL = "SHOW_WALLET_UNLOCK_MODAL";
 const HIDE_WALLET_UNLOCK_MODAL = "HIDE_WALLET_UNLOCK_MODAL";
 const LOCK_WALLET = "LOCK_WALLET";
@@ -10,7 +10,7 @@ const UNLOCK_WALLET = "UNLOCK_WALLET";
 export const walletUnlockReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SHOW_WALLET_UNLOCK_MODAL:
-			return { ...state, isModalVisible: true };
+			return { ...state, isModalVisible: true, currentAccountAddress: action.payload };
 		case HIDE_WALLET_UNLOCK_MODAL:
 			return { ...state, isModalVisible: false };
 		case UNLOCK_WALLET:
@@ -22,8 +22,8 @@ export const walletUnlockReducer = (state = initialState, action) => {
 	}
 };
 
-export const showWalletUnlockModal = () => {
-	return { type: SHOW_WALLET_UNLOCK_MODAL };
+export const showWalletUnlockModal = accountAddress => {
+	return { type: SHOW_WALLET_UNLOCK_MODAL, payload: accountAddress };
 };
 
 export const hideWalletUnlockModal = () => {
@@ -38,9 +38,9 @@ export const setLockWallet = () => {
 	return { type: LOCK_WALLET };
 };
 
-export const getWalletPassword = () => (dispatch, getState) => {
+export const getWalletPassword = account => (dispatch, getState) => {
 	return new Promise((resolve, reject) => {
-		dispatch(showWalletUnlockModal());
+		dispatch(showWalletUnlockModal(account));
 		let timeoutId = setInterval(() => {
 			const state = getState();
 			if (!state.walletUnlock.locked) {
