@@ -40,6 +40,17 @@ export function convertAssets(assets, exchangeRates) {
 	}
 }
 
+function getDepositBalanceFragment(role, amount) {
+	if (role === roles.sa) {
+		return <BalanceCard
+			title="Security Deposit Balance"
+			assetLabel="OnyxCash"
+			amount={amount}
+		/>;
+	}
+	return null;
+}
+
 class Balance extends Component {
 	state = {
 		isModalVisible: false,
@@ -74,7 +85,7 @@ class Balance extends Component {
 
 	render() {
 		const { user, exchangeRates } = this.props;
-		const { assets, onyxCash } = this.props.balance;
+		const { assets, onyxCash, depositOnyxCash } = this.props.balance;
 		const { isModalVisible } = this.state;
 		const oneOfValidUserRoles =
 			user.role === roles.c || user.role === roles.a || user.role === roles.sa;
@@ -112,6 +123,9 @@ class Balance extends Component {
 								) : null
 							}
 						/>
+					</Col>
+					<Col md={24} lg={10}>
+						{getDepositBalanceFragment(user.role, depositOnyxCash)}
 					</Col>
 				</Row>
 				{oneOfValidUserRoles ? (

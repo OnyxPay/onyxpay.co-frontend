@@ -159,6 +159,6 @@ export const gasCompensatorTimeout = 30000;
 export const supportEmail = "support@onyxpay.co";
 
 export const paymentAmountByRole = {
-	[roles.a]: 800,
-	[roles.sa]: 100000
+	[roles.a]: { payUsd: 800, getOnyxCash: 500 },
+	[roles.sa]: { payUsd: 100000, getOnyxCash: 100000 }
 }

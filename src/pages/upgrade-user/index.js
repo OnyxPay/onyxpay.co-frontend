@@ -34,17 +34,11 @@ function getStepTitle(item, step) {
 }
 
 function UpgradeTextByRole(props) {
-	if (props.role === roles.sa) {
-		return <p>
-			Please purchase an amount of OnyxCash equal to <b>{paymentAmountByRole[props.role]}</b>{" "}
-			U.S. dollars in order to be upgraded to the {formatUserRole(props.role)}.
-		</p>;
-	} else {
-		return <p>
-			To upgrade your role to {formatUserRole(props.role)}, you have to purchase{" "}
-			<b>500</b> OnyxCash for <b>{paymentAmountByRole[props.role]}</b> U.S. dollars.
-		</p>;
-	}
+	return <p>
+		To upgrade your role to {formatUserRole(props.role)}, you have to purchase{" "}
+		<b>{paymentAmountByRole[props.role].getOnyxCash}</b> OnyxCash for{" "}
+		<b>{paymentAmountByRole[props.role].payUsd}</b> U.S. dollars.
+	</p>;
 }
 
 class UpgradeUser extends Component {
