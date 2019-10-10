@@ -48,17 +48,28 @@ class ImportWalletModal extends Component {
 		try {
 			let wallet;
 			let currentWallet = JSON.parse(localStorage.getItem("wallet"));
-			currentWallet
-				? ({ wallet } = await importMnemonics(mnemonics, password, currentWallet))
-				: ({ wallet } = await importMnemonics(mnemonics, password));
+
+			if (currentWallet) {
+				({ wallet } = await importMnemonics(mnemonics, password, currentWallet));
+			} else {
+				({ wallet } = await importMnemonics(mnemonics, password));
+			}
+
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
 			hideModal();
-			showNotification({
-				type: "success",
-				msg: "You successfully imported your wallet",
-			});
+			if (currentWallet && JSON.parse(wallet).accounts.length === currentWallet.accounts.length) {
+				showNotification({
+					type: "success",
+					msg: "This address has already been added by you",
+				});
+			} else {
+				showNotification({
+					type: "success",
+					msg: "You successfully added your address",
+				});
+			}
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -71,17 +82,28 @@ class ImportWalletModal extends Component {
 		try {
 			let wallet;
 			let currentWallet = JSON.parse(localStorage.getItem("wallet"));
-			currentWallet
-				? ({ wallet } = await importPrivateKey(pk.trim(), password, currentWallet))
-				: ({ wallet } = await importPrivateKey(pk.trim(), password));
+
+			if (currentWallet) {
+				({ wallet } = await importPrivateKey(pk.trim(), password, currentWallet));
+			} else {
+				({ wallet } = await importPrivateKey(pk.trim(), password));
+			}
+
 			this.props.setWallet(wallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
 			hideModal();
-			showNotification({
-				type: "success",
-				msg: "You successfully imported your wallet",
-			});
+			if (currentWallet && JSON.parse(wallet).accounts.length === currentWallet.accounts.length) {
+				showNotification({
+					type: "success",
+					msg: "This address has already been added by you",
+				});
+			} else {
+				showNotification({
+					type: "success",
+					msg: "You successfully added your address",
+				});
+			}
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -90,27 +112,45 @@ class ImportWalletModal extends Component {
 	};
 
 	handleUnlockWithFile = async ({ wallet_account_address }, formActions) => {
-		const { uploadedWallet, currentWallet } = this.state;
+		let { uploadedWallet, currentWallet } = this.state;
 		const { hideModal } = this.props;
 
 		try {
 			if (currentWallet) {
 				if (wallet_account_address === "Import all addresses") {
-					uploadedWallet.accounts.map(account => currentWallet.accounts.push(account));
+					this.setState(() => {
+						return {
+							currentWallet: uploadedWallet.accounts.map(account =>
+								currentWallet.accounts.push(account)
+							),
+						};
+					});
 				} else {
-					uploadedWallet.accounts.map(
-						account =>
-							account.address === wallet_account_address && currentWallet.accounts.push(account)
+					this.setState(() => {
+						return {
+							currentWallet: uploadedWallet.accounts.map(
+								account =>
+									account.address === wallet_account_address && currentWallet.accounts.push(account)
+							),
+						};
+					});
+				}
+			} else if (uploadedWallet) {
+				if (wallet_account_address !== "Import all addresses") {
+					const uploadAddress = uploadedWallet.accounts.filter(
+						account => account.address === wallet_account_address
 					);
+					this.setState({ uploadedWallet: (uploadedWallet.accounts = uploadAddress) });
 				}
 			}
+
 			this.props.setWallet(currentWallet ? currentWallet : uploadedWallet);
 			formActions.resetForm();
 			this.setState({ ...this.initState() });
 			hideModal();
 			showNotification({
 				type: "success",
-				msg: "You successfully imported your wallet",
+				msg: "You successfully imported your wallet with address/addresses",
 			});
 		} catch (error) {
 			if (error === 53000) {
@@ -167,6 +207,8 @@ class ImportWalletModal extends Component {
 
 						this.setState({ importWalletAccounts: importAddresses });
 						wallet.accounts = importAddresses;
+					} else if (importWalletAccounts.length > 2) {
+						setFieldValue("wallet_account_address", "Import all addresses");
 					} else {
 						setFieldValue("wallet_account_address", importWalletAccounts[0].address);
 					}

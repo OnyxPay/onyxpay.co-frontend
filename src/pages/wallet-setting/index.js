@@ -117,7 +117,7 @@ class WalletSetting extends Component {
 	handleChange = (e, address, index) => {
 		let { walletAccounts } = this.state;
 		let labelValue = e.target.value;
-		walletAccounts[index].name = labelValue;
+		walletAccounts[index].label = labelValue;
 		this.setState({ showBtn: true, editAccountAddress: address, walletAccounts });
 	};
 
@@ -164,12 +164,8 @@ class WalletSetting extends Component {
 				return (
 					<InputContainer>
 						<Input
-							defaultValue={record.name === undefined ? record.label : record.name}
-							value={
-								(this.state.walletAccounts[index].name || record.name) === undefined
-									? this.state.walletAccounts[index].label || record.label
-									: this.state.walletAccounts[index].name || record.name
-							}
+							defaultValue={record.label}
+							value={record.label}
 							onChange={e => this.handleChange(e, record.address, index)}
 							ref={this.textInput}
 							onFocus={() => this.handleFocus(record.label)}

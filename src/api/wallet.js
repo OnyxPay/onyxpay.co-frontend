@@ -53,7 +53,7 @@ export async function importPrivateKey(privateKeyStr, password, wallet) {
 	const account = Account.create(privateKey, password, uuid(), scryptParams);
 
 	currentWallet.addAccount(account);
-	currentWallet.setDefaultAccount(account.address.toBase58());
+
 	const res = {
 		encryptedWif: account.encryptedKey.serializeWIF(),
 		wallet: currentWallet.toJson(),
@@ -62,6 +62,20 @@ export async function importPrivateKey(privateKeyStr, password, wallet) {
 		accountAddress: account.address.toBase58(),
 	};
 	return res;
+}
+
+export async function setDefaultAccountAddress(wallet, privateKey, password) {
+	const currentWallet = Wallet.parseJsonObj(wallet);
+	const scrypt = currentWallet.scrypt;
+	const scryptParams = {
+		blockSize: scrypt.r,
+		cost: scrypt.n,
+		parallel: scrypt.p,
+		size: scrypt.dkLen,
+	};
+	const account = Account.create(privateKey, password, uuid(), scryptParams);
+	currentWallet.setDefaultAccount(account.address.toBase58());
+	return currentWallet.toJson();
 }
 
 export async function importMnemonics(mnemonics, password, wallet) {
@@ -122,6 +136,7 @@ export async function decryptWallet(wallet, password) {
 		wallet: currentWallet.toJson(),
 		pk,
 		publicKey: pk.getPublicKey(),
+		password,
 		accountAddress: account.address,
 	};
 }

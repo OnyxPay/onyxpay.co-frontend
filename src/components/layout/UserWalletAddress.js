@@ -10,6 +10,7 @@ import { unlockWalletAccount } from "api/wallet";
 import { generateTokenTimeStamp } from "utils";
 import { signWithPk } from "utils/blockchain";
 import RegistrationModal from "../../components/modals/Registration";
+import { setDefaultAccountAddress } from "api/wallet";
 
 const modals = {
 	REGISTRATION_MODAL: "REGISTRATION_MODAL",
@@ -30,14 +31,19 @@ class UserWalletAddress extends Component {
 	};
 
 	handleLogin = async currentAccountAddress => {
-		const { push, login, getUserData, location } = this.props;
+		const { push, login, getUserData, location, setWallet, wallet } = this.props;
 		this.setState({ accountAddress: currentAccountAddress });
 		try {
-			const { pk, accountAddress, publicKey } = await unlockWalletAccount(currentAccountAddress);
+			const { pk, accountAddress, publicKey, password } = await unlockWalletAccount(
+				currentAccountAddress
+			);
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
 
 			console.log({ publicKey, accountAddress, signed_msg: signature.serializeHex() });
+
+			const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
+			setWallet(currentWallet);
 
 			const res = await login({
 				public_key: publicKey.key,
@@ -64,7 +70,7 @@ class UserWalletAddress extends Component {
 	showAccountList = () => {
 		const walletAddress = localStorage.getItem("OnyxAddr");
 		const wallet = JSON.parse(localStorage.getItem("wallet"));
-		const accountList = (
+		let accountList = (
 			<Menu className="account-list">
 				{wallet.accounts.map(
 					(account, index) =>
@@ -84,6 +90,15 @@ class UserWalletAddress extends Component {
 				)}
 			</Menu>
 		);
+		if (accountList.props.children.length === 1) {
+			accountList = (
+				<Menu className="account-list">
+					<Menu.Item>
+						<span>You have only one registered address</span>
+					</Menu.Item>
+				</Menu>
+			);
+		}
 		this.setState({ accountList: accountList });
 	};
 
@@ -160,11 +175,12 @@ class UserWalletAddress extends Component {
 
 export default connect(
 	state => {
-		return { location: state.router.location };
+		return { location: state.router.location, wallet: state.wallet };
 	},
 	{
 		login: Actions.auth.login,
 		push,
 		getUserData: Actions.user.getUserData,
+		setWallet: Actions.wallet.setWallet,
 	}
 )(UserWalletAddress);

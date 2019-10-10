@@ -329,7 +329,7 @@ class CreateWalletModal extends Component {
 									style={{ fontSize: 70 }}
 								/>
 								<WalletCreatedText>
-									You have successfully created the wallet, also it was already imported for you
+									You have successfully created the address, also it was already imported for you
 								</WalletCreatedText>
 							</WalletCreatedContainer>
 						</>

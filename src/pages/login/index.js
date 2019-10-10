@@ -16,6 +16,7 @@ import { showNotification } from "components/notification";
 import { isBase58Address } from "../../utils/validate";
 import queryString from "query-string";
 import { Redirect } from "react-router-dom";
+import { setDefaultAccountAddress } from "api/wallet";
 
 const { Title } = Typography;
 
@@ -36,10 +37,10 @@ const LoginCard = styled.div`
 	position: absolute;
 	right: 10%;
 	top: 40%;
-	transform: translateY(-50%);
+	transform: translateY(-150%);
 	@media (max-width: 992px) {
 		right: 50%;
-		transform: translate(50%, -50%);
+		transform: translate(50%, -170%);
 	}
 	@media (max-width: 575px) {
 		width: auto;
@@ -67,6 +68,13 @@ const AccountListCard = styled.div`
 	}
 	.ant-list-item {
 		justify-content: space-between;
+		h4 {
+			width: 53%;
+			text-align: left;
+		}
+		button {
+			width: 42%;
+		}
 	}
 	.ant-list-items {
 		max-height: 170px;
@@ -88,12 +96,20 @@ const AccountListCard = styled.div`
 		left: 0;
 	}
 	@media (max-width: 575px) {
-		h4 {
-			font-size: 14px !important;
-		}
 		width: auto;
 		top: 95px;
 		min-width: 300px;
+		h4 {
+			font-size: 14px !important;
+		}
+		.ant-list-item {
+			h4 {
+				width: 45%;
+			}
+			button {
+				width: 53%;
+			}
+		}
 	}
 `;
 
@@ -151,14 +167,19 @@ class Login extends Component {
 	};
 
 	handleLogin = async currentAccountAddress => {
-		const { push, login, getUserData, location } = this.props;
+		const { push, login, getUserData, location, wallet, setWallet } = this.props;
 		this.setState({ loading: true, accountAddress: currentAccountAddress });
 		try {
-			const { pk, accountAddress, publicKey } = await unlockWalletAccount(currentAccountAddress);
+			const { pk, accountAddress, publicKey, password } = await unlockWalletAccount(
+				currentAccountAddress
+			);
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
 
 			console.log({ publicKey, accountAddress, signed_msg: signature.serializeHex() });
+
+			const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
+			setWallet(currentWallet);
 
 			const res = await login({
 				public_key: publicKey.key,
@@ -195,6 +216,8 @@ class Login extends Component {
 	render() {
 		const { wallet } = this.props;
 		const { loading, accountAddress } = this.state;
+		const regularLabel = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
+
 		return (
 			<UnderlayBg img={bgImg} bgPosition={"20% 20%"}>
 				<LoginCard>
@@ -232,18 +255,13 @@ class Login extends Component {
 										renderItem={account => (
 											<>
 												<List.Item>
-													<Title
-														ellipsis={true}
-														style={{ width: "53%", textAlign: "left" }}
-														level={4}
-														type="secondary"
-													>
-														{account.name ||
-															`${account.address.slice(0, 5)}...${account.address.slice(-5)}`}
+													<Title ellipsis={true} level={4} type="secondary">
+														{account.label.match(regularLabel) === null
+															? account.label
+															: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`}
 													</Title>
 													<Button
 														type="primary"
-														style={{ width: "42%" }}
 														disabled={!wallet || (loading && accountAddress === account.address)}
 														loading={loading && accountAddress === account.address}
 														onClick={() => this.handleLogin(account.address)}
@@ -308,5 +326,6 @@ export default connect(
 		push,
 		getUserData: Actions.user.getUserData,
 		logOut: Actions.auth.logOut,
+		setWallet: Actions.wallet.setWallet,
 	}
 )(Login);
