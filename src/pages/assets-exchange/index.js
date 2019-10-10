@@ -22,7 +22,7 @@ import { isAssetBlocked } from "../../api/assets";
 import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 import { showNotification } from "components/notification";
 import { handleBcError } from "api/network";
-import { getAssetsData, sortAssetExchange } from "api/assets";
+import { getAssetsData, sortAssetExchange, sortAssets } from "api/assets";
 
 const { Option } = Select;
 
@@ -117,7 +117,7 @@ class AssetsExchange extends Component {
 			}
 		}
 
-		return res;
+		return sortAssets(res);
 	}
 
 	getAssetsForBuyData() {
