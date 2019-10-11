@@ -73,7 +73,7 @@ export async function setDefaultAccountAddress(wallet, privateKey, password) {
 		parallel: scrypt.p,
 		size: scrypt.dkLen,
 	};
-	const account = Account.create(privateKey, password, uuid(), scryptParams);
+	const account = Account.create(privateKey, password, scryptParams);
 	currentWallet.setDefaultAccount(account.address.toBase58());
 	return currentWallet.toJson();
 }

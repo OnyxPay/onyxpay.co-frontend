@@ -37,6 +37,7 @@ class UserWalletAddress extends Component {
 			const { pk, accountAddress, publicKey, password } = await unlockWalletAccount(
 				currentAccountAddress
 			);
+
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
 
