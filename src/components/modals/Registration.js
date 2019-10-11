@@ -40,9 +40,9 @@ class RegistrationModal extends Component {
 	};
 
 	handleFormSubmit = async (values, formActions) => {
-		const { signUp, push, getUserData } = this.props;
+		const { signUp, push, getUserData, selectedAccount } = this.props;
 		try {
-			const { pk, publicKey, accountAddress } = await unlockWalletAccount();
+			const { pk, publicKey, accountAddress } = await unlockWalletAccount(selectedAccount);
 			const tokenTimestamp = generateTokenTimeStamp();
 			const signature = signWithPk(tokenTimestamp, pk);
 			values.public_key = publicKey.key;

@@ -2,7 +2,7 @@ import { ParameterType, utils } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "../network";
 import { getStore } from "../../store";
 import { resolveContractAddress } from "../../redux/contracts";
-import { unlockWalletAccount } from "../wallet";
+import { unlockCurrentWalletAccount } from "../wallet";
 import { createTrx, sendTrx, createAndSignTrxViaGasCompensator, addSignAndSendTrx } from "../bc";
 import { roles } from "../constants";
 import { ContractAddressError } from "../../utils/custom-error";
@@ -28,7 +28,7 @@ export const getRequests = async params => {
 };
 
 export async function upgradeUser(userAccountAddress, role) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
@@ -50,7 +50,7 @@ export async function upgradeUser(userAccountAddress, role) {
 }
 
 export async function downgradeUser(userAccountAddress, role) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },

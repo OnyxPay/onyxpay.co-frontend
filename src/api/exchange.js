@@ -1,10 +1,10 @@
 import { ParameterType, utils } from "ontology-ts-sdk";
-import { unlockWalletAccount } from "./wallet";
+import { unlockCurrentWalletAccount } from "./wallet";
 import { addSignAndSendTrx, createAndSignTrxViaGasCompensator } from "./bc";
 import { convertAmountFromStr } from "../utils/number";
 
 export async function exchangeAssets(values) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	//make transaction
 	const params = [
@@ -41,7 +41,7 @@ export async function exchangeAssets(values) {
 }
 
 export async function exchangeAssetsForOnyxCash(values) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	//make transaction
 	const params = [

@@ -1,6 +1,6 @@
 import { ParameterType } from "ontology-ts-sdk";
 
-import { unlockWalletAccount } from "./wallet";
+import { unlockCurrentWalletAccount } from "./wallet";
 import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { ContractAddressError } from "../utils/custom-error";
@@ -9,7 +9,7 @@ import { createTrx, sendTrx, addSignAndSendTrx } from "./bc";
 import { get } from "lodash";
 
 export async function changeMode(newMode) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {

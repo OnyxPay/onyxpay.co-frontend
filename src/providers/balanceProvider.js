@@ -49,7 +49,10 @@ export async function refreshBalance() {
 				cryptoAddress(onyxCashContractAddress),
 				account.address
 			);
-			const onyxCashDepositBalance = await getTokenDepositBalance(account.address)
+			const onyxCashDepositBalance = await getTokenDepositBalance(
+				cryptoAddress(onyxCashContractAddress),
+				utils.reverseHex(account.address.toHexString())
+			);
 			const rewardsBalance = await getRewardsBalance();
 
 			dispatch(Actions.balance.setAssetsBalance(assetsBalance));

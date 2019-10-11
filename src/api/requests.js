@@ -1,6 +1,6 @@
 import { ParameterType, utils, Crypto } from "ontology-ts-sdk";
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
-import { unlockWalletAccount, getAccount, getWallet } from "./wallet";
+import { unlockCurrentWalletAccount, getAccount, getWallet } from "./wallet";
 import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
@@ -18,7 +18,7 @@ import { get } from "lodash";
 
 export async function createRequest(formValues, requestType) {
 	// initiator creates a new request
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	const client = getRestClient();
 	const authHeaders = getAuthHeaders();
@@ -105,7 +105,7 @@ export async function getRequests(params) {
 
 export async function cancelRequest(requestId) {
 	// initiator cancels
-	const { pk } = await unlockWalletAccount();
+	const { pk } = await unlockCurrentWalletAccount();
 	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
 	const serializedTrx = await createAndSignTrxViaGasCompensator(
 		"RequestHolder",
@@ -151,7 +151,7 @@ export async function getRejectionCounter(userId) {
 export async function acceptRequest(requestId) {
 	// confirmRequest in UI
 	// performer accepts
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 	const params = [
 		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
 		{
@@ -167,7 +167,7 @@ export async function acceptRequest(requestId) {
 
 export async function cancelAcceptedRequest(requestId) {
 	// performer cancels
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 	const params = [
 		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
 		{
@@ -186,7 +186,7 @@ export async function cancelAcceptedRequest(requestId) {
 }
 
 export async function choosePerformer(requestId, agentAddress) {
-	const { pk } = await unlockWalletAccount();
+	const { pk } = await unlockCurrentWalletAccount();
 	const params = [
 		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
 		{
@@ -205,7 +205,7 @@ export async function choosePerformer(requestId, agentAddress) {
 }
 
 export async function performRequest(requestId) {
-	const { pk } = await unlockWalletAccount();
+	const { pk } = await unlockCurrentWalletAccount();
 	const params = [{ label: "requestId", type: ParameterType.ByteArray, value: requestId }];
 	const trx = await createAndSignTrxViaGasCompensator("RequestHolder", "Perform", params);
 	const serializedTrx = signTrx(trx, pk, true);
@@ -214,7 +214,7 @@ export async function performRequest(requestId) {
 }
 
 export async function complain(requestId) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 	const params = [
 		{ label: "requestId", type: ParameterType.ByteArray, value: requestId },
 		{

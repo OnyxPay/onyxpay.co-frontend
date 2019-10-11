@@ -64,7 +64,7 @@ class UserWalletAddress extends Component {
 					push("/");
 				}
 			}
-		} catch (er) {}
+		} catch (er) { }
 	};
 
 	showAccountList = () => {
@@ -146,19 +146,19 @@ class UserWalletAddress extends Component {
 									{activeBreakPoint !== "sm" && activeBreakPoint !== "xs" ? (
 										<div className="wallet-address">{this.showWalletAddress()}</div>
 									) : (
-										<Tooltip
-											title={<div className="wallet-address">{this.showWalletAddress()}</div>}
-											placement="bottomRight"
-											overlayClassName="wallet-address-tooltip"
-											trigger="click"
-										>
-											<Avatar
-												icon="wallet"
-												size="large"
-												style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
-											/>
-										</Tooltip>
-									)}
+											<Tooltip
+												title={<div className="wallet-address">{this.showWalletAddress()}</div>}
+												placement="bottomRight"
+												overlayClassName="wallet-address-tooltip"
+												trigger="click"
+											>
+												<Avatar
+													icon="wallet"
+													size="large"
+													style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
+												/>
+											</Tooltip>
+										)}
 								</>
 							</div>
 						);
@@ -167,6 +167,7 @@ class UserWalletAddress extends Component {
 				<RegistrationModal
 					isModalVisible={this.state.REGISTRATION_MODAL}
 					hideModal={this.hideModal(modals.REGISTRATION_MODAL)}
+					selectedAccount={this.state.accountAddress}
 				/>
 			</>
 		);
