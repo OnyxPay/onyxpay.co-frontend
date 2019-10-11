@@ -94,9 +94,14 @@ class Balance extends Component {
 		let assetsTotal = 0;
 		let onyxCashTotal = 0;
 		let onyxCashStr = 0;
+		let depositOnyxCashStr = 0;
 
 		if (onyxCash) {
 			onyxCashStr = convertAmountToStr(onyxCash, OnyxCashDecimals);
+		}
+
+		if (depositOnyxCash) {
+			depositOnyxCashStr = convertAmountToStr(depositOnyxCash, OnyxCashDecimals);
 		}
 
 		if (user.role === roles.c) {
@@ -125,7 +130,7 @@ class Balance extends Component {
 						/>
 					</Col>
 					<Col md={24} lg={10}>
-						{getDepositBalanceFragment(user.role, depositOnyxCash)}
+						{getDepositBalanceFragment(user.role, depositOnyxCashStr)}
 					</Col>
 				</Row>
 				{oneOfValidUserRoles ? (

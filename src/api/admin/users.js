@@ -7,7 +7,8 @@ import { resolveContractAddress } from "redux/contracts";
 import { ContractAddressError } from "utils/custom-error";
 
 export async function blockUser(userAccountAddress, reason, duration) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 	console.log(accountAddress, userAccountAddress, reason, duration);
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
@@ -40,7 +41,8 @@ export async function blockUser(userAccountAddress, reason, duration) {
 }
 
 export async function unblockUser(userAccountAddress) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },

@@ -4,7 +4,8 @@ import { addSignAndSendTrx, createAndSignTrxViaGasCompensator } from "./bc";
 import { convertAmountFromStr } from "../utils/number";
 
 export async function exchangeAssets(values) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 
 	//make transaction
 	const params = [
@@ -41,7 +42,8 @@ export async function exchangeAssets(values) {
 }
 
 export async function exchangeAssetsForOnyxCash(values) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 
 	//make transaction
 	const params = [

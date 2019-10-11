@@ -9,7 +9,8 @@ import { createTrx, sendTrx, addSignAndSendTrx } from "./bc";
 import { get } from "lodash";
 
 export async function changeMode(newMode) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 	const store = getStore();
 	const address = await store.dispatch(resolveContractAddress("RequestHolder"));
 	if (!address) {

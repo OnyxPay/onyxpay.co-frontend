@@ -28,7 +28,8 @@ export const getRequests = async params => {
 };
 
 export async function upgradeUser(userAccountAddress, role) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
@@ -50,7 +51,8 @@ export async function upgradeUser(userAccountAddress, role) {
 }
 
 export async function downgradeUser(userAccountAddress, role) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },

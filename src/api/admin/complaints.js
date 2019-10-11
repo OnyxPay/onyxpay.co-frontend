@@ -24,7 +24,8 @@ export const getRequests = async params => {
 };
 
 export async function handleComplainedRequest(requestId, winner) {
-	const { pk, accountAddress } = await unlockWalletAccount();
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },

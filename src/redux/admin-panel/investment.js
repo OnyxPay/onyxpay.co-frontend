@@ -10,7 +10,8 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 		const client = getBcClient();
 
 		try {
-			const { pk, accountAddress } = await unlockWalletAccount();
+			const walletAddress = localStorage.getItem("OnyxAddr");
+			const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 			const funcName = "SetAmount";
 			const address = await dispatch(resolveContractAddress("Investments"));
 			if (!address) {
@@ -133,7 +134,8 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 		const client = getBcClient();
 
 		try {
-			const { pk, accountAddress } = await unlockWalletAccount();
+			const walletAddress = localStorage.getItem("OnyxAddr");
+			const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 			const funcName = "Block";
 			const address = await dispatch(resolveContractAddress("Investments"));
 			if (!address) {
@@ -189,7 +191,8 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 		const client = getBcClient();
 
 		try {
-			const { pk, accountAddress } = await unlockWalletAccount();
+			const walletAddress = localStorage.getItem("OnyxAddr");
+			const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
 			const funcName = "Unblock";
 			const address = await dispatch(resolveContractAddress("Investments"));
 			if (!address) {
