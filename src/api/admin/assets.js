@@ -1,10 +1,9 @@
 import { ParameterType } from "ontology-ts-sdk";
-import { unlockWalletAccount } from "../wallet";
+import { unlockCurrentWalletAccount } from "../wallet";
 import { createAndSignTrxViaGasCompensator, addSignAndSendTrx } from "../bc";
 
 export async function addNewAsset(assetSymbol, assetName) {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
@@ -19,8 +18,7 @@ export async function addNewAsset(assetSymbol, assetName) {
 }
 
 export async function blockAsset(assetSymbol) {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },

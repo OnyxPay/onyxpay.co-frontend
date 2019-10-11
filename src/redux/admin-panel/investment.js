@@ -1,7 +1,7 @@
 import { TransactionBuilder, Parameter, ParameterType, utils, CONST } from "ontology-ts-sdk";
 import { gasPrice, cryptoAddress } from "../../utils/blockchain";
 import { getBcClient } from "../../api/network";
-import { unlockWalletAccount } from "../../api/wallet";
+import { unlockCurrentWalletAccount } from "../../api/wallet";
 import { resolveContractAddress } from "../contracts";
 import { showNotification } from "components/notification";
 
@@ -10,8 +10,7 @@ export const setAmount = (secret_hash, amount, { setSubmitting, resetForm }) => 
 		const client = getBcClient();
 
 		try {
-			const walletAddress = localStorage.getItem("OnyxAddr");
-			const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+			const { pk, accountAddress } = await unlockCurrentWalletAccount();
 			const funcName = "SetAmount";
 			const address = await dispatch(resolveContractAddress("Investments"));
 			if (!address) {
@@ -134,8 +133,7 @@ export const Block = (secret_hash, { setSubmitting, resetForm }) => {
 		const client = getBcClient();
 
 		try {
-			const walletAddress = localStorage.getItem("OnyxAddr");
-			const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+			const { pk, accountAddress } = await unlockCurrentWalletAccount();
 			const funcName = "Block";
 			const address = await dispatch(resolveContractAddress("Investments"));
 			if (!address) {
@@ -191,8 +189,7 @@ export const Unblock = (secret_hash, { setSubmitting, resetForm }) => {
 		const client = getBcClient();
 
 		try {
-			const walletAddress = localStorage.getItem("OnyxAddr");
-			const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+			const { pk, accountAddress } = await unlockCurrentWalletAccount();
 			const funcName = "Unblock";
 			const address = await dispatch(resolveContractAddress("Investments"));
 			if (!address) {

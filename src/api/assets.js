@@ -1,5 +1,5 @@
 import { ParameterType, utils, Crypto } from "ontology-ts-sdk";
-import { unlockWalletAccount } from "./wallet";
+import { unlockCurrentWalletAccount } from "./wallet";
 import { getStore } from "../store";
 import { resolveContractAddress } from "../redux/contracts";
 import { convertAmountFromStr } from "../utils/number";
@@ -17,8 +17,7 @@ import { get } from "lodash";
 import { getRestClient, handleReqError, getAuthHeaders } from "./network";
 
 export async function sendAsset(values, push) {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	const receiverAddress = new Crypto.Address(values.receiverAddress);
 	const convertedAmount = convertAmountFromStr(values.amount);
@@ -115,8 +114,7 @@ export async function getFee(tokenId, amount, operationName) {
 }
 
 export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
@@ -144,8 +142,7 @@ export async function setAssetExchangeRates(tokenId, sell_rate, buy_rate) {
 }
 
 export async function setFiatAmount(tokenId, amount) {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const { pk, accountAddress } = await unlockWalletAccount(walletAddress);
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 
 	const params = [
 		{

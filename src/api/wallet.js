@@ -118,8 +118,8 @@ export async function decryptWallet(wallet, password) {
 	let account;
 	store.getState().walletUnlock.currentAccountAddress
 		? (account = currentWallet.accounts.filter(
-				account => account.address.value === store.getState().walletUnlock.currentAccountAddress
-		  )[0])
+			account => account.address.value === store.getState().walletUnlock.currentAccountAddress
+		)[0])
 		: (account = currentWallet.accounts[0]);
 	const saltHex = Buffer.from(account.salt, "base64").toString("hex");
 	const encryptedKey = account.encryptedKey;
@@ -146,6 +146,11 @@ export async function unlockWalletAccount(account) {
 	const wallet = store.getState().wallet;
 	const { password } = await store.dispatch(Actions.walletUnlock.getWalletPassword(account));
 	return await decryptWallet(wallet, password);
+}
+
+export async function unlockCurrentWalletAccount() {
+	const walletAddress = localStorage.getItem("OnyxAddr");
+	return await unlockWalletAccount(walletAddress);
 }
 
 export function getAccount(wallet) {

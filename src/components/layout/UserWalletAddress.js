@@ -167,6 +167,7 @@ class UserWalletAddress extends Component {
 				<RegistrationModal
 					isModalVisible={this.state.REGISTRATION_MODAL}
 					hideModal={this.hideModal(modals.REGISTRATION_MODAL)}
+					selectedAccount={this.state.accountAddress}
 				/>
 			</>
 		);
