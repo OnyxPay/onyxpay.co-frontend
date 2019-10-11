@@ -40,8 +40,7 @@ export async function blockUser(userAccountAddress, reason, duration) {
 }
 
 export async function unblockUser(userAccountAddress) {
-	const walletAddress = localStorage.getItem("OnyxAddr");
-	const { pk, accountAddress } = await unlockCurrentWalletAccount(walletAddress);
+	const { pk, accountAddress } = await unlockCurrentWalletAccount();
 	const params = [
 		{ label: "caller", type: ParameterType.String, value: "did:onx:" + accountAddress.value },
 		{ label: "keyNo", type: ParameterType.Integer, value: 1 },
