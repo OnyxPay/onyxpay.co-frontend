@@ -34,11 +34,13 @@ function getStepTitle(item, step) {
 }
 
 function UpgradeTextByRole(props) {
-	return <p>
-		To upgrade your role to {formatUserRole(props.role)}, you have to purchase{" "}
-		<b>{paymentAmountByRole[props.role].getOnyxCash}</b> OnyxCash for{" "}
-		<b>{paymentAmountByRole[props.role].payUsd}</b> U.S. dollars.
-	</p>;
+	return (
+		<p>
+			To upgrade your role to {formatUserRole(props.role)}, you have to purchase{" "}
+			<b>{paymentAmountByRole[props.role].getOnyxCash}</b> OnyxCash for{" "}
+			<b>{paymentAmountByRole[props.role].payUsd}</b> U.S. dollars.
+		</p>
+	);
 }
 
 class UpgradeUser extends Component {
@@ -177,7 +179,7 @@ class UpgradeUser extends Component {
 	};
 
 	getStepComponent(role) {
-		const paymentAmount = paymentAmountByRole[role];
+		const paymentAmount = paymentAmountByRole[role].payUsd;
 		if (this.props.upgradeRequest && this.state.currentStep === steps.waitForApprovement) {
 			if (this.props.upgradeRequest.status === UpgradeRequestStatus.Completed) {
 				this.setState({ currentStep: steps.success });
