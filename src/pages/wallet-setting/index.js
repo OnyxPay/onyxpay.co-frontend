@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Actions from "redux/actions";
 import { Input, Icon, Button, Table } from "antd";
 import { PageTitle } from "../../components";
 import { connect } from "react-redux";
@@ -100,9 +101,11 @@ class WalletSetting extends Component {
 
 	handleDeleteAccount = address => {
 		let { wallet, walletAccounts, indexAccount } = this.state;
+		const { setWallet } = this.props;
 		walletAccounts.splice(indexAccount, 1);
 		wallet.accounts = walletAccounts;
 		this.setState({ walletAccounts });
+		setWallet(wallet);
 		return localStorage.setItem("wallet", JSON.stringify(wallet));
 	};
 
@@ -115,9 +118,12 @@ class WalletSetting extends Component {
 	};
 
 	handleChange = (e, address, index) => {
-		let { walletAccounts } = this.state;
+		let { walletAccounts, wallet } = this.state;
+		const { setWallet } = this.props;
 		let labelValue = e.target.value;
 		walletAccounts[index].label = labelValue;
+		wallet.accounts = walletAccounts;
+		setWallet(wallet);
 		this.setState({ showBtn: true, editAccountAddress: address, walletAccounts });
 	};
 
@@ -281,6 +287,9 @@ class WalletSetting extends Component {
 	}
 }
 
-export default connect(state => {
-	return { wallet: state.wallet, defaultAddress: state.auth.OnyxAddr };
-})(WalletSetting);
+export default connect(
+	state => {
+		return { wallet: state.wallet, defaultAddress: state.auth.OnyxAddr };
+	},
+	{ setWallet: Actions.wallet.setWallet }
+)(WalletSetting);
