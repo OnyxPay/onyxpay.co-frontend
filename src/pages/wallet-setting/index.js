@@ -241,7 +241,7 @@ class WalletSetting extends Component {
 				</PageTitle>
 				<ButtonContainer>
 					<Button type="primary" onClick={this.showModal(modals.CREATE_WALLET_MODAL)}>
-						Add address
+						Create address
 					</Button>
 					<Button type="primary" onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}>
 						Import address
