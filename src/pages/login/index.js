@@ -180,7 +180,7 @@ class Login extends Component {
 
 			const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
 			setWallet(currentWallet);
-			localStorage.setItem("OnyxAddr", accountAddress)
+			localStorage.setItem("OnyxAddr", accountAddress);
 
 			const res = await login({
 				public_key: publicKey.key,
@@ -225,75 +225,75 @@ class Login extends Component {
 					{this.isAuthenticated() ? (
 						<Redirect to={{ pathname: "/" }} />
 					) : (
-							<>
-								<Title
-									level={2}
-									style={{ textAlign: "center", margin: "0 0 5px 0", fontWeight: 400 }}
-									type="secondary"
-								>
-									Welcome to OnyxPay
+						<>
+							<Title
+								level={2}
+								style={{ textAlign: "center", margin: "0 0 5px 0", fontWeight: 400 }}
+								type="secondary"
+							>
+								Welcome to OnyxPay
 							</Title>
-								<AccountListCard>
-									{wallet && (
-										<Popconfirm
-											title={`Are you sure to close the wallet?`}
-											okText="Yes"
-											cancelText="No"
-											onConfirm={() => this.handleClearWallet()}
-										>
-											<Button type="primary" className="close-wallet">
-												x
+							<AccountListCard>
+								{wallet && (
+									<Popconfirm
+										title={`Are you sure to close the wallet?`}
+										okText="Yes"
+										cancelText="No"
+										onConfirm={() => this.handleClearWallet()}
+									>
+										<Button type="primary" className="close-wallet">
+											x
 										</Button>
-										</Popconfirm>
-									)}
-									<Title level={4} type="secondary">
-										Wallet
+									</Popconfirm>
+								)}
+								<Title level={4} type="secondary">
+									Wallet
 								</Title>
-									{wallet ? (
-										<List
-											dataSource={wallet.accounts}
-											split={false}
-											renderItem={account => (
-												<>
-													<List.Item>
-														<Title ellipsis={true} level={4} type="secondary">
-															{account.label.match(regularLabel) === null
-																? account.label
-																: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`}
-														</Title>
-														<Button
-															type="primary"
-															disabled={!wallet || (loading && accountAddress === account.address)}
-															loading={loading && accountAddress === account.address}
-															onClick={() => this.handleLogin(account.address)}
-														>
-															Log in/Sign up
+								{wallet ? (
+									<List
+										dataSource={wallet.accounts}
+										split={false}
+										renderItem={account => (
+											<>
+												<List.Item>
+													<Title ellipsis={true} level={4} type="secondary">
+														{account.label.match(regularLabel) === null
+															? account.label
+															: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`}
+													</Title>
+													<Button
+														type="primary"
+														disabled={!wallet || (loading && accountAddress === account.address)}
+														loading={loading && accountAddress === account.address}
+														onClick={() => this.handleLogin(account.address)}
+													>
+														Log in/Sign up
 													</Button>
-													</List.Item>
-												</>
-											)}
-										/>
-									) : (
-											<Title level={4} type="secondary">
-												Empty wallet
-									</Title>
+												</List.Item>
+											</>
 										)}
-									<div style={{ marginTop: 10, paddingLeft: 24, paddingRight: 24 }}>
-										<Button block type="primary" onClick={this.showModal(modals.CREATE_WALLET_MODAL)}>
-											Add address
+									/>
+								) : (
+									<Title level={4} type="secondary">
+										Empty wallet
+									</Title>
+								)}
+								<div style={{ marginTop: 10, paddingLeft: 24, paddingRight: 24 }}>
+									<Button block type="primary" onClick={this.showModal(modals.CREATE_WALLET_MODAL)}>
+										Create address
 									</Button>
-										<Button
-											style={{ marginTop: 5 }}
-											block
-											type="primary"
-											onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}
-										>
-											Import address
+									<Button
+										style={{ marginTop: 5 }}
+										block
+										type="primary"
+										onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}
+									>
+										Import address
 									</Button>
-									</div>
-								</AccountListCard>
-							</>
-						)}
+								</div>
+							</AccountListCard>
+						</>
+					)}
 
 					<ImportWalletModal
 						isModalVisible={this.state.IMPORT_WALLET_MODAL}
