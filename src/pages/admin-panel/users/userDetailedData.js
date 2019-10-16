@@ -124,7 +124,6 @@ class UserDetailedData extends Component {
 					msg: "User was successfully downgraded",
 				});
 			}
-			this.fetchUsers();
 		} catch (e) {
 			handleBcError(e);
 		}
