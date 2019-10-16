@@ -118,8 +118,8 @@ export async function decryptWallet(wallet, password) {
 	let account;
 	store.getState().walletUnlock.currentAccountAddress
 		? (account = currentWallet.accounts.filter(
-			account => account.address.value === store.getState().walletUnlock.currentAccountAddress
-		)[0])
+				account => account.address.value === store.getState().walletUnlock.currentAccountAddress
+		  )[0])
 		: (account = currentWallet.accounts[0]);
 	const saltHex = Buffer.from(account.salt, "base64").toString("hex");
 	const encryptedKey = account.encryptedKey;
@@ -157,5 +157,10 @@ export function getAccount(wallet) {
 	if (typeof wallet === "string") {
 		wallet = getWallet(wallet);
 	}
-	return wallet.accounts[0];
+
+	const currentAccount = wallet.accounts.filter(
+		account => account.address.value === wallet.defaultAccountAddress
+	);
+
+	return currentAccount[0];
 }
