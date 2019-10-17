@@ -1,7 +1,7 @@
 import { getRestClient, handleReqError, getAuthHeaders } from "../api/network";
 import { finishLoading, startLoading } from "./loading";
 import { LOG_OUT } from "./auth";
-import { wsEvents } from "../api/constants";
+import { wsEvents, roleCodes, roles } from "../api/constants";
 
 const client = getRestClient();
 
@@ -18,6 +18,13 @@ export const userReducer = (state = initialState, action) => {
 		case wsEvents.upgradeUser:
 			let storageState = localStorage.getItem("user");
 			if (storageState) {
+				if (action.payload.role === roleCodes.user) {
+					action.payload = { role: roles.c };
+				} else if (action.payload.role === roleCodes.agent) {
+					action.payload = { role: roles.a };
+				} else if (action.payload.role === roleCodes.superagent) {
+					action.payload = { role: roles.sa };
+				}
 				let newState = { ...JSON.parse(storageState), ...action.payload };
 				localStorage.setItem("user", JSON.stringify(newState));
 				return newState;
