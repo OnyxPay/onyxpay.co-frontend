@@ -1,4 +1,9 @@
-import { getTokenBalance, getAssetsBalance, getRewardsBalance, getTokenDepositBalance } from "../api/balance";
+import {
+	getTokenBalance,
+	getAssetsBalance,
+	getRewardsBalance,
+	getTokenDepositBalance,
+} from "../api/balance";
 import { getWallet, getAccount } from "../api/wallet";
 import { cryptoAddress } from "../utils/blockchain";
 import { utils } from "ontology-ts-sdk";

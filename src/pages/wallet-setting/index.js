@@ -163,7 +163,7 @@ class WalletSetting extends Component {
 			},
 		},
 		{
-			title: "label",
+			title: "Label",
 			key: "label",
 			width: "40%",
 			render: (text, record, index) => {
@@ -247,13 +247,13 @@ class WalletSetting extends Component {
 				</PageTitle>
 				<ButtonContainer>
 					<Button type="primary" onClick={this.showModal(modals.CREATE_WALLET_MODAL)}>
-						Create address
+						Create Wallet
 					</Button>
 					<Button type="primary" onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}>
-						Import address
+						Import Wallet
 					</Button>
 					<Button type="primary" onClick={() => this.handleExportWallet()}>
-						Export wallet
+						Export Wallet
 					</Button>
 				</ButtonContainer>
 

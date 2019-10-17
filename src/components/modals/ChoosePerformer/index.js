@@ -79,9 +79,9 @@ class ChoosePerformer extends Component {
 				if (openedRequestData.type === "withdraw") {
 					showNotification({
 						type: "success",
-						msg: "You have successfully chosen the Agent",
+						msg: "You have successfully chosen the agent",
 						desc:
-							"Next, you should wait until fiat money is coming, and then finalize the request by clicking on the 'Perform' button",
+							"Please, wait for the agent to hand over fiat money or send it to you settlement account, and then finalize the request by clicking on the “Perform Withdraw” button.",
 					});
 				} else {
 					let assetSymbol = openedRequestData.asset;

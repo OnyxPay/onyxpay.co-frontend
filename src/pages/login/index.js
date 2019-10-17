@@ -280,7 +280,7 @@ class Login extends Component {
 								)}
 								<div style={{ marginTop: 10, paddingLeft: 24, paddingRight: 24 }}>
 									<Button block type="primary" onClick={this.showModal(modals.CREATE_WALLET_MODAL)}>
-										Create address
+										Create Wallet
 									</Button>
 									<Button
 										style={{ marginTop: 5 }}
@@ -288,7 +288,7 @@ class Login extends Component {
 										type="primary"
 										onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}
 									>
-										Import address
+										Import Wallet
 									</Button>
 								</div>
 							</AccountListCard>

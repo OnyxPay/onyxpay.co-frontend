@@ -65,7 +65,7 @@ class UserWalletAddress extends Component {
 					push("/");
 				}
 			}
-		} catch (er) { }
+		} catch (er) {}
 	};
 
 	showAccountList = () => {
@@ -77,15 +77,17 @@ class UserWalletAddress extends Component {
 					(account, index) =>
 						account.address !== walletAddress && (
 							<Menu.Item key={index}>
-								<Button block type="primary" onClick={() => this.handleLogin(account.address)}>
-									<MyContext.Consumer>
-										{activeBreakPoint =>
-											activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
-												? account.address
-												: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`
-										}
-									</MyContext.Consumer>
-								</Button>
+								<Tooltip placement="left" title={account.label}>
+									<Button block type="primary" onClick={() => this.handleLogin(account.address)}>
+										<MyContext.Consumer>
+											{activeBreakPoint =>
+												activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
+													? account.address
+													: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`
+											}
+										</MyContext.Consumer>
+									</Button>
+								</Tooltip>
 							</Menu.Item>
 						)
 				)}
@@ -147,19 +149,19 @@ class UserWalletAddress extends Component {
 									{activeBreakPoint !== "sm" && activeBreakPoint !== "xs" ? (
 										<div className="wallet-address">{this.showWalletAddress()}</div>
 									) : (
-											<Tooltip
-												title={<div className="wallet-address">{this.showWalletAddress()}</div>}
-												placement="bottomRight"
-												overlayClassName="wallet-address-tooltip"
-												trigger="click"
-											>
-												<Avatar
-													icon="wallet"
-													size="large"
-													style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
-												/>
-											</Tooltip>
-										)}
+										<Tooltip
+											title={<div className="wallet-address">{this.showWalletAddress()}</div>}
+											placement="bottomRight"
+											overlayClassName="wallet-address-tooltip"
+											trigger="click"
+										>
+											<Avatar
+												icon="wallet"
+												size="large"
+												style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
+											/>
+										</Tooltip>
+									)}
 								</>
 							</div>
 						);
