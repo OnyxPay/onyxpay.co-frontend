@@ -17,6 +17,7 @@ import { isBase58Address } from "../../utils/validate";
 import queryString from "query-string";
 import { Redirect } from "react-router-dom";
 import { setDefaultAccountAddress } from "api/wallet";
+import { trimAddress } from "utils";
 
 const { Title } = Typography;
 
@@ -259,7 +260,7 @@ class Login extends Component {
 													<Title ellipsis={true} level={4} type="secondary">
 														{account.label.match(regularLabel) === null
 															? account.label
-															: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`}
+															: `${trimAddress(account.address)}`}
 													</Title>
 													<Button
 														type="primary"

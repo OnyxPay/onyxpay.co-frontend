@@ -81,7 +81,7 @@ class ChoosePerformer extends Component {
 						type: "success",
 						msg: "You have successfully chosen the agent",
 						desc:
-							"Please, wait for the agent to hand over fiat money or send it to you settlement account, and then finalize the request by clicking on the “Perform Withdraw” button.",
+							'Please wait until the agent hands over the fiat money or sends it to your settlement account and then finalize the request processing by clicking on the "Perform Withdraw" button.',
 					});
 				} else {
 					let assetSymbol = openedRequestData.asset;

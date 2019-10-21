@@ -11,6 +11,7 @@ import { generateTokenTimeStamp } from "utils";
 import { signWithPk } from "utils/blockchain";
 import RegistrationModal from "../../components/modals/Registration";
 import { setDefaultAccountAddress } from "api/wallet";
+import { trimAddress } from "utils";
 
 const modals = {
 	REGISTRATION_MODAL: "REGISTRATION_MODAL",
@@ -76,17 +77,15 @@ class UserWalletAddress extends Component {
 					(account, index) =>
 						account.address !== walletAddress && (
 							<Menu.Item key={index}>
-								<Tooltip placement="left" title={account.label}>
-									<Button block type="primary" onClick={() => this.handleLogin(account.address)}>
-										<MyContext.Consumer>
-											{activeBreakPoint =>
-												activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
-													? account.address
-													: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`
-											}
-										</MyContext.Consumer>
-									</Button>
-								</Tooltip>
+								<Button block type="primary" onClick={() => this.handleLogin(account.address)}>
+									<MyContext.Consumer>
+										{activeBreakPoint =>
+											activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
+												? account.address
+												: `${trimAddress(account.address)}`
+										}
+									</MyContext.Consumer>
+								</Button>
 							</Menu.Item>
 						)
 				)}
@@ -117,7 +116,7 @@ class UserWalletAddress extends Component {
 							{activeBreakPoint =>
 								activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
 									? walletAddress
-									: `${walletAddress.slice(0, 5)}...${walletAddress.slice(-5)}`
+									: `${trimAddress(walletAddress)}`
 							}
 						</MyContext.Consumer>
 					</div>
