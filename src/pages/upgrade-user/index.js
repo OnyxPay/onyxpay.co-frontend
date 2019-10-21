@@ -6,7 +6,7 @@ import Actions from "redux/actions";
 import AddSettlementModal from "components/modals/AddSettlementModal";
 import { CoinPaymentsForm } from "./CoinPaymentsForm";
 import { sendUpgradeRequest } from "api/upgrade";
-import { UpgradeRequestStatus, roleByCode, roles, paymentAmountByRole } from "api/constants";
+import { UpgradeRequestStatus, roleByCode, paymentAmountByRole } from "api/constants";
 import { showNotification } from "components/notification";
 import { formatUserRole } from "utils";
 

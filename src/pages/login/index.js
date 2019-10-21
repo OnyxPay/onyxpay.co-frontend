@@ -17,6 +17,7 @@ import { isBase58Address } from "../../utils/validate";
 import queryString from "query-string";
 import { Redirect } from "react-router-dom";
 import { setDefaultAccountAddress } from "api/wallet";
+import { trimAddress } from "utils";
 
 const { Title } = Typography;
 
@@ -178,8 +179,6 @@ class Login extends Component {
 
 			console.log({ publicKey, accountAddress, signed_msg: signature.serializeHex() });
 
-			const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
-			setWallet(currentWallet);
 			localStorage.setItem("OnyxAddr", accountAddress);
 
 			const res = await login({
@@ -193,6 +192,8 @@ class Login extends Component {
 					this.showModal(modals.REGISTRATION_MODAL)();
 				}
 			} else {
+				const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
+				setWallet(currentWallet);
 				await getUserData();
 
 				if (location.state && location.state.redirectFrom) {
@@ -259,7 +260,7 @@ class Login extends Component {
 													<Title ellipsis={true} level={4} type="secondary">
 														{account.label.match(regularLabel) === null
 															? account.label
-															: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`}
+															: `${trimAddress(account.address)}`}
 													</Title>
 													<Button
 														type="primary"
@@ -280,7 +281,7 @@ class Login extends Component {
 								)}
 								<div style={{ marginTop: 10, paddingLeft: 24, paddingRight: 24 }}>
 									<Button block type="primary" onClick={this.showModal(modals.CREATE_WALLET_MODAL)}>
-										Create address
+										Create Wallet
 									</Button>
 									<Button
 										style={{ marginTop: 5 }}
@@ -288,7 +289,7 @@ class Login extends Component {
 										type="primary"
 										onClick={this.showModal(modals.IMPORT_WALLET_MODAL)}
 									>
-										Import address
+										Import Wallet
 									</Button>
 								</div>
 							</AccountListCard>

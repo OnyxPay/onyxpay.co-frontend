@@ -11,6 +11,7 @@ import { generateTokenTimeStamp } from "utils";
 import { signWithPk } from "utils/blockchain";
 import RegistrationModal from "../../components/modals/Registration";
 import { setDefaultAccountAddress } from "api/wallet";
+import { trimAddress } from "utils";
 
 const modals = {
 	REGISTRATION_MODAL: "REGISTRATION_MODAL",
@@ -43,9 +44,6 @@ class UserWalletAddress extends Component {
 
 			console.log({ publicKey, accountAddress, signed_msg: signature.serializeHex() });
 
-			const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
-			setWallet(currentWallet);
-
 			const res = await login({
 				public_key: publicKey.key,
 				signed_msg: signature.serializeHex(),
@@ -57,6 +55,8 @@ class UserWalletAddress extends Component {
 					this.showModal(modals.REGISTRATION_MODAL)();
 				}
 			} else {
+				const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
+				setWallet(currentWallet);
 				await getUserData();
 
 				if (location.state && location.state.redirectFrom) {
@@ -65,7 +65,7 @@ class UserWalletAddress extends Component {
 					push("/");
 				}
 			}
-		} catch (er) { }
+		} catch (er) {}
 	};
 
 	showAccountList = () => {
@@ -82,7 +82,7 @@ class UserWalletAddress extends Component {
 										{activeBreakPoint =>
 											activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
 												? account.address
-												: `${account.address.slice(0, 5)}...${account.address.slice(-5)}`
+												: `${trimAddress(account.address)}`
 										}
 									</MyContext.Consumer>
 								</Button>
@@ -116,7 +116,7 @@ class UserWalletAddress extends Component {
 							{activeBreakPoint =>
 								activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
 									? walletAddress
-									: `${walletAddress.slice(0, 5)}...${walletAddress.slice(-5)}`
+									: `${trimAddress(walletAddress)}`
 							}
 						</MyContext.Consumer>
 					</div>
@@ -147,19 +147,19 @@ class UserWalletAddress extends Component {
 									{activeBreakPoint !== "sm" && activeBreakPoint !== "xs" ? (
 										<div className="wallet-address">{this.showWalletAddress()}</div>
 									) : (
-											<Tooltip
-												title={<div className="wallet-address">{this.showWalletAddress()}</div>}
-												placement="bottomRight"
-												overlayClassName="wallet-address-tooltip"
-												trigger="click"
-											>
-												<Avatar
-													icon="wallet"
-													size="large"
-													style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
-												/>
-											</Tooltip>
-										)}
+										<Tooltip
+											title={<div className="wallet-address">{this.showWalletAddress()}</div>}
+											placement="bottomRight"
+											overlayClassName="wallet-address-tooltip"
+											trigger="click"
+										>
+											<Avatar
+												icon="wallet"
+												size="large"
+												style={{ backgroundColor: "#fff", color: "#555", flexІhrink: 0 }}
+											/>
+										</Tooltip>
+									)}
 								</>
 							</div>
 						);

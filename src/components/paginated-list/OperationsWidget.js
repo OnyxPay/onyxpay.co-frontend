@@ -20,7 +20,7 @@ let commonColumns = [
 		render: operationType => (operationType ? checkOperationType(operationType) : "n/a"),
 	},
 	{
-		title: "Initiator",
+		title: "Initiator (Sender)",
 		dataIndex: "sender",
 		key: "from",
 		render: sender =>
@@ -31,7 +31,7 @@ let commonColumns = [
 				: "n/a",
 	},
 	{
-		title: "Performer",
+		title: "Performer (Receiver)",
 		dataIndex: "receiver",
 		key: "to",
 		render: receiver =>
