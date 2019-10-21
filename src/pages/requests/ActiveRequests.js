@@ -122,7 +122,7 @@ export default class ActiveRequests extends Component {
 	handleConfirmRequest = async (requestId, requestAmount, requestAsset, requestTypeCode) => {
 		// agent confirms deposit or withdraw request
 		try {
-			const { balanceAssets, balanceOnyxCash, disableRequest } = this.props;
+			const { balanceAssets, balanceOnyxCash, disableRequest, balanceDepositOnyxCash } = this.props;
 
 			if (requestAsset !== "OnyxCash") {
 				const isAssetBlocked = await checkIsAssetBlocked(requestAsset);
@@ -145,7 +145,10 @@ export default class ActiveRequests extends Component {
 					return balance.symbol === requestAsset && requestAmount <= balance.amount;
 				});
 			} else if (requestTypeCode === operationType.buyOnyxCache) {
-				allow = requestAsset === "OnyxCash" && requestAmount <= Number(balanceOnyxCash);
+				debugger;
+				allow =
+					requestAsset === "OnyxCash" &&
+					requestAmount <= Number(balanceOnyxCash - balanceDepositOnyxCash);
 			}
 
 			if (!allow) {
