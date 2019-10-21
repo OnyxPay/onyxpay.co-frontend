@@ -178,8 +178,6 @@ class Login extends Component {
 
 			console.log({ publicKey, accountAddress, signed_msg: signature.serializeHex() });
 
-			const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
-			setWallet(currentWallet);
 			localStorage.setItem("OnyxAddr", accountAddress);
 
 			const res = await login({
@@ -193,6 +191,8 @@ class Login extends Component {
 					this.showModal(modals.REGISTRATION_MODAL)();
 				}
 			} else {
+				const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
+				setWallet(currentWallet);
 				await getUserData();
 
 				if (location.state && location.state.redirectFrom) {
