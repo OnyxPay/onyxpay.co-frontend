@@ -207,7 +207,7 @@ class ImportWalletModal extends Component {
 
 						this.setState({ importWalletAccounts: importAddresses });
 						wallet.accounts = importAddresses;
-					} else if (importWalletAccounts.length > 2) {
+					} else if (importWalletAccounts.length >= 2) {
 						setFieldValue("wallet_account_address", "Import all addresses");
 					} else {
 						setFieldValue("wallet_account_address", importWalletAccounts[0].address);
@@ -362,7 +362,7 @@ class ImportWalletModal extends Component {
 																!uploadedWallet || isSubmitting || importWalletAccounts.length === 0
 															}
 														>
-															{importWalletAccounts.length > 2 && (
+															{importWalletAccounts.length >= 2 && (
 																<Option value="Import all addresses">Import all addresses</Option>
 															)}
 															{importWalletAccounts ? (
