@@ -133,7 +133,7 @@ class CreateWalletModal extends Component {
 					{viewIndex === 0 && (
 						<div>
 							<Title level={3} style={{ textAlign: "center" }}>
-								Create New Address
+								Create New Wallet
 							</Title>
 							<Formik
 								onSubmit={this.handleCreateWallet}
@@ -263,7 +263,7 @@ class CreateWalletModal extends Component {
 					{viewIndex === 2 && (
 						<div>
 							<Title level={3} style={{ textAlign: "center" }}>
-								Create New Address
+								Create New Wallet
 							</Title>
 							<Formik
 								onSubmit={this.finishWalletCreation}

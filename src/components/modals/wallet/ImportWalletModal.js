@@ -257,7 +257,7 @@ class ImportWalletModal extends Component {
 			>
 				<div>
 					<Title level={3} style={{ textAlign: "center" }}>
-						Import Address
+						Import Wallet
 					</Title>
 
 					<ImportTitle>Select how you would like to import</ImportTitle>
