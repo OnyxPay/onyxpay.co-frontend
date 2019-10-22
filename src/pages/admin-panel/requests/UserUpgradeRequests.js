@@ -3,7 +3,6 @@ import { Table, Button, Select, Divider, Modal } from "antd";
 import ReasonToRejectUpgradeModal from "../../../components/modals/admin/ReasonToRejectUpgrade";
 import { getRequests, upgradeUser, rejectRequest } from "../../../api/admin/user-upgrade";
 import { TimeoutError } from "promise-timeout";
-import { roles } from "api/constants";
 import {
 	showNotification,
 	showTimeoutNotification,
@@ -12,6 +11,7 @@ import {
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
 import { formatUserRole } from "utils";
+import { paymentAmountByRole } from "../../../api/constants";
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -38,7 +38,7 @@ for (let status in requestStatus) {
 }
 
 function ConfirmUpgradeModalContent({ expectedPosition, user }) {
-	let amount = expectedPosition && expectedPosition === roles.a ? 500 : 110000;
+	let amount = paymentAmountByRole[expectedPosition]["getOnyxCash"];
 
 	return (
 		<div>
@@ -173,9 +173,7 @@ class UserUpgradeRequests extends Component {
 		const that = this;
 		if (record.expected_position && record.user) {
 			confirm({
-				title: `Are you sure you want to upgrade ${record.user.role} ${record.user.firstName} ${
-					record.user.lastName
-				} to ${record.expected_position} ?`,
+				title: `Are you sure you want to upgrade ${record.user.role} ${record.user.firstName} ${record.user.lastName} to ${record.expected_position} ?`,
 				content: (
 					<ConfirmUpgradeModalContent
 						user={record.user}
