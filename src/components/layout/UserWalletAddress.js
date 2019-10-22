@@ -77,15 +77,21 @@ class UserWalletAddress extends Component {
 					(account, index) =>
 						account.address !== walletAddress && (
 							<Menu.Item key={index}>
-								<Button block type="primary" onClick={() => this.handleLogin(account.address)}>
-									<MyContext.Consumer>
-										{activeBreakPoint =>
-											activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
-												? account.address
-												: `${trimAddress(account.address)}`
-										}
-									</MyContext.Consumer>
-								</Button>
+								<Tooltip title={account.label} placement="left">
+									<Button block type="primary" onClick={() => this.handleLogin(account.address)}>
+										<MyContext.Consumer>
+											{activeBreakPoint =>
+												activeBreakPoint !== "sm" && activeBreakPoint !== "xs"
+													? account.address
+													: `${trimAddress(account.address)} (${
+															account.label.length <= 5
+																? account.label
+																: `${account.label.slice(0, 5)}...`
+													  })`
+											}
+										</MyContext.Consumer>
+									</Button>
+								</Tooltip>
 							</Menu.Item>
 						)
 				)}
