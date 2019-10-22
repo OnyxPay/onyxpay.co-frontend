@@ -145,7 +145,6 @@ export default class ActiveRequests extends Component {
 					return balance.symbol === requestAsset && requestAmount <= balance.amount;
 				});
 			} else if (requestTypeCode === operationType.buyOnyxCache) {
-				debugger;
 				allow =
 					requestAsset === "OnyxCash" &&
 					requestAmount <= Number(balanceOnyxCash - balanceDepositOnyxCash);
