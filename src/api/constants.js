@@ -13,7 +13,7 @@ if (process.env.REACT_APP_TAG === "prod") {
 	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
 	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
 } else {
-	reactAppBackendUrl = "10.100.3.189";
+	reactAppBackendUrl = "preprod.onyxpay.co";
 	syncNodeUrl = "cepheus5.onyxpay.co";
 	headAddress = "87fd9b3718308de50fd639c9b9a411835936766a";
 	compensatorUrl = "https://cepheus-compensator.onyxpay.co/api";
@@ -159,6 +159,6 @@ export const gasCompensatorTimeout = 30000;
 export const supportEmail = "support@onyxpay.co";
 
 export const paymentAmountByRole = {
-	[roles.a]: { payUsd: 800, getOnyxCash: 500 },
-	[roles.sa]: { payUsd: 100000, getOnyxCash: 110000 },
+	[roles.a]: { payUsd: 300, getOnyxCash: 200 },
+	[roles.sa]: { payUsd: 24000, getOnyxCash: 22000 },
 };
