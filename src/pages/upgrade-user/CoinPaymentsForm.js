@@ -23,7 +23,7 @@ export class CoinPaymentsForm extends Component {
 					<Input type="hidden" name="merchant" value="46ed83339e6e0252cb80d762294470da" />
 					<Input type="hidden" name="item_name" value="OnyxCash" />
 					<Input type="hidden" name="currency" value="USD" />
-					<Input type="hidden" name="amountf" value={this.props.amount.payUsd} />
+					<Input type="hidden" name="amountf" value={this.props.amount} />
 					<Input type="hidden" name="quantity" value="1" />
 					<Input type="hidden" name="allow_quantity" value="0" />
 					<Input type="hidden" name="want_shipping" value="0" />
