@@ -160,5 +160,5 @@ export const supportEmail = "support@onyxpay.co";
 
 export const paymentAmountByRole = {
 	[roles.a]: { payUsd: 300, getOnyxCash: 200 },
-	[roles.sa]: { payUsd: 24000, getOnyxCash: 22000 },
+	[roles.sa]: { payUsd: 20000, getOnyxCash: 17000 },
 };
