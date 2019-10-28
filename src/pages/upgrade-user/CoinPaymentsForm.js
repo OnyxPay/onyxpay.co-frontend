@@ -9,7 +9,7 @@ export class CoinPaymentsForm extends Component {
 			<div>
 				<form
 					action="https://www.coinpayments.net/index.php"
-					method="post"
+					method="get"
 					target="_blank"
 					onSubmit={() =>
 						setTimeout(() => {
