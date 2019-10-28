@@ -94,9 +94,16 @@ class WalletSetting extends Component {
 
 	handleExportWallet = () => {
 		const wallet = localStorage.getItem("wallet");
-		const blob = new Blob([wallet], { type: "text/plain;charset=utf-8" });
-		const name = "onyx_pay_wallet.dat";
-		saveAs(blob, name);
+		if (!navigator.appVersion.includes("Android")) {
+			const blob = new Blob([wallet], {
+				type: "text/plain;charset=utf-8",
+			});
+			const name = "onyx_pay_wallet.dat";
+			saveAs(blob, name);
+		} else {
+			var event = new CustomEvent("download_wallet", { detail: wallet });
+			window.dispatchEvent(event);
+		}
 	};
 
 	handleDeleteAccount = address => {
