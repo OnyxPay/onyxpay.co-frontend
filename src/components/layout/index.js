@@ -101,20 +101,22 @@ class Layout extends Component {
 			<AntLayout className="main-layout">
 				<MyContext.Provider value={activeBreakPoint}>
 					<Header toggleSidebar={this.toggleSidebar} isSidebarCollapsed={isSideBarCollapsed} />
-				</MyContext.Provider>
-				<AntLayout className={isSideBarCollapsed ? "content-wrapper collapsed" : "content-wrapper"}>
-					<Sidebar
-						collapsed={isSideBarCollapsed}
-						xsDevise={activeBreakPoint === "xs"}
-						user={user}
-						location={location}
-						toggleSidebar={this.toggleSidebar}
-					/>
-					<AntLayout>
-						<MainContent>{children}</MainContent>
-						<Footer />
+					<AntLayout
+						className={isSideBarCollapsed ? "content-wrapper collapsed" : "content-wrapper"}
+					>
+						<Sidebar
+							collapsed={isSideBarCollapsed}
+							xsDevise={activeBreakPoint === "xs"}
+							user={user}
+							location={location}
+							toggleSidebar={this.toggleSidebar}
+						/>
+						<AntLayout>
+							<MainContent>{children}</MainContent>
+							<Footer />
+						</AntLayout>
 					</AntLayout>
-				</AntLayout>
+				</MyContext.Provider>
 			</AntLayout>
 		);
 	}
