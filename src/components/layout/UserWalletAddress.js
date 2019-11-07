@@ -12,6 +12,7 @@ import { signWithPk } from "utils/blockchain";
 import RegistrationModal from "../../components/modals/Registration";
 import { setDefaultAccountAddress } from "api/wallet";
 import { trimAddress } from "utils";
+import { refreshBalance } from "providers/balanceProvider";
 
 const modals = {
 	REGISTRATION_MODAL: "REGISTRATION_MODAL",
@@ -55,8 +56,12 @@ class UserWalletAddress extends Component {
 					this.showModal(modals.REGISTRATION_MODAL)();
 				}
 			} else {
-				const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
-				setWallet(currentWallet);
+				if (res) {
+					const currentWallet = await setDefaultAccountAddress(wallet, pk, password);
+					setWallet(currentWallet);
+					refreshBalance();
+				}
+
 				await getUserData();
 
 				if (location.state && location.state.redirectFrom) {

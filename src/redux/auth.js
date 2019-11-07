@@ -69,6 +69,7 @@ export const login = values => async (dispatch, getState) => {
 				payload: { OnyxAuth: values.signed_msg, OnyxAddr: values.walletAddr },
 			});
 		}
+		return true;
 	} catch (er) {
 		if (
 			er.response.status === 403 &&
