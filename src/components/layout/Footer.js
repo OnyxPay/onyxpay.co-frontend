@@ -14,19 +14,41 @@ const Footer = styled.footer`
 	}
 `;
 
+const handleOnClickForAndroid = e => {
+	if (navigator.appVersion.includes("Android")) {
+		e.preventDefault();
+		window.dispatchEvent(new CustomEvent("openURL", { detail: e.target.href }));
+	}
+};
+
 export const FooterComponent = () => {
 	return (
 		<Footer>
 			Copyright © 2019{" "}
-			<a href="https://www.onyxpay.co" target="_blank" rel="noopener noreferrer">
+			<a
+				href="https://www.onyxpay.co"
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={e => handleOnClickForAndroid(e)}
+			>
 				OnyxPay
 			</a>
 			,{" "}
-			<a href="https://wallet.onyxpay.co" target="_blank" rel="noopener noreferrer">
+			<a
+				href="https://wallet.onyxpay.co"
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={e => handleOnClickForAndroid(e)}
+			>
 				Wallet
 			</a>{" "}
 			| Powered by{" "}
-			<a href="https://onyxcoin.io/" target="_blank" rel="noopener noreferrer">
+			<a
+				href="https://onyxcoin.io/"
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={e => handleOnClickForAndroid(e)}
+			>
 				OnyxCoin
 			</a>{" "}
 			| All trademarks Licensed to <strong>Kwakoo Marketplace</strong>&nbsp; rights reserved.

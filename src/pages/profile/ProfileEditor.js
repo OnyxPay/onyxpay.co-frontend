@@ -113,8 +113,12 @@ function openTelegramLink() {
 	getTelegramBotLink().then(
 		data => {
 			console.info(data);
-			var win = window.open(data.data.url, "_blank");
-			win.focus();
+			if (navigator.appVersion.includes("Android")) {
+				window.dispatchEvent(new CustomEvent("openURL", { detail: data.data.url }));
+			} else {
+				var win = window.open(data.data.url, "_blank");
+				win.focus();
+			}
 		},
 		error => {
 			console.error(error);
