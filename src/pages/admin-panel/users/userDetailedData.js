@@ -1,4 +1,4 @@
-import { Modal, Table, Button, Descriptions, Divider, Form } from "antd";
+import { Modal, Table, Button, Descriptions, Divider, Form, Card } from "antd";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { getUserSettlementData } from "../../../redux/admin-panel/users";
@@ -9,6 +9,7 @@ import { showNotification } from "components/notification";
 import { unblockUser, blockUser, isBlockedUser } from "api/admin/users";
 import { convertAmountToStr } from "utils/number";
 import { updateUserStatus } from "redux/admin-panel/users";
+import { MyContext } from "../../../components/layout/index";
 
 class UserDetailedData extends Component {
 	state = {
@@ -16,6 +17,7 @@ class UserDetailedData extends Component {
 		loadingBlockUser: false,
 		loadingUnblockUser: false,
 		assetBalances: [],
+		settlementData: [],
 	};
 
 	componentDidMount = async () => {
@@ -40,7 +42,7 @@ class UserDetailedData extends Component {
 			await getUserSettlementData(userRecord.user_id);
 			const { userSettlement } = this.props;
 			this.setState({
-				data: userSettlement,
+				settlementData: userSettlement,
 				loadingSettlementData: false,
 			});
 		}
@@ -133,8 +135,8 @@ class UserDetailedData extends Component {
 	};
 
 	render() {
-		const { userRecord, userSettlement } = this.props;
-		const { loadingBlockUser, loadingUnblockUser, assetBalances } = this.state;
+		const { userRecord } = this.props;
+		const { loadingBlockUser, loadingUnblockUser, assetBalances, settlementData } = this.state;
 		const settlementColumns = [
 			{
 				title: "Account name",
@@ -181,6 +183,34 @@ class UserDetailedData extends Component {
 				key: "amount",
 			},
 		];
+
+		const columnStyle = {
+			width: "100%",
+			textAlign: "left",
+		};
+
+		const settlementAccounts = settlementData.map((settlementAccount, index) => {
+			return (
+				<Card.Grid key={index} style={columnStyle}>
+					<Descriptions layout="vertical">
+						<Descriptions.Item label="Account name">
+							{settlementAccount.account_name}
+						</Descriptions.Item>
+						<Descriptions.Item label="Account number">
+							{settlementAccount.account_number}
+						</Descriptions.Item>
+						<Descriptions.Item label="Brief notes">
+							{settlementAccount.brief_notes}
+						</Descriptions.Item>
+						<Descriptions.Item label="Description">
+							{settlementAccount.description}
+						</Descriptions.Item>
+						<Descriptions.Item label="Updated">{settlementAccount.updated_at}</Descriptions.Item>
+					</Descriptions>
+				</Card.Grid>
+			);
+		});
+
 		return (
 			<>
 				<Modal
@@ -240,7 +270,7 @@ class UserDetailedData extends Component {
 					<Divider>Balances</Divider>
 					<Table
 						columns={balanceColumns}
-						rowKey={record => record.id}
+						rowKey={record => record.symbol}
 						dataSource={assetBalances}
 						pagination={false}
 						locale={{ emptyText: "User has no assets" }}
@@ -296,15 +326,25 @@ class UserDetailedData extends Component {
 
 					<Divider>Settlement accounts</Divider>
 
-					<Table
-						columns={settlementColumns}
-						rowKey="id"
-						dataSource={userSettlement}
-						// className="ovf-auto"
-						pagination={false}
-						loading={this.state.loadingSettlementData}
-						locale={{ emptyText: "User has no settlement accounts" }}
-					/>
+					<MyContext.Consumer>
+						{activeBreakPoint =>
+							activeBreakPoint !== "sm" && activeBreakPoint !== "xs" ? (
+								<Table
+									columns={settlementColumns}
+									rowKey="id"
+									dataSource={settlementData}
+									// className="ovf-auto"
+									pagination={false}
+									loading={this.state.loadingSettlementData}
+									locale={{ emptyText: "User has no settlement accounts" }}
+								/>
+							) : settlementAccounts.length ? (
+								<Card>{settlementAccounts}</Card>
+							) : (
+								<Table locale={{ emptyText: "User has no settlement accounts" }} />
+							)
+						}
+					</MyContext.Consumer>
 				</Modal>
 			</>
 		);
