@@ -113,7 +113,7 @@ function openTelegramLink() {
 	getTelegramBotLink().then(
 		data => {
 			console.info(data);
-			if (navigator.appVersion.includes("Android")) {
+			if (navigator.appVersion.includes("OnyxpayAndroidWebview")) {
 				window.dispatchEvent(new CustomEvent("openURL", { detail: data.data.url }));
 			} else {
 				var win = window.open(data.data.url, "_blank");
