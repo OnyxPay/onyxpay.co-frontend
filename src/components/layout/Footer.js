@@ -14,8 +14,8 @@ const Footer = styled.footer`
 	}
 `;
 
-const handleOnClickForAndroid = e => {
-	if (navigator.appVersion.includes("Android")) {
+const handleOnClickForAndroidWebview = e => {
+	if (navigator.appVersion.includes("OnyxpayAndroidWebview")) {
 		e.preventDefault();
 		window.dispatchEvent(new CustomEvent("openURL", { detail: e.target.href }));
 	}
@@ -29,7 +29,7 @@ export const FooterComponent = () => {
 				href="https://www.onyxpay.co"
 				target="_blank"
 				rel="noopener noreferrer"
-				onClick={e => handleOnClickForAndroid(e)}
+				onClick={e => handleOnClickForAndroidWebview(e)}
 			>
 				OnyxPay
 			</a>
@@ -38,7 +38,7 @@ export const FooterComponent = () => {
 				href="https://wallet.onyxpay.co"
 				target="_blank"
 				rel="noopener noreferrer"
-				onClick={e => handleOnClickForAndroid(e)}
+				onClick={e => handleOnClickForAndroidWebview(e)}
 			>
 				Wallet
 			</a>{" "}
@@ -47,7 +47,7 @@ export const FooterComponent = () => {
 				href="https://onyxcoin.io/"
 				target="_blank"
 				rel="noopener noreferrer"
-				onClick={e => handleOnClickForAndroid(e)}
+				onClick={e => handleOnClickForAndroidWebview(e)}
 			>
 				OnyxCoin
 			</a>{" "}

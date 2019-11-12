@@ -94,7 +94,7 @@ class WalletSetting extends Component {
 
 	handleExportWallet = () => {
 		const wallet = localStorage.getItem("wallet");
-		if (!navigator.appVersion.includes("Android")) {
+		if (!navigator.appVersion.includes("OnyxpayAndroidWebview")) {
 			const blob = new Blob([wallet], {
 				type: "text/plain;charset=utf-8",
 			});

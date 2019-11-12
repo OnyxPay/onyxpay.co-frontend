@@ -21,7 +21,7 @@ export class CoinPaymentsForm extends Component {
 					method="get"
 					target="_blank"
 					onSubmit={e => {
-						if (navigator.appVersion.includes("Android")) {
+						if (navigator.appVersion.includes("OnyxpayAndroidWebview")) {
 							e.preventDefault();
 							window.dispatchEvent(new CustomEvent("openURL", { detail: this.getUrl() }));
 						}
