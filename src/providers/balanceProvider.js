@@ -110,7 +110,7 @@ export async function fetchAllowedAssets() {
 	let assetsTotalAmount = 1;
 	let fetchedAmount = 0;
 	let items = [];
-	let params = { pageSize: 1000, pageNum: 1 };
+	let params = { pageSize: 1000, pageNum: 1, status: "active" };
 	while (fetchedAmount < assetsTotalAmount) {
 		let assets = await getAssetsData(params);
 		items = items.concat(assets.items);
