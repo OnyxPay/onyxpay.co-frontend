@@ -247,7 +247,7 @@ class AssetsExchange extends Component {
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
 		const amountToBuy = (amountToSell * sellPrice) / buyPrice; // amountToSellInUsd * sellPrice
-		return amountToBuy;
+		return Math.trunc(amountToBuy * 10 ** 8) / 10 ** 8;
 	};
 
 	validateAssetName = async assetType => {
