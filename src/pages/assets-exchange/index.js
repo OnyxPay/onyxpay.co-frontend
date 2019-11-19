@@ -136,9 +136,9 @@ class AssetsExchange extends Component {
 	fillAssetsData = async () => {
 		const { user } = this.props;
 		const { assets, onyxCash } = this.props.balance;
-		const params = { pageSize: 200, status: "active" };
+		const params = { pageSize: 1000, status: "active" };
 
-		const res = await getAssetsData(params);
+		const res = await getAssetsData(params); //TODO we can get assets from storage.assets.allowedAssets instead of request
 		let fetchedAssets = [];
 		if (res && !res.error) {
 			fetchedAssets = res.items;

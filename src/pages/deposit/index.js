@@ -32,8 +32,9 @@ class Deposit extends Component {
 
 	async componentDidMount() {
 		const { getExchangeRates } = this.props;
-		const params = { pageSize: 200, status: "active" };
+		const params = { pageSize: 1000, status: "active" };
 		getAssetsData(params).then(res => {
+			//TODO we can get assets from storage.assets.allowedAssets instead of request
 			if (res && !res.error) {
 				sortAssets(res.items);
 				this.setState({ assets: res.items });
