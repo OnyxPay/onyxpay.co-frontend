@@ -379,6 +379,14 @@ class AssetsExchange extends Component {
 		this.validateForm();
 	};
 
+	handleMaxClick = () => {
+		const { assetToSell } = this.state;
+		let assetsForSellData = this.getAssetsForSellData();
+
+		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
+		this.handleAssetToSellAmountChange(Number(asset.balance));
+	};
+
 	openNotification = (type, description) => {
 		showNotification({
 			type: type,
@@ -465,15 +473,7 @@ class AssetsExchange extends Component {
 													className="asset-exchange-amount-input-group-input-number"
 												/>
 												<Button
-													onClick={() => {
-														const { assetToSell } = this.state;
-														let assetsForSellData = this.getAssetsForSellData();
-
-														let asset = assetsForSellData.find(
-															record => record.name === assetToSell.name
-														);
-														this.handleAssetToSellAmountChange(Number(asset.balance));
-													}}
+													onClick={this.handleMaxClick}
 													className="asset-exchange-amount-input-group-button"
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												>
@@ -554,21 +554,7 @@ class AssetsExchange extends Component {
 													className="asset-exchange-amount-input-group-input-number"
 												/>
 												<Button
-													onClick={() => {
-														const { assetToSell, assetToBuy } = this.state;
-														let assetsForSellData = this.getAssetsForSellData();
-
-														let asset = assetsForSellData.find(
-															record => record.name === assetToSell.name
-														);
-														this.handleAssetToBuyAmountChange(
-															this.recountAssetToBuyAmount(
-																assetToSell.name,
-																assetToBuy.name,
-																asset.balance
-															)
-														);
-													}}
+													onClick={this.handleMaxClick}
 													className="asset-exchange-amount-input-group-button"
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												>
