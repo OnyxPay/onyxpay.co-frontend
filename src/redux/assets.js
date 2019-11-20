@@ -13,7 +13,9 @@ export const GET_ASSETS_EXCHANGE_RATES_REQUEST = "GET_ASSETS_EXCHANGE_RATES_REQU
 export const GET_ASSETS_EXCHANGE_RATES_SUCCESS = "GET_ASSETS_EXCHANGE_RATES_SUCCESS";
 export const GET_ASSETS_EXCHANGE_RATES_FAILURE = "GET_ASSETS_EXCHANGE_RATES_FAILURE";
 
-export const SET_ALLOWED_ASSETS = "SET_ALLOWED_ASSETS";
+export const SET_ALLOWED_ASSETS_SUCCESS = "SET_ALLOWED_ASSETS_SUCCESS";
+export const SET_ALLOWED_ASSETS_REQUEST = "SET_ALLOWED_ASSETS_REQUEST";
+export const SET_ALLOWED_ASSETS_FAILURE = "SET_ALLOWED_ASSETS_FAILURE";
 
 const initState = {
 	list: [],
@@ -21,6 +23,7 @@ const initState = {
 	allowedAssets: null,
 	loadingAssetsList: false,
 	loadingExchangeRates: false,
+	loadingAllowedAssets: false,
 };
 
 export const assetsReducer = (state = initState, action) => {
@@ -37,8 +40,12 @@ export const assetsReducer = (state = initState, action) => {
 			return { ...state, rates: action.payload, loadingExchangeRates: false };
 		case GET_ASSETS_EXCHANGE_RATES_FAILURE:
 			return { ...state, loadingExchangeRates: false };
-		case SET_ALLOWED_ASSETS:
-			return { ...state, allowedAssets: action.payload };
+		case SET_ALLOWED_ASSETS_REQUEST:
+			return { ...state, loadingAllowedAssets: true };
+		case SET_ALLOWED_ASSETS_SUCCESS:
+			return { ...state, allowedAssets: action.payload, loadingAllowedAssets: false };
+		case SET_ALLOWED_ASSETS_FAILURE:
+			return { ...state, loadingAllowedAssets: false };
 		default:
 			return state;
 	}
@@ -110,6 +117,14 @@ export const getExchangeRates = () => async dispatch => {
 	}
 };
 
+export const startFetchingAllowedAssets = () => async dispatch => {
+	dispatch({ type: SET_ALLOWED_ASSETS_REQUEST });
+};
+
 export const setAllowedAssets = items => async dispatch => {
-	dispatch({ type: SET_ALLOWED_ASSETS, payload: items });
+	dispatch({ type: SET_ALLOWED_ASSETS_SUCCESS, payload: items });
+};
+
+export const failFetchingAllowedAssets = () => async dispatch => {
+	dispatch({ type: SET_ALLOWED_ASSETS_FAILURE });
 };

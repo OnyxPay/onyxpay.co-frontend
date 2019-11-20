@@ -106,30 +106,49 @@ export function initBalanceProvider() {
 	});
 }
 
-export async function fetchAllowedAssets() {
+async function fetchAllowedAssets() {
 	let assetsTotalAmount = 1;
 	let fetchedAmount = 0;
-	let items = [];
-	let params = { pageSize: 1000, pageNum: 1, status: "active" };
-	while (fetchedAmount < assetsTotalAmount) {
-		let assets = await getAssetsData(params);
-		if (assets && !assets.error) {
-			items = items.concat(assets.items);
-			assetsTotalAmount = assets.total;
-			fetchedAmount += assets.items.length;
-			params.pageNum++;
-		}
-	}
-	items = items.map(asset => asset.name);
-	let {
-		assets: { allowedAssets: cached },
+	let allowedAssets = [];
+	const params = { pageSize: 1000, pageNum: 1, status: "active" };
+	const {
+		assets: { loadingAllowedAssets },
 	} = store.getState();
-	if (!cached) dispatch(Actions.assets.setAllowedAssets(items));
-	return items;
+	if (loadingAllowedAssets) {
+		const storeUnsubscribe = store.subscribe(() => {
+			const {
+				assets: { allowedAssets },
+			} = store.getState();
+			if (allowedAssets) storeUnsubscribe();
+		});
+		const {
+			assets: { allowedAssets },
+		} = store.getState();
+		return allowedAssets;
+	} else {
+		dispatch(Actions.assets.startFetchingAllowedAssets());
+		while (fetchedAmount < assetsTotalAmount) {
+			const assets = await getAssetsData(params);
+			if (assets && !assets.error) {
+				allowedAssets = allowedAssets.concat(assets.items);
+				assetsTotalAmount = assets.total;
+				fetchedAmount += assets.items.length;
+				params.pageNum++;
+			} else {
+				dispatch(Actions.assets.failFetchingAllowedAssets());
+			}
+		}
+		allowedAssets = allowedAssets.map(asset => asset.name);
+		const {
+			assets: { allowedAssets: cached },
+		} = store.getState();
+		if (!cached) dispatch(Actions.assets.setAllowedAssets(allowedAssets));
+		return allowedAssets;
+	}
 }
 
-export async function getAllowedAssets() {
-	let {
+async function getAllowedAssets() {
+	const {
 		assets: { allowedAssets: cached },
 	} = store.getState();
 	if (cached) return cached;
@@ -137,7 +156,6 @@ export async function getAllowedAssets() {
 }
 
 async function filterHiddenAssets(assetsBalance) {
-	let allowedAssets = await getAllowedAssets();
-	const assetsSet = new Set(allowedAssets);
+	const assetsSet = new Set(await getAllowedAssets());
 	return assetsBalance.filter(asset => assetsSet.has(asset.symbol));
 }
