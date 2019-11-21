@@ -20,7 +20,7 @@ export const SET_ALLOWED_ASSETS_FAILURE = "SET_ALLOWED_ASSETS_FAILURE";
 const initState = {
 	list: [],
 	rates: [],
-	allowedAssets: null,
+	allowedAssets: [],
 	loadingAssetsList: false,
 	loadingExchangeRates: false,
 	loadingAllowedAssets: false,

@@ -138,7 +138,7 @@ class AssetsExchange extends Component {
 		const { assets, onyxCash } = this.props.balance;
 		const params = { pageSize: 1000, status: "active" };
 
-		const res = await getAssetsData(params); //TODO we can get assets from storage.assets.allowedAssets instead of request
+		const res = await getAssetsData(params);
 		let fetchedAssets = [];
 		if (res && !res.error) {
 			fetchedAssets = res.items;

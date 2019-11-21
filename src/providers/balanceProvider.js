@@ -106,7 +106,7 @@ export function initBalanceProvider() {
 	});
 }
 
-async function fetchAllowedAssets() {
+export async function fetchAllowedAssets() {
 	let assetsTotalAmount = 1;
 	let fetchedAmount = 0;
 	let allowedAssets = [];
@@ -119,7 +119,7 @@ async function fetchAllowedAssets() {
 			const {
 				assets: { allowedAssets },
 			} = store.getState();
-			if (allowedAssets) storeUnsubscribe();
+			if (allowedAssets.length) storeUnsubscribe();
 		});
 		const {
 			assets: { allowedAssets },
@@ -142,7 +142,7 @@ async function fetchAllowedAssets() {
 		const {
 			assets: { allowedAssets: cached },
 		} = store.getState();
-		if (!cached) dispatch(Actions.assets.setAllowedAssets(allowedAssets));
+		if (!cached.length) dispatch(Actions.assets.setAllowedAssets(allowedAssets));
 		return allowedAssets;
 	}
 }
@@ -151,7 +151,7 @@ async function getAllowedAssets() {
 	const {
 		assets: { allowedAssets: cached },
 	} = store.getState();
-	if (cached) return cached;
+	if (cached.length) return cached;
 	return await fetchAllowedAssets();
 }
 

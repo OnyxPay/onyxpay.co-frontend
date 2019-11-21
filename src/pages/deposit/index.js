@@ -18,8 +18,7 @@ import {
 	showBcError,
 } from "components/notification";
 import { GasCompensationError, SendRawTrxError } from "utils/custom-error";
-import { getAssetsData } from "api/assets";
-import { sortAssets } from "api/assets";
+import { fetchAllowedAssets } from "../../providers/balanceProvider";
 
 const { Option } = Select;
 
@@ -27,19 +26,12 @@ const { Option } = Select;
 class Deposit extends Component {
 	state = {
 		activeRequestsError: false,
-		assets: [],
 	};
 
 	async componentDidMount() {
-		const { getExchangeRates } = this.props;
-		const params = { pageSize: 1000, status: "active" };
-		getAssetsData(params).then(res => {
-			//TODO we can get assets from storage.assets.allowedAssets instead of request
-			if (res && !res.error) {
-				sortAssets(res.items);
-				this.setState({ assets: res.items });
-			}
-		});
+		const { getExchangeRates, allowedAssets } = this.props;
+		if (!allowedAssets.length) await fetchAllowedAssets();
+
 		getExchangeRates();
 		const counter = await getActiveRequestsCounter();
 		if (process.env.NODE_ENV === "development") {
@@ -120,8 +112,8 @@ class Deposit extends Component {
 	};
 
 	render() {
-		const { user } = this.props;
-		const { activeRequestsError, assets } = this.state;
+		const { user, allowedAssets } = this.props;
+		const { activeRequestsError } = this.state;
 
 		return (
 			<>
@@ -196,10 +188,10 @@ class Deposit extends Component {
 														}
 														disabled={activeRequestsError || isSubmitting}
 													>
-														{assets.map((asset, index) => {
+														{allowedAssets.map((asset, index) => {
 															return (
-																<Option key={index} value={asset.name}>
-																	{asset.name}
+																<Option key={index} value={asset}>
+																	{asset}
 																</Option>
 															);
 														})}
@@ -262,6 +254,7 @@ export default connect(
 		return {
 			user: state.user,
 			exchangeRates: state.assets.rates,
+			allowedAssets: state.assets.allowedAssets,
 		};
 	},
 	{
