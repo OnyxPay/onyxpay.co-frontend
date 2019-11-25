@@ -10,6 +10,7 @@ import { utils } from "ontology-ts-sdk";
 import { getStore } from "../store";
 import Actions from "../redux/actions";
 import { roles, refreshBalanceEveryMsec } from "api/constants";
+import { getAssetsData } from "api/assets";
 
 const store = getStore();
 const dispatch = store.dispatch;
@@ -31,7 +32,10 @@ export async function refreshBalance() {
 				cryptoAddress(assetsContractAddress),
 				utils.reverseHex(account.address.toHexString())
 			);
-			dispatch(Actions.balance.setAssetsBalance(assetsBalance));
+
+			const filteredAssetsBalance = await filterHiddenAssets(assetsBalance);
+
+			dispatch(Actions.balance.setAssetsBalance(filteredAssetsBalance));
 		} else {
 			const assetsContractAddressPromise = dispatch(
 				Actions.contracts.resolveContractAddress("Assets")
@@ -50,6 +54,9 @@ export async function refreshBalance() {
 				cryptoAddress(assetsContractAddress),
 				utils.reverseHex(account.address.toHexString())
 			);
+
+			const filteredAssetsBalance = await filterHiddenAssets(assetsBalance);
+
 			const onyxCashBalance = await getTokenBalance(
 				cryptoAddress(onyxCashContractAddress),
 				account.address
@@ -60,7 +67,7 @@ export async function refreshBalance() {
 			);
 			const rewardsBalance = await getRewardsBalance();
 
-			dispatch(Actions.balance.setAssetsBalance(assetsBalance));
+			dispatch(Actions.balance.setAssetsBalance(filteredAssetsBalance));
 			dispatch(Actions.balance.setOnyxCashBalance(onyxCashBalance));
 			dispatch(Actions.balance.setOnyxCashDepositBalance(onyxCashDepositBalance));
 			dispatch(Actions.rewards.setConsolidatedRewardsBalance(rewardsBalance));
@@ -97,4 +104,48 @@ export function initBalanceProvider() {
 			}, refreshBalanceEveryMsec);
 		}
 	});
+}
+
+export async function fetchAllowedAssets() {
+	let assetsTotalAmount = 1;
+	let fetchedAmount = 0;
+	let allowedAssets = [];
+	const params = { pageSize: 1000, pageNum: 1, status: "active" };
+	const loadingAllowedAssets = store.getState().assets.loadingAllowedAssets;
+	if (loadingAllowedAssets) {
+		const storeUnsubscribe = store.subscribe(() => {
+			const allowedAssets = store.getState().assets.allowedAssets;
+			if (allowedAssets.length) storeUnsubscribe();
+		});
+		return store.getState().assets.allowedAssets;
+	} else {
+		dispatch(Actions.assets.startFetchingAllowedAssets());
+		while (fetchedAmount < assetsTotalAmount) {
+			const assets = await getAssetsData(params);
+			if (assets && !assets.error) {
+				allowedAssets = allowedAssets.concat(assets.items);
+				assetsTotalAmount = assets.total;
+				fetchedAmount += assets.items.length;
+				params.pageNum++;
+			} else {
+				dispatch(Actions.assets.failFetchingAllowedAssets());
+				break;
+			}
+		}
+		allowedAssets = allowedAssets.map(asset => asset.name);
+		const cached = store.getState().assets.allowedAssets;
+		if (!cached.length) dispatch(Actions.assets.setAllowedAssets(allowedAssets));
+		return allowedAssets;
+	}
+}
+
+async function getAllowedAssets() {
+	const cached = store.getState().assets.allowedAssets;
+	if (cached.length) return cached;
+	return await fetchAllowedAssets();
+}
+
+async function filterHiddenAssets(assetsBalance) {
+	const assetsSet = new Set(await getAllowedAssets());
+	return assetsBalance.filter(asset => assetsSet.has(asset.symbol));
 }
