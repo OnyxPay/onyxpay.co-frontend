@@ -29,8 +29,8 @@ class Deposit extends Component {
 	};
 
 	async componentDidMount() {
-		const { getExchangeRates, allowedAssets } = this.props;
-		if (!allowedAssets.length) await fetchAllowedAssets();
+		const { getExchangeRates, assets } = this.props;
+		if (!assets.length) await fetchAllowedAssets();
 
 		getExchangeRates();
 		const counter = await getActiveRequestsCounter();
@@ -112,7 +112,7 @@ class Deposit extends Component {
 	};
 
 	render() {
-		const { user, allowedAssets } = this.props;
+		const { user, assets } = this.props;
 		const { activeRequestsError } = this.state;
 
 		return (
@@ -188,7 +188,7 @@ class Deposit extends Component {
 														}
 														disabled={activeRequestsError || isSubmitting}
 													>
-														{allowedAssets.map((asset, index) => {
+														{assets.map((asset, index) => {
 															return (
 																<Option key={index} value={asset}>
 																	{asset}
@@ -254,7 +254,7 @@ export default connect(
 		return {
 			user: state.user,
 			exchangeRates: state.assets.rates,
-			allowedAssets: state.assets.allowedAssets,
+			assets: state.assets.allowedAssets,
 		};
 	},
 	{
