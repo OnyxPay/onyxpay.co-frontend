@@ -23,6 +23,7 @@ import { roles, onyxCashSymbol, OnyxCashDecimals } from "../../api/constants";
 import { showNotification } from "components/notification";
 import { handleBcError } from "api/network";
 import { getAssetsData, sortAssetExchange, sortAssets } from "api/assets";
+import BigNumber from "bignumber.js";
 
 const { Option } = Select;
 
@@ -69,6 +70,7 @@ class AssetsExchange extends Component {
 		transactionInProcess: false,
 		dataLoaded: false,
 		formTouched: false,
+		correctedAmountToSell: "",
 	};
 
 	setStateAsync(state) {
@@ -218,11 +220,13 @@ class AssetsExchange extends Component {
 
 	setAssetToBuyValues = async (assetName, amount) => {
 		if (isNaN(amount) || amount === 0) amount = "";
+		if (typeof amount === "number") amount = amount.toFixed(8);
 		await this.setStateAsync({ assetToBuy: { name: assetName, amount: amount } });
 	};
 
 	setAssetToSellValues = async (assetName, amount) => {
 		if (isNaN(amount) || amount === 0) amount = "";
+		if (typeof amount === "number") amount = amount.toFixed(8);
 		await this.setStateAsync({ assetToSell: { name: assetName, amount: amount } });
 	};
 
@@ -234,8 +238,19 @@ class AssetsExchange extends Component {
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToSell = (amountToBuy * buyPrice) / sellPrice; // amountToBuyInUsd / sellPrice
-		return amountToSell;
+		const precision = new BigNumber(1e8);
+		const bigIntAmountToBuy = new BigNumber(amountToBuy || 0).multipliedBy(precision);
+		const bigIntBuyPrice = new BigNumber(buyPrice || 0).multipliedBy(precision);
+		const bigIntSellPrice = new BigNumber(sellPrice || 0).multipliedBy(precision);
+
+		const bigIntAmountToBuyInOnyxCash = bigIntAmountToBuy
+			.multipliedBy(bigIntBuyPrice)
+			.dividedToIntegerBy(precision);
+		const bigIntAmountToSell = bigIntAmountToBuyInOnyxCash
+			.multipliedBy(precision)
+			.dividedToIntegerBy(bigIntSellPrice);
+
+		return bigIntAmountToSell.dividedBy(precision).toFixed(8);
 	};
 
 	recountAssetToBuyAmount = (assetToSellName, assetToBuyName, amountToSell) => {
@@ -246,8 +261,36 @@ class AssetsExchange extends Component {
 		const { sellPrice } = assetsForSellData.find(
 			ratesRecord => ratesRecord.name === assetToSellName
 		);
-		const amountToBuy = (amountToSell * sellPrice) / buyPrice; // amountToSellInUsd * sellPrice
-		return amountToBuy;
+
+		const precision = new BigNumber(1e8);
+		const bigIntAmountToSell = new BigNumber(amountToSell || 0).multipliedBy(precision);
+		const bigIntBuyPrice = new BigNumber(buyPrice || 0).multipliedBy(precision);
+		const bigIntSellPrice = new BigNumber(sellPrice || 0).multipliedBy(precision);
+
+		let bigIntAmountToBuy = bigIntAmountToSell
+			.multipliedBy(bigIntSellPrice)
+			.dividedToIntegerBy(bigIntBuyPrice);
+		let bigIntCorrectedAmountToSell = new BigNumber(0);
+		for (;;) {
+			let nextBigIntCorrectedAmountToSell = new BigNumber(
+				this.recountAssetToSellAmount(
+					assetToSellName,
+					assetToBuyName,
+					bigIntAmountToBuy.dividedBy(precision)
+				) || 0
+			).multipliedBy(precision);
+			if (nextBigIntCorrectedAmountToSell.isGreaterThan(bigIntAmountToSell)) {
+				return [
+					bigIntAmountToBuy
+						.minus(1)
+						.dividedBy(precision)
+						.toFixed(8),
+					bigIntCorrectedAmountToSell.dividedBy(precision).toFixed(8),
+				];
+			}
+			bigIntCorrectedAmountToSell = nextBigIntCorrectedAmountToSell;
+			bigIntAmountToBuy = bigIntAmountToBuy.plus(1);
+		}
 	};
 
 	validateAssetName = async assetType => {
@@ -350,10 +393,13 @@ class AssetsExchange extends Component {
 		const { assetToSell, assetToBuy } = this.state;
 
 		await this.setAssetToSellValues(assetToSell.name, value);
-		await this.setAssetToBuyValues(
+		const [amountToBuy, correctedAmountToSell] = this.recountAssetToBuyAmount(
+			assetToSell.name,
 			assetToBuy.name,
-			this.recountAssetToBuyAmount(assetToSell.name, assetToBuy.name, value)
+			value
 		);
+		await this.setAssetToBuyValues(assetToBuy.name, amountToBuy);
+		await this.setStateAsync({ correctedAmountToSell });
 		this.validateForm();
 	};
 
@@ -372,11 +418,32 @@ class AssetsExchange extends Component {
 		const { assetToSell, assetToBuy } = this.state;
 
 		await this.setAssetToSellValues(value, this.state.assetToSell.amount);
-		await this.setAssetToBuyValues(
+		const [amountToBuy, correctedAmountToSell] = this.recountAssetToBuyAmount(
+			value,
 			assetToBuy.name,
-			this.recountAssetToBuyAmount(value, assetToBuy.name, assetToSell.amount)
+			assetToSell.amount
 		);
+		await this.setAssetToBuyValues(assetToBuy.name, amountToBuy);
+		await this.setStateAsync({ correctedAmountToSell });
+		await this.correctAmountToSell();
 		this.validateForm();
+	};
+
+	correctAmountToSell = async () => {
+		const { correctedAmountToSell, assetToSell } = this.state;
+		if (correctedAmountToSell) {
+			await this.setAssetToSellValues(assetToSell.name, correctedAmountToSell);
+			await this.setStateAsync({ correctedAmountToSell: "" });
+		}
+	};
+
+	handleMaxClick = async () => {
+		const { assetToSell } = this.state;
+		let assetsForSellData = this.getAssetsForSellData();
+
+		let asset = assetsForSellData.find(record => record.name === assetToSell.name);
+		await this.handleAssetToSellAmountChange(Number(asset.balance));
+		await this.correctAmountToSell();
 	};
 
 	openNotification = (type, description) => {
@@ -400,20 +467,20 @@ class AssetsExchange extends Component {
 			if (assetToSell.name === onyxCashSymbol) {
 				result = await exchangeAssetsForOnyxCash({
 					tokenId: assetToBuy.name,
-					amount: assetToBuy.amount.toFixed(8),
+					amount: assetToBuy.amount,
 					operationType: "buy",
 				});
 			} else if (assetToBuy.name === onyxCashSymbol) {
 				result = await exchangeAssetsForOnyxCash({
 					tokenId: assetToSell.name,
-					amount: assetToSell.amount.toFixed(8),
+					amount: assetToSell.amount,
 					operationType: "sell",
 				});
 			} else {
 				result = await exchangeAssets({
 					assetToSellName: assetToSell.name,
 					assetToBuyName: assetToBuy.name,
-					amountToBuy: assetToBuy.amount.toFixed(8),
+					amountToBuy: assetToBuy.amount,
 				});
 			}
 			this.openNotification(result.Error === 0 ? "success" : "error");
@@ -460,20 +527,13 @@ class AssetsExchange extends Component {
 													placeholder="You send"
 													value={this.state.assetToSell.amount}
 													onChange={this.handleAssetToSellAmountChange}
+													onBlur={this.correctAmountToSell}
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 													style={{ width: "100%" }}
 													className="asset-exchange-amount-input-group-input-number"
 												/>
 												<Button
-													onClick={() => {
-														const { assetToSell } = this.state;
-														let assetsForSellData = this.getAssetsForSellData();
-
-														let asset = assetsForSellData.find(
-															record => record.name === assetToSell.name
-														);
-														this.handleAssetToSellAmountChange(Number(asset.balance));
-													}}
+													onClick={this.handleMaxClick}
 													className="asset-exchange-amount-input-group-button"
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												>
@@ -493,6 +553,7 @@ class AssetsExchange extends Component {
 											<Select
 												value={this.state.assetToSell.name}
 												onChange={this.handleAssetToSellChange}
+												onBlur={this.correctAmountToSell}
 												disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												className="asset-exchange-select"
 											>
@@ -554,21 +615,7 @@ class AssetsExchange extends Component {
 													className="asset-exchange-amount-input-group-input-number"
 												/>
 												<Button
-													onClick={() => {
-														const { assetToSell, assetToBuy } = this.state;
-														let assetsForSellData = this.getAssetsForSellData();
-
-														let asset = assetsForSellData.find(
-															record => record.name === assetToSell.name
-														);
-														this.handleAssetToBuyAmountChange(
-															this.recountAssetToBuyAmount(
-																assetToSell.name,
-																assetToBuy.name,
-																asset.balance
-															)
-														);
-													}}
+													onClick={this.handleMaxClick}
 													className="asset-exchange-amount-input-group-button"
 													disabled={this.state.transactionInProcess || !this.state.dataLoaded}
 												>
