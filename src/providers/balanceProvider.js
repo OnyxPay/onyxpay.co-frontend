@@ -111,20 +111,13 @@ export async function fetchAllowedAssets() {
 	let fetchedAmount = 0;
 	let allowedAssets = [];
 	const params = { pageSize: 1000, pageNum: 1, status: "active" };
-	const {
-		assets: { loadingAllowedAssets },
-	} = store.getState();
+	const loadingAllowedAssets = store.getState().assets.loadingAllowedAssets;
 	if (loadingAllowedAssets) {
 		const storeUnsubscribe = store.subscribe(() => {
-			const {
-				assets: { allowedAssets },
-			} = store.getState();
+			const allowedAssets = store.getState().assets.allowedAssets;
 			if (allowedAssets.length) storeUnsubscribe();
 		});
-		const {
-			assets: { allowedAssets },
-		} = store.getState();
-		return allowedAssets;
+		return store.getState().assets.allowedAssets;
 	} else {
 		dispatch(Actions.assets.startFetchingAllowedAssets());
 		while (fetchedAmount < assetsTotalAmount) {
@@ -140,18 +133,14 @@ export async function fetchAllowedAssets() {
 			}
 		}
 		allowedAssets = allowedAssets.map(asset => asset.name);
-		const {
-			assets: { allowedAssets: cached },
-		} = store.getState();
+		const cached = store.getState().assets.allowedAssets;
 		if (!cached.length) dispatch(Actions.assets.setAllowedAssets(allowedAssets));
 		return allowedAssets;
 	}
 }
 
 async function getAllowedAssets() {
-	const {
-		assets: { allowedAssets: cached },
-	} = store.getState();
+	const cached = store.getState().assets.allowedAssets;
 	if (cached.length) return cached;
 	return await fetchAllowedAssets();
 }
