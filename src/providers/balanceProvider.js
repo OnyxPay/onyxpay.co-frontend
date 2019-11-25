@@ -136,6 +136,7 @@ export async function fetchAllowedAssets() {
 				params.pageNum++;
 			} else {
 				dispatch(Actions.assets.failFetchingAllowedAssets());
+				break;
 			}
 		}
 		allowedAssets = allowedAssets.map(asset => asset.name);
