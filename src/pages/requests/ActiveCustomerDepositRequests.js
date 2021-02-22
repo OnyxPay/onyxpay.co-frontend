@@ -16,6 +16,7 @@ function mapStateToProps(state, ownProps) {
 		isFetching: loadingSelector(state),
 		balanceAssets: state.balance.assets,
 		balanceOnyxCash: state.balance.onyxCash,
+		balanceDepositOnyxCash: state.balance.depositOnyxCash,
 	};
 }
 
